@@ -23,3 +23,11 @@
 @media(max-width:1100px){.header .brand-logo{width:190px;height:52px}}
 @media(max-width:768px){.header{padding-top:7px;padding-bottom:7px}.header .brand-logo{width:160px;height:46px}}
 @media(max-width:420px){.header .brand-logo{width:140px;height:42px}}
+
+/* PL / EN flag selector */
+.language-switch{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:6px;padding:3px;background:#0d0e12;flex-shrink:0}
+.header-actions .language-switch button{display:flex;align-items:center;gap:4px;border-radius:4px;padding:6px 7px;color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}
+.header-actions .language-switch button.active{background:#e3385b24;color:#fff;outline:1px solid #e3385b77}
+.header-actions .language-switch button:hover{color:#fff}
+@media(max-width:900px){.header-actions{gap:9px}.header-actions .language-switch button{padding:5px}.language-switch span{display:none}}
+@media(max-width:420px){.header-actions{gap:6px}.header-actions .language-switch button{padding:4px}}
