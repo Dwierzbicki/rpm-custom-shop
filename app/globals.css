@@ -121,3 +121,17 @@
 .lightbox-nav button{display:grid;place-items:center;background:#30323a;color:#fff;border-radius:50%;width:40px;height:40px}
 .admin-unsaved{display:inline-block;font-size:11px;font-weight:500;color:#f4b16e;vertical-align:middle;margin-left:10px}
 @media(max-width:600px){.detail-main-photo{min-height:230px}.photo-prev,.photo-next{width:34px;height:34px}.detail-thumbnails img{width:52px;height:52px}}
+
+/* Admin option builder v0.6 */
+.rpm-options-admin{display:flex;flex-direction:column;gap:14px;border-top:1px solid #343842;padding-top:22px}
+.rpm-options-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.rpm-options-header strong{font-size:15px}.rpm-options-header .outline,.rpm-option-group-admin>.outline{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;font-size:12px}
+.rpm-option-group-admin{display:flex;flex-direction:column;gap:12px;background:#13161c;border:1px solid #353943;border-radius:9px;padding:16px}
+.rpm-option-group-admin label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#bec2cc}
+.rpm-option-group-admin input{width:100%;min-width:0}
+.rpm-option-group-admin .rpm-required{flex-direction:row;align-items:center;gap:8px}
+.rpm-required input{width:auto;accent-color:#e3385b}
+.rpm-option-admin-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(95px,1fr) auto;align-items:end;gap:10px}
+.rpm-option-admin-row .reset{padding:10px}
+.rpm-options-admin .muted{font-size:12px}
+@media(max-width:550px){.rpm-option-admin-row{grid-template-columns:minmax(0,1fr) 95px auto;gap:5px}.rpm-option-group-admin{padding:10px}}
