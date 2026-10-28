@@ -803,3 +803,25 @@
 
 /* RPM Power Guides: admin pricing editor and storefront recommendations */
 .rpm-guide-admin{max-width:1250px;margin:0 auto}.rpm-guide-admin .rpm-settings-card{margin:20px 0;padding:22px}.rpm-guide-admin-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0}.rpm-guide-admin-filters label,.rpm-guide-admin-reason{display:flex;flex-direction:column;gap:7px;font-size:13px;font-weight:700}.rpm-guide-admin-filters input,.rpm-guide-admin-filters select,.rpm-guide-admin-reason textarea{width:100%;min-width:0;padding:12px;background:#0c0e14;color:#fff;border:1px solid #494b55;border-radius:7px}.rpm-guide-admin-part{padding:20px 0;border-top:1px solid #3b3d47}.rpm-guide-admin-part-head{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:space-between}.rpm-guide-admin-part-head label{display:flex;gap:8px;align-items:center}.rpm-guide-admin-part-head .outline{padding:8px 14px}.rpm-guide-admin-reason textarea{resize:vertical}.rpm-guide-admin-part>p{margin-top:12px}.rpm-guide-price{display:flex;flex-direction:column;gap:6px;margin-top:12px}.rpm-guide-price span{font-size:13px;color:#b9bac2}.rpm-guide-price b{font-size:17px;color:#f26c8d}.rpm-guide-part-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}.rpm-guide-part-links a,.rpm-guide-part-links button{border:1px solid #e72f59;border-radius:6px;background:#28131b;color:#fff;padding:9px 12px;font-size:12px;font-weight:800;display:inline-flex;gap:6px;align-items:center;text-decoration:none}@media(max-width:680px){.rpm-guide-admin-filters{grid-template-columns:1fr}.rpm-guide-admin .rpm-settings-card{padding:15px}.rpm-guide-admin-part-head{align-items:flex-start}}
+
+/* Featured full-width Power Guide result: stronger hierarchy and pricing */
+.rpm-guide-page .rpm-guide-result{position:relative;overflow:hidden;margin-top:34px;padding:clamp(22px,3.2vw,46px);border:1px solid #784052;border-radius:18px;background:radial-gradient(ellipse at 95% 0%,rgba(231,47,89,.13),transparent 48%),linear-gradient(145deg,#1b1c25,#101116 75%);box-shadow:0 18px 55px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.04)}
+.rpm-guide-page .rpm-guide-result:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#e72f59,#ff7a9a 48%,transparent)}
+.rpm-guide-page .rpm-guide-result>.eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:12px;letter-spacing:.17em}
+.rpm-guide-page .rpm-guide-result>h2{font-size:clamp(28px,3vw,42px);letter-spacing:-.035em;margin:14px 0 7px}
+.rpm-guide-page .rpm-guide-result>h2+p{display:inline-flex;margin:8px 0 15px;padding:9px 13px;border:1px solid #5e3441;border-radius:999px;background:#301822;color:#ffd4df;font-size:12px;font-weight:800;letter-spacing:.08em}
+.rpm-guide-page .rpm-guide-parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:18px;margin:23px 0 22px;align-items:stretch}
+.rpm-guide-page .rpm-guide-parts article{display:flex;flex-direction:column;min-width:0;min-height:265px;padding:24px;border-radius:13px;background:linear-gradient(155deg,#25232e,#181a21 80%);border:1px solid #45404b;box-shadow:0 8px 24px rgba(0,0,0,.16);transition:border-color .2s,transform .2s,box-shadow .2s}
+.rpm-guide-page .rpm-guide-parts article:hover{border-color:#e72f59;transform:translateY(-3px);box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.rpm-guide-page .rpm-guide-parts article>.eyebrow{font-size:11px;letter-spacing:.13em;margin-bottom:12px}
+.rpm-guide-page .rpm-guide-parts article>strong{display:block;font-size:clamp(18px,1.7vw,23px);line-height:1.25}
+.rpm-guide-page .rpm-guide-parts article>p{font-size:14px;line-height:1.65;color:#c4c5cf;overflow-wrap:anywhere;white-space:normal;margin:13px 0 20px}
+.rpm-guide-page .rpm-guide-price{margin-top:auto;padding:15px 17px;border:1px solid rgba(231,47,89,.3);border-radius:10px;background:rgba(231,47,89,.07);gap:9px}
+.rpm-guide-page .rpm-guide-price span{color:#bcbcc6;font-size:13px}
+.rpm-guide-page .rpm-guide-price b{color:#ff7395;font-size:clamp(19px,2vw,25px);line-height:1.2}
+.rpm-guide-page .rpm-guide-part-links{margin-top:17px}
+.rpm-guide-page .rpm-guide-part-links a,.rpm-guide-page .rpm-guide-part-links button{min-height:41px;padding:11px 16px;background:#e72f59;border-color:#e72f59;color:white;border-radius:8px;transition:background .2s,transform .2s}
+.rpm-guide-page .rpm-guide-part-links a:hover,.rpm-guide-page .rpm-guide-part-links button:hover{background:#ff527c;transform:translateY(-1px)}
+.rpm-guide-page .rpm-guide-disclaimer{display:block;margin-top:18px;line-height:1.6;color:#aeb0ba}
+@media(max-width:650px){.rpm-guide-page .rpm-guide-result{margin-top:24px;padding:20px}.rpm-guide-page .rpm-guide-parts{grid-template-columns:1fr;gap:14px}.rpm-guide-page .rpm-guide-parts article{min-height:0;padding:20px}.rpm-guide-page .rpm-guide-result>h2{font-size:28px}}
+@media(prefers-reduced-motion:reduce){.rpm-guide-page .rpm-guide-parts article{transition:none}.rpm-guide-page .rpm-guide-parts article:hover{transform:none}}
