@@ -636,3 +636,8 @@
  .rpm-checkout-page .rpm-checkout-section .rpm-phone-field{grid-template-columns:minmax(120px,45%) minmax(0,1fr);gap:8px}
  .rpm-checkout-page .rpm-checkout-section .rpm-phone-field select{padding-inline:8px;font-size:12px}
 }
+
+
+/* Product detail: clearly visible catalog identifier */
+.rpm-product-sku{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:12px 0 16px;font-size:13px;color:#9daab9}
+.rpm-product-sku strong{display:inline-flex;align-items:center;border:1px solid #424b59;border-radius:5px;background:#171d26;padding:6px 10px;color:#f1f5fa;font-size:13px;font-weight:700;letter-spacing:.04em;user-select:all}
