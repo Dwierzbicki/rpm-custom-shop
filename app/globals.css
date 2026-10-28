@@ -909,3 +909,23 @@
 .rpm-guide-cart-builder .rpm-guide-cart-summary>span>small{display:block;margin:0;color:#bcb2bd;font-size:12px;font-weight:500}
 .rpm-guide-cart-builder .rpm-guide-cart-summary>strong{display:block;margin-left:auto;color:#ff648a;font-size:clamp(22px,2.5vw,30px);font-weight:900;line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:560px){.rpm-guide-cart-builder .rpm-guide-cart-summary{align-items:flex-start;flex-direction:column;gap:12px;padding:16px}.rpm-guide-cart-builder .rpm-guide-cart-summary>strong{margin-left:0}}
+
+.rpm-guide-config-overlay{position:fixed;inset:0;z-index:1100;display:grid;place-items:center;padding:18px;background:rgba(5,5,10,.82);backdrop-filter:blur(6px)}
+.rpm-guide-config-dialog{width:min(680px,100%);max-height:min(90vh,900px);display:flex;flex-direction:column;overflow:hidden;border:1px solid #704258;border-radius:17px;background:#181820;color:#fff;box-shadow:0 25px 90px rgba(0,0,0,.65)}
+.rpm-guide-config-head{display:flex;justify-content:space-between;gap:15px;padding:23px 25px 17px;border-bottom:1px solid #3d3441}
+.rpm-guide-config-head h2{font-size:23px;margin:6px 0 8px}.rpm-guide-config-head p{font-size:12px;color:#b9b0bb;margin:0}
+.rpm-guide-config-head>button{align-self:flex-start;background:#29222e;border:1px solid #554154;color:#fff;border-radius:8px;padding:8px;cursor:pointer}
+.rpm-guide-config-content{overflow:auto;display:grid;gap:13px;padding:20px 25px}
+.rpm-guide-config-product{display:grid;gap:12px;padding:16px;border:1px solid #453645;border-radius:11px;background:#211e29}
+.rpm-guide-config-product>strong{font-size:16px}.rpm-guide-config-product>small{color:#c5a9b7;font-size:11px;margin-top:-8px}
+.rpm-guide-config-product label{display:grid;gap:7px;color:#e6dbe3;font-size:12px;font-weight:700}
+.rpm-guide-config-product select{width:100%;padding:12px 13px;background:#121219;color:#fff;border:1px solid #655064;border-radius:8px;font-size:13px;outline-offset:2px}
+.rpm-guide-config-product select:focus{border-color:#e72f59}
+.rpm-guide-config-bottom{padding:17px 25px 22px;border-top:1px solid #3d3441}
+.rpm-guide-config-bottom>p{color:#b8abb8;font-size:11px;line-height:1.5;margin:0 0 14px}
+.rpm-guide-config-bottom .rpm-guide-config-error{color:#ff9eaf;font-weight:750}
+.rpm-guide-config-bottom>div{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+.rpm-guide-config-bottom button{padding:12px 16px;border-radius:8px;font-weight:800;cursor:pointer}
+.rpm-guide-config-cancel{background:transparent;color:#fff;border:1px solid #645063}
+.rpm-guide-config-submit{display:flex;align-items:center;justify-content:center;gap:8px;background:#e72f59;color:#fff;border:1px solid #e72f59}
+@media(max-width:600px){.rpm-guide-config-overlay{padding:8px}.rpm-guide-config-head,.rpm-guide-config-content,.rpm-guide-config-bottom{padding-left:15px;padding-right:15px}.rpm-guide-config-head h2{font-size:19px}.rpm-guide-config-bottom>div button{flex:1}}
