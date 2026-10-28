@@ -17,6 +17,7 @@ export async function POST(request:Request){
   if(!(request.headers.get('content-type')??'').includes('application/json'))return NextResponse.json({error:'Wymagany JSON'},{status:415});
   const body=await request.json();
   const customer=body?.customer;
+  const language=body?.language==='en'?'en':'pl';
   if(!customer||!validText(customer.name,120)||!validText(customer.email,200)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)||!validText(customer.city,120)||!validText(customer.postalCode,20)||!validText(customer.address,240))return NextResponse.json({error:'Sprawdź dane kontaktowe'},{status:400});
   const type=customer.type==='company'?'company':'private';
   if(customer.type!==undefined&&customer.type!=='company'&&customer.type!=='private')return NextResponse.json({error:'Niepoprawny typ klienta'},{status:400});
@@ -62,7 +63,7 @@ export async function POST(request:Request){
   const shipping=shippingQuote(shippingMethod,total,shippingSettings);
   const grandTotal=Math.round((total+shipping.cost)*100)/100;
   await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
-  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
+  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({language,type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
   const orderId=saved.rows[0].id;
   const paymentInstructions=paymentMethod==='bank_transfer'?{recipient:payments.transferRecipient,account:payments.bankAccount,instructions:payments.transferInstructions,title:`RPM CUSTOM - Zamowienie #${orderId}`} : null;
   return NextResponse.json({orderId,total:grandTotal,subtotal:total,shipping,items,payment:{method:paymentMethod,status:'pending'},paymentInstructions,status:'new'},{status:201});
