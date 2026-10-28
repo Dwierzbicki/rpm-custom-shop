@@ -1,3 +1,4 @@
+import {getShippingSettings} from '../../lib/settings-db';
 import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
 import {Pool} from 'pg';
@@ -52,7 +53,9 @@ export async function POST(request:Request){
    items.push({productId:p.id,sku:p.sku,name:p.name,qty:line.qty,unitPrice:Math.round((p.price+extra)*100)/100,options:verified});
   }
   const total=Math.round(items.reduce((sum,item)=>sum+item.unitPrice*item.qty,0)*100)/100;
-  const shipping=shippingQuote(shippingMethod,total);
+  const shippingSettings=await getShippingSettings();
+  if(shippingMethod==='pickup'&&!shippingSettings.pickupEnabled||shippingMethod==='courier'&&!shippingSettings.courierEnabled)return NextResponse.json({error:'Wybrany sposób dostawy jest niedostępny'},{status:400});
+  const shipping=shippingQuote(shippingMethod,total,shippingSettings);
   const grandTotal=Math.round((total+shipping.cost)*100)/100;
   await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
   const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping}),JSON.stringify(items),grandTotal]);
