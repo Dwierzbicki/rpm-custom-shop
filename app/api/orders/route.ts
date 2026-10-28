@@ -1,3 +1,4 @@
+import {handleOrderEmail} from '../../lib/order-email';
 import {availablePaymentMethods,PaymentMethod} from '../../lib/payment-settings';
 import {getShippingSettings,getPaymentSettings} from '../../lib/settings-db';
 import {isShippingMethod,shippingQuote} from '../../lib/shipping';
@@ -66,6 +67,15 @@ export async function POST(request:Request){
   const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({language,type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
   const orderId=saved.rows[0].id;
   const paymentInstructions=paymentMethod==='bank_transfer'?{recipient:payments.transferRecipient,account:payments.bankAccount,instructions:payments.transferInstructions,title:`RPM CUSTOM - Zamowienie #${orderId}`} : null;
+  try{
+   await handleOrderEmail({
+    orderId,language,customerName:customer.name.trim(),customerEmail:customer.email.trim(),
+    items,subtotal:total,shippingCost:shipping.cost,total:grandTotal,shippingMethod,
+    paymentMethod,paymentInstructions
+   });
+  }catch(error){
+   console.error('[order-email] preview failed',{orderId,error:error instanceof Error?error.name:'UnknownError'});
+  }
   return NextResponse.json({orderId,total:grandTotal,subtotal:total,shipping,items,payment:{method:paymentMethod,status:'pending'},paymentInstructions,status:'new'},{status:201});
  }catch{return NextResponse.json({error:'Nie udało się zapisać zgłoszenia. Spróbuj ponownie.'},{status:500});}
 }
