@@ -511,3 +511,21 @@
  .rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options{grid-template-columns:1fr}
  .rpm-checkout-page .rpm-checkout-section .rpm-checkout-pair{grid-template-columns:1fr;gap:0}
 }
+
+
+/* Order confirmation */
+.rpm-order-confirmation{display:flex;flex-direction:column;gap:24px;max-width:1100px}
+.rpm-confirmation-heading{padding:28px 30px;background:#171d26;border:1px solid #394250;border-radius:12px}
+.rpm-confirmation-heading>svg{color:#f3426d;margin-bottom:12px}
+.rpm-confirmation-heading h2{font-size:clamp(25px,3vw,36px);margin-bottom:12px}
+.rpm-confirmation-heading p{margin:8px 0}
+.rpm-confirmation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.rpm-confirmation-grid .rpm-settings-card{width:100%;max-width:none;min-width:0;gap:16px}
+.rpm-confirmation-grid .rpm-settings-card h3{margin:0;font-size:19px}
+.rpm-confirmation-grid .rpm-checkout-total{padding-top:12px}
+.rpm-confirmation-detail{display:flex;flex-direction:column;align-items:flex-start;gap:7px;border-top:1px solid #394250;padding-top:14px;min-width:0}
+.rpm-confirmation-detail span{font-size:12px;color:#aeb9c7}
+.rpm-confirmation-detail strong{font-size:15px;overflow-wrap:anywhere}
+.rpm-confirmation-detail .outline{padding:9px 12px;font-size:12px}
+.rpm-order-confirmation>.primary{align-self:flex-start}
+@media(max-width:760px){.rpm-confirmation-grid{grid-template-columns:1fr}.rpm-confirmation-heading{padding:22px}.rpm-confirmation-grid .rpm-settings-card{padding:20px}}
