@@ -1,6 +1,6 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
-import {ShoppingCart,Search,Menu,X,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft,ChevronRight} from 'lucide-react';
+import {ShoppingCart,Search,Menu,X,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft} from 'lucide-react';
 import {products as demoProducts,money,Product,CartLine} from './data';
 type View='home'|'catalog'|'product'|'cart'|'checkout'|'garage';
 const categories=['Wszystkie','Kolektory','Turbo','Intercoolery','Wastegate','Osprzęt','Elektronika','Paliwo'];
