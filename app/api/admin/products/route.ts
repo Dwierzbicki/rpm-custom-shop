@@ -12,7 +12,7 @@ export async function PATCH(request:Request){try{
  const current=(await getCatalog()).find(p=>p.id===input.id);
  if(!current)return NextResponse.json({error:'Nieznany produkt'},{status:404});
  if(!valid(input))return NextResponse.json({error:'Niepoprawne dane produktu'},{status:400});
- const updated:CatalogItem={...current,name:input.name.trim(),price:input.price,description:input.description,brand:input.brand,category:input.category,engine:input.engine,stockStatus:input.stockStatus!,leadTime:input.leadTime,visible:input.visible};
+ const updated:CatalogItem={...current,name:input.name!.trim(),price:input.price!,description:input.description!,brand:input.brand!,category:input.category!,engine:input.engine!,stockStatus:input.stockStatus!,leadTime:input.leadTime!,visible:input.visible!};
  await saveCatalog(updated);return NextResponse.json({product:updated},{headers:{'Cache-Control':'no-store'}});
  }catch{return NextResponse.json({error:'Nie udało się zapisać produktu'},{status:500})}}
 
