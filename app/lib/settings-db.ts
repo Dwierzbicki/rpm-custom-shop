@@ -1,3 +1,4 @@
+import {CompanySettings,DEFAULT_COMPANY_SETTINGS,validCompanySettings} from './company-settings';
 import {Pool} from 'pg';
 import {DEFAULT_SHIPPING_SETTINGS,ShippingSettings,validShippingSettings} from './shipping';
 const g=globalThis as unknown as {rpmSettingsPool?:Pool};
@@ -12,4 +13,15 @@ export async function saveShippingSettings(value:ShippingSettings){
  if(!validShippingSettings(value))throw Error('Invalid shipping settings');
  await pool().query("CREATE TABLE IF NOT EXISTS rpm_shop_settings (key TEXT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
  await pool().query("INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES('shipping',$1::jsonb,NOW()) ON CONFLICT(key) DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()",[JSON.stringify(value)]);
+}
+
+export async function getCompanySettings():Promise<CompanySettings>{
+ await pool().query("CREATE TABLE IF NOT EXISTS rpm_shop_settings (key TEXT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+ const result=await pool().query<{data:unknown}>("SELECT data FROM rpm_shop_settings WHERE key='company'");
+ return validCompanySettings(result.rows[0]?.data)?result.rows[0].data as CompanySettings:DEFAULT_COMPANY_SETTINGS;
+}
+export async function saveCompanySettings(value:CompanySettings){
+ if(!validCompanySettings(value))throw Error('Invalid company settings');
+ await pool().query("CREATE TABLE IF NOT EXISTS rpm_shop_settings (key TEXT PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+ await pool().query("INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES('company',$1::jsonb,NOW()) ON CONFLICT(key) DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()",[JSON.stringify(value)]);
 }
