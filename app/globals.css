@@ -652,3 +652,5 @@
 .rpm-checkout-page .rpm-phone-country-menu{position:absolute;z-index:100;top:calc(100% + 4px);left:0;min-width:155px;width:max-content;max-height:290px;overflow-y:auto;background:#101722;border:1px solid #536072;border-radius:6px;box-shadow:0 12px 32px #0009}
 .rpm-checkout-page .rpm-phone-country-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;background:transparent;color:#eaf0f8;text-align:left;font-size:12px;cursor:pointer;white-space:nowrap}
 .rpm-checkout-page .rpm-phone-country-menu button:hover,.rpm-checkout-page .rpm-phone-country-menu button[aria-selected="true"]{background:#28384d}
+
+.rpm-checkout-page .rpm-phone-flag-img{display:inline-block;flex:0 0 22px;width:22px;height:15px;object-fit:cover;border-radius:2px;vertical-align:middle}
