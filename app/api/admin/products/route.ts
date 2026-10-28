@@ -3,7 +3,29 @@ import {getCatalog,saveCatalog,createCatalog,deleteCatalog,CatalogItem} from '..
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function GET(){try{return NextResponse.json({products:await getCatalog()},{headers:{'Cache-Control':'no-store'}})}catch{return NextResponse.json({error:'Baza danych niedostępna. Sprawdź DATABASE_URL.'},{status:503})}}
-function validOptions(groups:unknown){return groups===undefined||(Array.isArray(groups)&&groups.length<=12&&groups.every(g=>g&&typeof g.id==='string'&&/^[a-zA-Z0-9_-]{1,60}$/.test(g.id)&&typeof g.name==='string'&&g.name.trim().length>0&&g.name.length<=100&&typeof g.required==='boolean'&&Array.isArray(g.options)&&g.options.length>=1&&g.options.length<=30&&new Set(g.options.map((o:{id:string})=>o.id)).size===g.options.length&&g.options.every((o:{id:unknown;label:unknown;price:unknown})=>typeof o.id==='string'&&/^[a-zA-Z0-9_-]{1,60}$/.test(o.id)&&typeof o.label==='string'&&o.label.trim().length>0&&o.label.length<=100&&typeof o.price==='number'&&Number.isFinite(o.price)&&o.price>=0&&o.price<=1000000))&&new Set(groups.map(g=>g.id)).size===groups.length))}
+function validOptions(groups:unknown):boolean {
+ if(groups===undefined)return true;
+ if(!Array.isArray(groups)||groups.length>12)return false;
+ const ids=new Set<string>();
+ for(const group of groups){
+  if(!group||typeof group!=='object')return false;
+  const g=group as Record<string,unknown>;
+  if(typeof g.id!=='string'||!/^[a-zA-Z0-9_-]{1,60}$/.test(g.id)||ids.has(g.id))return false;
+  ids.add(g.id);
+  if(typeof g.name!=='string'||!g.name.trim()||g.name.length>100||typeof g.required!=='boolean')return false;
+  if(!Array.isArray(g.options)||g.options.length<1||g.options.length>30)return false;
+  const optionIds=new Set<string>();
+  for(const option of g.options){
+   if(!option||typeof option!=='object')return false;
+   const o=option as Record<string,unknown>;
+   if(typeof o.id!=='string'||!/^[a-zA-Z0-9_-]{1,60}$/.test(o.id)||optionIds.has(o.id))return false;
+   optionIds.add(o.id);
+   if(typeof o.label!=='string'||!o.label.trim()||o.label.length>100)return false;
+   if(typeof o.price!=='number'||!Number.isFinite(o.price)||o.price<0||o.price>1000000)return false;
+  }
+ }
+ return true;
+}
 function valid(input:Partial<CatalogItem>){return validOptions(input.optionGroups)&&(!input.images||(Array.isArray(input.images)&&input.images.length<=10&&input.images.every(url=>typeof url==='string'&&url.length<1200&&/^https:\/\/res\.cloudinary\.com\/[a-zA-Z0-9_-]+\/image\/upload\//.test(url))))&&typeof input.name==='string'&&!!input.name.trim()&&input.name.length<=200&&typeof input.price==='number'&&Number.isFinite(input.price)&&input.price>=0&&input.price<=10000000&&typeof input.description==='string'&&input.description.length<=10000&&typeof input.brand==='string'&&input.brand.length<=120&&typeof input.category==='string'&&input.category.length<=80&&typeof input.engine==='string'&&input.engine.length<=120&&['available','order','unavailable'].includes(input.stockStatus??'')&&typeof input.leadTime==='string'&&input.leadTime.length<=200&&typeof input.visible==='boolean'}
 function allowed(request:Request){const origin=request.headers.get('origin');const host=request.headers.get('host');try{return !origin||!!host&&new URL(origin).host===host}catch{return false}}
 export async function PATCH(request:Request){try{
