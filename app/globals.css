@@ -135,3 +135,15 @@
 .rpm-option-admin-row .reset{padding:10px}
 .rpm-options-admin .muted{font-size:12px}
 @media(max-width:550px){.rpm-option-admin-row{grid-template-columns:minmax(0,1fr) 95px auto;gap:5px}.rpm-option-group-admin{padding:10px}}
+
+
+/* Centered confirmation overlay */
+.rpm-toast-overlay{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:rgba(4,7,12,.68);backdrop-filter:blur(5px);animation:rpmToastIn .2s ease-out}
+.rpm-toast-card{position:relative;width:min(100%,440px);padding:38px 30px 30px;border:1px solid #394451;border-radius:18px;background:#171d25;box-shadow:0 24px 80px rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.rpm-toast-icon{display:grid;place-items:center;width:68px;height:68px;border-radius:50%;background:#234b35;color:#a6f3bd;border:1px solid #418d5e}
+.rpm-toast-card>strong{font-size:23px;line-height:1.25;color:#fff}
+.rpm-toast-card>span{font-size:14px;line-height:1.5;color:#b9c3cd}
+.rpm-toast-card>.primary{margin-top:10px;display:flex;justify-content:center;align-items:center;gap:10px;width:100%}
+.rpm-toast-close{position:absolute;top:12px;right:12px;background:transparent;border:0;color:#b9c3cd;cursor:pointer;padding:7px}
+@keyframes rpmToastIn{from{opacity:0}to{opacity:1}}
+@media(max-width:480px){.rpm-toast-card{padding:34px 20px 24px}.rpm-toast-card>strong{font-size:20px}}
