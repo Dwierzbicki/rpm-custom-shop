@@ -381,3 +381,13 @@
 .rpm-settings-success{color:#9ee3b9;margin:0}
 .rpm-settings-error{color:#ff8d9d}
 @media(max-width:600px){.rpm-settings-grid{grid-template-columns:1fr}.rpm-settings-card{padding:20px}}
+
+/* Administrator authentication */
+.rpm-login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:#0c121c}
+.rpm-login-card{width:min(100%,440px);background:#17202d;border:1px solid #364357;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:18px;color:#e7edf6}
+.rpm-login-card h1{font-size:28px;line-height:1.2;margin:0;color:#fff}
+.rpm-login-card p{margin:0;color:#aebcd0}
+.rpm-login-card label{display:flex;flex-direction:column;gap:8px;font-weight:600}
+.rpm-login-card input{width:100%;border-radius:8px;background:#0e1520;border:1px solid #46546a;color:#fff;padding:13px}
+.rpm-login-card .primary{justify-content:center}
+.rpm-admin-logout{width:100%;text-align:left;background:transparent;border:0;cursor:pointer;color:inherit}
