@@ -699,3 +699,24 @@
 @media(max-width:1150px){.rpm-solar-shop{grid-template-columns:1fr 1.5fr;grid-template-rows:auto auto}.rpm-solar-intro{grid-column:1;grid-row:1}.rpm-solar-stage{grid-column:2;grid-row:1}.rpm-solar-subpanel{grid-column:1/-1;grid-row:2;min-height:150px;max-height:none}.rpm-solar-subgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:750px){.rpm-solar-shop{display:flex;flex-direction:column;gap:18px;padding:30px 10px 50px}.rpm-solar-intro{width:100%}.rpm-solar-stage{width:min(100%,520px)}.rpm-solar-subpanel{width:100%;max-height:none}.rpm-solar-subgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-solar-core.rpm-turbo-core{width:43%}}
 @media(max-width:450px){.rpm-solar-orbit-photo{width:45px;height:45px}.rpm-solar-orbit{width:70px}.rpm-solar-orbit strong{font-size:7px}.rpm-solar-core.rpm-turbo-core{width:41%}}
+
+
+/* Turbo Core V4 — prevent intro/orbit overlap, restore hover animation (click still selects) */
+.rpm-solar-shop{box-sizing:border-box;width:100%;max-width:1540px;grid-template-columns:minmax(0,.9fr) minmax(0,1.7fr) minmax(0,1.05fr);column-gap:clamp(24px,3vw,52px);padding-left:clamp(28px,3vw,55px);padding-right:clamp(28px,3vw,55px);overflow:hidden}
+.rpm-solar-intro{min-width:0;max-width:100%;align-self:center;z-index:3}
+.rpm-solar-intro h1{font-size:clamp(30px,3.2vw,52px);line-height:1.03;letter-spacing:-.065em;overflow-wrap:normal;max-width:100%;margin:16px 0 22px}
+.rpm-solar-intro p{max-width:280px}
+.rpm-solar-stage{min-width:0;width:min(100%,590px);justify-self:center;z-index:1}
+.rpm-solar-subpanel{min-width:0;width:100%;box-sizing:border-box;z-index:2}
+.rpm-solar-orbit{width:clamp(74px,7vw,108px)}
+.rpm-solar-orbit-photo{width:clamp(53px,5.2vw,73px);height:clamp(53px,5.2vw,73px)}
+.rpm-solar-orbit strong{font-size:clamp(8px,.72vw,10px)}
+@media(hover:hover) and (pointer:fine){
+.rpm-solar-orbit:hover .rpm-solar-orbit-photo{transform:scale(1.13) translateY(-3px);border-color:#ff6388;box-shadow:0 0 30px #ff316a9c,0 0 0 3px #e72f5938}
+.rpm-solar-orbit:hover strong{color:#ff6a91}
+}
+@media(min-width:1151px) and (max-width:1350px){.rpm-solar-shop{grid-template-columns:minmax(0,.88fr) minmax(0,1.7fr) minmax(0,1fr);column-gap:28px;padding-left:32px;padding-right:32px}.rpm-solar-intro h1{font-size:clamp(30px,3vw,43px)}.rpm-solar-stage{width:min(100%,520px)}}
+@media(max-width:1150px){.rpm-solar-shop{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:28px;overflow:visible}.rpm-solar-intro h1{font-size:clamp(32px,5vw,58px)}.rpm-solar-stage{width:min(100%,560px)}.rpm-solar-subpanel{width:100%}}
+@media(max-width:750px){.rpm-solar-shop{padding:32px 14px 48px;overflow:hidden}.rpm-solar-intro h1{font-size:clamp(38px,8vw,55px)}.rpm-solar-stage{width:min(100%,460px)}.rpm-solar-orbit{width:76px}.rpm-solar-orbit-photo{width:51px;height:51px}.rpm-solar-orbit strong{font-size:8px}}
+@media(max-width:450px){.rpm-solar-stage{width:min(100%,370px)}.rpm-solar-orbit{width:65px}.rpm-solar-orbit-photo{width:44px;height:44px}.rpm-solar-orbit strong{font-size:7px}}
+@media(prefers-reduced-motion:reduce){.rpm-solar-orbit-photo{transition:none}}
