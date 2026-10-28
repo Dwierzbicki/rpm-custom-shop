@@ -21,7 +21,7 @@ export async function POST(request:Request){
   if(!customer||!validText(customer.name,120)||!validText(customer.email,200)||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)||!validText(customer.city,120)||!validText(customer.postalCode,20)||!validText(customer.address,240))return NextResponse.json({error:'Sprawdź dane kontaktowe'},{status:400});
   const type=customer.type==='company'?'company':'private';
   if(customer.type!==undefined&&customer.type!=='company'&&customer.type!=='private')return NextResponse.json({error:'Niepoprawny typ klienta'},{status:400});
-  if(customer.phone!==undefined&&(typeof customer.phone!=='string'||customer.phone.length>30||!/^\\+?[0-9 ()-]{7,30}$/.test(customer.phone.trim())))return NextResponse.json({error:'Niepoprawny telefon'},{status:400});
+  if(customer.phone!==undefined&&(typeof customer.phone!=='string'||customer.phone.length>30||!/^\+[1-9][0-9]{0,3} [0-9 ()-]{6,24}$/.test(customer.phone.trim())))return NextResponse.json({error:'Niepoprawny telefon'},{status:400});
   if(type==='company'&&(!validText(customer.company,160)||typeof customer.nip!=='string'||!/^\\d{10}$/.test(customer.nip)))return NextResponse.json({error:'Podaj nazwę firmy i 10-cyfrowy NIP'},{status:400});
   if(customer.notes!==undefined&&(typeof customer.notes!=='string'||customer.notes.length>1000))return NextResponse.json({error:'Uwagi są zbyt długie'},{status:400});
   const shippingMethod=body?.shippingMethod??'courier';
