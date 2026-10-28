@@ -1,0 +1,1 @@
+# rpm-custom-shop
