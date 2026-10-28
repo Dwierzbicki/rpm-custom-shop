@@ -1,3 +1,4 @@
+import {parsePolishAddress} from './company-utils.mjs';
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {ShoppingCart,Search,Menu,X,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft} from 'lucide-react';
@@ -25,19 +26,7 @@ export default function Shop(){
  const [deliveryPostalCode,setDeliveryPostalCode]=useState('');
  const [deliveryCity,setDeliveryCity]=useState('');
  const [deliveryNotice,setDeliveryNotice]=useState('');
- const copyCompanyAddress=()=>{
-  const raw=companyAddress.trim().replace(/\s+/g,' ');
-  const postal=raw.match(/\b(\d{2})\s*-?\s*(\d{3})\b/);
-  if(!postal){setDeliveryAddress(raw);setDeliveryPostalCode('');setDeliveryCity('');setDeliveryNotice('Wstawiono cały adres w pole ulicy. Uzupełnij kod pocztowy i miasto.');return}
-  const zip=postal[1]+'-'+postal[2];
-  const before=raw.slice(0,postal.index).replace(/[,\s]+$/,'').trim();
-  const after=raw.slice((postal.index??0)+postal[0].length).replace(/^[,\s]+/,'').trim();
-  let street=before,city=after;
-  if(!city&&before.includes(',')){const parts=before.split(',').map(p=>p.trim()).filter(Boolean);city=parts.pop()??'';street=parts.join(', ')}
-  if(!street&&after.includes(',')){const parts=after.split(',').map(p=>p.trim()).filter(Boolean);street=parts.shift()??'';city=parts.join(', ')}
-  if(!street||!city){setDeliveryAddress(street||raw);setDeliveryPostalCode(zip);setDeliveryCity(city);setDeliveryNotice('Uzupełniono dostępne dane. Sprawdź ulicę i miasto.');return}
-  setDeliveryAddress(street);setDeliveryPostalCode(zip);setDeliveryCity(city);setDeliveryNotice('Adres dostawy uzupełniony. Sprawdź jego poprawność przed wysłaniem.');
- };
+ const copyCompanyAddress=()=>{const result=parsePolishAddress(companyAddress);setDeliveryAddress(result.street);setDeliveryPostalCode(result.postalCode);setDeliveryCity(result.city);setDeliveryNotice(result.complete?'Adres dostawy uzupełniony. Sprawdź jego poprawność przed wysłaniem.':'Uzupełniono dostępne dane. Sprawdź i uzupełnij brakujące pola adresu.');};
  const [companyLookupBusy,setCompanyLookupBusy]=useState(false);
  const [companyLookupMessage,setCompanyLookupMessage]=useState('');
  const lookupCompany=async()=>{if(companyLookupBusy)return;setCompanyLookupBusy(true);setCompanyLookupMessage('');setCompanyAddress('');setDeliveryNotice('');try{const response=await fetch('/api/company?nip='+encodeURIComponent(companyNip.replace(/[^0-9]/g,'')),{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error(data.error||'Nie udało się pobrać danych firmy');setCompanyName(data.name||'');setCompanyAddress(data.address||'');setCompanyLookupMessage('Dane firmy pobrane z wykazu VAT. Sprawdź ich poprawność.');}catch(err){setCompanyLookupMessage(err instanceof Error?err.message:'Błąd pobierania danych. Wpisz je ręcznie.')}finally{setCompanyLookupBusy(false)}};
