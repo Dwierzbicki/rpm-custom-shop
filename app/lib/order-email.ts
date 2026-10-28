@@ -31,7 +31,7 @@ export function orderMailPreview(order:OrderMailData):MailPreview{
   lines.push('',en?'Bank transfer details:':'Dane do przelewu:',
    `${en?'Recipient':'Odbiorca'}: ${order.paymentInstructions.recipient}`,
    `${en?'Account':'Numer konta'}: ${order.paymentInstructions.account}`,
-   `${en?'Reference':'Tytuł'}: ${order.paymentInstructions.title}`);
+   `${en?'Reference':'Tytuł'}: ${en?`RPM CUSTOM - Order #${order.orderId}`:`RPM CUSTOM - Zamówienie #${order.orderId}`}`);
   if(order.paymentInstructions.instructions.trim())lines.push(order.paymentInstructions.instructions.trim());
  }
  lines.push('',en?'RPM Custom team':'Zespół RPM Custom');
