@@ -1,4 +1,5 @@
-import {getShippingSettings} from '../../lib/settings-db';
+import {availablePaymentMethods,PaymentMethod} from '../../lib/payment-settings';
+import {getShippingSettings,getPaymentSettings} from '../../lib/settings-db';
 import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
 import {Pool} from 'pg';
@@ -24,6 +25,9 @@ export async function POST(request:Request){
   if(customer.notes!==undefined&&(typeof customer.notes!=='string'||customer.notes.length>1000))return NextResponse.json({error:'Uwagi są zbyt długie'},{status:400});
   const shippingMethod=body?.shippingMethod??'courier';
   if(!isShippingMethod(shippingMethod))return NextResponse.json({error:'Wybierz poprawny sposób dostawy'},{status:400});
+  const paymentMethod=body?.paymentMethod as PaymentMethod;
+  const payments=await getPaymentSettings();
+  if(!availablePaymentMethods(payments,shippingMethod).includes(paymentMethod))return NextResponse.json({error:'Wybierz dostępną metodę płatności'},{status:400});
   const lines=body?.lines as IncomingLine[];
   if(!Array.isArray(lines)||lines.length<1||lines.length>30)return NextResponse.json({error:'Niepoprawny koszyk'},{status:400});
   const catalog=await getCatalog();
@@ -58,7 +62,7 @@ export async function POST(request:Request){
   const shipping=shippingQuote(shippingMethod,total,shippingSettings);
   const grandTotal=Math.round((total+shipping.cost)*100)/100;
   await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
-  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping}),JSON.stringify(items),grandTotal]);
-  return NextResponse.json({orderId:saved.rows[0].id,total:grandTotal,subtotal:total,shipping,status:'new'},{status:201});
+  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
+  return NextResponse.json({orderId:saved.rows[0].id,total:grandTotal,subtotal:total,shipping,payment:{method:paymentMethod,status:'pending'},status:'new'},{status:201});
  }catch{return NextResponse.json({error:'Nie udało się zapisać zgłoszenia. Spróbuj ponownie.'},{status:500});}
 }
