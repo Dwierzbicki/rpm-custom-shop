@@ -9,3 +9,9 @@
 .hero-visual{background:radial-gradient(ellipse at 55% 50%,#47202d 0%,#201b23 42%,#090a0d 78%)}
 .logo{letter-spacing:-.065em}.logo span{color:var(--accent)}
 ::selection{background:#e3385b;color:#fff}
+
+/* Original RPM Custom brand mark */
+.header .logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1}
+.header .brand-logo{display:block;width:190px;height:72px;object-fit:contain;object-position:center}
+@media(max-width:768px){.header .brand-logo{width:135px;height:52px}.header{gap:12px}}
+@media(max-width:420px){.header .brand-logo{width:115px;height:46px}}
