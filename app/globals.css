@@ -281,3 +281,26 @@
 .rpm-stat-tooltip span{font-size:11px;color:#aeb9c7}
 .rpm-stat-tooltip strong{font-size:14px;color:#ff6488;font-variant-numeric:tabular-nums}
 .rpm-stat-bar-col:hover .rpm-stat-tooltip,.rpm-stat-bar-col:focus-visible .rpm-stat-tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}
+
+
+/* Checkout PRO */
+.rpm-checkout-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;align-items:start;gap:22px}
+.rpm-checkout-fields{display:flex;flex-direction:column;gap:18px}
+.rpm-checkout-section,.rpm-checkout-aside{background:#171d26;border:1px solid #394250;border-radius:14px;padding:24px}
+.rpm-checkout-section h2,.rpm-checkout-aside h2{font-size:19px;margin:0 0 22px}
+.rpm-checkout-section label{display:flex;flex-direction:column;gap:9px;margin-bottom:17px;color:#d4dce6;font-size:13px}
+.rpm-checkout-section label:last-child{margin-bottom:0}
+.rpm-checkout-section input:not([type=checkbox]),.rpm-checkout-section select,.rpm-checkout-section textarea{width:100%;min-width:0;border:1px solid #455061;background:#101722;color:#fff;padding:12px 13px;border-radius:8px;font:inherit}
+.rpm-checkout-section input:focus,.rpm-checkout-section select:focus,.rpm-checkout-section textarea:focus{outline:2px solid #ef4a70;outline-offset:1px}
+.rpm-checkout-pair{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rpm-checkout-section .rpm-checkout-consent{flex-direction:row;align-items:flex-start;line-height:1.6}
+.rpm-checkout-consent input{margin-top:4px;accent-color:#ef4a70}
+.rpm-checkout-aside{position:sticky;top:18px}
+.rpm-checkout-item{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #343e4a;padding:13px 0;font-size:13px}
+.rpm-checkout-item span{min-width:0}.rpm-checkout-item small{color:#aeb9c7}.rpm-checkout-item strong{white-space:nowrap}
+.rpm-checkout-total{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:22px}
+.rpm-checkout-total strong{font-size:22px;color:#ff6488}
+.rpm-checkout-aside p{font-size:12px;line-height:1.6;color:#aeb9c7}
+.rpm-checkout-pro>button.primary{margin-top:20px}
+@media(max-width:900px){.rpm-checkout-grid{grid-template-columns:1fr}.rpm-checkout-aside{position:static}}
+@media(max-width:560px){.rpm-checkout-pair{grid-template-columns:1fr}.rpm-checkout-section,.rpm-checkout-aside{padding:17px}}
