@@ -422,3 +422,92 @@
  outline:2px solid #f3426d;
  outline-offset:2px;
 }
+
+
+/* Checkout design system: consistent dimensions and spacing */
+.rpm-checkout-page{
+ --checkout-control-height:48px;
+ --checkout-gap:16px;
+}
+.rpm-checkout-page .rpm-checkout-section{
+ padding:26px 28px;
+ border-radius:12px;
+}
+.rpm-checkout-page .rpm-checkout-section h2{
+ font-size:18px;
+ line-height:1.35;
+ margin:0 0 22px;
+}
+.rpm-checkout-page .rpm-checkout-section label{
+ gap:8px;
+ margin-bottom:var(--checkout-gap);
+ font-size:13px;
+ line-height:1.4;
+}
+.rpm-checkout-page .rpm-checkout-section input:not([type="checkbox"]):not([type="radio"]),
+.rpm-checkout-page .rpm-checkout-section select{
+ display:block;
+ box-sizing:border-box;
+ width:100%;
+ height:var(--checkout-control-height);
+ min-height:var(--checkout-control-height);
+ max-height:var(--checkout-control-height);
+ padding:0 14px;
+ border-radius:8px;
+ font-size:14px;
+ line-height:normal;
+}
+.rpm-checkout-page .rpm-checkout-section textarea{
+ box-sizing:border-box;
+ display:block;
+ width:100%;
+ min-height:120px;
+ padding:14px;
+ border-radius:8px;
+ font-size:14px;
+ line-height:1.5;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-pair{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:16px;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+ align-items:stretch;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label{
+ display:flex;
+ flex-direction:row;
+ align-items:center;
+ box-sizing:border-box;
+ width:100%;
+ min-height:54px;
+ height:100%;
+ margin:0;
+ padding:12px 14px;
+ border-radius:8px;
+ font-size:13px;
+ line-height:1.35;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options input[type="radio"]{
+ width:18px;
+ height:18px;
+ min-width:18px;
+ min-height:18px;
+ max-width:18px;
+ flex:0 0 18px;
+ padding:0;
+ margin:0;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label span{
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+.rpm-checkout-page .rpm-checkout-fields{gap:18px}
+@media(max-width:600px){
+ .rpm-checkout-page .rpm-checkout-section{padding:20px 18px}
+ .rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options{grid-template-columns:1fr}
+ .rpm-checkout-page .rpm-checkout-section .rpm-checkout-pair{grid-template-columns:1fr;gap:0}
+}
