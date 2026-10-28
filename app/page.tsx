@@ -21,6 +21,7 @@ export default function Shop(){
  useEffect(()=>{localStorage.setItem('rpm-cart',JSON.stringify(cart))},[cart]);useEffect(()=>{localStorage.setItem('rpm-garage',JSON.stringify(garage))},[garage]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const navigate=(v:View)=>{setView(v);setMobileMenu(false);window.scrollTo({top:0,behavior:'smooth'})};
+ useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
  const openProduct=(p:Product)=>{setSelected(p);setChosenOptions({});setPhotoIndex(0);setLightbox(false);setEngine('');setFlange('');setWg('');setEgt(false);setQty(1);navigate('product')};
  const customGroups=(selected.optionGroups??[]).filter(g=>!(selected.optionGroups??[]).some(f=>f.id==='rpm-flange')||g.id!=='rpm-wastegate');
  const rpmFlange=chosenOptions['rpm-flange'];
