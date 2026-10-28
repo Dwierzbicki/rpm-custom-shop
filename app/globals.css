@@ -724,3 +724,57 @@
 
 /* Inline catalog below Turbo Core */
 .rpm-inline-catalog{max-width:1390px;margin:0 auto 64px;padding:30px clamp(16px,3vw,44px) 42px;background:linear-gradient(180deg,#15151c,#0b0d12);border:1px solid #34303a;border-top:3px solid #e72f59;border-radius:8px;scroll-margin-top:110px;animation:rpm-inline-appear .24s ease-out}.rpm-inline-catalog-heading{display:flex;align-items:start;justify-content:space-between;gap:20px;margin-bottom:22px}.rpm-inline-catalog-heading h2{font-size:clamp(27px,3vw,42px);font-weight:900;font-style:italic;text-transform:uppercase;margin:8px 0}.rpm-inline-catalog-heading p{color:#aeb3c0;margin:0;font-size:13px}.rpm-inline-close{border:1px solid #49404c;border-radius:5px;background:#181a22;color:#fff;padding:10px;cursor:pointer}.rpm-inline-close:hover{border-color:#e72f59}.rpm-inline-toolbar{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:25px}.rpm-inline-toolbar label{display:flex;flex-direction:column;gap:7px;color:#c3c8d3;font-size:12px;font-weight:700}.rpm-inline-toolbar input,.rpm-inline-toolbar select{min-width:0;width:100%;padding:12px;background:#171a22;border:1px solid #373b47;border-radius:5px;color:#fff}.rpm-inline-toolbar input:focus,.rpm-inline-toolbar select:focus{outline:2px solid #e72f59;outline-offset:1px}@keyframes rpm-inline-appear{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}@media(max-width:650px){.rpm-inline-catalog{margin:0 10px 40px;padding:20px 13px}.rpm-inline-toolbar{grid-template-columns:1fr 1fr}.rpm-inline-toolbar label:first-child{grid-column:1/-1}}@media(prefers-reduced-motion:reduce){.rpm-inline-catalog{animation:none}}
+
+
+/* Responsive shop V5: tablet / phone layout and touch-friendly category navigation */
+.rpm-shop-page,.rpm-solar-shop,.rpm-inline-catalog{min-width:0}
+.rpm-solar-shop *,.rpm-inline-catalog *{box-sizing:border-box}
+.rpm-solar-orbit,.rpm-solar-subgrid button,.rpm-inline-close{touch-action:manipulation}
+@media(min-width:751px) and (max-width:1150px){
+ .rpm-solar-shop{grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);padding:36px 28px 48px;column-gap:28px;row-gap:26px}
+ .rpm-solar-intro h1{font-size:clamp(34px,4.2vw,52px)}
+ .rpm-solar-stage{width:min(100%,540px)}
+ .rpm-solar-orbit{width:clamp(72px,8vw,98px)}
+ .rpm-solar-orbit-photo{width:clamp(50px,6vw,70px);height:clamp(50px,6vw,70px)}
+ .rpm-solar-subpanel{grid-column:1/-1;grid-row:2}
+ .rpm-solar-subgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .rpm-inline-catalog{margin-left:20px;margin-right:20px}
+}
+@media(max-width:750px){
+ .rpm-solar-shop{width:100%;max-width:100%;overflow:visible;padding:30px 16px 38px;gap:22px}
+ .rpm-solar-intro{text-align:center}
+ .rpm-solar-intro h1{font-size:clamp(35px,7vw,52px);margin:12px 0 16px}
+ .rpm-solar-intro p{max-width:420px;margin-left:auto;margin-right:auto}
+ .rpm-solar-stage{width:min(100%,490px);flex:0 0 auto}
+ .rpm-solar-subpanel{width:100%;min-height:0;max-height:none;padding:20px}
+ .rpm-solar-subgrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rpm-solar-subgrid button{min-height:48px}
+ .rpm-inline-catalog{margin:0 12px 40px}
+ .rpm-inline-catalog .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:520px){
+ .rpm-solar-shop{padding:24px 12px 30px;gap:16px}
+ .rpm-solar-stage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%;max-width:100%;aspect-ratio:auto;margin:0;padding:0}
+ .rpm-solar-stage:before,.rpm-solar-stage:after,.rpm-solar-rays{display:none}
+ .rpm-solar-core.rpm-turbo-core{position:relative;left:auto;top:auto;transform:none;grid-column:1/-1;width:154px;height:154px;margin:10px auto 16px}
+ .rpm-solar-orbit{position:relative;left:auto!important;top:auto!important;transform:none!important;width:100%;min-width:0;min-height:72px;display:flex;flex-direction:row;justify-content:flex-start;align-items:center;gap:11px;padding:9px 10px;border:1px solid #38303c;border-radius:8px;background:#14151c;text-align:left}
+ .rpm-solar-orbit-photo{width:46px;height:46px;flex:0 0 46px}
+ .rpm-solar-orbit strong{font-size:10px;line-height:1.3;overflow-wrap:anywhere}
+ .rpm-solar-orbit.selected{border-color:#e72f59;background:#28131e;box-shadow:0 0 14px #e72f592a}
+ .rpm-solar-subpanel{padding:16px 12px}
+ .rpm-solar-subgrid{gap:8px}
+ .rpm-solar-subgrid button{min-height:48px}
+ .rpm-inline-catalog{margin:0 10px 32px;padding:18px 12px}
+ .rpm-inline-catalog-heading h2{font-size:clamp(24px,6vw,34px)}
+ .rpm-inline-toolbar{grid-template-columns:1fr}
+ .rpm-inline-toolbar label:first-child{grid-column:auto}
+ .rpm-inline-catalog .products-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+}
+@media(max-width:360px){
+ .rpm-solar-stage{gap:6px}
+ .rpm-solar-orbit{padding:7px 6px;gap:6px}
+ .rpm-solar-orbit-photo{width:38px;height:38px;flex-basis:38px}
+ .rpm-solar-orbit strong{font-size:9px}
+ .rpm-solar-subgrid{grid-template-columns:1fr}
+ .rpm-inline-catalog .products-grid{grid-template-columns:1fr}
+}
