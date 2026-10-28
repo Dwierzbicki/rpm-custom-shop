@@ -1,8 +1,9 @@
+import {lookupGus} from '../../lib/gus-regon';
 import {validNip,normalizeNip} from '../../company-utils.mjs';
 import {NextResponse} from 'next/server';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-type Company={name:string;address:string;statusVat:string};
+type Company={name:string;address:string;statusVat:string;source:string;regon?:string};
 const cache=new Map<string,{expires:number;company:Company}>();
 const hits=new Map<string,{count:number;until:number}>();
 export async function GET(request:Request){
@@ -16,13 +17,18 @@ export async function GET(request:Request){
  if(cache.size>500)cache.clear();if(hits.size>2000)hits.clear();
  const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Warsaw',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),7000);
+ let vat:Company|null=null;
  try{
   const response=await fetch('https://wl-api.mf.gov.pl/api/search/nip/'+nip+'?date='+date,{signal:controller.signal,headers:{Accept:'application/json'},cache:'no-store'});
-  if(!response.ok)return NextResponse.json({error:response.status===404?'Nie znaleziono firmy w wykazie VAT.':'Rejestr VAT jest chwilowo niedostępny. Wpisz dane ręcznie.'},{status:response.status===404?404:503});
-  const data=await response.json();const subject=data?.result?.subject;
-  if(!subject||typeof subject.name!=='string'||!subject.name.trim())return NextResponse.json({error:'Nie znaleziono firmy. Wpisz dane ręcznie.'},{status:404});
-  const company:Company={name:subject.name.trim().slice(0,160),address:String(subject.residenceAddress||subject.workingAddress||'').slice(0,240),statusVat:String(subject.statusVat||'')};
-  cache.set(nip,{company,expires:Date.now()+3600000});
-  return NextResponse.json(company);
- }catch{return NextResponse.json({error:'Nie udało się połączyć z rejestrem VAT. Wpisz dane ręcznie.'},{status:503})}finally{clearTimeout(timeout)}
+  if(response.ok){
+   const data=await response.json();const subject=data?.result?.subject;
+   if(subject&&typeof subject.name==='string'&&subject.name.trim())vat={name:subject.name.trim().slice(0,160),address:String(subject.residenceAddress||subject.workingAddress||'').slice(0,240),statusVat:String(subject.statusVat||''),source:'VAT'};
+  }
+ }catch{}finally{clearTimeout(timeout)}
+ let gus=null;
+ try{gus=await lookupGus(nip)}catch(error){console.error('GUS lookup failed',error instanceof Error?error.message:'unknown')}
+ const company:Company|null=gus?{name:gus.name,address:gus.address||vat?.address||'',statusVat:vat?.statusVat||'',source:vat?'GUS + VAT':'GUS',regon:gus.regon}:vat;
+ if(!company)return NextResponse.json({error:'Nie znaleziono danych firmy w dostępnych rejestrach. Wpisz dane ręcznie.'},{status:404});
+ cache.set(nip,{company,expires:Date.now()+3600000});
+ return NextResponse.json(company);
 }
