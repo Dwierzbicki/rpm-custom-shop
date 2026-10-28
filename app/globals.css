@@ -641,3 +641,14 @@
 /* Product detail: clearly visible catalog identifier */
 .rpm-product-sku{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;margin:12px 0 16px;font-size:13px;color:#9daab9}
 .rpm-product-sku strong{display:inline-flex;align-items:center;border:1px solid #424b59;border-radius:5px;background:#171d26;padding:6px 10px;color:#f1f5fa;font-size:13px;font-weight:700;letter-spacing:.04em;user-select:all}
+
+
+/* Custom country picker: native select options often omit emoji flags on Windows */
+.rpm-checkout-page .rpm-phone-country{position:relative;min-width:0}
+.rpm-checkout-page .rpm-phone-country-trigger{display:flex;align-items:center;justify-content:space-between;gap:5px;width:100%;height:48px;padding:0 9px;background:#111820;color:#f2f5fa;border:1px solid #485466;border-radius:6px;font-size:12px;cursor:pointer;white-space:nowrap}
+.rpm-checkout-page .rpm-phone-flag{font-family:"Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif;font-size:17px;line-height:1}
+.rpm-checkout-page .rpm-phone-chevron{flex-shrink:0;transform:rotate(90deg);transition:transform .15s}
+.rpm-checkout-page .rpm-phone-chevron.is-open{transform:rotate(-90deg)}
+.rpm-checkout-page .rpm-phone-country-menu{position:absolute;z-index:100;top:calc(100% + 4px);left:0;min-width:155px;width:max-content;max-height:290px;overflow-y:auto;background:#101722;border:1px solid #536072;border-radius:6px;box-shadow:0 12px 32px #0009}
+.rpm-checkout-page .rpm-phone-country-menu button{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;background:transparent;color:#eaf0f8;text-align:left;font-size:12px;cursor:pointer;white-space:nowrap}
+.rpm-checkout-page .rpm-phone-country-menu button:hover,.rpm-checkout-page .rpm-phone-country-menu button[aria-selected="true"]{background:#28384d}
