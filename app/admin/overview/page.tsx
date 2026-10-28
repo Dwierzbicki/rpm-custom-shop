@@ -19,7 +19,7 @@ export default function Overview(){
   const active=selected.filter(o=>o.status!=='cancelled');
   const total=active.reduce((sum,o)=>sum+Number(o.total),0);
   const items=new Map<string,{name:string;qty:number;value:number}>();
-  for(const o of active)for(const i of o.items??[]){const key=String(i.productId);const prev=items.get(key)??{name:i.name,qty:0,value:0};prev.qty+=i.qty;prev.value+=i.qty*i.unitPrice;items.set(key,prev)}
+  for(const o of active)for(const i of o.items??[]){const key=[String(i.productId),i.name].join('::');const prev=items.get(key)??{name:i.name,qty:0,value:0};prev.qty+=i.qty;prev.value+=i.qty*i.unitPrice;items.set(key,prev)}
   const top=[...items.values()].sort((a,b)=>b.qty-a.qty).slice(0,5);
   const daysCount=period==='all'?30:Math.min(days,30);
   const daily=Array.from({length:daysCount},(_,index)=>{const date=new Date();date.setHours(0,0,0,0);date.setDate(date.getDate()-(daysCount-1-index));const key=date.toLocaleDateString('sv-SE');return {key,label:date.toLocaleDateString('pl-PL',{day:'2-digit',month:'2-digit'}),value:active.filter(o=>new Date(o.created_at).toLocaleDateString('sv-SE')===key).reduce((sum,o)=>sum+Number(o.total),0)}});
