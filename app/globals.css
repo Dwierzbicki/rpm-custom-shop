@@ -85,3 +85,22 @@
 .admin-busy-card{background:#191b21;border:1px solid #59414b;border-radius:12px;box-shadow:0 20px 70px #0008;min-width:min(360px,100%);padding:35px 25px;display:flex;align-items:center;flex-direction:column;gap:17px;text-align:center}
 .admin-busy-card strong{font-size:17px}.admin-busy-card small{font-size:12px;color:#abb0b9}
 @media(prefers-reduced-motion:reduce){.admin-spinner{animation-duration:2s}}
+
+/* Product galleries */
+.admin-gallery{border-top:1px solid #343842;padding-top:22px;display:flex;flex-direction:column;gap:12px}
+.admin-gallery>strong{font-size:15px}.admin-gallery>p{font-size:12px;color:#aeb3bd}
+.admin-upload-button{display:inline-flex;align-items:center;gap:9px;padding:13px 16px;border:1px dashed #e3385b;border-radius:7px;color:#f2a7b8;cursor:pointer;width:fit-content}
+.admin-upload-button input{display:none}.admin-gallery-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px}
+.admin-gallery-tile{background:#101319;border:1px solid #333843;border-radius:7px;padding:7px;display:flex;flex-direction:column;gap:7px}
+.admin-gallery-tile>img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px}
+.admin-gallery-tile>span{font-size:10px;color:#f3a4b5}.admin-gallery-tile>div{display:flex;gap:5px}
+.admin-gallery-tile button{flex:1;display:flex;align-items:center;justify-content:center;padding:7px;background:#272b33;border-radius:4px;color:#fff}
+.admin-gallery-tile button:disabled{opacity:.3;cursor:not-allowed}
+.product-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:10px;background:#16191e}
+.product-art{position:relative;overflow:hidden}
+.detail-gallery{width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}
+.detail-photo{width:100%;max-height:450px;object-fit:contain}
+.detail-thumbnails{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+.detail-thumbnails button{border:1px solid #424650;background:#17191e;border-radius:5px;padding:4px}
+.detail-thumbnails button:focus-visible{outline:2px solid #e3385b}
+.detail-thumbnails img{width:62px;height:62px;object-fit:cover}
