@@ -929,3 +929,24 @@
 .rpm-guide-config-cancel{background:transparent;color:#fff;border:1px solid #645063}
 .rpm-guide-config-submit{display:flex;align-items:center;justify-content:center;gap:8px;background:#e72f59;color:#fff;border:1px solid #e72f59}
 @media(max-width:600px){.rpm-guide-config-overlay{padding:8px}.rpm-guide-config-head,.rpm-guide-config-content,.rpm-guide-config-bottom{padding-left:15px;padding-right:15px}.rpm-guide-config-head h2{font-size:19px}.rpm-guide-config-bottom>div button{flex:1}}
+
+/* Modern, compact product cards inside Power Guides */
+.rpm-guide-cart-builder .rpm-guide-parts>.rpm-guide-modern-card{display:flex;flex-direction:column;gap:14px;min-width:0;padding:17px;background:linear-gradient(135deg,#1d1c26,#15151d);border:1px solid #39333f;border-radius:13px;box-shadow:none}
+.rpm-guide-modern-top{display:flex;align-items:flex-start;gap:14px;min-width:0}
+.rpm-guide-modern-image{flex:0 0 86px;width:86px;height:86px;display:grid;place-items:center;overflow:hidden;border-radius:11px;background:#2b2330;color:#ed527a}
+.rpm-guide-modern-image img{display:block;width:100%;height:100%;object-fit:cover}
+.rpm-guide-modern-info{display:flex;flex-direction:column;align-items:flex-start;gap:5px;flex:1;min-width:0}
+.rpm-guide-modern-category{font-size:10px!important;font-weight:800;color:#f36c90!important;text-transform:uppercase;letter-spacing:1px}
+.rpm-guide-modern-info>strong{font-size:16px;line-height:1.25;color:#fff;overflow-wrap:anywhere}
+.rpm-guide-modern-sku{font-size:11px;color:#b9aebb;overflow-wrap:anywhere}
+.rpm-guide-modern-info>p{font-size:11px!important;line-height:1.5;color:#c1bac5!important;margin:5px 0 0!important;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rpm-guide-modern-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;padding-top:13px;border-top:1px solid #3b3440}
+.rpm-guide-modern-price{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.rpm-guide-modern-price small{font-size:10px;color:#a9a0ad}
+.rpm-guide-modern-price strong{font-size:20px;line-height:1.2;font-weight:900;color:#ff648a}
+.rpm-guide-modern-price span{font-size:10px;color:#99909f}
+.rpm-guide-cart-builder .rpm-guide-modern-bottom .rpm-guide-accordion-select{flex-shrink:0;margin:0;padding:8px 11px;font-size:11px}
+.rpm-guide-modern-links{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:auto}
+.rpm-guide-modern-links button,.rpm-guide-modern-links a{display:inline-flex;align-items:center;gap:6px;border:0;background:none;padding:0;color:#f37799;font-size:11px;font-weight:750;cursor:pointer;text-decoration:none}
+.rpm-guide-modern-links button:hover,.rpm-guide-modern-links a:hover{color:#fff}
+@media(max-width:650px){.rpm-guide-cart-builder .rpm-guide-parts>.rpm-guide-modern-card{padding:13px;gap:12px}.rpm-guide-modern-image{flex-basis:68px;width:68px;height:68px}.rpm-guide-modern-info>strong{font-size:14px}.rpm-guide-modern-price strong{font-size:18px}.rpm-guide-modern-bottom{align-items:flex-start;flex-wrap:wrap}.rpm-guide-cart-builder .rpm-guide-modern-bottom .rpm-guide-accordion-select{margin-left:auto}}
