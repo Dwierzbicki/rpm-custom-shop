@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useState} from 'react';
-import {LayoutDashboard,Package,ShoppingBag,Menu,X,ExternalLink} from 'lucide-react';
-const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty i konfigurator',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag}];
+import {LayoutDashboard,Package,ShoppingBag,Menu,X,ExternalLink,Settings} from 'lucide-react';
+const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty i konfigurator',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag},{href:'/admin/settings',label:'Ustawienia',icon:Settings}];
 export default function AdminLayout({children}:{children:React.ReactNode}){
  const path=usePathname();
  const [open,setOpen]=useState(false);
