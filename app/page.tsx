@@ -1,5 +1,5 @@
-import {parsePolishAddress} from './company-utils.mjs';
 'use client';
+import {parsePolishAddress} from './company-utils.mjs';
 import {useEffect,useMemo,useState} from 'react';
 import {ShoppingCart,Search,Menu,X,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft} from 'lucide-react';
 import {products as demoProducts,money,Product,CartLine} from './data';
