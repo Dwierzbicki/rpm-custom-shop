@@ -585,3 +585,32 @@
 }
 .rpm-checkout-page .rpm-company-lookup-alert.is-error p{color:#ffd5dc}
 @media(max-width:600px){.rpm-checkout-page .rpm-company-lookup-alert{padding:15px;gap:10px}}
+
+
+/* Consent belongs to the final submit action, not the notes card */
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer{
+ display:flex;
+ flex-direction:row;
+ align-items:flex-start;
+ gap:12px;
+ width:100%;
+ margin:22px 0 14px;
+ padding:0;
+ color:#e3eaf3;
+ font-size:13px;
+ font-weight:500;
+ line-height:1.55;
+ cursor:pointer;
+}
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer input[type="checkbox"]{
+ appearance:auto;
+ flex:0 0 19px;
+ width:19px;
+ height:19px;
+ min-width:19px;
+ margin:1px 0 0;
+ padding:0;
+ accent-color:#f3426d;
+ cursor:pointer;
+}
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer span{flex:1;min-width:0}
