@@ -1,0 +1,5 @@
+import type {Metadata} from 'next';
+import Link from 'next/link';
+import './globals.css';
+export const metadata:Metadata={title:'RPM Custom | Performance Engineering',description:'Kolektory turbo i rozwiązania do BMW M50/M52/M54 oraz Toyota 2JZ. Produkcja TIG, konfiguracja i indywidualne zamówienia.'};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="pl"><body><header className="top"><div className="wrap nav"><Link href="/" className="logo">RPM<span>CUSTOM</span><small>PERFORMANCE ENGINEERING</small></Link><nav><Link href="/">Start</Link><Link href="/sklep">Kolektory</Link><a href="mailto:kontakt@rpmcustom.pl">Kontakt</a></nav><Link className="navcta" href="/sklep">Zobacz produkty ↗</Link></div></header>{children}<footer><div className="wrap foot"><strong>RPM<span style={{color:'var(--accent)'}}>CUSTOM</span></strong><span>BMW M50 / M52 / M54 · TOYOTA 2JZ</span><span>© {new Date().getFullYear()} RPM Custom</span></div></footer></body></html>}
