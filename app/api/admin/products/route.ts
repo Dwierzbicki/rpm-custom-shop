@@ -4,6 +4,8 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function GET(){try{return NextResponse.json({products:await getCatalog()},{headers:{'Cache-Control':'no-store'}})}catch{return NextResponse.json({error:'Baza danych niedostępna. Sprawdź DATABASE_URL.'},{status:503})}}
 export async function PATCH(request:Request){try{
+ const origin=request.headers.get('origin');const host=request.headers.get('host');if(origin&&(!host||new URL(origin).host!==host))return NextResponse.json({error:'Niedozwolone pochodzenie żądania'},{status:403});
+ const contentType=request.headers.get('content-type')||'';if(!contentType.includes('application/json'))return NextResponse.json({error:'Wymagany JSON'},{status:415});
  const input=await request.json() as Partial<CatalogItem>;
  const current=(await getCatalog()).find(p=>p.id===input.id);
  if(!current)return NextResponse.json({error:'Nieznany produkt'},{status:404});
