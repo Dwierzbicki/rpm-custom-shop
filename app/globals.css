@@ -104,3 +104,20 @@
 .detail-thumbnails button{border:1px solid #424650;background:#17191e;border-radius:5px;padding:4px}
 .detail-thumbnails button:focus-visible{outline:2px solid #e3385b}
 .detail-thumbnails img{width:62px;height:62px;object-fit:cover}
+
+/* Product detail v0.5 */
+.detail-main-photo{width:100%;position:relative;display:flex;align-items:center;justify-content:center;min-height:320px}
+.detail-main-photo .detail-photo{max-height:520px;max-width:100%;width:100%;object-fit:contain}
+.photo-zoom,.photo-prev,.photo-next{position:absolute;z-index:2;display:flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid #565963;background:#16191edd;color:#fff;border-radius:50%;cursor:pointer}
+.photo-zoom{top:12px;right:12px}.photo-prev{left:8px;top:50%;transform:translateY(-50%)}.photo-next{right:8px;top:50%;transform:translateY(-50%)}
+.detail-thumbnails button.selected{border:2px solid #e3385b}
+.photo-count{color:#aeb3bd;font-size:12px}
+.product-availability{display:flex;align-items:center;gap:9px;font-size:13px;margin:16px 0;color:#d5e8d9}
+.product-availability small{color:#aeb3bd}.stock-dot{width:9px;height:9px;background:#5ec18c;border-radius:50%;flex-shrink:0}.stock-dot.out{background:#e3385b}
+.rpm-lightbox{position:fixed;inset:0;z-index:99999;background:rgba(5,6,9,.97);display:flex;align-items:center;justify-content:center;padding:55px 20px 85px}
+.rpm-lightbox>img{max-width:100%;max-height:100%;object-fit:contain}
+.lightbox-close{position:absolute;top:18px;right:20px;color:#fff;background:#292b31;border-radius:50%;width:44px;height:44px;display:grid;place-items:center}
+.lightbox-nav{position:absolute;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:22px;color:#fff}
+.lightbox-nav button{display:grid;place-items:center;background:#30323a;color:#fff;border-radius:50%;width:40px;height:40px}
+.admin-unsaved{display:inline-block;font-size:11px;font-weight:500;color:#f4b16e;vertical-align:middle;margin-left:10px}
+@media(max-width:600px){.detail-main-photo{min-height:230px}.photo-prev,.photo-next{width:34px;height:34px}.detail-thumbnails img{width:52px;height:52px}}
