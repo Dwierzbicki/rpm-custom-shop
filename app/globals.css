@@ -865,3 +865,5 @@
 .rpm-guide-nokia-arrow{right:10px;bottom:11px;width:15px;height:15px}
 @media(max-width:950px){.rpm-guide-tile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:650px){.rpm-guide-tile-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.rpm-guide-nokia-tile{min-height:100px;padding:11px 12px}.rpm-guide-nokia-number{top:9px;left:11px}.rpm-guide-nokia-symbol{font-size:23px;margin-top:12px}.rpm-guide-nokia-tile>strong{font-size:12px}}
+
+.rpm-guide-export-bar button{display:inline-flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 7px 18px rgba(231,47,89,.22)}.rpm-guide-export-bar button svg{flex-shrink:0;stroke-width:2.2}.rpm-guide-export-bar button:not(:disabled):hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(231,47,89,.3)}
