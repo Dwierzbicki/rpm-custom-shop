@@ -529,3 +529,59 @@
 .rpm-confirmation-detail .outline{padding:9px 12px;font-size:12px}
 .rpm-order-confirmation>.primary{align-self:flex-start}
 @media(max-width:760px){.rpm-confirmation-grid{grid-template-columns:1fr}.rpm-confirmation-heading{padding:22px}.rpm-confirmation-grid .rpm-settings-card{padding:20px}}
+
+
+/* Distinct feedback panel for VAT registry lookup */
+.rpm-checkout-page .rpm-company-lookup-alert{
+ display:flex;
+ align-items:flex-start;
+ gap:14px;
+ width:100%;
+ padding:18px 20px;
+ margin:4px 0 8px;
+ border:1px solid #2e9c79;
+ border-left:5px solid #38d39f;
+ border-radius:10px;
+ background:linear-gradient(115deg,rgba(30,112,86,.28),rgba(24,65,57,.3));
+ box-shadow:0 6px 24px rgba(0,0,0,.16);
+ color:#f2fff9;
+}
+.rpm-checkout-page .rpm-company-lookup-alert-icon{
+ display:grid;
+ place-items:center;
+ flex:0 0 30px;
+ width:30px;
+ height:30px;
+ border-radius:50%;
+ background:#2eb88b;
+ color:#071d17;
+ font-size:19px;
+ font-weight:900;
+ line-height:1;
+}
+.rpm-checkout-page .rpm-company-lookup-alert>div{min-width:0}
+.rpm-checkout-page .rpm-company-lookup-alert strong{
+ display:block;
+ margin:1px 0 5px;
+ font-size:15px;
+ font-weight:800;
+ letter-spacing:0;
+ color:#f2fff9;
+}
+.rpm-checkout-page .rpm-company-lookup-alert p{
+ margin:0;
+ color:#c8e8db;
+ font-size:13px;
+ line-height:1.55;
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error{
+ border-color:#b84a5f;
+ border-left-color:#ff6b85;
+ background:linear-gradient(115deg,rgba(134,37,60,.24),rgba(75,28,41,.2));
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error .rpm-company-lookup-alert-icon{
+ background:#f36b83;
+ color:#2a0810;
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error p{color:#ffd5dc}
+@media(max-width:600px){.rpm-checkout-page .rpm-company-lookup-alert{padding:15px;gap:10px}}
