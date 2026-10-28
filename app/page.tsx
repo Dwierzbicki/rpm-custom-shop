@@ -1,5 +1,5 @@
-import {PaymentMethod,PaymentSettings,DEFAULT_PAYMENT_SETTINGS,availablePaymentMethods} from './lib/payment-settings';
 'use client';
+import {PaymentMethod,PaymentSettings,DEFAULT_PAYMENT_SETTINGS,availablePaymentMethods} from './lib/payment-settings';
 import {parsePolishAddress} from './company-utils.mjs';
 import {shippingQuote,ShippingMethod,ShippingSettings,DEFAULT_SHIPPING_SETTINGS} from './lib/shipping';
 import {useEffect,useMemo,useState} from 'react';
