@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import {normalizeNip,validNip,parsePolishAddress} from '../app/company-utils.mjs';
 
 test('NIP: poprawna suma kontrolna',()=>{
- assert.equal(validNip('5250001009'),true);
- assert.equal(validNip('5250001008'),false);
+ assert.equal(validNip('5261040828'),true);
+ assert.equal(validNip('5261040829'),false);
  assert.equal(validNip('123'),false);
  assert.equal(validNip('abcdefghij'),false);
 });
 test('NIP: usuwa separatory i litery przed walidacją',()=>{
- assert.equal(normalizeNip('PL 525-000-10-09'),'5250001009');
+ assert.equal(normalizeNip('PL 526-104-08-28'),'5261040828');
 });
 for(const [input,street,postalCode,city] of [
  ['SŁOWIAŃSKA 157, 05-180 KOSEWKO','SŁOWIAŃSKA 157','05-180','KOSEWKO'],
