@@ -352,3 +352,13 @@
 /* Checkout: separate delivery autofill feedback from the first field */
 .rpm-checkout-page .rpm-checkout-section > .rpm-company-message[role="status"]{display:block;margin:0 0 22px;padding:12px 16px;border:1px solid rgba(89,181,145,.35);border-radius:9px;background:rgba(47,129,100,.12);color:#c5efdd;font-size:13px;font-weight:500;line-height:1.6}
 .rpm-checkout-page .rpm-checkout-section > .rpm-company-message[role="status"] + label{margin-top:0}
+
+/* Checkout customer type: accessible radio cards */
+.rpm-checkout-page .rpm-checkout-customer-type{border:0;padding:0;margin:0 0 22px;min-width:0}
+.rpm-checkout-page .rpm-checkout-customer-type legend{font-size:13px;font-weight:600;margin-bottom:10px;color:#e4ebf5}
+.rpm-checkout-page .rpm-checkout-customer-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.rpm-checkout-page .rpm-checkout-customer-options label{display:flex;flex-direction:row;align-items:center;gap:12px;cursor:pointer;padding:15px 16px;border:1px solid #405063;border-radius:10px;background:#171f2a;font-size:14px;font-weight:600;min-width:0;transition:border-color .15s,background .15s}
+.rpm-checkout-page .rpm-checkout-customer-options label.is-selected{border-color:#f3426d;background:rgba(243,66,109,.1)}
+.rpm-checkout-page .rpm-checkout-customer-options input[type=radio]{appearance:auto;accent-color:#f3426d;width:18px;height:18px;flex:0 0 18px;margin:0;cursor:pointer}
+.rpm-checkout-page .rpm-checkout-customer-options label:focus-within{outline:2px solid #f3426d;outline-offset:2px}
+@media(max-width:520px){.rpm-checkout-page .rpm-checkout-customer-options{grid-template-columns:1fr}}
