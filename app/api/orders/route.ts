@@ -53,8 +53,9 @@ export async function POST(request:Request){
   }
   const total=Math.round(items.reduce((sum,item)=>sum+item.unitPrice*item.qty,0)*100)/100;
   const shipping=shippingQuote(shippingMethod,total);
+  const grandTotal=Math.round((total+shipping.cost)*100)/100;
   await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
-  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping}),JSON.stringify(items),total]);
-  return NextResponse.json({orderId:saved.rows[0].id,total,shipping,status:'new'},{status:201});
+  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping}),JSON.stringify(items),grandTotal]);
+  return NextResponse.json({orderId:saved.rows[0].id,total:grandTotal,subtotal:total,shipping,status:'new'},{status:201});
  }catch{return NextResponse.json({error:'Nie udało się zapisać zgłoszenia. Spróbuj ponownie.'},{status:500});}
 }
