@@ -147,3 +147,28 @@
 .rpm-toast-close{position:absolute;top:12px;right:12px;background:transparent;border:0;color:#b9c3cd;cursor:pointer;padding:7px}
 @keyframes rpmToastIn{from{opacity:0}to{opacity:1}}
 @media(max-width:480px){.rpm-toast-card{padding:34px 20px 24px}.rpm-toast-card>strong{font-size:20px}}
+
+
+/* Admin order management */
+.rpm-orders-link{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.rpm-orders-page{min-height:100vh}
+.rpm-orders-filters{display:flex;gap:14px;align-items:center;margin:24px 0;flex-wrap:wrap}
+.rpm-orders-filters .admin-search{flex:1;min-width:220px}
+.rpm-orders-filters select,.rpm-order-update select{background:#15191f;border:1px solid #454b55;border-radius:8px;color:#f2f2f2;padding:12px}
+.rpm-orders-list{display:flex;flex-direction:column;gap:13px}
+.rpm-order-card{background:#161b22;border:1px solid #363d47;border-radius:12px;overflow:hidden}
+.rpm-order-summary{width:100%;border:0;background:transparent;color:#f4f5f6;display:grid;grid-template-columns:1fr 2fr 1fr 1fr auto;gap:16px;align-items:center;text-align:left;padding:20px;cursor:pointer}
+.rpm-order-summary>span{min-width:0;overflow-wrap:anywhere}
+.rpm-order-summary strong,.rpm-order-summary small{display:block}
+.rpm-order-summary small{color:#a8b0bd;margin-top:5px}
+.rpm-order-status{background:#273541;border:1px solid #435466;border-radius:8px;padding:8px 10px;text-align:center;font-weight:700}
+.rpm-order-details{border-top:1px solid #353d48;padding:22px;display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:24px;color:#e4e6ea}
+.rpm-order-details h3{font-size:16px;margin:0 0 12px}
+.rpm-order-contact p{margin:8px 0;overflow-wrap:anywhere}
+.rpm-order-contact a{color:#d7e5ff}
+.rpm-order-item{display:flex;flex-direction:column;gap:5px;padding:10px 0;border-bottom:1px solid #303742}
+.rpm-order-item small{color:#aeb8c4}
+.rpm-order-update{display:flex;flex-direction:column;gap:18px}
+.rpm-order-update label{display:flex;flex-direction:column;gap:9px}
+.rpm-orders-empty{padding:60px 20px;text-align:center;color:#b9c2cd}
+@media(max-width:850px){.rpm-order-summary{grid-template-columns:1fr 1fr;gap:12px}.rpm-order-details{grid-template-columns:1fr}.rpm-order-status{text-align:left}}
