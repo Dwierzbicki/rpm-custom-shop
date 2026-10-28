@@ -1,3 +1,4 @@
+import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
 import {Pool} from 'pg';
 import {getCatalog} from '../../lib/catalog-db';
@@ -20,6 +21,8 @@ export async function POST(request:Request){
   if(customer.phone!==undefined&&(typeof customer.phone!=='string'||customer.phone.length>30||!/^\\+?[0-9 ()-]{7,30}$/.test(customer.phone.trim())))return NextResponse.json({error:'Niepoprawny telefon'},{status:400});
   if(type==='company'&&(!validText(customer.company,160)||typeof customer.nip!=='string'||!/^\\d{10}$/.test(customer.nip)))return NextResponse.json({error:'Podaj nazwę firmy i 10-cyfrowy NIP'},{status:400});
   if(customer.notes!==undefined&&(typeof customer.notes!=='string'||customer.notes.length>1000))return NextResponse.json({error:'Uwagi są zbyt długie'},{status:400});
+  const shippingMethod=body?.shippingMethod??'courier';
+  if(!isShippingMethod(shippingMethod))return NextResponse.json({error:'Wybierz poprawny sposób dostawy'},{status:400});
   const lines=body?.lines as IncomingLine[];
   if(!Array.isArray(lines)||lines.length<1||lines.length>30)return NextResponse.json({error:'Niepoprawny koszyk'},{status:400});
   const catalog=await getCatalog();
@@ -49,8 +52,9 @@ export async function POST(request:Request){
    items.push({productId:p.id,sku:p.sku,name:p.name,qty:line.qty,unitPrice:Math.round((p.price+extra)*100)/100,options:verified});
   }
   const total=Math.round(items.reduce((sum,item)=>sum+item.unitPrice*item.qty,0)*100)/100;
+  const shipping=shippingQuote(shippingMethod,total);
   await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
-  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??''}),JSON.stringify(items),total]);
-  return NextResponse.json({orderId:saved.rows[0].id,total,status:'new'},{status:201});
+  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping}),JSON.stringify(items),total]);
+  return NextResponse.json({orderId:saved.rows[0].id,total,shipping,status:'new'},{status:201});
  }catch{return NextResponse.json({error:'Nie udało się zapisać zgłoszenia. Spróbuj ponownie.'},{status:500});}
 }
