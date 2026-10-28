@@ -272,3 +272,12 @@
 .rpm-cart-summary .primary{width:100%;justify-content:center}
 @media(max-width:1050px){.rpm-cart-layout{grid-template-columns:1fr}.rpm-cart-summary{position:static}}
 @media(max-width:620px){.rpm-cart-line{grid-template-columns:72px minmax(0,1fr);padding:14px;gap:12px}.rpm-cart-image{width:72px;height:72px}.rpm-cart-controls{grid-column:1/-1;flex-direction:row;justify-content:space-between;align-items:center;flex-wrap:wrap}.rpm-cart-remove{margin-left:auto}.rpm-cart-section-head{align-items:flex-start;flex-direction:column}}
+
+
+/* Daily chart hover values */
+.rpm-stat-bar-col{position:relative;cursor:default;outline-offset:3px}
+.rpm-stat-bar-col:focus-visible{outline:2px solid #ff6488;border-radius:4px}
+.rpm-stat-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translate(-50%,6px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 13px;min-width:110px;white-space:nowrap;border:1px solid #596475;border-radius:9px;background:#101721;color:#fff;box-shadow:0 8px 25px rgba(0,0,0,.4);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .15s,transform .15s}
+.rpm-stat-tooltip span{font-size:11px;color:#aeb9c7}
+.rpm-stat-tooltip strong{font-size:14px;color:#ff6488;font-variant-numeric:tabular-nums}
+.rpm-stat-bar-col:hover .rpm-stat-tooltip,.rpm-stat-bar-col:focus-visible .rpm-stat-tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}
