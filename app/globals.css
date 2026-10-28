@@ -366,3 +366,18 @@
 /* Shipping choices in checkout */
 .rpm-checkout-page .rpm-shipping-note{margin:0;color:#b9c7d7;font-size:13px;line-height:1.6}
 .rpm-checkout-page .rpm-checkout-customer-options label span{line-height:1.45}
+
+/* Admin shipping settings */
+.rpm-settings-page{max-width:1180px}
+.rpm-settings-card{background:#171f2a;border:1px solid #374354;border-radius:14px;padding:30px;max-width:760px;display:flex;flex-direction:column;gap:22px}
+.rpm-settings-card h2{margin:0;color:#fff}
+.rpm-settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.rpm-settings-field{display:flex;flex-direction:column;gap:10px;color:#d8e2ee;font-weight:600;font-size:14px}
+.rpm-settings-field input{background:#0f1722;border:1px solid #435168;border-radius:8px;color:white;padding:13px;width:100%;font-size:16px}
+.rpm-settings-toggles{display:flex;flex-wrap:wrap;gap:22px}
+.rpm-settings-toggles label{display:flex;flex-direction:row;align-items:center;gap:9px;color:#d8e2ee;cursor:pointer}
+.rpm-settings-toggles input{width:18px;height:18px;accent-color:#f3426d}
+.rpm-settings-card .primary{align-self:flex-start}
+.rpm-settings-success{color:#9ee3b9;margin:0}
+.rpm-settings-error{color:#ff8d9d}
+@media(max-width:600px){.rpm-settings-grid{grid-template-columns:1fr}.rpm-settings-card{padding:20px}}
