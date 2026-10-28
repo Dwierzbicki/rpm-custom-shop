@@ -614,3 +614,25 @@
  cursor:pointer;
 }
 .rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer span{flex:1;min-width:0}
+
+
+/* Country calling code + national number, aligned with checkout inputs */
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field{
+ display:grid;
+ grid-template-columns:minmax(148px,42%) minmax(0,1fr);
+ gap:10px;
+ align-items:stretch;
+ width:100%;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field select,
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field input{
+ box-sizing:border-box;
+ width:100%;
+ height:var(--checkout-control-height,48px);
+ min-height:var(--checkout-control-height,48px);
+ margin:0;
+}
+@media(max-width:560px){
+ .rpm-checkout-page .rpm-checkout-section .rpm-phone-field{grid-template-columns:minmax(120px,45%) minmax(0,1fr);gap:8px}
+ .rpm-checkout-page .rpm-checkout-section .rpm-phone-field select{padding-inline:8px;font-size:12px}
+}
