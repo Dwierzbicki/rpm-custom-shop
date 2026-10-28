@@ -973,3 +973,7 @@
 .rpm-guide-cart-builder .rpm-guide-modern-links{gap:9px;border-top:1px solid #302d38;padding-top:10px}
 .rpm-guide-cart-builder .rpm-guide-modern-links button,.rpm-guide-cart-builder .rpm-guide-modern-links a{font-size:11px}
 @media(max-width:650px){.rpm-guide-cart-builder .rpm-guide-modern-image{width:62px;height:62px;flex-basis:62px}.rpm-guide-cart-builder .rpm-guide-modern-bottom{align-items:center;flex-wrap:nowrap}.rpm-guide-cart-builder .rpm-guide-modern-price>strong{font-size:18px}.rpm-guide-cart-builder .rpm-guide-modern-bottom .rpm-guide-accordion-select{min-width:94px;padding:6px 8px}}
+
+/* Remove the outer cart-builder frame; retain category cards and price summary */
+.rpm-guide-cart-builder{border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;margin:24px 0}
+@media(max-width:650px){.rpm-guide-cart-builder{padding:0}}
