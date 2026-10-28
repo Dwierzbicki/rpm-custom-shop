@@ -1,4 +1,6 @@
-export type Product={id:number;name:string;brand:string;category:string;price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[]};
+export type ProductOption={id:string;label:string;price:number};
+export type ProductOptionGroup={id:string;name:string;required:boolean;options:ProductOption[]};
+export type Product={id:number;name:string;brand:string;category:string;price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[];optionGroups?:ProductOptionGroup[]};
 const groups:[string,string,string,number,string,boolean?][]= [
 ['Kolektor turbo BMW E36 M50/M52','RPM Custom','Kolektory',2899,'BMW M50/M52',true],
 ['Kolektor turbo BMW E46 M54','RPM Custom','Kolektory',3099,'BMW M54',true],
@@ -31,5 +33,5 @@ const groups:[string,string,string,number,string,boolean?][]= [
 ['Regulator ciśnienia paliwa','Demo Parts','Paliwo',449,'Uniwersalne']
 ];
 export const products:Product[]=groups.map((p,i)=>({id:i<4?i+1:i===4?29:i,name:p[0],brand:p[1],category:p[2],price:p[3],engine:p[4],configurable:!!p[5],sku:`RPM-DEMO-${String(i<4?i+1:i===4?29:i).padStart(3,'0')}`,description:p[5]?'Kolektor wykonywany na zamówienie. Wybierz wymagane parametry. Zgodność i termin wymagają potwierdzenia.':'Produkt demonstracyjny do testowania sklepu. Parametry i dostępność wymagają weryfikacji.'}));
-export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>};
+export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number};
 export const money=(v:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(v);
