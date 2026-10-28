@@ -1,5 +1,5 @@
 import {NextResponse} from 'next/server';
-import {createHash,createHmac} from 'node:crypto';
+import {createHash} from 'node:crypto';
 export const runtime='nodejs';
 const maxSize=5*1024*1024;
 export async function POST(request:Request){
@@ -19,7 +19,7 @@ export async function POST(request:Request){
   if(!jpeg&&!png&&!webp)return NextResponse.json({error:'Obsługiwane formaty: JPG, PNG, WEBP'},{status:415});
   const timestamp=Math.floor(Date.now()/1000),folder='rpm-custom/products';
   const signature=createHash('sha1').update('folder='+folder+'&timestamp='+timestamp+secret).digest('hex');
-  const upload=new FormData();upload.set('file',new Blob([bytes],{type:jpeg?'image/jpeg':png?'image/png':'image/webp'}),'product-image');upload.set('api_key',key);upload.set('timestamp',String(timestamp));upload.set('folder',folder);upload.set('signature',signature);
+  const upload=new FormData();upload.set('file',new Blob([Uint8Array.from(bytes)],{type:jpeg?'image/jpeg':png?'image/png':'image/webp'}),'product-image');upload.set('api_key',key);upload.set('timestamp',String(timestamp));upload.set('folder',folder);upload.set('signature',signature);
   const response=await fetch('https://api.cloudinary.com/v1_1/'+encodeURIComponent(cloud)+'/image/upload',{method:'POST',body:upload});
   const data=await response.json();
   if(!response.ok||typeof data.secure_url!=='string')return NextResponse.json({error:'Cloudinary odrzucił zdjęcie. Sprawdź konfigurację konta.'},{status:502});
