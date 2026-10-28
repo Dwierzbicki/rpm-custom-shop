@@ -17,8 +17,11 @@ export default function Shop(){
  useEffect(()=>{const saved=localStorage.getItem('rpm-language');if(saved==='en'||saved==='pl'){setLang(saved);document.documentElement.lang=saved}},[]);
 
  const [view,setView]=useState<View>('home'),[selected,setSelected]=useState<Product>(products[0]),[cart,setCart]=useState<CartLine[]>([]),[garage,setGarage]=useState<CartLine[]>([]),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[mobileMenu,setMobileMenu]=useState(false),[engine,setEngine]=useState(''),[flange,setFlange]=useState(''),[wg,setWg]=useState(''),[egt,setEgt]=useState(false),[qty,setQty]=useState(1),[toast,setToast]=useState(''),[checkoutDone,setCheckoutDone]=useState(false),[orderId,setOrderId]=useState(''),[orderError,setOrderError]=useState(''),[orderBusy,setOrderBusy]=useState(false);
- useEffect(()=>{try{const c=localStorage.getItem('rpm-cart');const g=localStorage.getItem('rpm-garage');if(c)setCart(JSON.parse(c));if(g)setGarage(JSON.parse(g))}catch{}},[]);
- useEffect(()=>{localStorage.setItem('rpm-cart',JSON.stringify(cart))},[cart]);useEffect(()=>{localStorage.setItem('rpm-garage',JSON.stringify(garage))},[garage]);
+ const [storageReady,setStorageReady]=useState(false);
+ useEffect(()=>{try{const c=localStorage.getItem('rpm-cart');const g=localStorage.getItem('rpm-garage');if(c){const parsed=JSON.parse(c);if(Array.isArray(parsed))setCart(parsed)}if(g){const parsed=JSON.parse(g);if(Array.isArray(parsed))setGarage(parsed)}const savedView=sessionStorage.getItem('rpm-shop-view');if(savedView&&['home','catalog','product','cart','checkout','garage'].includes(savedView))setView(savedView as View)}catch{}finally{setStorageReady(true)}},[]);
+ useEffect(()=>{if(storageReady)localStorage.setItem('rpm-cart',JSON.stringify(cart))},[cart,storageReady]);
+ useEffect(()=>{if(storageReady)localStorage.setItem('rpm-garage',JSON.stringify(garage))},[garage,storageReady]);
+ useEffect(()=>{if(storageReady)sessionStorage.setItem('rpm-shop-view',view)},[view,storageReady]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const navigate=(v:View)=>{setView(v);setMobileMenu(false);window.scrollTo({top:0,behavior:'smooth'})};
  useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
