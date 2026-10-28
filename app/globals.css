@@ -778,3 +778,13 @@
  .rpm-solar-subgrid{grid-template-columns:1fr}
  .rpm-inline-catalog .products-grid{grid-template-columns:1fr}
 }
+
+
+/* RPM Custom: real drift-car hero image, with responsive focal points */
+.drift-hero-photo{background-image:url('/rpm-hero-drift.png');background-size:cover;background-position:center 52%;background-repeat:no-repeat}
+.drift-hero-photo:after{content:none}
+.drift-hero-shade{background:linear-gradient(90deg,rgba(6,7,11,.97) 0%,rgba(6,7,11,.91) 26%,rgba(6,7,11,.58) 49%,rgba(6,7,11,.12) 77%,rgba(6,7,11,.17) 100%),linear-gradient(0deg,rgba(6,7,11,.82),transparent 28%)}
+.drift-hero-inner{position:relative;z-index:2}
+@media(min-width:751px) and (max-width:1150px){.drift-hero-photo{background-position:60% center}.drift-hero-shade{background:linear-gradient(90deg,rgba(6,7,11,.96) 0%,rgba(6,7,11,.83) 40%,rgba(6,7,11,.22) 100%),linear-gradient(0deg,rgba(6,7,11,.8),transparent 30%)}}
+@media(max-width:750px){.drift-hero{min-height:640px}.drift-hero-photo{background-position:67% center}.drift-hero-shade{background:linear-gradient(180deg,rgba(6,7,11,.83) 0%,rgba(6,7,11,.74) 34%,rgba(6,7,11,.35) 65%,rgba(6,7,11,.88) 100%)}.drift-hero-inner{padding-top:70px}.drift-hero h1{max-width:560px;text-shadow:0 3px 22px #000}}
+@media(max-width:480px){.drift-hero{min-height:670px}.drift-hero-photo{background-position:70% center}.drift-hero-inner{padding:65px 18px 38px}.drift-hero h1{font-size:clamp(47px,12vw,65px)}.drift-hero p{max-width:340px;text-shadow:0 2px 12px #000}.drift-hero-bottom{position:relative;z-index:2}}
