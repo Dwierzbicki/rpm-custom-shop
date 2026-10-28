@@ -1,12 +1,12 @@
+import {validNip,normalizeNip} from '../../company-utils.mjs';
 import {NextResponse} from 'next/server';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 type Company={name:string;address:string;statusVat:string};
 const cache=new Map<string,{expires:number;company:Company}>();
 const hits=new Map<string,{count:number;until:number}>();
-function validNip(nip:string){if(!/^\d{10}$/.test(nip))return false;const weights=[6,5,7,2,3,4,5,6,7];const sum=weights.reduce((a,w,i)=>a+w*Number(nip[i]),0)%11;return sum!==10&&sum===Number(nip[9]);}
 export async function GET(request:Request){
- const url=new URL(request.url);const nip=(url.searchParams.get('nip')??'').replace(/[\s-]/g,'');
+ const url=new URL(request.url);const nip=normalizeNip(url.searchParams.get('nip')??'');
  if(!validNip(nip))return NextResponse.json({error:'Podaj poprawny 10-cyfrowy NIP.'},{status:400});
  const saved=cache.get(nip);if(saved&&saved.expires>Date.now())return NextResponse.json(saved.company);
  const ip=request.headers.get('x-forwarded-for')?.split(',')[0]?.trim()??'unknown';
