@@ -222,3 +222,15 @@
 .rpm-stat-top span{min-width:0}.rpm-stat-top strong,.rpm-stat-top small{display:block}.rpm-stat-top strong{font-size:13px}.rpm-stat-top small{color:#9aa8b7;margin-top:5px}.rpm-stat-top b{white-space:nowrap}
 @media(max-width:1150px){.rpm-admin-overview .rpm-admin-overview-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-stat-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.rpm-admin-overview .rpm-admin-overview-grid{grid-template-columns:1fr}.rpm-stat-chart{gap:2px}.rpm-stat-bar-col small{font-size:8px}}
+
+
+/* Live product quantity price */
+.rpm-product-total{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 12px}
+.rpm-product-total>div{display:flex;flex-direction:column;gap:7px;padding:16px 18px;border:1px solid #394250;border-radius:12px;background:#161d27}
+.rpm-product-total span{font-size:12px;color:#aab4c4}
+.rpm-product-total strong{font-size:clamp(18px,2vw,25px);color:#f3f5f9;font-variant-numeric:tabular-nums}
+.rpm-product-total .rpm-product-total-highlight{border-color:#f3426d;background:linear-gradient(110deg,rgba(243,66,109,.18),rgba(243,66,109,.035));box-shadow:0 0 18px rgba(243,66,109,.14);animation:rpm-price-flash .4s ease-out}
+.rpm-product-total-highlight strong{color:#ff6488}
+@keyframes rpm-price-flash{from{box-shadow:0 0 30px rgba(243,66,109,.55);transform:scale(1.015)}to{box-shadow:0 0 18px rgba(243,66,109,.14);transform:scale(1)}}
+@media(max-width:550px){.rpm-product-total{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.rpm-product-total .rpm-product-total-highlight{animation:none}}
