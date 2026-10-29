@@ -1661,3 +1661,45 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-desktop-motolab{padding:12px clamp(13px,1.15vw,30px)!important}
 .rpm-header-v2.rpm-header-wide .rpm-desktop-categories{justify-content:space-evenly!important}
 .rpm-header-v2.rpm-header-compact .rpm-desktop-categories{justify-content:flex-start!important}
+
+/* Homepage responsive sizing system — scoped to storefront, preserving design. */
+.rpm-hp-v2{--hp-gutter:clamp(16px,3.1vw,56px);--hp-space:clamp(36px,5vw,90px);width:100%;min-width:0}
+.rpm-hp-v2 *{min-width:0}
+.rpm-hp-v2 .rpm-hp-hero{min-height:clamp(500px,47vw,790px);display:flex;align-items:center}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{width:min(100%,1440px);box-sizing:border-box;margin-inline:auto;padding:clamp(65px,7vw,125px) var(--hp-gutter)}
+.rpm-hp-v2 .rpm-hp-hero h1{font-size:clamp(48px,5.3vw,104px);line-height:.99;letter-spacing:-.045em;max-width:900px;text-wrap:balance}
+.rpm-hp-v2 .rpm-hp-hero p{font-size:clamp(14px,1.12vw,18px);line-height:1.65;max-width:600px}
+.rpm-hp-v2 .drift-section{box-sizing:border-box;padding-inline:var(--hp-gutter);padding-block:var(--hp-space)}
+.rpm-hp-v2 .rpm-motolab{width:min(calc(100% - 2*var(--hp-gutter)),1440px);max-width:1440px;box-sizing:border-box;margin-inline:auto}
+.rpm-hp-v2 .rpm-motolab-content{box-sizing:border-box;padding:clamp(24px,3.2vw,62px)}
+.rpm-hp-v2 .rpm-motolab h2{font-size:clamp(44px,5.2vw,92px);line-height:1.04}
+.rpm-hp-v2 .rpm-motolab-content>p{font-size:clamp(14px,1vw,17px);line-height:1.65}
+.rpm-hp-v2 .rpm-hp-category-grid{gap:clamp(12px,1.6vw,24px)}
+.rpm-hp-v2 .rpm-hp-products-layout{gap:clamp(16px,2.2vw,36px)}
+.rpm-hp-v2 .rpm-hp-featured .products-grid{gap:clamp(12px,1.5vw,24px)}
+.rpm-hp-v2 .rpm-hp-custom{gap:clamp(18px,3vw,48px)}
+.rpm-hp-v2 img{max-width:100%}
+.rpm-header-v2 .rpm-header-main{box-sizing:border-box;width:100%;max-width:1440px;padding-inline:clamp(14px,2.2vw,34px);gap:clamp(10px,1.7vw,26px)}
+.rpm-header-v2 .rpm-header-search{flex:1 1 360px;min-width:150px;max-width:680px}
+.rpm-header-v2 .rpm-header-actions{flex:0 0 auto}
+@media(max-width:1100px){
+.rpm-hp-v2 .rpm-hp-hero{min-height:clamp(490px,65vw,690px)}
+.rpm-hp-v2 .rpm-hp-hero h1{font-size:clamp(48px,7.2vw,78px)}
+.rpm-hp-v2 .rpm-motolab h2{font-size:clamp(46px,7vw,74px)}
+.rpm-hp-v2 .rpm-hp-products-layout{grid-template-columns:minmax(0,1fr)}
+}
+@media(max-width:700px){
+.rpm-hp-v2{--hp-gutter:16px;--hp-space:42px}
+.rpm-hp-v2 .rpm-hp-hero{min-height:clamp(500px,125vw,690px)}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{padding:70px 20px 60px}
+.rpm-hp-v2 .rpm-hp-hero h1{font-size:clamp(44px,11vw,68px);line-height:1.02}
+.rpm-hp-v2 .rpm-hp-hero p{font-size:14px;max-width:370px}
+.rpm-hp-v2 .rpm-motolab{width:calc(100% - 32px)}
+.rpm-hp-v2 .rpm-motolab-content{padding:25px 18px}
+.rpm-hp-v2 .rpm-motolab h2{font-size:clamp(44px,12vw,66px)}
+.rpm-hp-v2 .rpm-hp-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rpm-hp-v2 .rpm-hp-featured .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rpm-header-v2 .rpm-header-main{padding-inline:14px}
+.rpm-header-v2 .rpm-header-search{flex:1 1 100%;max-width:none;order:3}
+}
+@media(max-width:380px){.rpm-hp-v2 .rpm-hp-hero h1{font-size:42px}.rpm-hp-v2 .rpm-hp-featured .products-grid{grid-template-columns:1fr}}
