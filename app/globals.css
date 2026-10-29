@@ -1176,3 +1176,25 @@ background:#b8132e!important;color:#fff!important;
 /* Custom SVG Technical Motorsport pictograms: crisp at every scale */
 .rpm-category-technical-icon{display:inline-block;width:21px;height:21px;flex:0 0 21px;background-color:#f05b73;mask-size:contain;mask-repeat:no-repeat;mask-position:center;-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;transition:background-color .15s ease,transform .15s ease}
 .rpm-fmic-root:hover>button .rpm-category-technical-icon,.rpm-fmic-root:focus-within>button .rpm-category-technical-icon{background-color:#fff;transform:scale(1.08)}
+
+
+/* Stable, contiguous 3-column category cascade: no hover gaps */
+@media(min-width:801px){
+.rpm-fmic-panel.rpm-fmic-panel-v3{width:max-content;max-width:calc(100vw - 24px);padding:0;overflow:visible;max-height:none;background:#181a20}
+.rpm-fmic-panel-v3 .rpm-fmic-panel-title{padding:17px 18px 13px;margin:0;border-bottom:1px solid #343740}
+.rpm-fmic-cascade{display:flex;align-items:flex-start;gap:0}
+.rpm-fmic-column{width:285px;flex:0 0 285px;max-height:min(72vh,720px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#555962 #202228}
+.rpm-fmic-primary{width:300px;flex-basis:300px}
+.rpm-fmic-secondary,.rpm-fmic-tertiary{border-left:1px solid #3b3e47;background:#22242b}
+.rpm-fmic-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px;width:100%;min-height:39px;padding:10px 13px!important;border:0!important;border-bottom:1px solid #30333a!important;border-radius:0!important;background:transparent!important;color:#f4f5f7!important;font-size:12px!important;font-weight:650!important;text-align:left;line-height:1.3;white-space:normal}
+.rpm-fmic-row:hover,.rpm-fmic-row:focus-visible,.rpm-fmic-row.active{background:#b8132e!important;color:#fff!important}
+.rpm-fmic-row.active .rpm-category-technical-icon,.rpm-fmic-row:hover .rpm-category-technical-icon{background-color:#fff}
+.rpm-fmic-column .rpm-fmic-row:last-child{border-bottom:0!important}
+}
+@media(max-width:800px){
+.rpm-fmic-panel-v3 .rpm-fmic-cascade{display:flex;flex-direction:column}
+.rpm-fmic-panel-v3 .rpm-fmic-column{width:100%;max-height:260px;overflow-y:auto}
+.rpm-fmic-panel-v3 .rpm-fmic-secondary,.rpm-fmic-panel-v3 .rpm-fmic-tertiary{border-left:0;border-top:2px solid #e31836;background:#25272e}
+.rpm-fmic-panel-v3 .rpm-fmic-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 10px;border:0;border-bottom:1px solid #353840;background:transparent;color:#fff;text-align:left;font-size:13px}
+.rpm-fmic-panel-v3 .rpm-fmic-row.active{background:#b8132e}
+}
