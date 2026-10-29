@@ -1389,3 +1389,18 @@ background:#b8132e!important;color:#fff!important;
  .rpm-products-modern{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 }
 @media(max-width:430px){.rpm-technical-filters{grid-template-columns:1fr}.rpm-products-modern .product-info strong{font-size:13px}.rpm-products-modern .product-info{padding:11px}}
+
+/* Header-led FMIC navigation: intentional click-to-open on all screen sizes */
+.rpm-fmic-menu:not(.rpm-fmic-menu-open):hover .rpm-fmic-panel,
+.rpm-fmic-menu:not(.rpm-fmic-menu-open):focus-within .rpm-fmic-panel{display:none!important}
+.rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-panel{display:block!important}
+.rpm-fmic-trigger{display:flex!important;align-items:center;justify-content:center;gap:8px}
+.rpm-fmic-menu-open .rpm-fmic-trigger{color:#ff3b55!important}
+.rpm-fmic-menu-open .rpm-fmic-trigger svg{transform:rotate(90deg)}
+@media(max-width:800px){
+ .rpm-fmic-menu.rpm-fmic-menu-open{width:100%}
+ .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-panel{position:relative!important;top:auto!important;left:auto!important;width:100%!important;max-width:100%!important;max-height:65vh!important;overflow:auto!important;box-sizing:border-box}
+ .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-cascade{display:flex;flex-direction:column}
+ .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-column{width:100%!important;max-width:100%!important;min-width:0!important}
+ .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-feature{display:none}
+}
