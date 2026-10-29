@@ -184,18 +184,15 @@ export default function Shop(){
    frame=requestAnimationFrame(()=>{
     const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
     if(!nav)return;
-    const required=Array.from(nav.children).reduce((sum,child)=>sum+(child as HTMLElement).getBoundingClientRect().width,0);
-    const available=document.documentElement.clientWidth-32;
+    const required=Array.from(nav.children).reduce((sum,child)=>sum+(child as HTMLElement).offsetWidth,0);
+    const available=document.documentElement.clientWidth-24;
     setCompactCategories(required>available);
    });
   };
   measure();
   window.addEventListener('resize',measure);
   document.fonts?.ready.then(measure);
-  const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(measure):null;
-  const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
-  if(nav)observer?.observe(nav);
-  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure);observer?.disconnect()};
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure)};
  },[]);
  useEffect(()=>{setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null)},[compactCategories]);
  const [fmicMenuOpen,setFmicMenuOpen]=useState(false);
