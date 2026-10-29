@@ -1,6 +1,6 @@
 export type ProductOption={id:string;label:string;price:number};
 export type ProductOptionGroup={id:string;name:string;required:boolean;options:ProductOption[]};
-export type Product={id:number;name:string;brand:string;category:string;price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[];optionGroups?:ProductOptionGroup[]};
+export type Product={id:number;name:string;brand:string;category:string;price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[];optionGroups?:ProductOptionGroup[];attributes?:Record<string,string>};
 const groups:[string,string,string,number,string,boolean?][]= [
 ['Kolektor turbo BMW E36 M50/M52','RPM Custom','Kolektory',2899,'BMW M50/M52',true],
 ['Kolektor turbo BMW E46 M54','RPM Custom','Kolektory',3099,'BMW M54',true],
