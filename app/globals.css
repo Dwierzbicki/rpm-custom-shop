@@ -1096,3 +1096,25 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 @media(max-width:1200px) and (min-width:801px){.rpm-header-v2 .rpm-header-nav button{font-size:12px;padding:14px 8px}}
 @media(max-width:800px){.rpm-header-v2 .rpm-header-nav button{font-size:14px;padding:14px 16px}.rpm-header-v2 .rpm-header-search input{font-size:14px}}
 @media(max-width:480px){.rpm-hp-v2 .rpm-hp-cat-label strong{font-size:15px}.rpm-hp-v2 .rpm-hp-trust span{font-size:12px}}
+
+
+/* FMIC-inspired 3-level category navigation, styled for RPM Custom */
+.rpm-header-v2 .rpm-fmic-nav{overflow:visible}
+.rpm-fmic-menu{position:relative;display:flex;align-items:stretch}
+.rpm-fmic-menu>.rpm-fmic-trigger{height:100%}
+.rpm-fmic-panel{display:none;position:absolute;top:100%;left:0;z-index:110;width:min(960px,calc(100vw - 36px));max-height:min(75vh,700px);overflow:auto;background:#15171c;border:1px solid #393c44;border-top:3px solid #e31836;box-shadow:0 20px 55px #000b;padding:18px;border-radius:0 0 10px 10px;text-align:left}
+.rpm-fmic-menu:hover .rpm-fmic-panel,.rpm-fmic-menu:focus-within .rpm-fmic-panel{display:block}
+.rpm-fmic-panel-title{color:#fff;font-size:14px;font-weight:900;letter-spacing:.04em;margin-bottom:14px}
+.rpm-fmic-panel-title small{display:block;margin-top:5px;color:#bfc2ca;font-weight:500;font-size:12px;letter-spacing:0}
+.rpm-fmic-root-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rpm-fmic-root{position:relative;min-width:0}
+.rpm-header-v2 .rpm-fmic-root>button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 10px;font-size:12px;text-align:left;background:#24262d;color:#f8f8fa;border:1px solid #363943;border-radius:5px}
+.rpm-fmic-root:hover>button,.rpm-fmic-root:focus-within>button{background:#b8132e;border-color:#f02849}
+.rpm-fmic-submenu{display:none;position:absolute;left:0;top:100%;z-index:120;min-width:260px;max-height:54vh;overflow:visible;background:#22242b;border:1px solid #454852;box-shadow:0 12px 28px #000a;padding:5px;border-radius:5px}
+.rpm-fmic-root:hover .rpm-fmic-submenu,.rpm-fmic-root:focus-within .rpm-fmic-submenu{display:block}
+.rpm-fmic-sub{position:relative}
+.rpm-header-v2 .rpm-fmic-sub>button,.rpm-header-v2 .rpm-fmic-leaves>button{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:12px;font-weight:600;line-height:1.35;text-align:left;padding:9px 11px;background:transparent;border:0;color:#f0f1f4}
+.rpm-fmic-sub:hover>button,.rpm-fmic-leaves>button:hover{background:#373b44!important;color:#fff}
+.rpm-fmic-leaves{display:none;position:absolute;left:100%;top:0;width:280px;max-height:56vh;overflow:auto;background:#22242b;border:1px solid #454852;box-shadow:0 12px 28px #000a;padding:5px;border-radius:5px}
+.rpm-fmic-sub:hover .rpm-fmic-leaves,.rpm-fmic-sub:focus-within .rpm-fmic-leaves{display:block}
+@media(max-width:800px){.rpm-fmic-menu{display:block}.rpm-fmic-panel{position:static;width:100%;max-height:55vh;box-shadow:none;padding:10px}.rpm-fmic-menu:hover .rpm-fmic-panel{display:none}.rpm-fmic-menu:focus-within .rpm-fmic-panel{display:block}.rpm-fmic-root-grid{grid-template-columns:1fr}.rpm-fmic-submenu,.rpm-fmic-leaves{position:static!important;width:auto!important;max-height:none!important;box-shadow:none!important;margin-left:12px}.rpm-fmic-root:hover .rpm-fmic-submenu{display:none}.rpm-fmic-root:focus-within .rpm-fmic-submenu{display:block}.rpm-fmic-sub:hover .rpm-fmic-leaves{display:none}.rpm-fmic-sub:focus-within .rpm-fmic-leaves{display:block}}
