@@ -12,7 +12,7 @@ const [error,setError]=useState('');
 const [pricing,setPricing]=useState<PricingRules>(DEFAULT_PRICING_RULES);
 const [saved,setSaved]=useState('');
 const days=pricing.maxLeadDays;
-async function savePricing(value:PricingRules){setError('');setSaved('');const r=await fetch('/api/admin/suppliers/pricing',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pricing:value})});if(!r.ok){setError('Nie udało się zapisać reguł cenowych');return}setSaved('Zapisano reguły cenowe')}
+async function savePricing(value:PricingRules){setError('');setSaved('');const r=await fetch('/api/admin/suppliers/pricing',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({pricing:value})});if(!r.ok){setError('Nie udało się zapisać reguł cenowych');return}setSaved('Zapisano reguły cenowe');await load()}
 
 const [supplier,setSupplier]=useState('fmic'),[sku,setSku]=useState(''),[name,setName]=useState(''),[brand,setBrand]=useState(''),[mpn,setMpn]=useState(''),[ean,setEan]=useState(''),[variant,setVariant]=useState(''),[cost,setCost]=useState(0),[shipping,setShipping]=useState(0),[lead,setLead]=useState(3);
 async function load(){try{const [a,b,c]=await Promise.all([fetch('/api/admin/suppliers',{cache:'no-store'}),fetch('/api/admin/products',{cache:'no-store'}),fetch('/api/admin/suppliers/publish',{cache:'no-store'})]);if(!a.ok||!b.ok||!c.ok)throw Error('Błąd pobierania');setOffers((await a.json()).offers);setProducts((await b.json()).products);setProposals((await c.json()).proposals)}catch(e){setError(String(e))}}
