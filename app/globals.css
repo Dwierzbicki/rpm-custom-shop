@@ -1703,3 +1703,9 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-header-search{flex:1 1 100%;max-width:none;order:3}
 }
 @media(max-width:380px){.rpm-hp-v2 .rpm-hp-hero h1{font-size:42px}.rpm-hp-v2 .rpm-hp-featured .products-grid{grid-template-columns:1fr}}
+
+/* Featured-products promo: scale the headline to its card, not to viewport width. */
+.rpm-hp-v2 .rpm-hp-promo{min-width:0;box-sizing:border-box;container-type:inline-size;overflow:hidden}
+.rpm-hp-v2 .rpm-hp-promo h2{font-size:clamp(22px,9cqw,36px)!important;line-height:1.08!important;letter-spacing:-.035em!important;max-width:100%;overflow-wrap:break-word;word-break:normal;text-wrap:balance}
+.rpm-hp-v2 .rpm-hp-promo p{max-width:100%;overflow-wrap:break-word}
+@supports not (font-size:1cqw){.rpm-hp-v2 .rpm-hp-promo h2{font-size:clamp(22px,2vw,32px)!important}}
