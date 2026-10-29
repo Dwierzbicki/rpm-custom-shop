@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useState} from 'react';
-import {LayoutDashboard,Package,ShoppingBag,Mail,Menu,X,ExternalLink,Settings,LogOut,Wrench,Truck} from 'lucide-react';
-const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag},{href:'/admin/suppliers',label:'Dostawcy',icon:Truck},{href:'/admin/settings/power-guides',label:'POWER GUIDES',icon:Wrench},{href:'/admin/emails',label:'E-maile',icon:Mail},{href:'/admin/settings',label:'Ustawienia',icon:Settings}];
+import {LayoutDashboard,Package,ShoppingBag,Mail,Menu,X,ExternalLink,Settings,LogOut,Wrench,Truck,FileUp} from 'lucide-react';
+const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag},{href:'/admin/suppliers',label:'Dostawcy',icon:Truck},{href:'/admin/import',label:'Import produktów',icon:FileUp},{href:'/admin/settings/power-guides',label:'POWER GUIDES',icon:Wrench},{href:'/admin/emails',label:'E-maile',icon:Mail},{href:'/admin/settings',label:'Ustawienia',icon:Settings}];
 export default function AdminLayout({children}:{children:React.ReactNode}){
  const path=usePathname();
  const [open,setOpen]=useState(false);
