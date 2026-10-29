@@ -1463,3 +1463,31 @@ background:#b8132e!important;color:#fff!important;
 }
 @media(max-width:760px){.rpm-header-v2 .rpm-category-header .rpm-header-department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.rpm-header-v2 .rpm-category-header .rpm-header-department-grid{grid-template-columns:1fr}}
+
+/* Clean RPM navigation: compact bar + hierarchical side drawer */
+.rpm-header-v2 .rpm-clean-nav{display:flex!important;align-items:stretch;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:0 max(20px,calc((100vw - 1320px)/2));box-sizing:border-box;background:#1b1d22;border-top:1px solid #303139}
+.rpm-header-v2 .rpm-clean-nav button{border:0;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:12px;cursor:pointer;font-weight:850;font-size:13px;letter-spacing:.035em;white-space:nowrap}
+.rpm-header-v2 .rpm-clean-categories-button{background:transparent;padding:12px 18px}
+.rpm-header-v2 .rpm-clean-categories-button:hover{background:#2a2c34}
+.rpm-header-v2 .rpm-clean-categories-button>svg:last-child{margin-left:10px}
+.rpm-header-v2 .rpm-clean-motolab{background:#db1231;transform:skew(-9deg);padding:12px 28px}
+.rpm-header-v2 .rpm-clean-motolab:hover{background:#f02546}
+.rpm-drawer-backdrop{position:fixed;inset:0;z-index:900;background:rgba(0,0,0,.64)}
+.rpm-header-v2 .rpm-category-drawer{position:fixed;z-index:901;left:0;top:0;bottom:0;width:min(440px,92vw);display:flex;flex-direction:column;background:#17191f;color:#f6f6f8;box-shadow:16px 0 50px #0008;transform:translateX(-105%);visibility:hidden;transition:transform .22s ease,visibility .22s}
+.rpm-header-v2 .rpm-category-drawer.is-open{transform:translateX(0);visibility:visible}
+.rpm-header-v2 .rpm-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:21px 23px;border-bottom:1px solid #373940}
+.rpm-header-v2 .rpm-drawer-head strong{font-size:15px;letter-spacing:.06em}
+.rpm-header-v2 .rpm-drawer-head button{background:transparent;border:0;color:white;cursor:pointer;padding:5px}
+.rpm-header-v2 .rpm-drawer-scroll{overflow-y:auto;overscroll-behavior:contain;min-height:0;padding:10px 0 30px}
+.rpm-header-v2 .rpm-drawer-root{border-bottom:1px solid #2c2e35}
+.rpm-header-v2 .rpm-drawer-root-line,.rpm-header-v2 .rpm-drawer-sub-line{display:flex;align-items:stretch;min-height:50px}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child,.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{flex:1;text-align:left;background:transparent;border:0;color:#f6f6f8;padding:15px 22px;font-size:13px;font-weight:800;cursor:pointer}
+.rpm-header-v2 .rpm-drawer-expand{flex:0 0 52px;background:transparent;border:0;border-left:1px solid #30333b;color:#c8cad0;cursor:pointer}
+.rpm-header-v2 .rpm-drawer-expand[aria-expanded=true] svg{transform:rotate(90deg)}
+.rpm-header-v2 .rpm-drawer-root-line>button:hover,.rpm-header-v2 .rpm-drawer-sub-line>button:hover,.rpm-header-v2 .rpm-drawer-leaves>button:hover{color:#ff3855}
+.rpm-header-v2 .rpm-drawer-subs{background:#202229;padding:5px 0 10px}
+.rpm-header-v2 .rpm-drawer-sub-line{min-height:44px}
+.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{padding-left:35px;font-weight:650;font-size:12px}
+.rpm-header-v2 .rpm-drawer-leaves{display:flex;flex-direction:column;background:#292b33;padding:6px 0}
+.rpm-header-v2 .rpm-drawer-leaves>button{border:0;background:transparent;color:#c8cad0;text-align:left;padding:11px 20px 11px 51px;font-size:12px;cursor:pointer}
+@media(max-width:600px){.rpm-header-v2 .rpm-clean-nav{padding:0 10px;min-height:48px}.rpm-header-v2 .rpm-clean-nav button{font-size:11px;gap:7px}.rpm-header-v2 .rpm-clean-categories-button{padding:10px 8px}.rpm-header-v2 .rpm-clean-categories-button>svg:last-child{display:none}.rpm-header-v2 .rpm-clean-motolab{padding:10px 16px}}
