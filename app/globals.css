@@ -1709,3 +1709,29 @@ background:#b8132e!important;color:#fff!important;
 .rpm-hp-v2 .rpm-hp-promo h2{font-size:clamp(22px,9cqw,36px)!important;line-height:1.08!important;letter-spacing:-.035em!important;max-width:100%;overflow-wrap:break-word;word-break:normal;text-wrap:balance}
 .rpm-hp-v2 .rpm-hp-promo p{max-width:100%;overflow-wrap:break-word}
 @supports not (font-size:1cqw){.rpm-hp-v2 .rpm-hp-promo h2{font-size:clamp(22px,2vw,32px)!important}}
+
+/* Homepage settings editor — isolated local draft, no public publish endpoint. */
+.rpm-editor{min-height:100vh;background:#0d1016;color:#f4f6fa;padding:clamp(18px,3vw,48px);font-family:Arial,sans-serif}
+.rpm-editor-top{display:flex;justify-content:space-between;align-items:center;gap:20px;max-width:1600px;margin:0 auto 28px}
+.rpm-editor-top small{color:#f13d5a;font-weight:800;letter-spacing:.13em}
+.rpm-editor-top h1{font-size:clamp(25px,2.5vw,42px);margin:9px 0}
+.rpm-editor-top h1 span{font-size:14px;color:#f13d5a}
+.rpm-editor-top p{font-size:14px;margin:0}
+.rpm-editor-top a{color:white;text-decoration:none;border:1px solid #4b5260;padding:12px 18px;border-radius:8px}
+.rpm-editor-grid{display:grid;grid-template-columns:minmax(310px,440px) minmax(0,1fr);gap:22px;max-width:1600px;margin:auto}
+.rpm-editor-panel,.rpm-editor-preview{background:#191e27;border:1px solid #343b48;border-radius:12px;min-width:0}
+.rpm-editor-panel{padding:24px}
+.rpm-editor-panel h2{font-size:22px;margin-bottom:5px}
+.rpm-editor-panel>p{font-size:13px}
+.rpm-editor-panel label{display:flex;flex-direction:column;gap:8px;margin:19px 0;font-size:13px;font-weight:700}
+.rpm-editor-panel input,.rpm-editor-panel textarea{width:100%;background:#10141b;border:1px solid #414956;border-radius:7px;padding:12px;color:#fff;font-size:14px;resize:vertical}
+.rpm-editor-panel input:focus,.rpm-editor-panel textarea:focus{outline:2px solid #f13d5a}
+.rpm-editor-actions{display:flex;flex-wrap:wrap;gap:10px}
+.rpm-editor-actions button{background:#df1739;color:#fff;border:0;border-radius:7px;padding:12px 16px;font-weight:800}
+.rpm-editor-actions button.secondary{background:#353b47}
+.rpm-editor-preview{overflow:hidden;display:flex;flex-direction:column;min-height:760px}
+.rpm-editor-preview>div{display:flex;justify-content:space-between;gap:12px;padding:17px 20px;border-bottom:1px solid #343b48}
+.rpm-editor-preview>div span{font-size:12px;color:#b5bbc7}
+.rpm-editor-preview iframe{flex:1;width:100%;border:0;background:#080a0e}
+@media(max-width:1000px){.rpm-editor-grid{grid-template-columns:1fr}.rpm-editor-preview{min-height:650px}}
+@media(max-width:550px){.rpm-editor-top{flex-direction:column;align-items:flex-start}.rpm-editor-panel{padding:16px}}
