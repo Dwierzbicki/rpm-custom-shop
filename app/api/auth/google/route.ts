@@ -6,7 +6,8 @@ export async function GET(request:NextRequest){
  const clientId=process.env.GOOGLE_CLIENT_ID;
  if(!clientId)return NextResponse.json({error:'Logowanie Google nie jest jeszcze skonfigurowane'},{status:503});
  const state=newNonce(),verifier=newNonce(),nonce=newNonce();
- const origin=request.nextUrl.origin;
+ const origin=(process.env.APP_URL||'').trim().replace(/\/$/,'');
+ if(!/^https:\/\/[^/]+$/i.test(origin))return NextResponse.json({error:'APP_URL musi zawierać publiczny adres HTTPS sklepu'},{status:503});
  const challenge=createHash('sha256').update(verifier).digest('base64url');
  const url=new URL('https://accounts.google.com/o/oauth2/v2/auth');
  url.searchParams.set('client_id',clientId);
