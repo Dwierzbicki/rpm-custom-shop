@@ -216,11 +216,11 @@ export default function Shop(){
  </nav>
  {mobileMenu&&<div className="rpm-drawer-backdrop" onClick={()=>setMobileMenu(false)} aria-hidden="true"/>}
  <aside id="rpm-category-drawer" className={'rpm-category-drawer'+(mobileMenu?' is-open':'')} aria-label="Kategorie produktów" aria-hidden={!mobileMenu}>
- <div className="rpm-drawer-head"><strong>KATEGORIE PRODUKTÓW</strong><button type="button" onClick={()=>setMobileMenu(false)} aria-label="Zamknij kategorie"><X size={22}/></button></div>
+ <div className="rpm-drawer-head"><strong>Menu</strong><button type="button" onClick={()=>setMobileMenu(false)} aria-label="Zamknij kategorie"><X size={22}/></button></div>
  <div className="rpm-drawer-scroll">
- {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className="rpm-drawer-root">
+ {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={"rpm-drawer-root"+(activeFmicRoot===i?" is-active":"")}>
  <div className="rpm-drawer-root-line"><button type="button" onClick={()=>openCatalogPath([root.name])}>{root.name}</button><button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+root.name} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
- {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className="rpm-drawer-sub"><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>openCatalogPath([root.name,sub.name])}>{sub.name}</button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+sub.name} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>openCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}</div>)}</div>}
+ {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>openCatalogPath([root.name,sub.name])}>{sub.name}</button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+sub.name} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>openCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}</div>)}</div>}
  </div>)}
  </div></aside>
  </header>
