@@ -1498,3 +1498,20 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-category-drawer{height:100dvh!important;max-height:100dvh!important;bottom:auto!important;overflow:hidden!important}
 .rpm-header-v2 .rpm-drawer-scroll{flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;scrollbar-color:#565963 #17191f}
 .rpm-header-v2 .rpm-drawer-head{flex:0 0 auto}
+
+/* FMIC-inspired navigation: horizontal departments, vertical hover flyouts. */
+.rpm-header-v2 .rpm-desktop-categories{display:flex;align-items:stretch;justify-content:center;position:relative;z-index:80;width:100%;min-height:51px;background:#1b1d22;border-top:1px solid #303139}
+.rpm-header-v2 .rpm-desktop-root{position:relative;display:flex;align-items:stretch;min-width:0}
+.rpm-header-v2 .rpm-desktop-root-button{border:0;background:transparent;color:#f5f5f6;font-size:clamp(10px,.72vw,13px);font-weight:750;white-space:nowrap;padding:13px clamp(6px,.72vw,15px);cursor:pointer}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button,.rpm-header-v2 .rpm-desktop-root-button:hover{background:#292c33;color:#ff3857}
+.rpm-header-v2 .rpm-desktop-level2{position:absolute;left:0;top:100%;width:260px;max-height:calc(100dvh - 170px);overflow:visible;background:#191b21;border:1px solid #3b3d46;box-shadow:0 15px 35px #0009;z-index:120;padding:7px 0}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level2{left:auto;right:0}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-sub>button,.rpm-header-v2 .rpm-desktop-level3>button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:0;background:transparent;color:#eee;font-size:12px;line-height:1.35;padding:13px 17px;cursor:pointer}
+.rpm-header-v2 .rpm-desktop-sub:hover>button,.rpm-header-v2 .rpm-desktop-level3>button:hover{background:#353840;color:#fff}
+.rpm-header-v2 .rpm-desktop-level3{position:absolute;left:100%;top:-8px;width:245px;max-height:70dvh;overflow-y:auto;background:#22242b;border:1px solid #3b3d46;box-shadow:10px 15px 30px #0008;padding:7px 0;z-index:121}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto;right:100%}
+.rpm-header-v2 .rpm-desktop-motolab{background:#da1232;border:0;color:#fff;font-size:12px;font-weight:850;padding:12px 20px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.rpm-header-v2 .rpm-desktop-motolab:hover{background:#f02a48}
+.rpm-header-v2 .rpm-clean-nav{display:none!important}
+@media(max-width:1499px){.rpm-header-v2 .rpm-desktop-categories{display:none!important}.rpm-header-v2 .rpm-clean-nav{display:flex!important}}
