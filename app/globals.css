@@ -990,3 +990,61 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 .rpm-admin-settings-hub-planned{opacity:.65}
 .rpm-admin-settings-hub-planned em{margin-left:auto;flex-shrink:0;font-size:11px;font-style:normal;color:#c2bac4}
 @media(max-width:780px){.rpm-admin-settings-hub-grid{grid-template-columns:1fr}}
+
+
+/* RPM Custom storefront v2 — home only */
+.rpm-hp-v2{background:#090a0c;color:#f5f5f6}
+.rpm-hp-v2 .drift-hero.rpm-hp-hero{min-height:560px;background:#0c0d11}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-photo{background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,.05)),url('/rpm-hero-drift.png') center 45%/cover no-repeat}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-photo:after{display:none}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-shade{background:linear-gradient(90deg,#07080bed 0%,#07080bd6 32%,#07080b44 67%,#07080b16 100%)}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{padding:108px 24px 98px}
+.rpm-hp-v2 .rpm-hp-hero h1{max-width:760px;font-size:clamp(55px,6.5vw,104px);line-height:.91;margin:15px 0 14px;letter-spacing:-.07em;color:#fff}
+.rpm-hp-v2 .rpm-hp-hero h2{font-size:clamp(20px,2.8vw,37px);font-style:italic;font-weight:950;margin:0 0 20px;letter-spacing:-.045em}
+.rpm-hp-v2 .rpm-hp-hero h2 em{color:#ed172b;font-style:inherit}
+.rpm-hp-v2 .rpm-hp-hero p{max-width:490px;margin-bottom:28px}
+.rpm-hp-v2 .primary{background:#df1027;border-color:#df1027}
+.rpm-hp-v2 .primary:hover{background:#f01a33}
+.rpm-hp-trust{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;max-width:1368px;margin:0 auto;padding:24px}
+.rpm-hp-trust span{display:flex;align-items:center;gap:13px;font-size:12px;font-weight:700;color:#c8c8ca}
+.rpm-hp-trust svg{flex-shrink:0;color:#fff}
+.rpm-hp-v2 .drift-section{max-width:1368px;margin:0 auto;padding:48px 24px}
+.rpm-hp-v2 .section-heading h2{max-width:750px;font-size:clamp(25px,3vw,43px);line-height:1.07;font-style:italic;letter-spacing:-.035em}
+.rpm-hp-category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.rpm-hp-category{position:relative;min-height:188px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;text-align:left;border:1px solid #303038;border-radius:4px;padding:18px;color:#fff;background:radial-gradient(ellipse at 65% 40%,#343840,#13151a 68%,#090a0d);cursor:pointer;transition:transform .2s,border-color .2s}
+.rpm-hp-category:hover{transform:translateY(-3px);border-color:#e3182d}
+.rpm-hp-cat-art{align-self:center;display:grid;place-items:center;min-height:102px;font-size:clamp(26px,3.5vw,55px);font-weight:1000;font-style:italic;letter-spacing:-.08em;color:#ffffff23;text-shadow:0 5px 20px #000}
+.rpm-hp-cat-exhaust{background:radial-gradient(ellipse at 65% 30%,#513b36,#161416 70%)}
+.rpm-hp-cat-cooler{background:repeating-linear-gradient(0deg,#181a1f 0,#181a1f 8px,#2a2d32 9px,#2a2d32 11px)}
+.rpm-hp-cat-fuel{background:radial-gradient(ellipse at 65% 30%,#3c2429,#121317 70%)}
+.rpm-hp-cat-all{background:linear-gradient(135deg,#36121a,#0c0c10)}
+.rpm-hp-cat-label{display:flex;flex-direction:column;gap:7px;position:relative}
+.rpm-hp-cat-label strong{font-size:16px}
+.rpm-hp-cat-label small{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:850;color:#dedee0;letter-spacing:.06em}
+.rpm-hp-products-layout{display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,3fr);gap:22px}
+.rpm-hp-promo{min-height:390px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;padding:26px;background:linear-gradient(160deg,#3a121c,#111116 55%,#090a0c);border:1px solid #4b242a}
+.rpm-hp-promo h2{font-size:clamp(26px,3vw,40px);font-style:italic;line-height:1.06;letter-spacing:-.05em}
+.rpm-hp-promo p{color:#c5c5c7;font-size:14px;line-height:1.6}
+.rpm-hp-promo .primary{margin-top:15px}
+.rpm-hp-featured{min-width:0}
+.rpm-hp-featured .section-heading{margin-bottom:18px}
+.rpm-hp-featured .products-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.rpm-hp-featured .products-grid>*{min-width:0}
+.rpm-hp-brandstrip{display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;padding:28px 24px;background:#111216;border-top:1px solid #27282d;border-bottom:1px solid #27282d;color:#b8b8bc;font-weight:1000;font-style:italic;letter-spacing:.08em}
+.rpm-hp-custom{display:grid;grid-template-columns:1fr 1fr;min-height:430px;background:#111216}
+.rpm-hp-custom-image{background:linear-gradient(90deg,transparent,#11121644),url('/rpm-hero-drift.png') center/cover no-repeat;min-height:350px}
+.rpm-hp-custom-copy{padding:clamp(30px,5vw,78px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
+.rpm-hp-custom-copy h2{font-size:clamp(28px,3.6vw,52px);font-weight:1000;font-style:italic;line-height:1.04;letter-spacing:-.055em}
+.rpm-hp-custom-copy p{max-width:540px;color:#c7c7cb;line-height:1.7}
+.rpm-hp-custom-features{display:flex;flex-wrap:wrap;gap:18px;margin:16px 0 24px}
+.rpm-hp-custom-features span{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800}
+.rpm-hp-about{max-width:1368px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:32px;padding:72px 24px}
+.rpm-hp-about>div:first-child{max-width:650px}
+.rpm-hp-about h2{font-size:clamp(30px,4vw,54px);font-style:italic;line-height:1.04}
+.rpm-hp-about p{color:#bfc0c3;line-height:1.7;margin-bottom:25px}
+.rpm-hp-about-accent{font-size:clamp(70px,13vw,190px);font-weight:1000;font-style:italic;letter-spacing:-.1em;color:#ffffff0b}
+.rpm-hp-about-accent span{color:#e3182d55}
+.rpm-hp-guides{border-top:1px solid #24252b}
+@media(max-width:1100px){.rpm-hp-featured .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-hp-products-layout{grid-template-columns:240px minmax(0,1fr)}}
+@media(max-width:780px){.rpm-hp-trust{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-hp-category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-hp-products-layout{grid-template-columns:1fr}.rpm-hp-promo{min-height:230px}.rpm-hp-custom{grid-template-columns:1fr}.rpm-hp-custom-image{min-height:280px}.rpm-hp-about-accent{display:none}.rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{padding:85px 20px 75px}}
+@media(max-width:480px){.rpm-hp-v2 .drift-hero.rpm-hp-hero{min-height:490px}.rpm-hp-v2 .rpm-hp-hero h1{font-size:clamp(46px,12vw,65px)}.rpm-hp-v2 .rpm-hp-hero .drift-hero-photo{background-position:63% center}.rpm-hp-v2 .rpm-hp-hero .drift-hero-shade{background:linear-gradient(90deg,#07080bf0,#07080b80)}.rpm-hp-category{min-height:145px;padding:12px}.rpm-hp-cat-art{min-height:75px}.rpm-hp-cat-label strong{font-size:13px}.rpm-hp-featured .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-hp-trust{padding:18px 16px}.rpm-hp-trust span{font-size:10px}.rpm-hp-v2 .drift-section{padding:38px 16px}.rpm-hp-brandstrip{font-size:11px}.rpm-hp-custom-copy{padding:30px 20px}}
