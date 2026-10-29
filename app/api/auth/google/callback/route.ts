@@ -3,6 +3,7 @@ import {createPublicKey,verify} from 'node:crypto';
 import {CUSTOMER_COOKIE,OAUTH_COOKIE,decodeSigned,encodeSigned} from '../../../../lib/customer-auth';
 import {upsertCustomer} from '../../../../lib/customer-db';
 export const runtime='nodejs';
+const publicOrigin=()=>{const origin=(process.env.APP_URL||'').trim().replace(/\/$/,'');if(!/^https:\/\/[^/]+$/i.test(origin))throw Error('APP_URL missing or invalid');return origin};
 async function verifyGoogleIdToken(jwt:string,clientId:string,nonce:string){
  const parts=jwt.split('.');if(parts.length!==3)throw Error('Invalid token');
  const header=JSON.parse(Buffer.from(parts[0],'base64url').toString('utf8'));
@@ -19,7 +20,7 @@ async function verifyGoogleIdToken(jwt:string,clientId:string,nonce:string){
  return {provider:'google' as const,providerId:payload.sub,email:typeof payload.email==='string'?payload.email:'',name:typeof payload.name==='string'?payload.name:''};
 }
 export async function GET(request:NextRequest){
- const url=new URL('/login',request.url);
+ const url=new URL('/login',process.env.APP_URL||request.url);
  const state=request.nextUrl.searchParams.get('state'),code=request.nextUrl.searchParams.get('code');
  const raw=decodeSigned(request.cookies.get(OAUTH_COOKIE)?.value);
  const fail=()=>{url.searchParams.set('error','google');const response=NextResponse.redirect(url);response.cookies.delete(OAUTH_COOKIE);return response};
@@ -29,13 +30,13 @@ export async function GET(request:NextRequest){
   if(saved.state!==state||saved.exp<Date.now()||typeof saved.verifier!=='string')return fail();
   const clientId=process.env.GOOGLE_CLIENT_ID,clientSecret=process.env.GOOGLE_CLIENT_SECRET;
   if(!clientId||!clientSecret)return fail();
-  const tokenResponse=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,code,code_verifier:saved.verifier,grant_type:'authorization_code',redirect_uri:request.nextUrl.origin+'/api/auth/google/callback'}),cache:'no-store'});
+  const tokenResponse=await fetch('https://oauth2.googleapis.com/token',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({client_id:clientId,client_secret:clientSecret,code,code_verifier:saved.verifier,grant_type:'authorization_code',redirect_uri:publicOrigin()+'/api/auth/google/callback'}),cache:'no-store'});
   if(!tokenResponse.ok)return fail();
   const tokens=await tokenResponse.json() as {id_token?:string};
   if(!tokens.id_token)return fail();
   const profile=await verifyGoogleIdToken(tokens.id_token,clientId,saved.nonce);
   const customer=await upsertCustomer(profile);
-  const response=NextResponse.redirect(new URL('/account',request.url));
+  const response=NextResponse.redirect(new URL('/account',publicOrigin()));
   response.cookies.delete(OAUTH_COOKIE);
   response.cookies.set(CUSTOMER_COOKIE,encodeSigned(JSON.stringify({id:customer.id,exp:Date.now()+7*86400000})),{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:'/',maxAge:7*86400});
   return response;
