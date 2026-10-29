@@ -1761,3 +1761,10 @@ body:has(.rpm-inline-editor) [data-rpm-edit]{cursor:text}
 body:has(.rpm-inline-editor) [data-rpm-edit]:hover{outline:2px dashed #ff4262;outline-offset:5px}
 body:not(:has(.rpm-inline-editor)) [data-rpm-edit]:hover{outline:none}
 @media(max-width:600px){.rpm-inline-toolbar{bottom:8px;width:calc(100vw - 16px);justify-content:center}.rpm-inline-properties{right:10px;top:70px;width:calc(100vw - 20px)}}
+
+/* Customer account and social sign-in */
+.rpm-header-account{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none;font-weight:700;white-space:nowrap}
+.rpm-header-account:hover{color:#f23c59}
+.rpm-customer-google{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;margin:18px 0;padding:14px 18px;border-radius:8px}
+.rpm-login-note{font-size:12px;opacity:.75;line-height:1.5}
+@media(max-width:750px){.rpm-header-account span{display:none}.rpm-header-account{padding:8px}}
