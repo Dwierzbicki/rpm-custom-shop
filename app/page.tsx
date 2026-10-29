@@ -199,6 +199,17 @@ export default function Shop(){
  <form className="rpm-header-search" role="search" onSubmit={e=>{e.preventDefault();setShopLanding(false);setCategory('Wszystkie');setShopSubcategory(null);setEngineFilter('Wszystkie');navigate('catalog')}}><label htmlFor="rpm-header-query" className="rpm-visually-hidden">{lang==='en'?'Search products':'Szukaj produktów'}</label><input id="rpm-header-query" value={query} onChange={e=>setQuery(e.target.value)} placeholder={lang==='en'?'Search turbochargers, manifolds, intercoolers…':'Szukaj produktów, np. kolektor, turbo, intercooler…'}/><button type="submit" aria-label={lang==='en'?'Search':'Szukaj'}><Search size={21}/></button></form>
  <div className="header-actions rpm-header-actions"><div className="language-switch" role="group" aria-label="Language / Język"><button type="button" className={lang==='pl'?'active':''} aria-label="Polski" aria-pressed={lang==='pl'} onClick={()=>changeLang('pl')}>🇵🇱<span>PL</span></button><button type="button" className={lang==='en'?'active':''} aria-label="English" aria-pressed={lang==='en'} onClick={()=>changeLang('en')}>🇬🇧<span>EN</span></button></div><button className="rpm-header-garage" title="RPM Garage" onClick={()=>navigate('garage')}><Warehouse size={20}/><span>RPM Garage</span></button><button className="cart-btn" title="Koszyk" onClick={()=>navigate('cart')}><ShoppingCart size={22}/><span>{lang==='en'?'Cart':'Koszyk'}</span>{count>0&&<i>{count}</i>}</button></div>
  </div>
+ <nav className="rpm-desktop-categories" aria-label="Kategorie produktów">
+ {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={'rpm-desktop-root'+(activeFmicRoot===i?' active':'')} onMouseEnter={()=>{setActiveFmicRoot(i);setActiveFmicSub(null)}} onMouseLeave={()=>{setActiveFmicRoot(null);setActiveFmicSub(null)}}>
+ <button type="button" className="rpm-desktop-root-button" onClick={()=>openCatalogPath([root.name])}>{root.name}</button>
+ {activeFmicRoot===i&&<div className="rpm-desktop-level2">
+ {root.children.map((sub,j)=><div className="rpm-desktop-sub" key={j} onMouseEnter={()=>setActiveFmicSub(j)}>
+ <button type="button" onClick={()=>openCatalogPath([root.name,sub.name])}>{sub.name}{sub.children.length>0&&<ChevronRight size={14}/>}</button>
+ {activeFmicSub===j&&sub.children.length>0&&<div className="rpm-desktop-level3">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>openCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}
+ </div>)}
+ </div>}</div>)}
+ <button type="button" className="rpm-desktop-motolab" onClick={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}>MOTOLAB <ArrowRight size={14}/></button>
+ </nav>
  <nav className="rpm-clean-nav" aria-label="Nawigacja sklepu">
  <button type="button" className="rpm-clean-categories-button" aria-expanded={mobileMenu} aria-controls="rpm-category-drawer" onClick={()=>{setMobileMenu(v=>!v);setActiveFmicRoot(null);setActiveFmicSub(null)}}>{mobileMenu?<X size={19}/>:<Menu size={19}/>} <span>KATEGORIE PRODUKTÓW</span> <ChevronRight size={15}/></button>
  <button type="button" className="rpm-clean-motolab" onClick={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}>MOTOLAB <ArrowRight size={16}/></button>
