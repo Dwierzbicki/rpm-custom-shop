@@ -1,13 +1,27 @@
-'use client';
-import {useEffect,useState} from 'react';
 import Link from 'next/link';
-import {DEFAULT_SHIPPING_SETTINGS,ShippingSettings,shippingQuote} from '../../lib/shipping';
+import {Truck,CreditCard,Building2,Wrench,Package,Percent,PlugZap,ShieldCheck,Mail,Settings2,ArrowRight} from 'lucide-react';
+
+const groups=[
+ {title:'Sprzedaż i obsługa',description:'Ustawienia działających funkcji sklepu.',items:[
+  {href:'/admin/settings/shipping',title:'Dostawa i odbiór',desc:'Kurier, darmowa dostawa i odbiór osobisty',icon:Truck},
+  {href:'/admin/settings/payments',title:'Płatności',desc:'Przelew i płatność przy odbiorze',icon:CreditCard},
+  {href:'/admin/settings/company',title:'Dane firmy',desc:'Dane kontaktowe, NIP i adres',icon:Building2},
+  {href:'/admin/settings/power-guides',title:'POWER GUIDES',desc:'Rekomendacje, powiązania produktów i ceny',icon:Wrench}
+ ]},
+ {title:'Rozwój platformy',description:'Planowane moduły — jeszcze bez aktywnej konfiguracji.',items:[]}
+];
+const planned=[
+ {title:'Dostawcy i integracje',desc:'FMIC, MTuning, import i synchronizacja katalogów',icon:PlugZap},
+ {title:'Marże i reguły cenowe',desc:'Narzuty globalne, dostawców, kategorii i produktów',icon:Percent},
+ {title:'Reguły produktów',desc:'Widoczność, stany magazynowe i mapowanie kategorii',icon:Package},
+ {title:'Komunikacja',desc:'Szablony i automatyczne powiadomienia',icon:Mail},
+ {title:'Bezpieczeństwo i audyt',desc:'Role administratorów i historia zmian',icon:ShieldCheck},
+ {title:'SEO i podatki',desc:'Metadane produktów i reguły VAT',icon:Settings2}
+];
 export default function SettingsPage(){
- const [settings,setSettings]=useState<ShippingSettings>(DEFAULT_SHIPPING_SETTINGS);
- const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
- useEffect(()=>{fetch('/api/admin/settings',{cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd pobierania');setSettings(d.shipping)}).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[]);
- const update=(patch:Partial<ShippingSettings>)=>{setSettings(s=>({...s,...patch}));setMessage('')};
- const save=async()=>{setSaving(true);setError('');setMessage('');try{const r=await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({shipping:settings})});const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd zapisu');setSettings(d.shipping);setMessage('Ustawienia dostawy zostały zapisane.')}catch(e){setError(e instanceof Error?e.message:'Błąd zapisu')}finally{setSaving(false)}};
- const field=(key:'courierPrice'|'freeShippingFrom',label:string)=><label className="rpm-settings-field">{label}<input type="number" min="0" max={key==='courierPrice'?10000:10000000} step="1" value={settings[key]} onChange={e=>update({[key]:Number(e.target.value)})}/></label>;
- return <main className="admin-page rpm-settings-page"><div className="admin-top"><div><span className="eyebrow">RPM CUSTOM / BACK OFFICE</span><h1>Ustawienia sklepu</h1><p>Zarządzaj konfiguracją sklepu bez edytowania kodu.</p></div></div>{loading?<p>Ładowanie ustawień...</p>:<section className="rpm-settings-card"><h2>Dostawa</h2><div className="rpm-settings-grid">{field('courierPrice','Stała cena kuriera (PLN)')}{field('freeShippingFrom','Darmowa dostawa od (PLN)')}</div><div className="rpm-settings-toggles"><label><input type="checkbox" checked={settings.courierEnabled} onChange={e=>update({courierEnabled:e.target.checked})}/> Kurier aktywny</label><label><input type="checkbox" checked={settings.pickupEnabled} onChange={e=>update({pickupEnabled:e.target.checked})}/> Odbiór osobisty aktywny</label></div><p className="rpm-shipping-note">Przykład: koszyk 300 zł, kurier — dostawa {shippingQuote('courier',300,settings).cost} zł. Koszyk {settings.freeShippingFrom} zł — dostawa {shippingQuote('courier',settings.freeShippingFrom,settings).cost} zł.</p><button className="primary" onClick={save} disabled={saving||(!settings.courierEnabled&&!settings.pickupEnabled)}>{saving?'Zapisywanie...':'Zapisz ustawienia'}</button>{message&&<p role="status" className="rpm-settings-success">{message}</p>}</section>}{!loading&&<section className="rpm-settings-card"><h2>Dane firmy</h2><p>Nazwa firmy, NIP, dane kontaktowe i informacje o odbiorze osobistym.</p><Link href="/admin/settings/company" className="outline">Edytuj dane firmy →</Link></section>}{!loading&&<section className="rpm-settings-card"><h2>Płatności</h2><p>Przelew tradycyjny, dane rachunku i płatność przy odbiorze osobistym.</p><Link href="/admin/settings/payments" className="outline">Edytuj płatności →</Link></section>}{!loading&&<section className="rpm-settings-card"><h2>Power Guides — ceny i rekomendacje</h2><p>Rabat FMIC 5%, ręczne ceny RPM Custom oraz lista części przypisana do silnika, mocy, przeznaczenia i wariantu.</p><Link href="/admin/settings/power-guides" className="outline">Zarządzaj Power Guides →</Link></section>}{error&&<p role="alert" className="rpm-settings-error">{error}</p>}</main>;
+ return <main className="admin-page rpm-settings-page">
+  <div className="admin-top"><div><span className="eyebrow">RPM CUSTOM / BACK OFFICE</span><h1>Centrum ustawień</h1><p>Wszystkie konfiguracje sklepu w jednym miejscu. Dostępne moduły i planowane rozszerzenia są wyraźnie rozdzielone.</p></div></div>
+  {groups.slice(0,1).map(group=><section className="rpm-settings-card" key={group.title}><h2>{group.title}</h2><p>{group.description}</p><div className="rpm-admin-settings-hub-grid">{group.items.map(({href,title,desc,icon:Icon})=><Link key={href} href={href} className="rpm-admin-settings-hub-link"><Icon size={22}/><span><strong>{title}</strong><small>{desc}</small></span><ArrowRight size={17}/></Link>)}</div></section>)}
+  <section className="rpm-settings-card" id="suppliers"><h2>Rozwój platformy</h2><p>Moduły zaplanowane pod rozbudowę sklepu i integrację hurtowni. Na razie nie są aktywnymi ustawieniami.</p><div className="rpm-admin-settings-hub-grid">{planned.map(({title,desc,icon:Icon})=><div key={title} className="rpm-admin-settings-hub-link rpm-admin-settings-hub-planned"><Icon size={22}/><span><strong>{title}</strong><small>{desc}</small></span><em>W planie</em></div>)}</div></section>
+ </main>;
 }
