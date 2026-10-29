@@ -215,7 +215,7 @@ export default function Shop(){
    <p>{lang==='en'?'Explore proven build paths and component recommendations for your engine.':'Wybierz silnik, poznaj możliwe konfiguracje i dobierz komponenty do swojego projektu.'}</p>
    <div className="rpm-motolab-benefits"><span><Wrench size={20}/>{lang==='en'?'Engine-specific':'Dopasowane do silnika'}</span><span><Check size={20}/>{lang==='en'?'Component recommendations':'Rekomendacje części'}</span><span><Settings2 size={20}/>{lang==='en'?'Your build goals':'Twój cel mocy'}</span></div>
    <div className="rpm-motolab-engines">{POWER_ENGINES.map((e,i)=><button type="button" className="rpm-motolab-engine" key={e.id} onClick={()=>{setGuideEngine(e.id);navigate('guides')}}><span className="rpm-motolab-engine-visual">{['M50','M52','M54','2JZ'][i]}</span><small>{e.make}</small><strong>{e.name}</strong><span className="rpm-motolab-engine-arrow"><ArrowRight size={17}/></span></button>)}</div>
-   <div className="rpm-motolab-actions"><button className="primary" onClick={()=>navigate('guides')}><Wrench size={19}/>{lang==='en'?'CONFIGURE ENGINE':'KONFIGURUJ SILNIK'} <ArrowRight size={18}/></button><button className="rpm-motolab-secondary" onClick={()=>navigate('guides')}>{lang==='en'?'EXPLORE BUILDS':'ZOBACZ KONFIGURACJE'} <ArrowRight size={16}/></button></div>
+   <div className="rpm-motolab-actions"><button className="primary" onClick={()=>navigate('guides')}><Wrench size={19}/>{lang==='en'?'CONFIGURE ENGINE':'KONFIGURUJ SILNIK'} <ArrowRight size={18}/></button></div>
   </div>
   <div className="rpm-motolab-photo" aria-hidden="true"><div className="rpm-motolab-photo-caption"><span>RPM CUSTOM</span><strong>ENGINE PERFORMANCE</strong><small>BUILD WITHOUT LIMITS</small></div></div>
  </section>
