@@ -25,7 +25,7 @@ export async function POST(request:Request){
  const body=await request.json();
  if(body?.confirm!=='PUBLISH_PRICE'||!Number.isSafeInteger(body.productId)||!Number.isFinite(body.expectedGross)||!Number.isFinite(body.proposedGross)||!Number.isInteger(body.expectedVatPercent))return NextResponse.json({error:'Wymagane potwierdzenie ceny'},{status:400});
  const proposal=(await proposals()).find(p=>p.productId===body.productId);
- if(!proposal||!proposal.valid||proposal.currentGross!==body.expectedGross||proposal.proposedGross!==body.proposedGross||proposal.vatPercent!==body.expectedVatPercent)return NextResponse.json({error:'Oferta, cena lub reguły uległy zmianie. Odśwież podgląd.'},{status:409});
+ if(!proposal||!proposal.valid||proposal.proposedGross===null||proposal.vatPercent===null||proposal.currentGross!==body.expectedGross||proposal.proposedGross!==body.proposedGross||proposal.vatPercent!==body.expectedVatPercent)return NextResponse.json({error:'Oferta, cena lub reguły uległy zmianie. Odśwież podgląd.'},{status:409});
  if(proposal.proposedGross<=0)return NextResponse.json({error:'Cena musi być dodatnia'},{status:400});
  const product=(await getCatalog()).find(p=>p.id===body.productId);
  if(!product||product.price!==body.expectedGross)return NextResponse.json({error:'Cena katalogowa zmieniła się'},{status:409});
