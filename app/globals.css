@@ -1293,3 +1293,7 @@ background:#b8132e!important;color:#fff!important;
 @media(max-width:1050px){.rpm-motolab{grid-template-columns:minmax(0,1fr) 30%}.rpm-motolab-content{padding:35px 28px}.rpm-motolab-benefits{gap:10px}.rpm-motolab-engine{min-height:125px}}
 @media(max-width:760px){.rpm-motolab{display:block}.rpm-motolab-content{padding:34px 20px 30px}.rpm-motolab h2{font-size:72px}.rpm-motolab h3{letter-spacing:.14em}.rpm-motolab-engines{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-motolab-photo{min-height:190px;background-position:center 40%}.rpm-motolab-photo-caption{right:20px;bottom:20px}.rpm-motolab-benefits{gap:12px 18px}}
 @media(max-width:380px){.rpm-motolab h2{font-size:60px}.rpm-motolab-actions button{width:100%}}
+
+/* Keep MotoLab aligned with homepage content instead of full-bleed width */
+.rpm-hp-v2 .rpm-motolab{width:calc(100% - 48px);max-width:1280px;margin:28px auto 36px;border:1px solid #30232b;border-radius:12px;box-sizing:border-box}
+@media(max-width:760px){.rpm-hp-v2 .rpm-motolab{width:calc(100% - 24px);margin:16px auto 24px;border-radius:9px}}
