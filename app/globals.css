@@ -1132,3 +1132,17 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 .rpm-fmic-submenu{position:fixed;top:auto;left:auto;transform:translate(0,-42px);margin-left:321px;width:290px;max-height:calc(100vh - 115px);overflow-y:auto;overflow-x:visible;z-index:130}
 .rpm-fmic-leaves{position:fixed;left:auto;top:auto;transform:translate(0,-40px);margin-left:280px;width:290px;max-height:calc(100vh - 115px);overflow-y:auto;z-index:140}
 }
+
+
+/* Fix cascading menu hover: nested panels must stay inside their hover ancestors.
+   Fixed-position flyouts and overflow clipping caused the menu to close while crossing columns. */
+@media(min-width:801px){
+.rpm-fmic-panel{overflow:visible!important;max-height:none!important;width:330px}
+.rpm-fmic-root-grid{position:relative}
+.rpm-fmic-root{position:relative!important}
+.rpm-fmic-submenu{position:absolute!important;left:100%!important;top:0!important;transform:none!important;margin-left:0!important;width:290px;max-height:min(75vh,650px);overflow:visible!important;border-radius:0 6px 6px 0}
+.rpm-fmic-sub{position:relative}
+.rpm-fmic-leaves{position:absolute!important;left:100%!important;top:0!important;transform:none!important;margin-left:0!important;width:290px;max-height:min(75vh,650px);overflow-y:auto!important;border-radius:0 6px 6px 0}
+.rpm-fmic-root:hover>.rpm-fmic-submenu,.rpm-fmic-root:focus-within>.rpm-fmic-submenu{display:block}
+.rpm-fmic-sub:hover>.rpm-fmic-leaves,.rpm-fmic-sub:focus-within>.rpm-fmic-leaves{display:block}
+}
