@@ -1079,3 +1079,20 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 @media(max-width:1100px){.rpm-header-main{gap:14px}.rpm-header-logo{flex-basis:135px}.rpm-header-logo .brand-logo{width:135px}.rpm-header-actions .rpm-header-garage span{display:none}.rpm-header-nav button{padding:13px 10px;font-size:10px}}
 @media(max-width:800px){.rpm-header-main{min-height:70px;padding:10px 16px;flex-wrap:wrap}.rpm-header-logo{flex-basis:122px}.rpm-header-logo .brand-logo{width:122px;max-height:50px}.rpm-header-search{order:3;flex:1 0 100%;max-width:none;height:40px}.rpm-header-actions{gap:10px}.rpm-header-actions .mobile-toggle{display:flex}.rpm-header-actions .cart-btn span{display:none}.rpm-header-nav{display:none;position:static;flex-direction:column;align-items:stretch;gap:0;min-height:0;padding:8px 16px 14px}.rpm-header-nav.open{display:flex}.rpm-header-nav button{justify-content:flex-start;padding:13px 16px;font-size:12px;border-bottom:1px solid #303038}.rpm-header-nav .rpm-header-nav-sale{margin:8px 0 0;transform:none;justify-content:center}.rpm-header-actions .language-switch{display:flex}}
 @media(max-width:440px){.rpm-header-actions .rpm-header-garage{display:none}.rpm-header-logo{flex-basis:105px}.rpm-header-logo .brand-logo{width:105px}.rpm-header-main{gap:8px}.rpm-header-actions{gap:6px}}
+
+
+/* Readability pass: storefront typography, especially header */
+.header.rpm-header-v2{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.rpm-header-v2 .rpm-header-nav button{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:800;letter-spacing:0;color:#f6f6f7;line-height:1.25;padding:15px clamp(9px,1.15vw,18px)}
+.rpm-header-v2 .rpm-header-nav .rpm-header-nav-sale{color:#fff}
+.rpm-header-v2 .rpm-header-search input{font-size:15px;font-weight:500;color:#fff}
+.rpm-header-v2 .rpm-header-search input::placeholder{color:#c6c8cf;opacity:1}
+.rpm-header-v2 .rpm-header-actions>button{font-size:13px;font-weight:800;color:#f6f6f7}
+.rpm-header-v2 .rpm-header-nav{background:#1b1d22}
+.rpm-hp-v2 .rpm-hp-trust span{font-size:13px;color:#e2e3e6;line-height:1.4}
+.rpm-hp-v2 .rpm-hp-cat-label strong{font-size:17px;font-weight:800;color:#fff;line-height:1.25}
+.rpm-hp-v2 .rpm-hp-cat-label small{font-size:12px;color:#e5e6e8}
+.rpm-hp-v2 .rpm-hp-promo p,.rpm-hp-v2 .rpm-hp-about p,.rpm-hp-v2 .rpm-hp-custom-copy p{font-size:15px;color:#e1e2e5}
+@media(max-width:1200px) and (min-width:801px){.rpm-header-v2 .rpm-header-nav button{font-size:12px;padding:14px 8px}}
+@media(max-width:800px){.rpm-header-v2 .rpm-header-nav button{font-size:14px;padding:14px 16px}.rpm-header-v2 .rpm-header-search input{font-size:14px}}
+@media(max-width:480px){.rpm-hp-v2 .rpm-hp-cat-label strong{font-size:15px}.rpm-hp-v2 .rpm-hp-trust span{font-size:12px}}
