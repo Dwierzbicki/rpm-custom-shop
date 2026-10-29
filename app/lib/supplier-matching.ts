@@ -2,9 +2,9 @@ export function normalizedPart(value:string){return value.trim().toUpperCase().r
 export type SupplierOffer={id:number;supplier:string;supplierSku:string;brand:string;mpn:string;ean:string;name:string;variant:string;purchaseNet:number;shippingNet:number;currency:'PLN';available:boolean;leadDays:number;productId:number|null;matchStatus:'unmatched'|'confirmed'|'rejected'};
 export function exactMatch(a:SupplierOffer,b:SupplierOffer){
  if(a.id===b.id)return false;
- if(a.variant!==b.variant)return false;
+ if(normalizedPart(a.variant)!==normalizedPart(b.variant))return false;
  const eanA=normalizedPart(a.ean),eanB=normalizedPart(b.ean);
- if(eanA&&eanB&&eanA===eanB)return true;
+ if(eanA&&eanB)return eanA===eanB;
  const brandA=normalizedPart(a.brand),brandB=normalizedPart(b.brand);
  const mpnA=normalizedPart(a.mpn),mpnB=normalizedPart(b.mpn);
  return !!brandA&&brandA===brandB&&!!mpnA&&mpnA===mpnB;
