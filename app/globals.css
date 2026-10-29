@@ -1649,3 +1649,15 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2.rpm-header-wide .rpm-desktop-level3{max-height:none!important;overflow:visible!important;overflow-x:visible!important;overflow-y:visible!important}
 .rpm-header-v2.rpm-header-wide .rpm-desktop-level2,
 .rpm-header-v2.rpm-header-wide .rpm-desktop-level3{scrollbar-width:none}
+
+/* Fluid desktop category spacing: generous on wide screens, tight before hamburger. */
+.rpm-header-v2 .rpm-desktop-categories{box-sizing:border-box!important;gap:0!important}
+.rpm-header-v2 .rpm-desktop-root{flex:0 0 auto!important}
+.rpm-header-v2 .rpm-desktop-root-button{
+ padding:14px clamp(7px,1.12vw,30px)!important;
+ font-size:clamp(11px,.76vw,14px)!important;
+ white-space:nowrap!important;
+}
+.rpm-header-v2 .rpm-desktop-motolab{padding:12px clamp(13px,1.15vw,30px)!important}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-categories{justify-content:space-evenly!important}
+.rpm-header-v2.rpm-header-compact .rpm-desktop-categories{justify-content:flex-start!important}
