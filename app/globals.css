@@ -1326,3 +1326,38 @@ background:#b8132e!important;color:#fff!important;
  .rpm-hp-v2 .rpm-motolab-benefits{flex-direction:column;align-items:flex-start}
  .rpm-hp-v2 .rpm-motolab-actions .primary{width:100%}
 }
+
+/* RPM Shop V2 — category storefront */
+.rpm-shop-rebuild{max-width:1380px;margin:0 auto 36px;color:#f5f5f6}
+.rpm-shop-rebuild-hero{position:relative;overflow:hidden;min-height:330px;border:1px solid #33232a;border-radius:12px;background:linear-gradient(90deg,#08090c 0%,#08090cee 43%,#08090c50 100%),url('/category-photos/turbo.webp') right 42%/cover no-repeat}
+.rpm-shop-rebuild-hero-copy{position:relative;max-width:680px;padding:clamp(26px,4vw,58px)}
+.rpm-shop-rebuild-hero h1{font-size:clamp(54px,6vw,94px);line-height:1;letter-spacing:-.06em;font-weight:950;margin:12px 0 8px}
+.rpm-shop-rebuild-hero h1 span{color:#e71034}
+.rpm-shop-rebuild-hero h2{font-size:clamp(13px,1.4vw,20px);letter-spacing:.08em;margin:0 0 12px}
+.rpm-shop-rebuild-hero p{color:#bdbec4;line-height:1.5;margin:0 0 17px}
+.rpm-shop-rebuild-benefits{display:flex;flex-wrap:wrap;gap:14px 20px;margin:18px 0 22px}
+.rpm-shop-rebuild-benefits span{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700}
+.rpm-shop-rebuild-benefits svg{color:#f21b3c}
+.rpm-shop-rebuild-all{display:inline-flex;align-items:center;gap:13px;background:#e41031!important;color:#fff!important;border:0!important;border-radius:5px!important;padding:13px 20px!important;font-weight:850!important;font-size:12px!important}
+.rpm-shop-rebuild-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:36px 0 18px}
+.rpm-shop-rebuild-heading h2{font-size:clamp(24px,3vw,36px);font-weight:900;margin:7px 0 0}
+.rpm-shop-rebuild-heading>span{color:#a7a8b0;font-size:13px}
+.rpm-shop-rebuild-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+.rpm-shop-rebuild-card{min-width:0;display:flex;flex-direction:column;align-items:stretch;text-align:left;background:#101115!important;color:#fff!important;border:1px solid #303037!important;border-radius:9px!important;padding:0!important;overflow:hidden;transition:transform .2s,border-color .2s}
+.rpm-shop-rebuild-card:hover,.rpm-shop-rebuild-card.selected{border-color:#ec1639!important;transform:translateY(-2px)}
+.rpm-shop-rebuild-card-image{height:145px;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#393139,#0b0c10 78%);overflow:hidden}
+.rpm-shop-rebuild-card-image img{width:100%;height:100%;object-fit:cover;transition:transform .25s}
+.rpm-shop-rebuild-card:hover img{transform:scale(1.06)}
+.rpm-shop-rebuild-card-image>span{font-size:50px}
+.rpm-shop-rebuild-card-title{font-size:14px;font-weight:900;padding:13px 13px 4px;overflow-wrap:anywhere;min-height:46px}
+.rpm-shop-rebuild-card-action{display:flex;align-items:center;gap:7px;color:#b3b3bb;font-size:10px;font-weight:750;padding:4px 13px 14px}
+.rpm-shop-rebuild-subcategories{margin:24px 0 0;padding:24px;border:1px solid #343039;border-radius:10px;background:#111216}
+.rpm-shop-rebuild-subhead h3{font-size:23px;margin:8px 0 17px}
+.rpm-shop-rebuild-subcategories>p{color:#aeb0b8}
+.rpm-shop-rebuild-subgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.rpm-shop-rebuild-subgrid button{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;text-align:left;padding:14px!important;border:1px solid #35353b!important;background:#1b1c22!important;border-radius:6px!important;color:#fff!important;font-size:13px!important}
+.rpm-shop-rebuild-subgrid button:hover{border-color:#e71034!important}
+@media(max-width:1100px){.rpm-shop-rebuild-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.rpm-shop-rebuild-card-image{height:130px}}
+@media(max-width:760px){.rpm-shop-rebuild-hero{min-height:280px;background-position:62% center}.rpm-shop-rebuild-hero-copy{padding:26px 18px;background:linear-gradient(90deg,#08090ce8,#08090c44)}.rpm-shop-rebuild-hero h1{font-size:58px}.rpm-shop-rebuild-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.rpm-shop-rebuild-card-image{height:120px}.rpm-shop-rebuild-card-title{font-size:12px}.rpm-shop-rebuild-subgrid{grid-template-columns:1fr}.rpm-shop-rebuild-subcategories{padding:16px}.rpm-shop-rebuild-heading{margin-top:26px}.rpm-shop-rebuild-benefits{gap:9px 13px}.rpm-shop-rebuild-benefits span{font-size:11px}}
+@media(min-width:761px) and (max-width:900px){.rpm-shop-rebuild-subgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:370px){.rpm-shop-rebuild-hero h1{font-size:48px}.rpm-shop-rebuild-card-image{height:100px}}
