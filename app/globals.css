@@ -1742,3 +1742,22 @@ background:#b8132e!important;color:#fff!important;
 body:has(.rpm-hp-v2) [data-rpm-edit]{transition:outline-color .15s,background-color .15s}
 body:has(.rpm-hp-v2) [data-rpm-edit]:hover{outline:1px dashed #ed4563;outline-offset:5px}
 body:has(.rpm-hp-v2) [data-rpm-edit].rpm-edit-selected{outline:2px solid #ff4262;outline-offset:6px}
+
+/* Inline editor: displayed only after authenticated /api/admin/editor/access. */
+.rpm-inline-editor{position:relative;z-index:90;font-family:Arial,sans-serif}
+.rpm-inline-toolbar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px);flex-wrap:wrap;background:#151920;color:#fff;border:1px solid #e93a58;box-shadow:0 14px 55px #000b;border-radius:12px;padding:11px 14px}
+.rpm-inline-toolbar strong{color:#ff506c;white-space:nowrap;font-size:13px}
+.rpm-inline-toolbar span{font-size:12px;color:#c1c5d0}
+.rpm-inline-toolbar button,.rpm-inline-properties>button{background:#e52b4e;border:0;border-radius:7px;color:#fff;padding:10px 14px;font-weight:700;white-space:nowrap}
+.rpm-inline-toolbar .rpm-inline-secondary{background:#333a46}
+.rpm-inline-toolbar a{color:white;text-decoration:none;font-size:13px}
+.rpm-inline-properties{position:fixed;right:20px;top:100px;z-index:96;width:min(360px,calc(100vw - 40px));background:#171c25;border:1px solid #e93a58;box-shadow:0 15px 50px #000b;padding:18px;border-radius:12px;color:#fff;display:flex;flex-direction:column;gap:15px}
+.rpm-inline-properties-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rpm-inline-properties-head button{background:transparent;border:0;color:white;font-size:19px}
+.rpm-inline-properties textarea,.rpm-inline-properties input{width:100%;background:#0d1118;color:white;border:1px solid #4c5665;padding:12px;border-radius:7px;resize:vertical}
+.rpm-inline-properties small{color:#b4b9c4;line-height:1.5}
+.rpm-inline-saved{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:96;background:#18251e;color:#a4f2b8;border:1px solid #5b9c6a;padding:10px 15px;border-radius:8px;font-size:13px}
+body:has(.rpm-inline-editor) [data-rpm-edit]{cursor:text}
+body:has(.rpm-inline-editor) [data-rpm-edit]:hover{outline:2px dashed #ff4262;outline-offset:5px}
+body:not(:has(.rpm-inline-editor)) [data-rpm-edit]:hover{outline:none}
+@media(max-width:600px){.rpm-inline-toolbar{bottom:8px;width:calc(100vw - 16px);justify-content:center}.rpm-inline-properties{right:10px;top:70px;width:calc(100vw - 20px)}}
