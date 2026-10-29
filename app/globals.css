@@ -1146,3 +1146,20 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 .rpm-fmic-root:hover>.rpm-fmic-submenu,.rpm-fmic-root:focus-within>.rpm-fmic-submenu{display:block}
 .rpm-fmic-sub:hover>.rpm-fmic-leaves,.rpm-fmic-sub:focus-within>.rpm-fmic-leaves{display:block}
 }
+
+
+/* Shared active trail across all three category levels */
+@media(min-width:801px){
+.rpm-fmic-root:hover>button,.rpm-fmic-root:focus-within>button,
+.rpm-fmic-root:has(.rpm-fmic-sub:hover)>button,
+.rpm-fmic-root:has(.rpm-fmic-sub:focus-within)>button{
+background:#b8132e!important;color:#fff!important;border-bottom-color:#e32949!important;
+}
+.rpm-fmic-sub:hover>button,.rpm-fmic-sub:focus-within>button,
+.rpm-fmic-sub:has(.rpm-fmic-leaves:hover)>button{
+background:#b8132e!important;color:#fff!important;
+}
+.rpm-fmic-leaves>button:hover,.rpm-fmic-leaves>button:focus-visible{
+background:#b8132e!important;color:#fff!important;
+}
+}
