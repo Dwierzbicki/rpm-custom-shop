@@ -1054,3 +1054,28 @@ a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:
 .rpm-hp-about-accent{flex:0 1 410px;min-width:0}
 .rpm-hp-about-accent img{display:block;width:100%;max-height:250px;object-fit:contain;filter:drop-shadow(0 10px 28px rgba(0,0,0,.4))}
 @media(max-width:780px){.rpm-hp-brandstrip img{width:125px}}
+
+
+/* RPM Custom — two-tier storefront header */
+.rpm-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.header.rpm-header-v2{position:sticky;top:0;z-index:60;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;background:#090a0cf5;border-bottom:1px solid #282a30;backdrop-filter:blur(16px)}
+.rpm-header-main{width:100%;max-width:1400px;margin:auto;display:flex;align-items:center;gap:clamp(14px,3vw,44px);min-height:82px;padding:10px 24px}
+.rpm-header-logo{display:flex;align-items:center;flex:0 0 174px;padding:0;border:0}
+.rpm-header-logo .brand-logo{display:block;width:170px;max-height:67px;object-fit:contain;object-position:left center}
+.rpm-header-search{display:flex;align-items:center;flex:1 1 450px;max-width:600px;min-width:150px;height:44px;border:1px solid #34363e;border-radius:5px;background:#191b20;overflow:hidden}
+.rpm-header-search:focus-within{border-color:#e3182d}
+.rpm-header-search input{min-width:0;flex:1;height:100%;padding:0 16px;color:#fff;background:transparent;border:0;outline:0;font:inherit;font-size:13px}
+.rpm-header-search input::placeholder{color:#92959e}
+.rpm-header-search button{height:100%;width:52px;display:grid;place-items:center;background:transparent;border:0;color:#f5f5f6;cursor:pointer}
+.rpm-header-search button:hover{color:#ef2238}
+.rpm-header-actions{margin-left:auto;gap:16px;white-space:nowrap}
+.rpm-header-actions>button{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750}
+.rpm-header-actions .cart-btn i{top:-9px;right:-9px}
+.rpm-header-nav{display:flex;align-items:stretch;justify-content:center;gap:0;width:100%;min-height:44px;border-top:1px solid #27282e;background:#17191e}
+.rpm-header-nav button{display:flex;align-items:center;justify-content:center;gap:5px;padding:13px clamp(10px,1.45vw,23px);font-size:11px;font-weight:850;letter-spacing:.015em;white-space:nowrap;transition:background .2s,color .2s}
+.rpm-header-nav button:hover{background:#282a31;color:#fff}
+.rpm-header-nav .rpm-header-nav-sale{background:#d91129;color:#fff;transform:skew(-10deg);margin-left:8px;padding-left:26px;padding-right:26px}
+.rpm-header-nav .rpm-header-nav-sale:hover{background:#f01a33}
+@media(max-width:1100px){.rpm-header-main{gap:14px}.rpm-header-logo{flex-basis:135px}.rpm-header-logo .brand-logo{width:135px}.rpm-header-actions .rpm-header-garage span{display:none}.rpm-header-nav button{padding:13px 10px;font-size:10px}}
+@media(max-width:800px){.rpm-header-main{min-height:70px;padding:10px 16px;flex-wrap:wrap}.rpm-header-logo{flex-basis:122px}.rpm-header-logo .brand-logo{width:122px;max-height:50px}.rpm-header-search{order:3;flex:1 0 100%;max-width:none;height:40px}.rpm-header-actions{gap:10px}.rpm-header-actions .mobile-toggle{display:flex}.rpm-header-actions .cart-btn span{display:none}.rpm-header-nav{display:none;position:static;flex-direction:column;align-items:stretch;gap:0;min-height:0;padding:8px 16px 14px}.rpm-header-nav.open{display:flex}.rpm-header-nav button{justify-content:flex-start;padding:13px 16px;font-size:12px;border-bottom:1px solid #303038}.rpm-header-nav .rpm-header-nav-sale{margin:8px 0 0;transform:none;justify-content:center}.rpm-header-actions .language-switch{display:flex}}
+@media(max-width:440px){.rpm-header-actions .rpm-header-garage{display:none}.rpm-header-logo{flex-basis:105px}.rpm-header-logo .brand-logo{width:105px}.rpm-header-main{gap:8px}.rpm-header-actions{gap:6px}}
