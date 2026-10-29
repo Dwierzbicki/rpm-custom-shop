@@ -1623,3 +1623,16 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{content:"";position:absolute;top:0;right:-9px;width:10px;height:100%;pointer-events:auto}
 .rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{right:auto;left:-9px}
 }
+
+/* Truly fluid header: choose desktop categories only when their measured width fits.
+   Keep hidden desktop labels measurable at every viewport width. */
+.rpm-header-v2.rpm-header-wide .rpm-desktop-categories{display:flex!important;position:relative!important;visibility:visible!important;pointer-events:auto!important;width:100%!important;flex-wrap:nowrap!important}
+.rpm-header-v2.rpm-header-wide .rpm-clean-nav{display:none!important}
+.rpm-header-v2.rpm-header-compact .rpm-desktop-categories{display:flex!important;position:absolute!important;left:-10000px!important;top:0!important;width:max-content!important;min-width:max-content!important;visibility:hidden!important;pointer-events:none!important;flex-wrap:nowrap!important}
+.rpm-header-v2.rpm-header-compact .rpm-clean-nav{display:flex!important}
+.rpm-header-v2 .rpm-desktop-root-button{font-size:12px!important;padding:13px 12px!important}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-level2{overflow:visible!important;max-height:none!important}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-level3{position:absolute!important;left:calc(100% + 7px)!important;right:auto!important;top:-7px!important;max-height:min(70dvh,650px)!important;overflow-y:auto!important;overflow-x:hidden!important}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% + 7px)!important}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{content:"";position:absolute;top:0;right:-9px;width:10px;height:100%}
+.rpm-header-v2.rpm-header-wide .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{right:auto;left:-9px}
