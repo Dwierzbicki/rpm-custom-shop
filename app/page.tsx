@@ -148,8 +148,8 @@ export default function Shop(){
  useEffect(()=>{if(storageReady)localStorage.setItem('rpm-garage',JSON.stringify(garage))},[garage,storageReady]);
  useEffect(()=>{if(storageReady)sessionStorage.setItem('rpm-shop-view',view)},[view,storageReady]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
- const resetGuide=()=>{setGuideEngine('');setGuideVersion('');setGuideRange(-1);setGuideUsage('');setGuideTier('');setGuideOpenCategories([]);try{localStorage.removeItem('rpm-power-guide-form-v1')}catch{}};
- const navigate=(v:View)=>{setView(v);setMobileMenu(false);window.scrollTo({top:0,behavior:'smooth'})};
+ const resetGuide=()=>{setGuideEngine('');setGuideVersion('');setGuideRange(-1);setGuideUsage('');setGuideTier('');setGuideOpenCategories([]);setGuideCartSelection([]);setGuideConfigOpen(false);setGuideConfigValues({});setGuideConfigError('');try{localStorage.removeItem('rpm-power-guide-form-v1');for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if(key?.startsWith('rpm-power-guide-selection-v1:'))localStorage.removeItem(key)}}catch{}};
+ const navigate=(v:View)=>{if(view==='guides'&&v!=='guides')resetGuide();setView(v);setMobileMenu(false);window.scrollTo({top:0,behavior:'smooth'})};
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('power-guides')==='1')setView('guides')},[]);
  useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
  const openProduct=(p:Product)=>{setSelected(p);setChosenOptions({});setPhotoIndex(0);setLightbox(false);setEngine('');setFlange('');setWg('');setEgt(false);setQty(1);navigate('product')};
