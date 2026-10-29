@@ -1,0 +1,16 @@
+'use client';
+import {useEffect,useState} from 'react';
+import type {SupplierOffer} from '../../lib/supplier-matching';
+import {exactMatch,bestOffer} from '../../lib/supplier-matching';
+export default function Suppliers(){
+const [offers,setOffers]=useState<SupplierOffer[]>([]);
+const [products,setProducts]=useState<{id:number;name:string}[]>([]);
+const [error,setError]=useState('');
+const [days,setDays]=useState(7);
+async function load(){try{const [a,b]=await Promise.all([fetch('/api/admin/suppliers'),fetch('/api/admin/products')]);if(!a.ok||!b.ok)throw Error('Błąd pobierania');setOffers((await a.json()).offers);setProducts((await b.json()).products)}catch(e){setError(String(e))}}
+useEffect(()=>{void load()},[]);
+async function save(o:SupplierOffer,patch:Partial<SupplierOffer>){const {id,...rest}={...o,...patch};const r=await fetch('/api/admin/suppliers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rest)});if(!r.ok){setError('Błąd zapisu');return}await load()}
+return <main className="admin-page rpm-settings-page"><div className="admin-top"><div><h1>Dostawcy i deduplikacja</h1><p>Oferty FMIC i MTuning. Dopasowania wymagają zatwierdzenia.</p></div></div>
+<section className="rpm-settings-card"><h2>Oferty dostawców ({offers.length})</h2><p>Automatyczne sugestie według EAN albo producenta i MPN. Różne warianty nie są łączone.</p>{offers.map(o=><div key={o.id} className="rpm-admin-settings-hub-link" style={{marginBottom:10,flexWrap:'wrap'}}><span><strong>{o.name} — {o.supplier}</strong><small>{o.supplierSku} · {o.purchaseNet+o.shippingNet} PLN netto · {o.leadDays} dni · {o.matchStatus}</small><small>{offers.some(x=>exactMatch(o,x))?'Potencjalny duplikat':'Brak sugestii'}</small></span><select aria-label="Produkt" value={o.productId??''} onChange={e=>void save(o,{productId:e.target.value?Number(e.target.value):null,matchStatus:'unmatched'})}><option value="">Bez powiązania</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select><button disabled={o.productId===null} onClick={()=>void save(o,{matchStatus:'confirmed'})}>Zatwierdź</button><button onClick={()=>void save(o,{matchStatus:'rejected'})}>Odrzuć</button></div>)}</section>
+<section className="rpm-settings-card"><h2>Najkorzystniejsze oferty</h2><label className="rpm-settings-field">Maksymalny termin (dni)<input type="number" min="0" max="365" value={days} onChange={e=>setDays(Math.max(0,Number(e.target.value)||0))}/></label>{products.map(p=>{const o=bestOffer(offers.filter(x=>x.productId===p.id),days);return o?<p key={p.id}>{p.name}: <strong>{o.supplier}</strong> — {o.purchaseNet+o.shippingNet} PLN netto</p>:null})}</section>{error&&<p role="alert">{error}</p>}</main>
+}
