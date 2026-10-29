@@ -1,6 +1,6 @@
 import {Pool} from 'pg';
 import {products,Product,ProductOptionGroup} from '../data';
-export type CatalogItem=Product&{stockStatus:'available'|'order'|'unavailable';leadTime:string;visible?:boolean};
+export type CatalogItem=Product&{stockStatus:'available'|'order'|'unavailable';leadTime:string;visible?:boolean;vatPercent?:number};
 const rpmFlangeGroup:ProductOptionGroup={id:'rpm-flange',name:'Flansza turbosprężarki',required:true,options:[{id:'t3-single',label:'T3 Single Scroll',price:0},{id:'t4-single',label:'T4 Single Scroll',price:0},{id:'t3-twin',label:'T3 Twin Scroll',price:0},{id:'t4-twin',label:'T4 Twin Scroll',price:0}]};
 function withManifoldFlanges<T extends Product>(item:T):T{
  if(item.category!=='Kolektory')return item;
