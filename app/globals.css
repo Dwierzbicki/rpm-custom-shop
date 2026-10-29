@@ -1255,3 +1255,8 @@ background:#b8132e!important;color:#fff!important;
 @media (max-width:800px){
  .rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:46px}
 }
+
+/* Prevent long third-level category names from escaping their buttons */
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary{min-width:0;box-sizing:border-box}
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row{min-width:0;max-width:100%;box-sizing:border-box;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;line-height:1.45;height:auto;min-height:42px;align-items:flex-start!important}
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row > *{min-width:0;max-width:100%;overflow-wrap:anywhere}
