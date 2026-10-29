@@ -1171,3 +1171,8 @@ background:#b8132e!important;color:#fff!important;
 .rpm-fmic-root-label>span{line-height:1.35}
 .rpm-fmic-root:hover>.rpm-fmic-root-label svg,.rpm-fmic-root:hover>button .rpm-fmic-root-label svg,.rpm-fmic-root:focus-within>button .rpm-fmic-root-label svg{color:#fff;transform:scale(1.08)}
 .rpm-header-v2 .rpm-fmic-root>button{gap:10px}
+
+
+/* Custom SVG Technical Motorsport pictograms: crisp at every scale */
+.rpm-category-technical-icon{display:inline-block;width:21px;height:21px;flex:0 0 21px;background-color:#f05b73;mask-size:contain;mask-repeat:no-repeat;mask-position:center;-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;transition:background-color .15s ease,transform .15s ease}
+.rpm-fmic-root:hover>button .rpm-category-technical-icon,.rpm-fmic-root:focus-within>button .rpm-category-technical-icon{background-color:#fff;transform:scale(1.08)}
