@@ -1404,3 +1404,28 @@ background:#b8132e!important;color:#fff!important;
  .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-column{width:100%!important;max-width:100%!important;min-width:0!important}
  .rpm-fmic-menu.rpm-fmic-menu-open .rpm-fmic-feature{display:none}
 }
+
+/* Every main department is a top-level header item; no PRODUCTS dropdown. */
+.rpm-category-header{display:flex;align-items:stretch;gap:0;flex-wrap:wrap;overflow:visible!important}
+.rpm-header-department{position:relative;display:flex;align-items:stretch}
+.rpm-header-department-trigger{display:flex;align-items:center;gap:5px;padding:12px 9px;font-size:clamp(10px,.77vw,12px);font-weight:800;white-space:nowrap;background:transparent;border:0;color:inherit;cursor:pointer}
+.rpm-header-department-trigger svg{transition:transform .2s}
+.rpm-header-department.is-active>.rpm-header-department-trigger{color:#f23850}
+.rpm-header-department.is-active>.rpm-header-department-trigger svg{transform:rotate(90deg)}
+.rpm-header-department-panel{position:absolute;top:100%;left:0;z-index:150;width:min(840px,calc(100vw - 32px));max-height:75vh;overflow:auto;background:#15171c;border:1px solid #363942;border-top:3px solid #e31836;box-shadow:0 22px 55px #000a;padding:20px;color:#eee;text-align:left}
+.rpm-header-department:nth-last-child(-n+5) .rpm-header-department-panel{left:auto;right:0}
+.rpm-header-department-all{display:flex;gap:10px;align-items:center;background:transparent;border:0;color:#ff435e;font-weight:800;margin-bottom:18px;cursor:pointer}
+.rpm-header-department-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.rpm-header-department-group{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0}
+.rpm-header-subtitle{background:transparent;border:0;color:#fff;font-size:13px;font-weight:800;text-align:left;cursor:pointer}
+.rpm-header-leaf{background:transparent;border:0;color:#b9bdc6;font-size:12px;text-align:left;cursor:pointer;line-height:1.45}
+.rpm-header-subtitle:hover,.rpm-header-leaf:hover{color:#ff435e}
+#rpm-motolab{scroll-margin-top:110px}
+@media(max-width:1100px){
+.rpm-category-header{flex-direction:column;flex-wrap:nowrap;align-items:stretch;overflow-y:auto!important;max-height:78vh}
+.rpm-header-department{display:block;width:100%}
+.rpm-header-department-trigger{width:100%;justify-content:space-between;font-size:13px;padding:13px 16px}
+.rpm-header-department-panel{position:static;width:100%;max-height:none;box-sizing:border-box;box-shadow:none;border-left:0;border-right:0;padding:15px}
+.rpm-header-department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:560px){.rpm-header-department-grid{grid-template-columns:1fr}}
