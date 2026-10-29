@@ -12,6 +12,7 @@ const fields:{key:keyof HomepageDraft;label:string;kind?:'textarea'|'url'}[]=[
 ];
 export default function HomepageEditor(){
  const [draft,setDraft]=useState<HomepageDraft>(DEFAULT_HOMEPAGE_DRAFT);
+ const [previewVersion,setPreviewVersion]=useState(0);
  const [selected,setSelected]=useState<keyof HomepageDraft|null>(null);
  const previewRef=useRef<HTMLIFrameElement>(null);
  useEffect(()=>{
@@ -29,7 +30,7 @@ export default function HomepageEditor(){
  },[]);
  useEffect(()=>{previewRef.current?.contentWindow?.postMessage({type:'rpm-editor:update',draft},window.location.origin)},[draft,previewVersion]);
  const [saved,setSaved]=useState(false);
- const [previewVersion,setPreviewVersion]=useState(0);
+
  useEffect(()=>setDraft(readHomepageDraft()),[]);
  const update=(key:keyof HomepageDraft,value:string)=>{setDraft(old=>({...old,[key]:value}));setSaved(false)};
  const save=()=>{
