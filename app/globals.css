@@ -1613,3 +1613,13 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-drawer-sub+.rpm-drawer-sub{border-top:1px solid #454b55!important}
 .rpm-header-v2 .rpm-drawer-sub-line>button:first-child{line-height:1.55!important}
 .rpm-header-v2 .rpm-drawer-leaves>button+button{border-top:1px solid #414955!important}
+
+/* Keep third-level flyout outside the first menu's frame (including 6px padding). */
+@media(min-width:1800px){
+.rpm-header-v2 .rpm-desktop-level2{overflow:visible!important}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-level3{left:calc(100% + 7px)!important;right:auto!important;top:-7px!important}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% + 7px)!important}
+.rpm-header-v2 .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{content:"";position:absolute;top:0;right:-9px;width:10px;height:100%;pointer-events:auto}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{right:auto;left:-9px}
+}
