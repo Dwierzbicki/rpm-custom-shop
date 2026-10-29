@@ -1735,3 +1735,10 @@ background:#b8132e!important;color:#fff!important;
 .rpm-editor-preview iframe{flex:1;width:100%;border:0;background:#080a0e}
 @media(max-width:1000px){.rpm-editor-grid{grid-template-columns:1fr}.rpm-editor-preview{min-height:650px}}
 @media(max-width:550px){.rpm-editor-top{flex-direction:column;align-items:flex-start}.rpm-editor-panel{padding:16px}}
+
+/* Visual homepage editor: clear selection and instant feedback. */
+.rpm-editor-panel .rpm-editor-field-selected{border-left:3px solid #f13d5a;padding-left:12px;background:#f13d5a0c;border-radius:5px}
+.rpm-editor-panel .rpm-editor-field-selected>span{color:#ff647c}
+body:has(.rpm-hp-v2) [data-rpm-edit]{transition:outline-color .15s,background-color .15s}
+body:has(.rpm-hp-v2) [data-rpm-edit]:hover{outline:1px dashed #ed4563;outline-offset:5px}
+body:has(.rpm-hp-v2) [data-rpm-edit].rpm-edit-selected{outline:2px solid #ff4262;outline-offset:6px}
