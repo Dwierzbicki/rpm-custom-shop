@@ -1587,3 +1587,11 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 button:focus-visible{outline:2px solid #ff4a68!important;outline-offset:-2px}
 @media(max-width:600px){.rpm-header-v2 .rpm-clean-nav{min-height:56px}.rpm-header-v2 .rpm-clean-categories-button{padding:9px 12px!important}.rpm-header-v2 .rpm-clean-motolab{padding:9px 15px!important}}
 @media(prefers-reduced-motion:reduce){.rpm-header-v2 .rpm-category-drawer,.rpm-header-v2 .rpm-drawer-expand svg{transition:none!important}}
+
+/* Desktop flyouts: keep nested submenu alongside the parent, never clipped by scrolling. */
+@media(min-width:1800px){
+.rpm-header-v2 .rpm-desktop-level2{overflow:visible!important;max-height:none!important;min-height:0}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-level3{position:absolute!important;top:0!important;left:calc(100% - 1px)!important;right:auto!important;max-height:min(70dvh,650px)!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:400!important}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% - 1px)!important}
+}
