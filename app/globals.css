@@ -1163,3 +1163,11 @@ background:#b8132e!important;color:#fff!important;
 background:#b8132e!important;color:#fff!important;
 }
 }
+
+
+/* Consistent category pictograms in the main vertical navigation */
+.rpm-fmic-root-label{display:inline-flex;align-items:center;gap:12px;min-width:0}
+.rpm-fmic-root-label>svg{flex:0 0 19px;color:#e64a64;transition:color .15s ease,transform .15s ease}
+.rpm-fmic-root-label>span{line-height:1.35}
+.rpm-fmic-root:hover>.rpm-fmic-root-label svg,.rpm-fmic-root:hover>button .rpm-fmic-root-label svg,.rpm-fmic-root:focus-within>button .rpm-fmic-root-label svg{color:#fff;transform:scale(1.08)}
+.rpm-header-v2 .rpm-fmic-root>button{gap:10px}
