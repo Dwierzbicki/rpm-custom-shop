@@ -1491,3 +1491,10 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-drawer-leaves{display:flex;flex-direction:column;background:#292b33;padding:6px 0}
 .rpm-header-v2 .rpm-drawer-leaves>button{border:0;background:transparent;color:#c8cad0;text-align:left;padding:11px 20px 11px 51px;font-size:12px;cursor:pointer}
 @media(max-width:600px){.rpm-header-v2 .rpm-clean-nav{padding:0 10px;min-height:48px}.rpm-header-v2 .rpm-clean-nav button{font-size:11px;gap:7px}.rpm-header-v2 .rpm-clean-categories-button{padding:10px 8px}.rpm-header-v2 .rpm-clean-categories-button>svg:last-child{display:none}.rpm-header-v2 .rpm-clean-motolab{padding:10px 16px}}
+
+/* Drawer viewport fix: backdrop-filter on sticky header made fixed descendants
+   relative to the header's ~140px box instead of the viewport. */
+.rpm-header-v2{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.rpm-header-v2 .rpm-category-drawer{height:100dvh!important;max-height:100dvh!important;bottom:auto!important;overflow:hidden!important}
+.rpm-header-v2 .rpm-drawer-scroll{flex:1 1 auto;min-height:0;overflow-y:auto!important;overflow-x:hidden!important;scrollbar-width:thin;scrollbar-color:#565963 #17191f}
+.rpm-header-v2 .rpm-drawer-head{flex:0 0 auto}
