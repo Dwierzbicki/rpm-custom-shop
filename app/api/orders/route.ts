@@ -23,7 +23,7 @@ export async function POST(request:Request){
   const type=customer.type==='company'?'company':'private';
   if(customer.type!==undefined&&customer.type!=='company'&&customer.type!=='private')return NextResponse.json({error:'Niepoprawny typ klienta'},{status:400});
   if(customer.phone!==undefined&&(typeof customer.phone!=='string'||customer.phone.length>30||!/^\+[1-9][0-9]{0,3} [0-9 ()-]{6,24}$/.test(customer.phone.trim())))return NextResponse.json({error:'Niepoprawny telefon'},{status:400});
-  if(type==='company'&&(!validText(customer.company,160)||typeof customer.nip!=='string'||!/^\\d{10}$/.test(customer.nip)))return NextResponse.json({error:'Podaj nazwę firmy i 10-cyfrowy NIP'},{status:400});
+  if(type==='company'&&(!validText(customer.company,160)||typeof customer.nip!=='string'||!/^[0-9]{10}$/.test(customer.nip)))return NextResponse.json({error:'Podaj nazwę firmy i 10-cyfrowy NIP'},{status:400});
   if(customer.notes!==undefined&&(typeof customer.notes!=='string'||customer.notes.length>1000))return NextResponse.json({error:'Uwagi są zbyt długie'},{status:400});
   const shippingMethod=body?.shippingMethod??'courier';
   if(!isShippingMethod(shippingMethod))return NextResponse.json({error:'Wybierz poprawny sposób dostawy'},{status:400});
