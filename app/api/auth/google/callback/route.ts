@@ -14,7 +14,7 @@ async function verifyGoogleIdToken(jwt:string,clientId:string,nonce:string){
  const jwks=await jwksResponse.json() as {keys:Array<Record<string,unknown>>};
  const jwk=jwks.keys.find(key=>key.kid===header.kid&&key.kty==='RSA');
  if(!jwk)throw Error('Unknown signing key');
- const key=createPublicKey({key:jwk as JsonWebKey,format:'jwk'});
+ const key=createPublicKey({key:jwk as import('node:crypto').JsonWebKey,format:'jwk'});
  if(!verify('RSA-SHA256',Buffer.from(parts[0]+'.'+parts[1]),key,Buffer.from(parts[2],'base64url')))throw Error('Invalid signature');
  return {provider:'google' as const,providerId:payload.sub,email:typeof payload.email==='string'?payload.email:'',name:typeof payload.name==='string'?payload.name:''};
 }
