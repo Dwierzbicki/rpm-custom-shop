@@ -1260,3 +1260,36 @@ background:#b8132e!important;color:#fff!important;
 .rpm-fmic-panel-v3 .rpm-fmic-tertiary{min-width:0;box-sizing:border-box}
 .rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row{min-width:0;max-width:100%;box-sizing:border-box;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;line-height:1.45;height:auto;min-height:42px;align-items:flex-start!important}
 .rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row > *{min-width:0;max-width:100%;overflow-wrap:anywhere}
+
+
+/* MotoLab — cinematic engine-configurator feature directly below hero */
+.rpm-motolab{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.8fr);gap:0;min-height:510px;overflow:hidden;background:#090a0d;border-top:1px solid #33151d;border-bottom:1px solid #2c1c23;color:#fff}
+.rpm-motolab-glow{position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 80% 20%,rgba(189,14,38,.19),transparent 48%),linear-gradient(110deg,#0b0c10 10%,#101015 70%,#07080a)}
+.rpm-motolab-content{position:relative;z-index:2;padding:clamp(28px,4vw,64px) clamp(24px,5vw,80px);min-width:0}
+.rpm-motolab-kicker{display:block;font-size:11px;letter-spacing:.22em;font-weight:850;color:#ef344e;margin-bottom:12px}
+.rpm-motolab h2{font-size:clamp(60px,7.8vw,110px);line-height:.95;letter-spacing:-.075em;font-weight:950;margin:0 0 14px;color:#fff}
+.rpm-motolab h2 span{color:#e30e30}
+.rpm-motolab h3{font-size:clamp(12px,1.2vw,17px);letter-spacing:.25em;font-weight:800;margin:0 0 20px;color:#f2f2f3}
+.rpm-motolab-content>p{color:#bfc0c7;font-size:15px;line-height:1.65;max-width:560px;margin:0 0 24px}
+.rpm-motolab-benefits{display:flex;flex-wrap:wrap;gap:12px 22px;margin-bottom:26px}
+.rpm-motolab-benefits span{display:flex;align-items:center;gap:8px;color:#e3e4e8;font-size:12px;font-weight:650}
+.rpm-motolab-benefits svg{color:#ec1539;flex-shrink:0}
+.rpm-motolab-engines{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;max-width:780px}
+.rpm-motolab-engine{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;min-height:132px;padding:12px!important;text-align:left;color:#fff!important;background:linear-gradient(155deg,#24232b,#0c0d12 85%)!important;border:1px solid #3c333c!important;border-radius:7px!important;transition:border-color .2s,transform .2s,box-shadow .2s}
+.rpm-motolab-engine:hover,.rpm-motolab-engine:focus-visible{border-color:#f21c40!important;transform:translateY(-2px);box-shadow:0 0 22px #df12322a}
+.rpm-motolab-engine-visual{display:flex;align-items:center;justify-content:center;width:100%;height:61px;border-radius:3px;background:radial-gradient(ellipse at 70% 30%,#632030,#18171d 55%,#0b0b0e);font-size:30px;font-weight:950;font-style:italic;letter-spacing:-.08em;text-shadow:3px 3px #c80d30}
+.rpm-motolab-engine small{font-size:9px;color:#ed3a54;letter-spacing:.1em;font-weight:800}
+.rpm-motolab-engine strong{font-size:17px;line-height:1.1}
+.rpm-motolab-engine-arrow{position:absolute;right:10px;bottom:12px;color:#fff}
+.rpm-motolab-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+.rpm-motolab-actions button{display:inline-flex!important;align-items:center;justify-content:center;gap:11px;min-height:49px;padding:13px 19px!important;font-size:12px!important;font-weight:850!important}
+.rpm-motolab-actions .primary{background:#e20d2f!important;border:1px solid #e20d2f!important;color:white!important}
+.rpm-motolab-secondary{border:1px solid #46414a!important;border-radius:5px!important;background:#151418!important;color:#fff!important}
+.rpm-motolab-photo{position:relative;min-height:100%;background:linear-gradient(90deg,#090a0d 0%,rgba(9,10,13,.16) 45%,rgba(9,10,13,.1)),linear-gradient(0deg,rgba(0,0,0,.85),transparent 45%),url('/category-photos/turbo.webp') center/cover no-repeat}
+.rpm-motolab-photo-caption{position:absolute;right:28px;bottom:35px;display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-shadow:0 2px 12px #000}
+.rpm-motolab-photo-caption span{color:#ed2443;font-size:11px;font-weight:900;letter-spacing:.2em}
+.rpm-motolab-photo-caption strong{font-size:19px;letter-spacing:.06em}
+.rpm-motolab-photo-caption small{font-size:10px;letter-spacing:.16em;color:#b7b8bf}
+@media(max-width:1050px){.rpm-motolab{grid-template-columns:minmax(0,1fr) 30%}.rpm-motolab-content{padding:35px 28px}.rpm-motolab-benefits{gap:10px}.rpm-motolab-engine{min-height:125px}}
+@media(max-width:760px){.rpm-motolab{display:block}.rpm-motolab-content{padding:34px 20px 30px}.rpm-motolab h2{font-size:72px}.rpm-motolab h3{letter-spacing:.14em}.rpm-motolab-engines{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-motolab-photo{min-height:190px;background-position:center 40%}.rpm-motolab-photo-caption{right:20px;bottom:20px}.rpm-motolab-benefits{gap:12px 18px}}
+@media(max-width:380px){.rpm-motolab h2{font-size:60px}.rpm-motolab-actions button{width:100%}}
