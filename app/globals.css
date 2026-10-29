@@ -1297,3 +1297,32 @@ background:#b8132e!important;color:#fff!important;
 /* Keep MotoLab aligned with homepage content instead of full-bleed width */
 .rpm-hp-v2 .rpm-motolab{width:calc(100% - 48px);max-width:1280px;margin:28px auto 36px;border:1px solid #30232b;border-radius:12px;box-sizing:border-box}
 @media(max-width:760px){.rpm-hp-v2 .rpm-motolab{width:calc(100% - 24px);margin:16px auto 24px;border-radius:9px}}
+
+/* MotoLab responsive refinements — tablets, phones and narrow screens */
+.rpm-hp-v2 .rpm-motolab{min-width:0}
+.rpm-hp-v2 .rpm-motolab-content,.rpm-hp-v2 .rpm-motolab-photo{min-width:0}
+@media (min-width:761px) and (max-width:1100px){
+ .rpm-hp-v2 .rpm-motolab{grid-template-columns:minmax(0,1fr) 34%;width:calc(100% - 36px)}
+ .rpm-hp-v2 .rpm-motolab-content{padding:32px 25px}
+ .rpm-hp-v2 .rpm-motolab h2{font-size:clamp(60px,7vw,82px)}
+ .rpm-hp-v2 .rpm-motolab-engines{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rpm-hp-v2 .rpm-motolab-engine{min-height:115px}
+}
+@media (max-width:760px){
+ .rpm-hp-v2 .rpm-motolab{display:flex;flex-direction:column;width:calc(100% - 24px);max-width:100%;min-height:0}
+ .rpm-hp-v2 .rpm-motolab-content{width:100%;box-sizing:border-box;padding:28px 18px}
+ .rpm-hp-v2 .rpm-motolab h2{font-size:clamp(50px,13vw,72px);overflow-wrap:anywhere}
+ .rpm-hp-v2 .rpm-motolab h3{font-size:12px;line-height:1.5;letter-spacing:.12em}
+ .rpm-hp-v2 .rpm-motolab-content>p{font-size:14px}
+ .rpm-hp-v2 .rpm-motolab-engines{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .rpm-hp-v2 .rpm-motolab-engine{min-height:116px;padding:10px!important}
+ .rpm-hp-v2 .rpm-motolab-engine strong{font-size:15px;overflow-wrap:anywhere}
+ .rpm-hp-v2 .rpm-motolab-photo{min-height:190px;width:100%}
+ .rpm-hp-v2 .rpm-motolab-actions .primary{max-width:100%;white-space:normal;text-align:center}
+}
+@media (max-width:380px){
+ .rpm-hp-v2 .rpm-motolab-content{padding:24px 14px}
+ .rpm-hp-v2 .rpm-motolab h2{font-size:50px}
+ .rpm-hp-v2 .rpm-motolab-benefits{flex-direction:column;align-items:flex-start}
+ .rpm-hp-v2 .rpm-motolab-actions .primary{width:100%}
+}
