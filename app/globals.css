@@ -1595,3 +1595,21 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2 .rpm-desktop-level3{position:absolute!important;top:0!important;left:calc(100% - 1px)!important;right:auto!important;max-height:min(70dvh,650px)!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:400!important}
 .rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% - 1px)!important}
 }
+
+/* Header navigation readability: consistent separation between labels and list rows. */
+.rpm-header-v2 .rpm-desktop-root:not(:first-child)::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:1px;background:#343943;pointer-events:none}
+.rpm-header-v2 .rpm-desktop-root-button{letter-spacing:.015em!important;line-height:1.35!important;padding-inline:clamp(10px,.85vw,18px)!important}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button{background:#2b3039!important}
+.rpm-header-v2 .rpm-desktop-level2,.rpm-header-v2 .rpm-desktop-level3{background:#191c23!important;border:1px solid #3b414c!important;padding:6px!important}
+.rpm-header-v2 .rpm-desktop-sub+.rpm-desktop-sub{border-top:1px solid #343a45}
+.rpm-header-v2 .rpm-desktop-sub>button{min-height:44px!important;gap:14px!important;padding:11px 13px!important;border-radius:4px!important;font-weight:600!important;letter-spacing:.005em}
+.rpm-header-v2 .rpm-desktop-sub>button svg{flex-shrink:0;color:#9ba5b4}
+.rpm-header-v2 .rpm-desktop-sub:hover>button{background:#343b47!important;color:#fff!important}
+.rpm-header-v2 .rpm-desktop-level3>button{min-height:43px!important;padding:11px 13px!important;border-radius:4px!important;font-weight:500!important;letter-spacing:.005em}
+.rpm-header-v2 .rpm-desktop-level3>button+button{border-top:1px solid #363c47!important}
+.rpm-header-v2 .rpm-desktop-level3>button:hover{background:#343b47!important;color:#fff!important}
+.rpm-header-v2 .rpm-drawer-root+.rpm-drawer-root{border-top:1px solid #3b414c!important}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child{letter-spacing:.01em!important}
+.rpm-header-v2 .rpm-drawer-sub+.rpm-drawer-sub{border-top:1px solid #454b55!important}
+.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{line-height:1.55!important}
+.rpm-header-v2 .rpm-drawer-leaves>button+button{border-top:1px solid #414955!important}
