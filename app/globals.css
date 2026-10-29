@@ -977,3 +977,16 @@
 /* Remove the outer cart-builder frame; retain category cards and price summary */
 .rpm-guide-cart-builder{border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;margin:24px 0}
 @media(max-width:650px){.rpm-guide-cart-builder{padding:0}}
+
+/* Admin settings hub */
+.rpm-admin-settings-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.rpm-admin-settings-hub-link{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.025);color:#f5f2f5;text-decoration:none;min-width:0;transition:border-color .2s,background .2s}
+.rpm-admin-settings-hub-link>svg:first-child{flex-shrink:0;color:#e72f59}
+.rpm-admin-settings-hub-link>svg:last-child{flex-shrink:0;margin-left:auto;color:#e72f59}
+.rpm-admin-settings-hub-link span{display:flex;flex-direction:column;gap:5px;min-width:0}
+.rpm-admin-settings-hub-link strong{font-size:15px;font-weight:700}
+.rpm-admin-settings-hub-link small{color:#aaa4af;font-size:12px;line-height:1.5}
+a.rpm-admin-settings-hub-link:hover{border-color:rgba(231,47,89,.65);background:rgba(231,47,89,.07)}
+.rpm-admin-settings-hub-planned{opacity:.65}
+.rpm-admin-settings-hub-planned em{margin-left:auto;flex-shrink:0;font-size:11px;font-style:normal;color:#c2bac4}
+@media(max-width:780px){.rpm-admin-settings-hub-grid{grid-template-columns:1fr}}
