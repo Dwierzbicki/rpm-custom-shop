@@ -1442,3 +1442,24 @@ background:#b8132e!important;color:#fff!important;
 .rpm-header-v2:has(.rpm-category-compact) .rpm-category-toggle{display:flex}
 @media(max-width:760px){.rpm-header-v2 .rpm-category-toggle{display:flex}.rpm-header-v2 .rpm-category-header:not(.open){display:none!important}.rpm-header-v2 .rpm-category-header.open{display:flex!important}}
 @media(max-width:560px){.rpm-header-v2 .rpm-category-header.rpm-category-compact .rpm-header-department-grid{grid-template-columns:1fr}}
+
+/* Header cleanup: one row or hamburger, never a wrapped second row. */
+.rpm-header-v2 .rpm-category-header{flex-wrap:nowrap!important;justify-content:center}
+.rpm-header-v2 .rpm-category-header .rpm-header-department-trigger{font-size:12px;padding:13px 9px}
+.rpm-header-v2 .rpm-category-header .rpm-header-department-panel{box-sizing:border-box;overflow-x:hidden;overscroll-behavior:contain}
+.rpm-header-v2 .rpm-category-header .rpm-header-department-grid{min-width:0;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.rpm-header-v2 .rpm-category-header .rpm-header-department-group{min-width:0;overflow-wrap:anywhere}
+.rpm-header-v2 .rpm-category-header .rpm-header-subtitle,
+.rpm-header-v2 .rpm-category-header .rpm-header-leaf{display:block!important;width:100%;min-width:0;max-width:100%;box-sizing:border-box;white-space:normal!important;overflow-wrap:anywhere;text-align:left;line-height:1.5;padding:5px 0!important;justify-content:flex-start}
+@media(max-width:1799px){
+ .rpm-header-v2 .rpm-category-toggle{display:flex!important}
+ .rpm-header-v2 .rpm-category-header{display:none!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;max-height:min(78vh,800px)!important;overflow-y:auto!important;overflow-x:hidden!important}
+ .rpm-header-v2 .rpm-category-header.open{display:flex!important}
+ .rpm-header-v2 .rpm-category-header .rpm-header-department{display:block!important;width:100%}
+ .rpm-header-v2 .rpm-category-header .rpm-header-department-trigger{width:100%;justify-content:space-between;font-size:13px;padding:14px 20px}
+ .rpm-header-v2 .rpm-category-header .rpm-header-department-panel{position:static!important;width:100%!important;max-height:none!important;box-shadow:none!important;left:auto!important;right:auto!important;padding:16px 20px}
+ .rpm-header-v2 .rpm-category-header .rpm-header-department-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .rpm-header-v2 .rpm-category-header .rpm-header-nav-sale{margin:12px 20px;align-self:flex-start}
+}
+@media(max-width:760px){.rpm-header-v2 .rpm-category-header .rpm-header-department-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.rpm-header-v2 .rpm-category-header .rpm-header-department-grid{grid-template-columns:1fr}}
