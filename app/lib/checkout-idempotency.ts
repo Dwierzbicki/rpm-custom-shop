@@ -1,22 +1,29 @@
 /**
  * Reuse an idempotency key for the same checkout payload across retries and
- * page reloads. A changed cart / customer payload gets a fresh key.
+ * reloads. Only a SHA-256 fingerprint is persisted, never customer PII.
  */
-const STORAGE_KEY='rpm-checkout-request-v1';
-type PendingCheckout={payload:string;key:string};
+const STORAGE_KEY='rpm-checkout-request-v2';
+type PendingCheckout={fingerprint:string;key:string};
 let pending:PendingCheckout|null=null;
 
-export function checkoutRequestKey(payload:string):string{
+async function payloadFingerprint(payload:string):Promise<string>{
+ const bytes=new TextEncoder().encode(payload);
+ const hash=await crypto.subtle.digest('SHA-256',bytes);
+ return Array.from(new Uint8Array(hash),byte=>byte.toString(16).padStart(2,'0')).join('');
+}
+
+export async function checkoutRequestKey(payload:string):Promise<string>{
+ const fingerprint=await payloadFingerprint(payload);
  if(!pending){
   try{
    const stored=sessionStorage.getItem(STORAGE_KEY);
    const parsed=stored?JSON.parse(stored) as PendingCheckout:null;
-   if(parsed&&typeof parsed.payload==='string'&&typeof parsed.key==='string')pending=parsed;
+   if(parsed&&typeof parsed.fingerprint==='string'&&typeof parsed.key==='string')pending=parsed;
   }catch{}
  }
- if(pending?.payload===payload)return pending.key;
+ if(pending?.fingerprint===fingerprint)return pending.key;
  const key=crypto.randomUUID();
- pending={payload,key};
+ pending={fingerprint,key};
  try{sessionStorage.setItem(STORAGE_KEY,JSON.stringify(pending))}catch{}
  return key;
 }
