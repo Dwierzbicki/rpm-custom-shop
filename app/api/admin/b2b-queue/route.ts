@@ -1,7 +1,8 @@
 import {NextResponse} from 'next/server';
 import {getB2BQueue,enqueueB2BTask,cancelB2BTask,recordB2BOfflineReport,
- QueueConflict,QueueInvalid} from '../../../lib/b2b-queue-db';
+ recordFmicCartReview,QueueConflict,QueueInvalid} from '../../../lib/b2b-queue-db';
 import {InvalidOfflineReport} from '../../../lib/b2b-queue-report';
+import {InvalidCartReview} from '../../../lib/b2b-cart-review';
 import {ProcurementConflict,ProcurementInvalid,ProcurementNotFound} from '../../../lib/procurement-db';
 
 export const runtime='nodejs';
@@ -15,7 +16,7 @@ function reject(error:unknown){
  if(error instanceof QueueConflict||error instanceof ProcurementConflict)
   return NextResponse.json({error:error.message},{status:409});
  if(error instanceof QueueInvalid||error instanceof ProcurementInvalid||
-  error instanceof InvalidOfflineReport)return NextResponse.json({error:error.message},{status:422});
+  error instanceof InvalidOfflineReport||error instanceof InvalidCartReview)return NextResponse.json({error:error.message},{status:422});
  console.error('[b2b-queue] operation failed',{type:error instanceof Error?error.name:'Unknown'});
  return NextResponse.json({error:'Kolejka B2B chwilowo niedostępna'},{status:503});
 }
@@ -59,6 +60,12 @@ export async function POST(request:Request){
   if(body.action==='report'){
    if(body.confirm!=='RECORD_OFFLINE_REPORT')return NextResponse.json({error:'Potwierdź zapis raportu'},{status:400});
    return NextResponse.json(await recordB2BOfflineReport(orderId,supplier,body.fingerprint,body.report),
+    {headers:{'Cache-Control':'no-store, private'}});
+  }
+  if(body.action==='cart_review'){
+   if(body.confirm!=='RECORD_FMIC_CART_REVIEW')
+    return NextResponse.json({error:'Potwierdź zapis raportu koszyka FMIC'},{status:400});
+   return NextResponse.json(await recordFmicCartReview(orderId,supplier,body.fingerprint,body.report),
     {headers:{'Cache-Control':'no-store, private'}});
   }
   return NextResponse.json({error:'Nieznana akcja'},{status:400});

@@ -4,6 +4,8 @@ import {readProcurement,readCurrentPlan,ProcurementConflict,ProcurementInvalid,P
 import {createB2BFixtureJob} from './b2b-fixture-job';
 import {validateOfflineReport,InvalidOfflineReport} from './b2b-queue-report';
 import type {OfflineReport} from './b2b-queue-report';
+import {validateCartReview} from './b2b-cart-review';
+import type {CartReview} from './b2b-cart-review';
 
 export type B2BSupplier='fmic'|'mtuning';
 export type QueueStatus='queued'|'offline_reported'|'cancelled';
@@ -11,6 +13,7 @@ export type B2BTask={
  id:string;orderId:string;supplier:B2BSupplier;jobId:string;fingerprint:string;
  status:QueueStatus;createdAt:string;updatedAt:string;
 };
+export type B2BCartRecord=CartReview&{id:string;taskId:string;createdAt:string};
 export type B2BEvent={
  id:string;taskId:string;jobId:string;event:'queued'|'requeued'|'cancelled'|'offline_reported';
  runId:string|null;items:number|null;trace:OfflineReport['trace'];durationMs:number|null;createdAt:string;
@@ -45,6 +48,18 @@ async function ensure(){
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    UNIQUE(task_id,run_id)
   )`);
+  await db.query(`CREATE TABLE IF NOT EXISTS rpm_b2b_cart_reviews(
+   id BIGSERIAL PRIMARY KEY,task_id BIGINT NOT NULL REFERENCES rpm_b2b_tasks(id),
+   job_id TEXT NOT NULL,run_id UUID NOT NULL,
+   verdict TEXT NOT NULL CHECK(verdict IN ('verified','needs_review')),
+   items INTEGER NOT NULL,cart_add_requests INTEGER NOT NULL,
+   duration_ms INTEGER NOT NULL,
+   calculated_gross_pln NUMERIC(12,2),
+   observed_subtotal_gross_pln NUMERIC(12,2),
+   issues JSONB NOT NULL DEFAULT '[]'::jsonb,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   UNIQUE(task_id,run_id)
+  )`);
  })();
  try{await setup}catch(error){setup=undefined;throw error}
 }
@@ -69,7 +84,18 @@ export async function getB2BQueue(orderId:string){
    JOIN rpm_b2b_tasks t ON t.id=e.task_id
    WHERE t.order_id=$1 ORDER BY e.id DESC LIMIT 50`,[orderId]),
  ]);
- return {tasks:tasks.rows,events:events.rows};
+ const reviews=await db.query<B2BCartRecord>(`SELECT r.id::text AS "id",r.task_id::text AS "taskId",
+   r.job_id AS "jobId",r.run_id::text AS "runId",
+   t.order_id::text AS "orderId",t.supplier,
+   r.verdict,r.items,r.cart_add_requests AS "cartAddRequests",
+   r.duration_ms AS "durationMs",
+   r.calculated_gross_pln::float8 AS "calculatedGrossPLN",
+   r.observed_subtotal_gross_pln::float8 AS "observedSubtotalGrossPLN",
+   r.issues,r.created_at AS "createdAt"
+   FROM rpm_b2b_cart_reviews r
+   JOIN rpm_b2b_tasks t ON t.id=r.task_id
+   WHERE t.order_id=$1 ORDER BY r.id DESC LIMIT 40`,[orderId]);
+ return {tasks:tasks.rows,events:events.rows,cartReviews:reviews.rows};
 }
 
 async function validatedJob(
@@ -228,5 +254,55 @@ export async function getB2BQueueOverview(){
    summary[row.status]=row.count;
   summary.total+=row.count;
  }
- return {summary,tasks,events:events.rows,limit:100,asOf:new Date().toISOString()};
+ const reviews=ids.length?await db.query<B2BCartRecord>(`SELECT r.id::text AS "id",r.task_id::text AS "taskId",
+   r.job_id AS "jobId",r.run_id::text AS "runId",
+   t.order_id::text AS "orderId",t.supplier,
+   r.verdict,r.items,r.cart_add_requests AS "cartAddRequests",
+   r.duration_ms AS "durationMs",
+   r.calculated_gross_pln::float8 AS "calculatedGrossPLN",
+   r.observed_subtotal_gross_pln::float8 AS "observedSubtotalGrossPLN",
+   r.issues,r.created_at AS "createdAt"
+   FROM rpm_b2b_cart_reviews r
+   JOIN rpm_b2b_tasks t ON t.id=r.task_id
+   WHERE r.task_id=ANY($1::bigint[]) ORDER BY r.id DESC LIMIT 200`,[ids]):{rows:[]};
+ return {summary,tasks,events:events.rows,cartReviews:reviews.rows,limit:100,
+  asOf:new Date().toISOString()};
+}
+
+/**
+ * Report of a *local* cart preparation attempt. Never a supplier-issued
+ * order confirmation. No screenshot path, cookies, customer data or HTML.
+ */
+export async function recordFmicCartReview(
+ orderId:string,supplier:B2BSupplier,expectedFingerprint:string,untrusted:unknown
+){
+ validateInput(orderId,supplier,expectedFingerprint);
+ if(supplier!=='fmic')throw new QueueInvalid('Recenzja koszyka dotyczy tylko FMIC');
+ await readProcurement(orderId);await ensure();
+ const client=await getDbPool().connect();
+ try{
+  await client.query('BEGIN');
+  const job=await validatedJob(client,orderId,supplier,expectedFingerprint);
+  const review=validateCartReview(untrusted,job);
+  const current=await client.query<B2BTask>(
+   `SELECT ${cols} FROM rpm_b2b_tasks WHERE order_id=$1 AND supplier=$2 FOR UPDATE`,
+   [orderId,supplier]);
+  const task=current.rows[0];
+  if(!task)throw new ProcurementNotFound('Najpierw dodaj zadanie do kolejki');
+  if(task.status==='cancelled'||task.jobId!==job.jobId)
+   throw new QueueConflict('Zadanie nieaktualne lub anulowane');
+  const inserted=await client.query<{id:string}>(`INSERT INTO rpm_b2b_cart_reviews
+   (task_id,job_id,run_id,verdict,items,cart_add_requests,duration_ms,
+    calculated_gross_pln,observed_subtotal_gross_pln,issues)
+   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10::jsonb)
+   ON CONFLICT(task_id,run_id) DO NOTHING RETURNING id::text AS id`,
+   [task.id,job.jobId,review.runId,review.verdict,review.items,
+    review.cartAddRequests,review.durationMs,review.calculatedGrossPLN,
+    review.observedSubtotalGrossPLN,JSON.stringify(review.issues)]);
+  await client.query('UPDATE rpm_b2b_tasks SET updated_at=NOW() WHERE id=$1',[task.id]);
+  await client.query('COMMIT');
+  return {taskId:task.id,newReport:inserted.rows.length===1,verdict:review.verdict,
+   notice:'Zapisano deklarowany raport koszyka FMIC. Nie jest to potwierdzenie złożenia zamówienia.'};
+ }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
+ finally{client.release()}
 }
