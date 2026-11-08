@@ -71,7 +71,7 @@ test('supplier stock booleans are not treated as a quantity guarantee',()=>{
  const big={...order,items:[{...order.items[0],qty:50},order.items[1]]};
  const plan=planProcurement(big,offers,7);
  assert.equal(plan.canDraft,true);
- assert.match(plan.notes.join(' '),/nie jest potwierdzoną liczbą sztuk/);
+ assert.match(plan.notes.join(' '),/nie potwierdzoną liczbą sztuk/);
 });
 
 test('price, availability, supplier or order status changes invalidate fingerprints',()=>{
