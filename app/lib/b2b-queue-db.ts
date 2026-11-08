@@ -375,7 +375,7 @@ export async function recordB2BAgentEvent(payload:unknown){
       ',mode='+String(last?.mode!==event.mode)+
       ',terminal='+String(TERMINAL_AGENT_PHASES.includes(last.phase))+
       ',seq='+String(event.seq!==last.seq+1)+
-      ',types='+typeof event.seq+'/'+typeof last.seq+']');
+      ',types='+typeof event.seq+'/'+typeof last.seq+',received='+event.seq+',previous='+last.seq+']');
    }
   }
   const added=await client.query<{id:string}>(`INSERT INTO rpm_b2b_agent_events
