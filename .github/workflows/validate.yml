@@ -54,3 +54,24 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: PostgreSQL procurement integration tests
         run: node --test tests/integration/*.test.mjs
+
+  b2b_playwright_fixture:
+    name: B2B Playwright offline-only proof
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Playwright runner
+        working-directory: tools/b2b-playwright
+        run: npm install --no-audit --no-fund
+      - name: Install test Chromium
+        working-directory: tools/b2b-playwright
+        run: npx playwright install --with-deps chromium
+      - name: Validate B2B jobs
+        working-directory: tools/b2b-playwright
+        run: npm test
+      - name: Simulate SKU and quantities in local browser fixture
+        working-directory: tools/b2b-playwright
+        run: npm run demo

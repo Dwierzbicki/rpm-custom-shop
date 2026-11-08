@@ -1,0 +1,12 @@
+{
+  "name": "rpm-custom-b2b-playwright-fixture",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test validate.test.mjs",
+    "demo": "node dry-run.mjs"
+  },
+  "dependencies": {
+    "playwright": "^1.56.0"
+  }
+}
