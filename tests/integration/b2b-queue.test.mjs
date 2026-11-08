@@ -133,6 +133,10 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
    await recordB2BAgentEvent(agentEvent(runCart,4,'cart_add','cart-only',0));
    await recordB2BAgentEvent(agentEvent(runCart,5,'cart_add_ack','cart-only',0));
    await recordB2BAgentEvent(agentEvent(runCart,6,'inspect_cart','cart-only'));
+   const latest=await pool.query(
+    'SELECT run_id::text AS "runId",seq,mode,phase,step_index AS "stepIndex" FROM rpm_b2b_agent_events WHERE task_id=$1 ORDER BY id DESC LIMIT 1',
+    [first.task.id]);
+   assert.deepEqual(latest.rows[0],{runId:runCart,seq:6,mode:'cart-only',phase:'inspect_cart',stepIndex:null});
    await recordB2BAgentEvent(agentEvent(runCart,7,'cart_verified','cart-only'));
    const liveEvents=(await getB2BQueueOverview()).agentEvents;
    const cartDone=liveEvents.find(x=>x.runId===runCart&&x.phase==='cart_verified');
