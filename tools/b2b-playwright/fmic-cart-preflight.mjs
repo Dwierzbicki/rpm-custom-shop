@@ -1,5 +1,6 @@
 import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
-import {readFmicCartItemSku} from './fmic-cart-sku.mjs';
+import {readFmicCartItemSku,readFmicCartItemProductUrl} from './fmic-cart-sku.mjs';
+import {verifyFmicCartLineSkus,MAX_FMIC_CART_LINES} from './fmic-cart-linked-sku.mjs';
 
 export const FMIC_CART_URL='https://fmic.pl/checkout/cart/';
 const itemSelectors=['.cart.table-wrapper tbody.cart.item','.cart.table-wrapper tr.item'];
@@ -58,7 +59,7 @@ export async function checkFmicCartPreflight(page){
   const qtyInputs=page.locator('input[id^="cart-"][id$="-qty"][name$="[qty]"]');
   const matching=[];
   const qtyCount=await qtyInputs.count();
-  if(qtyCount>50){
+  if(qtyCount>MAX_FMIC_CART_LINES){
    return {status:'unknown',itemCount:0,items:[],reason:'too_many_rows'};
   }
   for(let i=0;i<qtyCount;i++){
@@ -72,7 +73,7 @@ export async function checkFmicCartPreflight(page){
    matching.push(input);
   }
   if(matching.length>0){
-   const items=[];
+   const items=[],urls=[];
    for(const input of matching){
     let qty=null;
     try{
@@ -82,12 +83,14 @@ export async function checkFmicCartPreflight(page){
       if(Number.isSafeInteger(parsed)&&parsed>=1&&parsed<=100)qty=parsed;
      }
     }catch{/* Unknown quantity remains null; never assume zero. */}
-    // SKU may only come from exactly one visible marker inside this
-    // specific row; no guessing from the id, a title or a product URL.
-    const sku=await readFmicCartItemSku(input);
-    items.push({sku,qty});
+    // Each quantity input is isolated to its own row. No SKU can come
+    // from the name, numeric line ID or URL slug. Linked product cards
+    // are verified later in a capped, at-most-three-page lookup pool.
+    items.push({sku:await readFmicCartItemSku(input),qty});
+    urls.push(await readFmicCartItemProductUrl(input));
    }
-   return {status:'nonempty',itemCount:items.length,items,reason:'items_detected'};
+   const verified=await verifyFmicCartLineSkus(page,items,urls);
+   return {status:'nonempty',itemCount:verified.length,items:verified,reason:'items_detected'};
   }
  }
  for(const selector of emptySelectors){
