@@ -12,7 +12,7 @@ function dataUrl(source){
 const matchingSource=await readFile(new URL('../app/lib/supplier-matching.ts',import.meta.url),'utf8');
 const matchingUrl=dataUrl(matchingSource);
 const plannerSource=(await readFile(new URL('../app/lib/procurement-plan.ts',import.meta.url),'utf8'))
- .replace("from './supplier-matching';","from '"+matchingUrl+"';");
+ .replaceAll("from './supplier-matching';","from '"+matchingUrl+"';");
 const {planProcurement}=await import(dataUrl(plannerSource));
 const order={id:'92',status:'confirmed',total:2600,items:[
  {productId:101,sku:'RPM-101',name:'Wastegate',qty:2,unitPrice:600,options:{}},
