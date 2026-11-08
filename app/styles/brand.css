@@ -1,0 +1,49 @@
+/* RPM Custom identity — racing pink, silver and graphite */
+:root{color-scheme:dark;--accent:#e3385b;--accent-hover:#f05a77}
+.primary{color:#fff;box-shadow:0 8px 30px #e3385b24;transition:background .2s,transform .2s}
+.primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.product-card,.category-tile{transition:border-color .2s,transform .2s,box-shadow .2s}
+.product-card:hover{box-shadow:0 12px 36px #e3385b12}
+.hero-visual{background:radial-gradient(ellipse at 55% 50%,#47202d 0%,#201b23 42%,#090a0d 78%)}
+.logo{letter-spacing:-.065em}.logo span{color:var(--accent)}
+::selection{background:#e3385b;color:#fff}
+
+/* Original RPM Custom brand mark */
+.header .logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;line-height:1}
+.header .brand-logo{display:block;width:260px;height:78px;object-fit:contain;object-position:center}
+@media(max-width:1100px){.header .brand-logo{width:210px;height:68px}}
+@media(max-width:768px){.header .brand-logo{width:175px;height:60px}.header{gap:12px}}
+@media(max-width:420px){.header .brand-logo{width:150px;height:54px}}
+
+/* Compact navigation bar: keep logo visible without oversized header */
+.header{padding-top:8px;padding-bottom:8px}
+.header .brand-logo{width:220px;height:56px}
+@media(max-width:1100px){.header .brand-logo{width:190px;height:52px}}
+@media(max-width:768px){.header{padding-top:7px;padding-bottom:7px}.header .brand-logo{width:160px;height:46px}}
+@media(max-width:420px){.header .brand-logo{width:140px;height:42px}}
+
+/* PL / EN flag selector */
+.language-switch{display:flex;align-items:center;gap:4px;border:1px solid var(--line);border-radius:6px;padding:3px;background:#0d0e12;flex-shrink:0}
+.header-actions .language-switch button{display:flex;align-items:center;gap:4px;border-radius:4px;padding:6px 7px;color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}
+.header-actions .language-switch button.active{background:#e3385b24;color:#fff;outline:1px solid #e3385b77}
+.header-actions .language-switch button:hover{color:#fff}
+@media(max-width:900px){.header-actions{gap:9px}.header-actions .language-switch button{padding:5px}.language-switch span{display:none}}
+@media(max-width:420px){.header-actions{gap:6px}.header-actions .language-switch button{padding:4px}}
+
+/* Product card inline variant selectors */
+.product-options{background:#16191f;border:1px solid #343944;border-radius:10px;padding:22px;gap:17px}
+.product-options .config-title{font-size:15px;color:#f6f6f8}
+.product-options .config-title svg{color:var(--accent)}
+.fitment-note{display:flex;align-items:center;gap:9px;background:#20242c;border:1px solid #343b46;border-radius:6px;padding:12px 14px;color:#d7dce2;font-size:12px;line-height:1.5}
+.fitment-note svg{flex-shrink:0;color:var(--accent)}
+.option-group{display:flex;flex-direction:column;gap:9px}
+.option-label{font-size:12px;font-weight:800;letter-spacing:.03em;color:#e5e7eb}
+.option-choices{display:flex;flex-wrap:wrap;gap:8px}
+.option-choice{border:1px solid #49505b;border-radius:6px;background:#20242b;color:#d9dde4;padding:11px 17px;min-height:42px;font-size:13px;font-weight:700;transition:border-color .2s,background .2s,color .2s}
+.option-choice:hover{border-color:#e3385b;color:#fff}
+.option-choice.selected{background:#e3385b1c;border-color:#e3385b;color:#fff;box-shadow:inset 0 0 0 1px #e3385b66}
+.option-summary{display:flex;flex-direction:column;gap:5px;border-top:1px solid #3c414b;padding-top:14px}
+.option-summary span{font-size:11px;color:var(--muted)}
+.option-summary strong{font-size:13px;color:#fff;line-height:1.6}
+@media(max-width:420px){.product-options{padding:15px}.option-choice{padding:10px 13px}}
+
