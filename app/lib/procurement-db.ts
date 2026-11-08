@@ -49,7 +49,7 @@ async function currentRecord(db:PoolClient,orderId:string){
  const result=await db.query<ProcurementRecord>(recordSelect+' FOR UPDATE',[orderId]);
  return result.rows[0]??null;
 }
-async function readCurrentPlan(db:PoolClient,orderId:string,lock:boolean):Promise<ProcurementPlan>{
+export async function readCurrentPlan(db:PoolClient,orderId:string,lock:boolean):Promise<ProcurementPlan>{
  const order=await db.query<ProcurementOrder>(
   'SELECT id::text, status,total::float8 AS total,items FROM rpm_orders WHERE id=$1'+(lock?' FOR UPDATE':''),
   [orderId]

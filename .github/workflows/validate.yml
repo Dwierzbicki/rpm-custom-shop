@@ -53,7 +53,7 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
       - name: PostgreSQL procurement integration tests
-        run: node --test tests/integration/*.test.mjs
+        run: node --test --test-concurrency=1 tests/integration/*.test.mjs
 
   b2b_playwright_fixture:
     name: B2B Playwright offline-only proof
