@@ -1,0 +1,52 @@
+/* Homepage settings editor — isolated local draft, no public publish endpoint. */
+.rpm-editor{min-height:100vh;background:#0d1016;color:#f4f6fa;padding:clamp(18px,3vw,48px);font-family:Arial,sans-serif}
+.rpm-editor-top{display:flex;justify-content:space-between;align-items:center;gap:20px;max-width:1600px;margin:0 auto 28px}
+.rpm-editor-top small{color:#f13d5a;font-weight:800;letter-spacing:.13em}
+.rpm-editor-top h1{font-size:clamp(25px,2.5vw,42px);margin:9px 0}
+.rpm-editor-top h1 span{font-size:14px;color:#f13d5a}
+.rpm-editor-top p{font-size:14px;margin:0}
+.rpm-editor-top a{color:white;text-decoration:none;border:1px solid #4b5260;padding:12px 18px;border-radius:8px}
+.rpm-editor-grid{display:grid;grid-template-columns:minmax(310px,440px) minmax(0,1fr);gap:22px;max-width:1600px;margin:auto}
+.rpm-editor-panel,.rpm-editor-preview{background:#191e27;border:1px solid #343b48;border-radius:12px;min-width:0}
+.rpm-editor-panel{padding:24px}
+.rpm-editor-panel h2{font-size:22px;margin-bottom:5px}
+.rpm-editor-panel>p{font-size:13px}
+.rpm-editor-panel label{display:flex;flex-direction:column;gap:8px;margin:19px 0;font-size:13px;font-weight:700}
+.rpm-editor-panel input,.rpm-editor-panel textarea{width:100%;background:#10141b;border:1px solid #414956;border-radius:7px;padding:12px;color:#fff;font-size:14px;resize:vertical}
+.rpm-editor-panel input:focus,.rpm-editor-panel textarea:focus{outline:2px solid #f13d5a}
+.rpm-editor-actions{display:flex;flex-wrap:wrap;gap:10px}
+.rpm-editor-actions button{background:#df1739;color:#fff;border:0;border-radius:7px;padding:12px 16px;font-weight:800}
+.rpm-editor-actions button.secondary{background:#353b47}
+.rpm-editor-preview{overflow:hidden;display:flex;flex-direction:column;min-height:760px}
+.rpm-editor-preview>div{display:flex;justify-content:space-between;gap:12px;padding:17px 20px;border-bottom:1px solid #343b48}
+.rpm-editor-preview>div span{font-size:12px;color:#b5bbc7}
+.rpm-editor-preview iframe{flex:1;width:100%;border:0;background:#080a0e}
+@media(max-width:1000px){.rpm-editor-grid{grid-template-columns:1fr}.rpm-editor-preview{min-height:650px}}
+@media(max-width:550px){.rpm-editor-top{flex-direction:column;align-items:flex-start}.rpm-editor-panel{padding:16px}}
+
+/* Visual homepage editor: clear selection and instant feedback. */
+.rpm-editor-panel .rpm-editor-field-selected{border-left:3px solid #f13d5a;padding-left:12px;background:#f13d5a0c;border-radius:5px}
+.rpm-editor-panel .rpm-editor-field-selected>span{color:#ff647c}
+body:has(.rpm-hp-v2) [data-rpm-edit]{transition:outline-color .15s,background-color .15s}
+body:has(.rpm-hp-v2) [data-rpm-edit]:hover{outline:1px dashed #ed4563;outline-offset:5px}
+body:has(.rpm-hp-v2) [data-rpm-edit].rpm-edit-selected{outline:2px solid #ff4262;outline-offset:6px}
+
+/* Inline editor: displayed only after authenticated /api/admin/editor/access. */
+.rpm-inline-editor{position:relative;z-index:90;font-family:Arial,sans-serif}
+.rpm-inline-toolbar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:12px;max-width:calc(100vw - 24px);flex-wrap:wrap;background:#151920;color:#fff;border:1px solid #e93a58;box-shadow:0 14px 55px #000b;border-radius:12px;padding:11px 14px}
+.rpm-inline-toolbar strong{color:#ff506c;white-space:nowrap;font-size:13px}
+.rpm-inline-toolbar span{font-size:12px;color:#c1c5d0}
+.rpm-inline-toolbar button,.rpm-inline-properties>button{background:#e52b4e;border:0;border-radius:7px;color:#fff;padding:10px 14px;font-weight:700;white-space:nowrap}
+.rpm-inline-toolbar .rpm-inline-secondary{background:#333a46}
+.rpm-inline-toolbar a{color:white;text-decoration:none;font-size:13px}
+.rpm-inline-properties{position:fixed;right:20px;top:100px;z-index:96;width:min(360px,calc(100vw - 40px));background:#171c25;border:1px solid #e93a58;box-shadow:0 15px 50px #000b;padding:18px;border-radius:12px;color:#fff;display:flex;flex-direction:column;gap:15px}
+.rpm-inline-properties-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.rpm-inline-properties-head button{background:transparent;border:0;color:white;font-size:19px}
+.rpm-inline-properties textarea,.rpm-inline-properties input{width:100%;background:#0d1118;color:white;border:1px solid #4c5665;padding:12px;border-radius:7px;resize:vertical}
+.rpm-inline-properties small{color:#b4b9c4;line-height:1.5}
+.rpm-inline-saved{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);z-index:96;background:#18251e;color:#a4f2b8;border:1px solid #5b9c6a;padding:10px 15px;border-radius:8px;font-size:13px}
+body:has(.rpm-inline-editor) [data-rpm-edit]{cursor:text}
+body:has(.rpm-inline-editor) [data-rpm-edit]:hover{outline:2px dashed #ff4262;outline-offset:5px}
+body:not(:has(.rpm-inline-editor)) [data-rpm-edit]:hover{outline:none}
+@media(max-width:600px){.rpm-inline-toolbar{bottom:8px;width:calc(100vw - 16px);justify-content:center}.rpm-inline-properties{right:10px;top:70px;width:calc(100vw - 20px)}}
+

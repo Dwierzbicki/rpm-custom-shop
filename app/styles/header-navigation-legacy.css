@@ -1,0 +1,206 @@
+/* RPM Custom — two-tier storefront header */
+.rpm-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.header.rpm-header-v2{position:sticky;top:0;z-index:60;display:flex;flex-direction:column;align-items:stretch;gap:0;padding:0;background:#090a0cf5;border-bottom:1px solid #282a30;backdrop-filter:blur(16px)}
+.rpm-header-main{width:100%;max-width:1400px;margin:auto;display:flex;align-items:center;gap:clamp(14px,3vw,44px);min-height:82px;padding:10px 24px}
+.rpm-header-logo{display:flex;align-items:center;flex:0 0 174px;padding:0;border:0}
+.rpm-header-logo .brand-logo{display:block;width:170px;max-height:67px;object-fit:contain;object-position:left center}
+.rpm-header-search{display:flex;align-items:center;flex:1 1 450px;max-width:600px;min-width:150px;height:44px;border:1px solid #34363e;border-radius:5px;background:#191b20;overflow:hidden}
+.rpm-header-search:focus-within{border-color:#e3182d}
+.rpm-header-search input{min-width:0;flex:1;height:100%;padding:0 16px;color:#fff;background:transparent;border:0;outline:0;font:inherit;font-size:13px}
+.rpm-header-search input::placeholder{color:#92959e}
+.rpm-header-search button{height:100%;width:52px;display:grid;place-items:center;background:transparent;border:0;color:#f5f5f6;cursor:pointer}
+.rpm-header-search button:hover{color:#ef2238}
+.rpm-header-actions{margin-left:auto;gap:16px;white-space:nowrap}
+.rpm-header-actions>button{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750}
+.rpm-header-actions .cart-btn i{top:-9px;right:-9px}
+.rpm-header-nav{display:flex;align-items:stretch;justify-content:center;gap:0;width:100%;min-height:44px;border-top:1px solid #27282e;background:#17191e}
+.rpm-header-nav button{display:flex;align-items:center;justify-content:center;gap:5px;padding:13px clamp(10px,1.45vw,23px);font-size:11px;font-weight:850;letter-spacing:.015em;white-space:nowrap;transition:background .2s,color .2s}
+.rpm-header-nav button:hover{background:#282a31;color:#fff}
+.rpm-header-nav .rpm-header-nav-sale{background:#d91129;color:#fff;transform:skew(-10deg);margin-left:8px;padding-left:26px;padding-right:26px}
+.rpm-header-nav .rpm-header-nav-sale:hover{background:#f01a33}
+@media(max-width:1100px){.rpm-header-main{gap:14px}.rpm-header-logo{flex-basis:135px}.rpm-header-logo .brand-logo{width:135px}.rpm-header-actions .rpm-header-garage span{display:none}.rpm-header-nav button{padding:13px 10px;font-size:10px}}
+@media(max-width:800px){.rpm-header-main{min-height:70px;padding:10px 16px;flex-wrap:wrap}.rpm-header-logo{flex-basis:122px}.rpm-header-logo .brand-logo{width:122px;max-height:50px}.rpm-header-search{order:3;flex:1 0 100%;max-width:none;height:40px}.rpm-header-actions{gap:10px}.rpm-header-actions .mobile-toggle{display:flex}.rpm-header-actions .cart-btn span{display:none}.rpm-header-nav{display:none;position:static;flex-direction:column;align-items:stretch;gap:0;min-height:0;padding:8px 16px 14px}.rpm-header-nav.open{display:flex}.rpm-header-nav button{justify-content:flex-start;padding:13px 16px;font-size:12px;border-bottom:1px solid #303038}.rpm-header-nav .rpm-header-nav-sale{margin:8px 0 0;transform:none;justify-content:center}.rpm-header-actions .language-switch{display:flex}}
+@media(max-width:440px){.rpm-header-actions .rpm-header-garage{display:none}.rpm-header-logo{flex-basis:105px}.rpm-header-logo .brand-logo{width:105px}.rpm-header-main{gap:8px}.rpm-header-actions{gap:6px}}
+
+
+/* Readability pass: storefront typography, especially header */
+.header.rpm-header-v2{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+.rpm-header-v2 .rpm-header-nav button{font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:800;letter-spacing:0;color:#f6f6f7;line-height:1.25;padding:15px clamp(9px,1.15vw,18px)}
+.rpm-header-v2 .rpm-header-nav .rpm-header-nav-sale{color:#fff}
+.rpm-header-v2 .rpm-header-search input{font-size:15px;font-weight:500;color:#fff}
+.rpm-header-v2 .rpm-header-search input::placeholder{color:#c6c8cf;opacity:1}
+.rpm-header-v2 .rpm-header-actions>button{font-size:13px;font-weight:800;color:#f6f6f7}
+.rpm-header-v2 .rpm-header-nav{background:#1b1d22}
+.rpm-hp-v2 .rpm-hp-trust span{font-size:13px;color:#e2e3e6;line-height:1.4}
+.rpm-hp-v2 .rpm-hp-cat-label strong{font-size:17px;font-weight:800;color:#fff;line-height:1.25}
+.rpm-hp-v2 .rpm-hp-cat-label small{font-size:12px;color:#e5e6e8}
+.rpm-hp-v2 .rpm-hp-promo p,.rpm-hp-v2 .rpm-hp-about p,.rpm-hp-v2 .rpm-hp-custom-copy p{font-size:15px;color:#e1e2e5}
+@media(max-width:1200px) and (min-width:801px){.rpm-header-v2 .rpm-header-nav button{font-size:12px;padding:14px 8px}}
+@media(max-width:800px){.rpm-header-v2 .rpm-header-nav button{font-size:14px;padding:14px 16px}.rpm-header-v2 .rpm-header-search input{font-size:14px}}
+@media(max-width:480px){.rpm-hp-v2 .rpm-hp-cat-label strong{font-size:15px}.rpm-hp-v2 .rpm-hp-trust span{font-size:12px}}
+
+
+/* FMIC-inspired 3-level category navigation, styled for RPM Custom */
+.rpm-header-v2 .rpm-fmic-nav{overflow:visible}
+.rpm-fmic-menu{position:relative;display:flex;align-items:stretch}
+.rpm-fmic-menu>.rpm-fmic-trigger{height:100%}
+.rpm-fmic-panel{display:none;position:absolute;top:100%;left:0;z-index:110;width:min(960px,calc(100vw - 36px));max-height:min(75vh,700px);overflow:auto;background:#15171c;border:1px solid #393c44;border-top:3px solid #e31836;box-shadow:0 20px 55px #000b;padding:18px;border-radius:0 0 10px 10px;text-align:left}
+.rpm-fmic-menu:hover .rpm-fmic-panel,.rpm-fmic-menu:focus-within .rpm-fmic-panel{display:block}
+.rpm-fmic-panel-title{color:#fff;font-size:14px;font-weight:900;letter-spacing:.04em;margin-bottom:14px}
+.rpm-fmic-panel-title small{display:block;margin-top:5px;color:#bfc2ca;font-weight:500;font-size:12px;letter-spacing:0}
+.rpm-fmic-root-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.rpm-fmic-root{position:relative;min-width:0}
+.rpm-header-v2 .rpm-fmic-root>button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 10px;font-size:12px;text-align:left;background:#24262d;color:#f8f8fa;border:1px solid #363943;border-radius:5px}
+.rpm-fmic-root:hover>button,.rpm-fmic-root:focus-within>button{background:#b8132e;border-color:#f02849}
+.rpm-fmic-submenu{display:none;position:absolute;left:0;top:100%;z-index:120;min-width:260px;max-height:54vh;overflow:visible;background:#22242b;border:1px solid #454852;box-shadow:0 12px 28px #000a;padding:5px;border-radius:5px}
+.rpm-fmic-root:hover .rpm-fmic-submenu,.rpm-fmic-root:focus-within .rpm-fmic-submenu{display:block}
+.rpm-fmic-sub{position:relative}
+.rpm-header-v2 .rpm-fmic-sub>button,.rpm-header-v2 .rpm-fmic-leaves>button{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:12px;font-weight:600;line-height:1.35;text-align:left;padding:9px 11px;background:transparent;border:0;color:#f0f1f4}
+.rpm-fmic-sub:hover>button,.rpm-fmic-leaves>button:hover{background:#373b44!important;color:#fff}
+.rpm-fmic-leaves{display:none;position:absolute;left:100%;top:0;width:280px;max-height:56vh;overflow:auto;background:#22242b;border:1px solid #454852;box-shadow:0 12px 28px #000a;padding:5px;border-radius:5px}
+.rpm-fmic-sub:hover .rpm-fmic-leaves,.rpm-fmic-sub:focus-within .rpm-fmic-leaves{display:block}
+@media(max-width:800px){.rpm-fmic-menu{display:block}.rpm-fmic-panel{position:static;width:100%;max-height:55vh;box-shadow:none;padding:10px}.rpm-fmic-menu:hover .rpm-fmic-panel{display:none}.rpm-fmic-menu:focus-within .rpm-fmic-panel{display:block}.rpm-fmic-root-grid{grid-template-columns:1fr}.rpm-fmic-submenu,.rpm-fmic-leaves{position:static!important;width:auto!important;max-height:none!important;box-shadow:none!important;margin-left:12px}.rpm-fmic-root:hover .rpm-fmic-submenu{display:none}.rpm-fmic-root:focus-within .rpm-fmic-submenu{display:block}.rpm-fmic-sub:hover .rpm-fmic-leaves{display:none}.rpm-fmic-sub:focus-within .rpm-fmic-leaves{display:block}}
+
+
+/* Vertical FMIC-style departments: one full-height column, cascading subcategories */
+@media(min-width:801px){
+.rpm-fmic-menu{position:relative}
+.rpm-fmic-panel{width:330px;max-width:calc(100vw - 24px);height:auto;max-height:calc(100vh - 115px);overflow-y:auto;overflow-x:visible;padding:8px;background:#17191f}
+.rpm-fmic-panel-title{padding:9px 10px;margin:0 0 4px}
+.rpm-fmic-root-grid{display:flex;flex-direction:column;gap:0}
+.rpm-fmic-root{position:static}
+.rpm-header-v2 .rpm-fmic-root>button{border:0;border-radius:0;border-bottom:1px solid #30333b;background:transparent;font-size:13px;font-weight:750;min-height:42px;padding:11px 13px}
+.rpm-fmic-root:hover>button,.rpm-fmic-root:focus-within>button{background:#b8132e;border:0;border-bottom:1px solid #f02849}
+.rpm-fmic-submenu{position:fixed;top:auto;left:auto;transform:translate(0,-42px);margin-left:321px;width:290px;max-height:calc(100vh - 115px);overflow-y:auto;overflow-x:visible;z-index:130}
+.rpm-fmic-leaves{position:fixed;left:auto;top:auto;transform:translate(0,-40px);margin-left:280px;width:290px;max-height:calc(100vh - 115px);overflow-y:auto;z-index:140}
+}
+
+
+/* Fix cascading menu hover: nested panels must stay inside their hover ancestors.
+   Fixed-position flyouts and overflow clipping caused the menu to close while crossing columns. */
+@media(min-width:801px){
+.rpm-fmic-panel{overflow:visible!important;max-height:none!important;width:330px}
+.rpm-fmic-root-grid{position:relative}
+.rpm-fmic-root{position:relative!important}
+.rpm-fmic-submenu{position:absolute!important;left:100%!important;top:0!important;transform:none!important;margin-left:0!important;width:290px;max-height:min(75vh,650px);overflow:visible!important;border-radius:0 6px 6px 0}
+.rpm-fmic-sub{position:relative}
+.rpm-fmic-leaves{position:absolute!important;left:100%!important;top:0!important;transform:none!important;margin-left:0!important;width:290px;max-height:min(75vh,650px);overflow-y:auto!important;border-radius:0 6px 6px 0}
+.rpm-fmic-root:hover>.rpm-fmic-submenu,.rpm-fmic-root:focus-within>.rpm-fmic-submenu{display:block}
+.rpm-fmic-sub:hover>.rpm-fmic-leaves,.rpm-fmic-sub:focus-within>.rpm-fmic-leaves{display:block}
+}
+
+
+/* Shared active trail across all three category levels */
+@media(min-width:801px){
+.rpm-fmic-root:hover>button,.rpm-fmic-root:focus-within>button,
+.rpm-fmic-root:has(.rpm-fmic-sub:hover)>button,
+.rpm-fmic-root:has(.rpm-fmic-sub:focus-within)>button{
+background:#b8132e!important;color:#fff!important;border-bottom-color:#e32949!important;
+}
+.rpm-fmic-sub:hover>button,.rpm-fmic-sub:focus-within>button,
+.rpm-fmic-sub:has(.rpm-fmic-leaves:hover)>button{
+background:#b8132e!important;color:#fff!important;
+}
+.rpm-fmic-leaves>button:hover,.rpm-fmic-leaves>button:focus-visible{
+background:#b8132e!important;color:#fff!important;
+}
+}
+
+
+/* Consistent category pictograms in the main vertical navigation */
+.rpm-fmic-root-label{display:inline-flex;align-items:center;gap:12px;min-width:0}
+.rpm-fmic-root-label>svg{flex:0 0 19px;color:#e64a64;transition:color .15s ease,transform .15s ease}
+.rpm-fmic-root-label>span{line-height:1.35}
+.rpm-fmic-root:hover>.rpm-fmic-root-label svg,.rpm-fmic-root:hover>button .rpm-fmic-root-label svg,.rpm-fmic-root:focus-within>button .rpm-fmic-root-label svg{color:#fff;transform:scale(1.08)}
+.rpm-header-v2 .rpm-fmic-root>button{gap:10px}
+
+
+/* Custom SVG Technical Motorsport pictograms: crisp at every scale */
+.rpm-category-technical-icon{display:inline-block;width:21px;height:21px;flex:0 0 21px;background-color:#f05b73;mask-size:contain;mask-repeat:no-repeat;mask-position:center;-webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;transition:background-color .15s ease,transform .15s ease}
+.rpm-fmic-root:hover>button .rpm-category-technical-icon,.rpm-fmic-root:focus-within>button .rpm-category-technical-icon{background-color:#fff;transform:scale(1.08)}
+
+
+/* Stable, contiguous 3-column category cascade: no hover gaps */
+@media(min-width:801px){
+.rpm-fmic-panel.rpm-fmic-panel-v3{width:max-content;max-width:calc(100vw - 24px);padding:0;overflow:visible;max-height:none;background:#181a20}
+.rpm-fmic-panel-v3 .rpm-fmic-panel-title{padding:17px 18px 13px;margin:0;border-bottom:1px solid #343740}
+.rpm-fmic-cascade{display:flex;align-items:flex-start;gap:0}
+.rpm-fmic-column{width:285px;flex:0 0 285px;max-height:min(72vh,720px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#555962 #202228}
+.rpm-fmic-primary{width:300px;flex-basis:300px}
+.rpm-fmic-secondary,.rpm-fmic-tertiary{border-left:1px solid #3b3e47;background:#22242b}
+.rpm-fmic-row{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px;width:100%;min-height:39px;padding:10px 13px!important;border:0!important;border-bottom:1px solid #30333a!important;border-radius:0!important;background:transparent!important;color:#f4f5f7!important;font-size:12px!important;font-weight:650!important;text-align:left;line-height:1.3;white-space:normal}
+.rpm-fmic-row:hover,.rpm-fmic-row:focus-visible,.rpm-fmic-row.active{background:#b8132e!important;color:#fff!important}
+.rpm-fmic-row.active .rpm-category-technical-icon,.rpm-fmic-row:hover .rpm-category-technical-icon{background-color:#fff}
+.rpm-fmic-column .rpm-fmic-row:last-child{border-bottom:0!important}
+}
+@media(max-width:800px){
+.rpm-fmic-panel-v3 .rpm-fmic-cascade{display:flex;flex-direction:column}
+.rpm-fmic-panel-v3 .rpm-fmic-column{width:100%;max-height:260px;overflow-y:auto}
+.rpm-fmic-panel-v3 .rpm-fmic-secondary,.rpm-fmic-panel-v3 .rpm-fmic-tertiary{border-left:0;border-top:2px solid #e31836;background:#25272e}
+.rpm-fmic-panel-v3 .rpm-fmic-row{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 10px;border:0;border-bottom:1px solid #353840;background:transparent;color:#fff;text-align:left;font-size:13px}
+.rpm-fmic-panel-v3 .rpm-fmic-row.active{background:#b8132e}
+}
+
+
+/* Visual category menu */
+@media(min-width:801px){
+.rpm-fmic-panel.rpm-fmic-panel-v3{background:#101318;border:1px solid #343944;border-top:2px solid #e31836;border-radius:0 0 10px 10px;box-shadow:0 24px 65px #000d}
+.rpm-fmic-panel-v3 .rpm-fmic-cascade{align-items:stretch}
+.rpm-fmic-panel-v3 .rpm-fmic-primary{width:310px;flex-basis:310px}
+.rpm-fmic-panel-v3 .rpm-fmic-secondary,.rpm-fmic-panel-v3 .rpm-fmic-tertiary{background:#191d24}
+.rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:53px;padding:5px 10px!important}
+.rpm-fmic-thumb{display:flex;align-items:center;justify-content:center;flex:0 0 45px;width:45px;height:42px;background:radial-gradient(circle at 65% 20%,#54202c,#0c0f14 85%);border:1px solid #36313a;border-radius:5px}
+.rpm-fmic-thumb .rpm-category-technical-icon{width:28px;height:28px;flex-basis:28px;background-color:#e7e9ee}
+.rpm-fmic-root-copy{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.rpm-fmic-root-copy strong{font-size:12px;color:#f7f7f9}
+.rpm-fmic-root-copy small{font-size:10px;font-weight:400;color:#aeb4bf}
+.rpm-fmic-row.active .rpm-fmic-root-copy small,.rpm-fmic-row:hover .rpm-fmic-root-copy small{color:#fff}
+.rpm-fmic-feature{width:245px;flex:0 0 245px;display:flex;flex-direction:column;align-self:stretch;min-height:460px;padding:17px;border-left:1px solid #343944;background:linear-gradient(145deg,#1b1017,#10141a 65%,#080a0e)}
+.rpm-fmic-feature-art{height:215px;display:flex;align-items:center;justify-content:center;border:1px solid #382630;border-radius:7px;background:radial-gradient(circle,#632034,#0c0f14 75%);margin-bottom:20px}
+.rpm-fmic-feature-art .rpm-category-technical-icon{width:145px;height:145px;flex:0 0 145px;background-color:#e4a0ac}
+.rpm-fmic-feature-eyebrow{color:#f3405d;font-size:10px;font-weight:800;letter-spacing:.1em}
+.rpm-fmic-feature h3{color:#fff;font-size:24px;line-height:1.1;margin:10px 0;font-weight:900;text-transform:uppercase}
+.rpm-fmic-feature p{color:#c2c6ce;font-size:13px;line-height:1.5;margin:0 0 22px}
+.rpm-fmic-feature-cta{display:flex!important;align-items:center;justify-content:center;gap:8px;margin-top:auto;padding:13px 10px!important;background:#df1031!important;color:#fff!important;border:0!important;border-radius:4px!important;font-size:11px!important;font-weight:850!important}
+}
+@media(max-width:1250px) and (min-width:801px){.rpm-fmic-feature{display:none}}
+@media(max-width:800px){.rpm-fmic-thumb{display:flex;align-items:center;justify-content:center;width:37px;height:37px;flex:0 0 37px;background:#24252c;border-radius:5px}.rpm-fmic-root-copy{display:flex;flex-direction:column;gap:2px}.rpm-fmic-root-copy small{font-size:10px;color:#adb2bd}.rpm-fmic-feature{display:none}}
+
+
+/* Photo-ready category tiles: images live in public/category-photos */
+.rpm-fmic-thumb{background-position:center;background-size:cover;background-repeat:no-repeat;overflow:hidden}
+.rpm-fmic-thumb .rpm-category-technical-icon{opacity:.28}
+.rpm-fmic-feature-art{background-size:cover;background-position:center;background-repeat:no-repeat;overflow:hidden}
+.rpm-fmic-feature-art .rpm-category-technical-icon{opacity:.12}
+@media(min-width:801px){.rpm-fmic-primary .rpm-fmic-row{min-height:57px}}
+
+/* Category photos replace legacy SVG glyphs */
+.rpm-fmic-thumb .rpm-category-technical-icon,
+.rpm-fmic-feature-art .rpm-category-technical-icon{display:none!important}
+
+/* Larger photo previews in the primary category menu */
+@media (min-width:801px){
+ .rpm-fmic-panel-v3 .rpm-fmic-primary{width:380px;flex-basis:380px}
+ .rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:90px;padding:7px 12px!important}
+ .rpm-fmic-panel-v3 .rpm-fmic-thumb{width:90px;height:84px;flex:0 0 90px;background-size:cover}
+}
+@media (max-width:800px){
+ .rpm-fmic-panel-v3 .rpm-fmic-thumb{width:70px;height:68px;flex:0 0 70px;background-size:cover}
+ .rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:76px}
+}
+
+/* Compact text-only primary categories; photos remain in right feature preview */
+@media (min-width:801px){
+ .rpm-fmic-panel-v3 .rpm-fmic-primary{width:300px;flex-basis:300px}
+ .rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:48px;padding:8px 12px!important}
+}
+@media (max-width:800px){
+ .rpm-fmic-panel-v3 .rpm-fmic-primary .rpm-fmic-row{min-height:46px}
+}
+
+/* Prevent long third-level category names from escaping their buttons */
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary{min-width:0;box-sizing:border-box}
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row{min-width:0;max-width:100%;box-sizing:border-box;white-space:normal!important;overflow-wrap:anywhere;word-break:normal;line-height:1.45;height:auto;min-height:42px;align-items:flex-start!important}
+.rpm-fmic-panel-v3 .rpm-fmic-tertiary .rpm-fmic-row > *{min-width:0;max-width:100%;overflow-wrap:anywhere}
+
+
