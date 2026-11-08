@@ -370,7 +370,12 @@ export async function recordB2BAgentEvent(payload:unknown){
   }else{
    if(!last||last.runId!==event.runId||last.mode!==event.mode||
       TERMINAL_AGENT_PHASES.includes(last.phase)||event.seq!==last.seq+1){
-    throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg');
+    throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg'+
+      ' [run='+String(last?.runId!==event.runId)+
+      ',mode='+String(last?.mode!==event.mode)+
+      ',terminal='+String(TERMINAL_AGENT_PHASES.includes(last.phase))+
+      ',seq='+String(event.seq!==last.seq+1)+
+      ',types='+typeof event.seq+'/'+typeof last.seq+']');
    }
   }
   const added=await client.query<{id:string}>(`INSERT INTO rpm_b2b_agent_events
