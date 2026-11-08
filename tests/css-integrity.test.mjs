@@ -2,7 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
-const css=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
+const globals=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
+const base=await readFile(new URL('../app/styles/base.css',import.meta.url),'utf8');
+const baseImport="@import './styles/base.css';\n";
+assert.equal(globals.startsWith(baseImport),true,'base.css import must remain first to preserve CSS cascade order');
+const css=base+globals.slice(baseImport.length);
+
 
 /**
  * Parse only root-level CSS blocks. The test intentionally does not flag
