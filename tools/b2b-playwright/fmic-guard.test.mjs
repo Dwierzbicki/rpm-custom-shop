@@ -71,3 +71,19 @@ test('read-only guard refuses unsafe GET actions with possible state mutation',(
  assert.equal(guardFmicRequest('GET','https://fmic.pl/static/version123/frontend/fmic/style.css'),'continue');
  assert.equal(guardFmicRequest('GET','https://fmic.pl/media/catalog/product/test.jpg'),'continue');
 });
+
+test('read-only catalogsearch GET is narrowly scoped and never permits checkout/POST',()=>{
+ const good='https://fmic.pl/catalogsearch/result/?q=JRSPEC-WT-40-B';
+ assert.equal(guardFmicRequest('GET',good,false),'continue');
+ for(const url of [
+  'https://fmic.pl/catalogsearch/result/?q=SKU%20WITH%20SPACE',
+  'https://fmic.pl/catalogsearch/result/?q=SKU&view=admin',
+  'https://fmic.pl/catalogsearch/result/?q=SKU&q=OTHER',
+  'https://evil.example/catalogsearch/result/?q=SKU',
+  'https://fmic.pl/catalogsearch/result/?q=SKU%26checkout',
+ ]){
+  assert.equal(guardFmicRequest('GET',url,false),'abort',url);
+ }
+ assert.equal(guardFmicRequest('POST',good,false),'abort');
+ assert.equal(guardFmicRequest('POST',good,true),'abort');
+});
