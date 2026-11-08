@@ -14,9 +14,13 @@ type Event={
  runId:string|null;items:number|null;trace?:Array<{action:string;result:string;elapsedMs:number}>;
  durationMs:number|null;createdAt:string;
 };
+type CartReview={id:string;taskId:string;orderId:string;supplier:'fmic';
+ jobId:string;runId:string;verdict:'verified'|'needs_review';items:number;
+ cartAddRequests:number;durationMs:number;calculatedGrossPLN:number|null;
+ observedSubtotalGrossPLN:number|null;issues:string[];createdAt:string};
 type ResponseData={
  summary:{queued:number;offline_reported:number;cancelled:number;total:number};
- tasks:Task[];events:Event[];limit:number;asOf:string;mode:'offline-demo-only';liveVendorWorker:false;
+ tasks:Task[];events:Event[];cartReviews:CartReview[];limit:number;asOf:string;mode:'offline-demo-only';liveVendorWorker:false;
 };
 const statusName:Record<Status,string>={
  queued:'Oczekuje na test',offline_reported:'Raport symulacji',cancelled:'Anulowano',
@@ -61,6 +65,13 @@ export default function B2BMonitorPage(){
   (!query.trim()||[task.orderId,task.jobId,task.supplier].some(field=>
    field.toLowerCase().includes(query.trim().toLowerCase())))
  )??[],[data,supplier,filter,query]);
+ const cartReviewsByTask=useMemo(()=>{
+  const map=new Map<string,CartReview[]>();
+  for(const review of data?.cartReviews??[]){
+   map.set(review.taskId,[...(map.get(review.taskId)??[]),review]);
+  }
+  return map;
+ },[data]);
  const eventsByTask=useMemo(()=>{
   const output=new Map<string,Event[]>();
   for(const event of data?.events??[]){
@@ -86,8 +97,9 @@ export default function B2BMonitorPage(){
    <ShieldCheck size={22}/>
    <div><strong>Tryb bezpieczny: lokalna symulacja, bez wysyłania zamówień</strong>
     <p>Ten panel pokazuje zadania zapisane w PostgreSQL i raporty przekazane przez operatora.
-     Nie jest to podgląd otwartej przeglądarki dostawcy ani prawdziwego robota.
-     Żadne zadanie nie uruchamia zakupów i nie klika przycisku „Złóż zamówienie”.</p>
+     Nie jest to transmisja obrazu z przeglądarki: widzimy zgłoszone raporty.
+     Lokalny adapter FMIC może po ręcznym włączeniu dodać produkty do koszyka,
+     ale nie przechodzi do płatności ani nie klika „Złóż zamówienie”.</p>
    </div>
   </div>
 
@@ -152,6 +164,28 @@ export default function B2BMonitorPage(){
          <Link href="/admin/orders" className="outline">Otwórz zamówienia</Link>
         </div>
        </div>
+       {(cartReviewsByTask.get(task.id)??[]).filter(review=>review.jobId===task.jobId)
+        .slice(0,3).map(review=><div key={review.id}
+         style={{marginTop:12,border:'1px solid #676d77',borderRadius:10,padding:12}}>
+          <strong style={{color:review.verdict==='verified'?'inherit':'#ffcb82'}}>
+           {review.verdict==='verified'
+            ?'Koszyk FMIC zgodny z raportem (wymaga ręcznego sprawdzenia)'
+            :'Koszyk FMIC — niezgodność, wymagane sprawdzenie'}
+          </strong>
+          <small style={{display:'block'}}>Raport: {time(review.createdAt)}
+           {' · '}Przebieg {review.runId.slice(0,8)}
+           {' · '}{review.items} poz.{' · '}{review.durationMs} ms</small>
+          <small style={{display:'block'}}>Suma z koszyka:
+           {' '}{review.observedSubtotalGrossPLN!==null
+            ?review.observedSubtotalGrossPLN.toFixed(2)+' PLN':'nieustalona'}
+           {' · '}Próby dodania: {review.cartAddRequests}</small>
+          {review.issues.map((issue,i)=><small key={i}
+           style={{display:'block',color:'#ffcb82'}}>• {issue}</small>)}
+          <small style={{display:'block',marginTop:4}}>
+           To raport przesłany przez operatora, nie potwierdzenie od FMIC.
+           Zamówienia nie wysłano.
+          </small>
+         </div>)}
        <details style={{marginTop:12}}>
         <summary style={{cursor:'pointer',fontWeight:600}}>
          <ClipboardList size={16} style={{verticalAlign:'middle',marginRight:7}}/>
@@ -184,6 +218,7 @@ export default function B2BMonitorPage(){
    <p className="muted" style={{fontSize:12,marginTop:14}}>
     Wyświetlamy maksymalnie {data?.limit??100} ostatnio aktualizowanych zadań i 10 ostatnich zdarzeń na zadanie.
     Podgląd nie zawiera haseł, adresów dostawy ani danych klientów.
+    Raporty koszyka są deklaracjami operatora, nie zdalnymi pomiarami na żywo.
    </p>
   </section>
  </main>;

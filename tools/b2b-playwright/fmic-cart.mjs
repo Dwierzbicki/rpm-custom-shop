@@ -5,6 +5,8 @@ import {fileURLToPath,pathToFileURL} from 'node:url';
 import {chromium} from 'playwright';
 import {validateFixtureJob} from './validate.mjs';
 import {validateFmicProductUrl,guardFmicRequest,exampleFmicProductUrl} from './fmic-guard.mjs';
+import {parsePlnPrice,verifyFmicCart} from './fmic-cart-verify.mjs';
+import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
 
 const folder=path.dirname(fileURLToPath(import.meta.url));
 const selectors={
@@ -15,11 +17,6 @@ const selectors={
  qty:['#qty','input[name="qty"]'],
  add:['#product-addtocart-button','button[title="Dodaj do koszyka"]',
   'button[title="Add to Cart"]'],
-};
-const safeAmount=value=>{
- const s=String(value).replace(/\s/g,'').replace(/[^\d,.]/g,'');
- const number=s.includes(',')?Number(s.replace(/\./g,'').replace(',','.')):Number(s);
- return Number.isFinite(number)&&number>0?number:null;
 };
 const log=(name,details='')=>console.log('[FMIC SAFE]',name,details);
 
@@ -50,7 +47,7 @@ async function inspection(page,url,sku){
  const add=await firstInput(page,selectors.add);
  const title=(await page.title()).slice(0,180);
  const outcome={url:checked,title,sku:detected?.value??null,skuSelector:detected?.selector??null,
-  priceText:displayPrice?.value??null,currentGrossPrice:displayPrice?safeAmount(displayPrice.value):null,
+  priceText:displayPrice?.value??null,currentGrossPrice:displayPrice?parsePlnPrice(displayPrice.value):null,
   priceSelector:displayPrice?.selector??null,stock:stock?.value??null,
   quantityControlFound:!!qty,addButtonFound:!!add};
  if(sku&&outcome.sku?.trim().toUpperCase()!==sku.trim().toUpperCase()){
@@ -149,8 +146,9 @@ export async function prepareFmicCart(job,config,opts={}){
   headless:opts.headless,storageState:opts.storageState,allowCartWrite:true,
  });
  let cartChanged=false;
+ let page;
  try{
-  const page=await context.newPage();
+  page=await context.newPage();
   for(const item of setup){
    const details=await inspection(page,item.url,item.sku);
    if(details.stock&&!/w magazynie|in stock/i.test(details.stock))
@@ -172,26 +170,49 @@ export async function prepareFmicCart(job,config,opts={}){
     throw Error('Brak zweryfikowanego formularza Dodaj do koszyka — wymagane mapowanie adaptera');
    }
    const before=events.cartAddRequests;
+   // Capture Magento's actual add-to-cart response. Merely clicking the
+   // button is not proof that FMIC accepted the cart modification.
+   const responsePromise=page.waitForResponse(response=>
+    response.request().method()==='POST'&&
+    /^\/checkout\/cart\/add(?:\/|$)/i.test(new URL(response.url()).pathname),
+    {timeout:16000});
    await add.click({timeout:10000});
-   await page.waitForTimeout(1250);
-   if(events.cartAddRequests<=before)throw Error('Nie potwierdzono dozwolonego żądania dodania produktu do koszyka');
-   cartChanged=true;
-   trace.push({action:'add_to_cart',sku:item.sku,qty:item.qty,result:'requested'});
+   const response=await responsePromise;
+   cartChanged=events.cartAddRequests>before;
+   if(!cartChanged||response.status()<200||response.status()>=400){
+    throw Error('FMIC nie potwierdził dodania do koszyka; status: '+response.status());
+   }
+   trace.push({action:'add_to_cart',sku:item.sku,qty:item.qty,
+    responseStatus:response.status(),result:'requested'});
   }
-  // No checkout navigation: stop on the current product page and save a screenshot.
+  // Only a read-only GET cart view is allowed after cart additions.
+  // Unknown SKU, quantity, unit price or product subtotal -> fail closed.
+  const cart=await inspectFmicCart(page);
+  const checked=verifyFmicCart(setup,cart.items,cart.subtotalGrossPLN);
   const screenshot=path.join(outDir,'fmic-cart-'+runId+'.png');
   await page.screenshot({path:screenshot,fullPage:true});
   const report={runId,jobId:job.jobId,orderId:job.orderId,supplier:'fmic',
-   status:'cart-prepare-attempted',lines:trace,cartAddRequests:events.cartAddRequests,
+   status:checked.ok?'cart-verified-needs-human-approval':'cart-not-verified',
+   lines:trace,cartVerification:checked,cartAddRequests:events.cartAddRequests,
    blockedRequests:events.blocked,durationMs:Date.now()-start,
-   screenshot,orderPlaced:false,sentToSupplier:false,
-   note:'Wysłano tylko dozwolone żądania dodawania do koszyka. Zawartość koszyka i rabaty wymagają ręcznej kontroli. Nie było finalizacji.'};
+   screenshot,orderPlaced:false,orderSubmitted:false,
+   note:'Koszyk porównano z planem. Nawet zgodny koszyk wymaga ręcznej kontroli i ręcznej finalizacji w osobnej sesji.'};
   await writeFile(path.join(outDir,'fmic-cart-'+runId+'.json'),JSON.stringify(report,null,2)+'\n');
-  log('STOP','Tylko dodanie do koszyka, bez checkout i bez finalizacji.');
+  if(!checked.ok)throw Error('Koszyk FMIC nie przeszedł weryfikacji: '+checked.issues.join(' | '));
+  log('STOP','Koszyk zweryfikowano przez GET; nie uruchomiono checkout ani finalizacji.');
   return report;
  }catch(error){
-  log('SAFETY STOP',String(error instanceof Error?error.message:error));
-  if(cartChanged)log('NOTICE','Część produktów może już być w koszyku. NIE uruchamiaj drugi raz bez sprawdzenia.');
+  const message=error instanceof Error?error.message:String(error);
+  log('SAFETY STOP',message);
+  if(cartChanged)log('NOTICE','Koszyk mógł już zostać zmieniony. NIE uruchamiaj drugi raz bez sprawdzenia.');
+  // Record a safe local failure even if the DOM changed after a partial add.
+  // Never upload screenshots, credentials or customer data.
+  await writeFile(path.join(outDir,'fmic-cart-failure-'+runId+'.json'),
+   JSON.stringify({runId,jobId:job.jobId,orderId:job.orderId,supplier:'fmic',
+    status:'manual-review-required',cartMayHaveChanged:cartChanged,
+    cartAddRequests:events.cartAddRequests,durationMs:Date.now()-start,
+    error:message.slice(0,500),orderPlaced:false,orderSubmitted:false},null,2)+'\n'
+  ).catch(()=>{});
   throw error;
  }finally{await context.close();await browser.close()}
 }

@@ -17,7 +17,7 @@ require.extensions['.ts']=(module,filename)=>{
 const base=new URL('../../app/lib/',import.meta.url);
 const {getDbPool}=require(fileURLToPath(new URL('db.ts',base)));
 const {readProcurement,saveProcurementDraft,changeProcurement}=require(fileURLToPath(new URL('procurement-db.ts',base)));
-const {enqueueB2BTask,cancelB2BTask,recordB2BOfflineReport,getB2BQueue,getB2BQueueOverview,QueueConflict}=
+const {enqueueB2BTask,cancelB2BTask,recordB2BOfflineReport,recordFmicCartReview,getB2BQueue,getB2BQueueOverview,QueueConflict}=
  require(fileURLToPath(new URL('b2b-queue-db.ts',base)));
 const {createB2BFixtureJob}=require(fileURLToPath(new URL('b2b-fixture-job.ts',base)));
 const pool=getDbPool();
@@ -86,6 +86,31 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
    assert.equal(after.events.filter(event=>event.event==='offline_reported').length,1);
    assert.equal(after.events.find(event=>event.event==='offline_reported').trace.length,3);
    await assert.rejects(recordB2BOfflineReport(order,'mtuning',plan.fingerprint,jobReport(job)));
+   const localCart={
+    runId:'22222222-2222-4222-8222-222222222222',
+    jobId:job.jobId,orderId:job.orderId,supplier:'fmic',
+    status:'cart-verified-needs-human-approval',
+    lines:job.lines.map(line=>({
+     action:'add_to_cart',sku:line.supplierSku,qty:line.quantity,
+     responseStatus:200,result:'requested',
+    })),
+    cartVerification:{ok:true,issues:[],verifiedLines:job.lines.length,
+     calculatedGrossPLN:540,observedSubtotalGrossPLN:540},
+    cartAddRequests:job.lines.length,blockedRequests:4,durationMs:1580,
+    screenshot:'LOCAL-ONLY-PRIVATE-IMAGE.png',
+    orderPlaced:false,orderSubmitted:false,note:'Koszyk do ręcznej kontroli',
+   };
+   const cartRecord=await recordFmicCartReview(order,'fmic',plan.fingerprint,localCart);
+   assert.equal(cartRecord.newReport,true);
+   assert.equal(cartRecord.verdict,'verified');
+   const duplicateCart=await recordFmicCartReview(order,'fmic',plan.fingerprint,localCart);
+   assert.equal(duplicateCart.newReport,false);
+   const cartRows=(await getB2BQueue(order)).cartReviews;
+   assert.equal(cartRows.length,1);
+   assert.equal(cartRows[0].verdict,'verified');
+   assert.ok(!JSON.stringify(cartRows).includes('PRIVATE-IMAGE'));
+   const monitored=(await getB2BQueueOverview()).cartReviews;
+   assert.ok(monitored.some(row=>row.id===cartRows[0].id));
    const cancelled=await cancelB2BTask(order,'fmic',job.jobId);
    assert.equal(cancelled.task.status,'cancelled');
    const requeued=await enqueueB2BTask(order,'fmic',plan.fingerprint);
@@ -117,6 +142,7 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
  }finally{
   try{
    if(orderIds.length){
+    await pool.query('DELETE FROM rpm_b2b_cart_reviews WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
     await pool.query('DELETE FROM rpm_b2b_task_events WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
     await pool.query('DELETE FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[])',[orderIds]);
     await pool.query('DELETE FROM rpm_supplier_procurements WHERE order_id=ANY($1::bigint[])',[orderIds]);

@@ -111,3 +111,42 @@ zgadza. Żaden plik JSON ani screenshot z sesją nie powinien być commitowany.
 testów Playwright i historię zdarzeń, odświeżając je co 10 sekund.
 Ten panel nie jest jeszcze strumieniem na żywo z lokalnego Chromium;
 raporty muszą zostać przekazane przez administratora po zakończeniu testu.
+
+### 3. Kontrola koszyka po dodaniu — bez finalizowania zamówienia
+
+Po kliknięciu „Dodaj do koszyka” adapter oczekuje na odpowiedź
+dozwolonego formularza. Następnie otwiera **wyłącznie podgląd koszyka**
+(`GET https://fmic.pl/checkout/cart/`) i porównuje:
+
+- SKU każdego produktu z zatwierdzonym planem zakupowym;
+- dokładną liczbę sztuk i brak dodatkowych produktów;
+- aktualną cenę jednostkową brutto względem limitu;
+- sumę brutto pozycji z sumą rozpoznaną w koszyku.
+
+Jeśli którejkolwiek danej nie może odczytać lub wynik się nie zgadza,
+zapisuje lokalny raport `cart-not-verified` albo `manual-review-required`,
+przerywa operację i **zostawia blokadę przed ponowną próbą**.
+Dzięki temu ponowne uruchomienie nie doda przez pomyłkę kolejnych sztuk.
+Nie czyści koszyka automatycznie, ponieważ mogły się w nim już znaleźć
+produkty z poprzednich prób.
+
+Poprawny wynik ma status `cart-verified-needs-human-approval`.
+To nadal **nie jest zamówienie** i nie dowodzi, że dostawca je przyjął.
+Finalizacja wymaga osobnej ręcznej czynności poza automatem.
+
+Kontrolka podsumowania koszyka zależy od wersji szablonu FMIC.
+Nie testowaliśmy zmian koszyka na żywej witrynie. Jeśli selektory nie pasują,
+adapter nie ogłasza sukcesu; potrzebna jest analiza lokalnego screenshotu.
+
+### 4. Historia wyników koszyka w RPM Custom
+
+W szczegółach zamówienia, w sekcji kolejki FMIC, użyj pola
+**„Zarejestruj wynik kontroli koszyka z lokalnego FMIC (JSON)”**.
+Można wskazać plik `fmic-cart-<runId>.json`, ale **nie screenshot**.
+
+Zostaną zapisane tylko id przebiegu, wynik porównania, sumy, ilości i
+ewentualne komunikaty. Lokalna ścieżka zrzutu, dane klienta i
+sesja nie są przekazywane do bazy. Panel
+`/admin/b2b-monitor` pokaże historię tych kontroli i czy
+koszyk wymaga ręcznej weryfikacji. Raport wgrany ręcznie nie stanowi
+niezależnego potwierdzenia od FMIC i **nie pokazuje przebiegu na żywo**.

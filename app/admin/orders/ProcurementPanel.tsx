@@ -11,7 +11,10 @@ type ProcurementRecord={
 type B2BQueueTask={id:string;orderId:string;supplier:'fmic'|'mtuning';jobId:string;fingerprint:string;
  status:'queued'|'offline_reported'|'cancelled';createdAt:string;updatedAt:string};
 type B2BQueueEvent={id:string;taskId:string;jobId:string;event:string;runId:string|null;items:number|null;createdAt:string};
-type B2BQueueData={tasks:B2BQueueTask[];events:B2BQueueEvent[]};
+type B2BCartReview={id:string;taskId:string;jobId:string;runId:string;
+ verdict:'verified'|'needs_review';items:number;calculatedGrossPLN:number|null;
+ observedSubtotalGrossPLN:number|null;issues:string[];createdAt:string};
+type B2BQueueData={tasks:B2BQueueTask[];events:B2BQueueEvent[];cartReviews:B2BCartReview[]};
 type ResponseState={plan:ProcurementPlan;procurement:ProcurementRecord|null};
 const money=(n:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(n);
 const statuses={draft:'Szkic',approved:'Zatwierdzony wewnętrznie',placed_manually:'Zamówiono ręcznie'};
@@ -23,7 +26,7 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
  const [variants,setVariants]=useState(false),[manualOnly,setManualOnly]=useState(false);
  const [manualPlaced,setManualPlaced]=useState(false),[reference,setReference]=useState('');
  const [reloadKey,setReloadKey]=useState(0);
- const [queue,setQueue]=useState<B2BQueueData>({tasks:[],events:[]});
+ const [queue,setQueue]=useState<B2BQueueData>({tasks:[],events:[],cartReviews:[]});
  const [queueError,setQueueError]=useState('');
 
  useEffect(()=>{
@@ -37,7 +40,7 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
  },[orderId,orderStatus,reloadKey]);
  useEffect(()=>{
   let active=true;
-  setQueue({tasks:[],events:[]});setQueueError('');
+  setQueue({tasks:[],events:[],cartReviews:[]});setQueueError('');
   fetch('/api/admin/b2b-queue?orderId='+encodeURIComponent(orderId),{cache:'no-store'})
    .then(async response=>{
     const data=await response.json();
@@ -154,6 +157,24 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
   }catch(error){setError(error instanceof Error?error.message:'Nie udało się zaktualizować kolejki')}
   finally{setBusy(false)}
  }
+ async function uploadFmicCartReview(file:File){
+  if(busy||!record||record.status!=='approved'||!exportAllowed)return;
+  if(file.size>24000){setError('Raport koszyka przekracza limit 24 KB');return}
+  setBusy(true);setError('');
+  try{
+   const report:unknown=JSON.parse(await file.text());
+   if(!window.confirm('Zapisać zgłoszony wynik kontroli koszyka FMIC? To NIE potwierdza wykonania zamówienia.'))return;
+   const response=await fetch('/api/admin/b2b-queue',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({orderId,supplier:'fmic',action:'cart_review',
+     fingerprint:record.fingerprint,confirm:'RECORD_FMIC_CART_REVIEW',report}),
+   });
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||'Nie udało się zapisać raportu koszyka');
+   setReloadKey(n=>n+1);
+  }catch(error){setError(error instanceof Error?error.message:'Niepoprawny raport koszyka')}
+  finally{setBusy(false)}
+ }
  async function uploadB2BReport(supplier:'fmic'|'mtuning',file:File){
   if(busy||!record||record.status!=='approved'||!exportAllowed)return;
   if(file.size>24000){setError('Raport przekracza 24 KB');return}
@@ -232,6 +253,25 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
           if(file)void uploadB2BReport(group.supplier,file);
          }}/>
        </label>}
+       {active&&group.supplier==='fmic'&&<label style={{display:'grid',gap:4}}>
+        Zarejestruj wynik kontroli koszyka z lokalnego FMIC (JSON, nie screenshot)
+        <input type="file" accept=".json,application/json" disabled={busy||!exportAllowed}
+         onChange={e=>{
+          const file=e.currentTarget.files?.[0];e.currentTarget.value='';
+          if(file)void uploadFmicCartReview(file);
+         }}/>
+       </label>}
+       {active&&group.supplier==='fmic'&&(queue.cartReviews??[])
+        .filter(item=>item.taskId===task.id&&item.jobId===task.jobId).slice(0,1)
+        .map(item=><div key={item.id} style={{fontSize:13}}>
+         <strong>{item.verdict==='verified'
+          ?'Koszyk zgodny z planem — czeka na ręczną kontrolę'
+          :'Koszyk wymaga ręcznej weryfikacji'}</strong>
+         <small>Raport: {new Date(item.createdAt).toLocaleString('pl-PL')}
+          {item.observedSubtotalGrossPLN!==null?' · suma '+money(item.observedSubtotalGrossPLN):''}
+         </small>
+         {item.issues.map((issue,i)=><small key={i} style={{color:'#ffcb82'}}>{issue}</small>)}
+        </div>)}
        {active&&queue.events.filter(event=>event.taskId===task.id).slice(0,5).map(event=>
         <small key={event.id}>{new Date(event.createdAt).toLocaleString('pl-PL')} ·
          {event.event==='offline_reported'?'Raport symulacji zapisany':event.event==='queued'?'Utworzono zadanie':
@@ -242,7 +282,7 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
 
     </div>)}
     {!purchaseGroups.length&&<p role="alert">Zapisany plan nie ma kompletnych ofert do eksportu.</p>}
-    <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem. Zadanie DEMO B2B działa tylko w lokalnym symulatorze Playwright i nie ma połączenia z panelem dostawcy.</small></p>
+    <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem. Zadanie DEMO B2B służy testom lokalnym. Oddzielny adapter FMIC może przygotować koszyk po ręcznym włączeniu, ale nigdy nie finalizuje zamówienia.</small></p>
    </div>}
    {plan.notes.map((note,i)=><p key={i} className="muted" style={{fontSize:12,marginBottom:5}}>{note}</p>)}
    {!plan.canDraft&&<p role="status" style={{color:'#ffcb82'}}>
