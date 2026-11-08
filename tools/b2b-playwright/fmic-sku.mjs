@@ -15,7 +15,7 @@ export const fmicSkuSelectors=[
 export function normalizeFmicSku(value){
  if(typeof value!=='string')return null;
  const normalized=value.replace(/\u00a0/g,' ').replace(/\s+/g,' ').trim()
-  .replace(/^(?:sku|symbol|kod produktu|indeks)\s*[:#-]?\s*/i,'').trim();
+  .replace(/^(?:sku|symbol|kod produktu|indeks)\s*:\s*/i,'').trim();
  return /^[A-Za-z0-9][A-Za-z0-9_.\/-]{1,119}$/.test(normalized)
   ?normalized:null;
 }
