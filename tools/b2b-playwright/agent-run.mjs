@@ -5,6 +5,8 @@ import {createAgentReporter} from './agent-reporter.mjs';
 import {validateFixtureJob} from './validate.mjs';
 import {validateFmicProductUrl} from './fmic-guard.mjs';
 import {inspectFmicProduct,prepareFmicCart} from './fmic-cart.mjs';
+import {scanFmicCartSession} from './fmic-preflight-run.mjs';
+import {DEFAULT_FMIC_SESSION_PATH} from './fmic-login.mjs';
 
 /**
  * Runs on the operator's own machine, never on Render.
@@ -37,7 +39,8 @@ export async function runFmicAgent(job,config,options={}){
  const inspect=options.inspectImpl??inspectFmicProduct;
  const prepare=options.prepareImpl??prepareFmicCart;
  const browserOptions={
-  headless:options.headless??true,storageState:options.storageState,
+  headless:options.headless??true,
+  storageState:options.storageState??DEFAULT_FMIC_SESSION_PATH,
  };
  await reporter.report('started');
  try{
@@ -52,6 +55,20 @@ export async function runFmicAgent(job,config,options={}){
    }
    await reporter.report('completed_readonly');
    return {mode:'read-only',runId:reporter.runId,results,cartChanged:false,orderPlaced:false};
+  }
+  await reporter.report('check_cart');
+  const preflight=await (options.preflightImpl??scanFmicCartSession)(browserOptions);
+  // Persist the read-only snapshot before declaring success or failure.
+  // Incomplete/unrecognized DOM is NEVER interpreted as an empty cart.
+  await reporter.preflight(preflight);
+  await reporter.report(preflight.status==='empty'?'cart_empty':
+   preflight.status==='nonempty'?'cart_nonempty':'cart_unknown');
+  if(preflight.status!=='empty'){
+   return {mode:'cart-only',runId:reporter.runId,cartChanged:false,
+    cartVerified:false,orderPlaced:false,blocked:true,
+    status:preflight.status==='nonempty'?'awaiting-operator-cart-clear':'unknown-cart',
+    itemCount:preflight.itemCount,
+    note:'Zatrzymano przed zmianami. Produkty w koszyku należy sprawdzić ręcznie.'};
   }
   const result=await prepare(job,config,{
    ...browserOptions,allowCartWrite:true,ack:'ADD_TO_CART_ONLY',runId:reporter.runId,
@@ -86,7 +103,7 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1]
    mode,allowCartWrite:mode==='cart-only',
    confirmCartOnly:args.includes('--confirm-cart-only'),
    cartEnvEnabled:process.env.RPM_FMIC_CART_WRITE==='YES',
-   storageState:process.env.FMIC_LOCAL_AUTH_STATE||undefined,
+   storageState:process.env.FMIC_LOCAL_AUTH_STATE||DEFAULT_FMIC_SESSION_PATH,
   });
   console.log('RPM B2B AGENT DONE:',result);
  }catch(error){

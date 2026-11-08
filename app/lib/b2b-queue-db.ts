@@ -6,9 +6,14 @@ import {validateOfflineReport,InvalidOfflineReport} from './b2b-queue-report';
 import type {OfflineReport} from './b2b-queue-report';
 import {validateCartReview} from './b2b-cart-review';
 import type {CartReview} from './b2b-cart-review';
+import {validateB2BPreflight} from './b2b-cart-preflight';
+import type {B2BPreflightPayload} from './b2b-cart-preflight';
 import {validateAgentEvent,TERMINAL_AGENT_PHASES} from './b2b-agent-protocol';
 import type {AgentEventPayload,AgentPhase,AgentMode} from './b2b-agent-protocol';
 
+export type B2BPreflightRecord=B2BPreflightPayload&{
+ id:string;taskId:string;createdAt:string;
+};
 export type B2BAgentEvent={
  id:string;taskId:string;jobId:string;orderId:string;supplier:'fmic';
  runId:string;seq:number;mode:AgentMode;phase:AgentPhase;
@@ -74,6 +79,17 @@ async function ensure(){
    phase TEXT NOT NULL,step_index INTEGER,
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    UNIQUE(task_id,run_id,seq)
+  )`);
+  await db.query(`CREATE TABLE IF NOT EXISTS rpm_b2b_cart_preflights(
+   id BIGSERIAL PRIMARY KEY,
+   task_id BIGINT NOT NULL REFERENCES rpm_b2b_tasks(id),
+   job_id TEXT NOT NULL,run_id UUID NOT NULL,
+   status TEXT NOT NULL CHECK(status IN ('empty','nonempty','unknown')),
+   item_count INTEGER NOT NULL CHECK(item_count BETWEEN 0 AND 50),
+   items JSONB NOT NULL DEFAULT '[]'::jsonb,
+   reason TEXT NOT NULL,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   UNIQUE(task_id,run_id)
   )`);
  })();
  try{await setup}catch(error){setup=undefined;throw error}
@@ -288,8 +304,17 @@ export async function getB2BQueueOverview(){
   JOIN rpm_b2b_tasks t ON t.id=a.task_id
   WHERE a.task_id=ANY($1::bigint[])
   ORDER BY a.id DESC LIMIT 400`,[ids]):{rows:[]};
+ const preflights=ids.length?await db.query<B2BPreflightRecord>(`
+  SELECT p.id::text AS "id",p.task_id::text AS "taskId",
+   p.job_id AS "jobId",p.run_id::text AS "runId",t.order_id::text AS "orderId",
+   t.supplier,p.status,p.item_count AS "itemCount",p.items,p.reason,
+   p.created_at AS "createdAt"
+  FROM rpm_b2b_cart_preflights p JOIN rpm_b2b_tasks t ON t.id=p.task_id
+  WHERE p.task_id=ANY($1::bigint[])
+  ORDER BY p.id DESC LIMIT 150`,[ids]):{rows:[]};
  return {summary,tasks,events:events.rows,cartReviews:reviews.rows,
-  agentEvents:agentEvents.rows,limit:100,asOf:new Date().toISOString()};
+  agentEvents:agentEvents.rows,cartPreflights:preflights.rows,limit:100,
+  asOf:new Date().toISOString()};
 }
 
 /**
@@ -394,6 +419,29 @@ export async function recordB2BAgentEvent(payload:unknown){
       (last&&last.runId!==event.runId)){
     throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg');
    }
+   if(event.mode==='cart-only'){
+    if((event.phase==='check_cart'&&earlier.phase!=='started')||
+       (earlier.phase==='started'&&event.phase!=='check_cart')||
+       (earlier.phase==='check_cart'&&
+        !['cart_empty','cart_nonempty','cart_unknown','stopped'].includes(event.phase))){
+     throw new QueueConflict('Kontrola koszyka musi poprzedzać wszelkie dodawanie produktów');
+    }
+    const relevant:Record<string,string>={cart_empty:'empty',cart_nonempty:'nonempty',cart_unknown:'unknown'};
+    if(relevant[event.phase]){
+     const preflight=await client.query<{status:string}>(`
+      SELECT status FROM rpm_b2b_cart_preflights
+      WHERE task_id=$1 AND run_id=$2`,[task.id,event.runId]);
+     if(preflight.rows[0]?.status!==relevant[event.phase])
+      throw new QueueConflict('Brak zgłoszonego wyniku kontroli koszyka');
+    }else if(!['started','check_cart','stopped'].includes(event.phase)){
+     const verified=await client.query(`
+      SELECT 1 FROM rpm_b2b_agent_events
+      WHERE task_id=$1 AND run_id=$2 AND phase='cart_empty' LIMIT 1`,
+      [task.id,event.runId]);
+     if(!verified.rows.length)
+      throw new QueueConflict('Brak potwierdzonego pustego koszyka FMIC');
+    }
+   }
   }
   const added=await client.query<{id:string}>(`INSERT INTO rpm_b2b_agent_events
    (task_id,job_id,run_id,seq,mode,phase,step_index)
@@ -402,6 +450,60 @@ export async function recordB2BAgentEvent(payload:unknown){
   await client.query('UPDATE rpm_b2b_tasks SET updated_at=NOW() WHERE id=$1',[task.id]);
   await client.query('COMMIT');
   return {accepted:true,created:true,eventId:added.rows[0].id};
+ }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
+ finally{client.release()}
+}
+
+/**
+ * Snapshot of FMIC cart BEFORE any cart mutation. Reported by the local
+ * agent, not an FMIC attestation. No passwords, cookies, product titles,
+ * customer details, screenshot paths or free-text messages are persisted.
+ * No clear-cart operation exists here.
+ */
+export async function recordB2BCartPreflight(payload:unknown){
+ const preflight=validateB2BPreflight(payload);
+ await readProcurement(preflight.orderId);await ensure();
+ const client=await getDbPool().connect();
+ try{
+  await client.query('BEGIN');
+  const job=await validatedJob(client,preflight.orderId,'fmic',preflight.fingerprint);
+  if(job.jobId!==preflight.jobId)throw new QueueConflict('Nieaktualne zadanie FMIC');
+  const current=await client.query<B2BTask>(`
+   SELECT ${cols} FROM rpm_b2b_tasks WHERE order_id=$1 AND supplier='fmic' FOR UPDATE`,
+   [preflight.orderId]);
+  const task=current.rows[0];
+  if(!task||task.status==='cancelled'||task.jobId!==job.jobId)
+   throw new QueueConflict('Zadanie FMIC nie jest aktywne');
+  const last=await client.query<{phase:string;mode:string}>(`
+   SELECT phase,mode FROM rpm_b2b_agent_events
+   WHERE task_id=$1 AND run_id=$2 ORDER BY seq DESC LIMIT 1`,
+   [task.id,preflight.runId]);
+  if(last.rows[0]?.phase!=='check_cart'||last.rows[0]?.mode!=='cart-only')
+   throw new QueueConflict('Agent musi najpierw zgłosić rozpoczęcie kontroli koszyka');
+  const existing=await client.query<{id:string;status:string;itemCount:number;reason:string;items:B2BPreflightPayload['items']}>(`
+   SELECT id::text AS "id",status,item_count AS "itemCount",reason,items
+   FROM rpm_b2b_cart_preflights WHERE task_id=$1 AND run_id=$2 FOR UPDATE`,
+   [task.id,preflight.runId]);
+  const prior=existing.rows[0];
+  if(prior){
+   if(prior.status!==preflight.status||prior.itemCount!==preflight.itemCount||
+     prior.reason!==preflight.reason||
+     prior.items.length!==preflight.items.length||
+     prior.items.some((row,index)=>row.sku!==preflight.items[index].sku||
+      row.qty!==preflight.items[index].qty))
+    throw new QueueConflict('Nie można zmienić już zgłoszonej zawartości koszyka');
+   await client.query('COMMIT');
+   return {accepted:true,created:false,preflightId:prior.id};
+  }
+  const created=await client.query<{id:string}>(`
+   INSERT INTO rpm_b2b_cart_preflights
+    (task_id,job_id,run_id,status,item_count,items,reason)
+   VALUES($1,$2,$3,$4,$5,$6::jsonb,$7) RETURNING id::text AS id`,
+   [task.id,job.jobId,preflight.runId,preflight.status,preflight.itemCount,
+    JSON.stringify(preflight.items),preflight.reason]);
+  await client.query('UPDATE rpm_b2b_tasks SET updated_at=NOW() WHERE id=$1',[task.id]);
+  await client.query('COMMIT');
+  return {accepted:true,created:true,preflightId:created.rows[0].id};
  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
  finally{client.release()}
 }
