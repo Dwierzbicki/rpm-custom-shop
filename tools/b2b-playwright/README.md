@@ -295,3 +295,26 @@ Dotychczasowe testy koszyka na Chromium są testami **lokalnej makiety**,
 nie testem produkcyjnego dodawania do FMIC.
 
 **Nie istnieje funkcja automatycznej finalizacji ani wysyłki zamówienia.**
+
+
+### Gdy odczyt koszyka zwraca `unknown`
+
+Nie uruchamiaj trybu `cart-only`. Nie jest to dowód pustego koszyka
+ani nie musi oznaczać nieudanego logowania. W nowej sesji Terminala
+możesz bez zmiany koszyka wykonać:
+
+```bash
+cd ~/Projects/rpm-custom-shop/tools/b2b-playwright
+npm run fmic:cart-diagnose
+```
+
+Diagnostyka korzysta z **lokalnie zapisanej sesji FMIC**.
+Drukuje tylko liczby elementów HTML, bezpieczne nazwy klas i identyfikatorów,
+wskazówki o pustym koszyku (same wartości logiczne), typ strony
+(`cart`, `login`, `other_fmic` lub `offsite`) oraz sumaryczną liczbę
+zablokowanych żądań. **Nie drukuje** cookies, haseł, tekstu strony,
+URL-i z tokenami, nazw klientów, zdjęć ani danych produktów.
+
+Żadne zmiany koszyka, checkout, płatności ani składanie zamówień
+nie są dozwolone. To narzędzie służy wyłącznie do diagnozy rzeczywistego
+HTML sklepu; jego uruchomienie nie znosi blokady `unknown`.
