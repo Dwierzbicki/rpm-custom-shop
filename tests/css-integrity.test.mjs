@@ -4,9 +4,22 @@ import {readFile} from 'node:fs/promises';
 
 const globals=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
 const base=await readFile(new URL('../app/styles/base.css',import.meta.url),'utf8');
-const baseImport="@import './styles/base.css';\n";
-assert.equal(globals.startsWith(baseImport),true,'base.css import must remain first to preserve CSS cascade order');
-const css=base+globals.slice(baseImport.length);
+const brand=await readFile(new URL('../app/styles/brand.css',import.meta.url),'utf8');
+const admin=await readFile(new URL('../app/styles/admin-foundation.css',import.meta.url),'utf8');
+const orderedImports=[
+ "@import './styles/base.css';",
+ "@import './styles/brand.css';",
+ "@import './styles/admin-foundation.css';",
+].join('\n')+'\n';
+assert.equal(globals.startsWith(orderedImports),true,'CSS imports must stay in original cascade order');
+assert.ok(brand.startsWith('/* RPM Custom identity'),'brand CSS must preserve the original first section');
+assert.ok(admin.startsWith('/* Local-only admin prototype */'),'admin CSS must preserve the original next section');
+assert.ok(globals.slice(orderedImports.length).startsWith('/* Product galleries */'),'remaining styles must follow the admin section');
+for(const [name,source] of [['brand',brand],['admin',admin]]){
+ assert.ok(!source.includes('@import'),'nested CSS imports not expected in '+name);
+ assert.ok(!source.includes('url('),'relative asset URLs require path review before moving CSS');
+}
+const css=base+brand+admin+globals.slice(orderedImports.length);
 
 
 /**
