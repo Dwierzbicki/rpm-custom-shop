@@ -152,11 +152,13 @@ test('max 50 cart lines, 3 concurrent product reads, preserved order',async()=>{
   return {
    goto:async(target)=>{url=target;await new Promise(resolve=>setTimeout(resolve,1));return {status:()=>200}},
    url:()=>url,
-   locator:selector=>({first:()=>({
+   locator:selector=>({
     count:async()=>selector==='.sku'?1:0,
-    isVisible:async()=>true,
-    textContent:async()=>`SKU-${new URL(url).pathname.split('-')[0].slice(1)}`,
-   })}),
+    nth:()=>({
+     isVisible:async()=>true,
+     innerText:async()=>`SKU-${new URL(url).pathname.split('-')[0].slice(1)}`,
+    }),
+   }),
    close:async()=>{active--},
   };
  }})};
