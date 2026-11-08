@@ -6,7 +6,14 @@ import {validateOfflineReport,InvalidOfflineReport} from './b2b-queue-report';
 import type {OfflineReport} from './b2b-queue-report';
 import {validateCartReview} from './b2b-cart-review';
 import type {CartReview} from './b2b-cart-review';
+import {validateAgentEvent,TERMINAL_AGENT_PHASES} from './b2b-agent-protocol';
+import type {AgentEventPayload,AgentPhase,AgentMode} from './b2b-agent-protocol';
 
+export type B2BAgentEvent={
+ id:string;taskId:string;jobId:string;orderId:string;supplier:'fmic';
+ runId:string;seq:number;mode:AgentMode;phase:AgentPhase;
+ stepIndex:number|null;createdAt:string;
+};
 export type B2BSupplier='fmic'|'mtuning';
 export type QueueStatus='queued'|'offline_reported'|'cancelled';
 export type B2BTask={
@@ -59,6 +66,14 @@ async function ensure(){
    issues JSONB NOT NULL DEFAULT '[]'::jsonb,
    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
    UNIQUE(task_id,run_id)
+  )`);
+  await db.query(`CREATE TABLE IF NOT EXISTS rpm_b2b_agent_events(
+   id BIGSERIAL PRIMARY KEY,task_id BIGINT NOT NULL REFERENCES rpm_b2b_tasks(id),
+   job_id TEXT NOT NULL,run_id UUID NOT NULL,seq INTEGER NOT NULL,
+   mode TEXT NOT NULL CHECK(mode IN ('inspect','cart-only')),
+   phase TEXT NOT NULL,step_index INTEGER,
+   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+   UNIQUE(task_id,run_id,seq)
   )`);
  })();
  try{await setup}catch(error){setup=undefined;throw error}
@@ -265,8 +280,16 @@ export async function getB2BQueueOverview(){
    FROM rpm_b2b_cart_reviews r
    JOIN rpm_b2b_tasks t ON t.id=r.task_id
    WHERE r.task_id=ANY($1::bigint[]) ORDER BY r.id DESC LIMIT 200`,[ids]):{rows:[]};
- return {summary,tasks,events:events.rows,cartReviews:reviews.rows,limit:100,
-  asOf:new Date().toISOString()};
+ const agentEvents=ids.length?await db.query<B2BAgentEvent>(`SELECT
+  a.id::text AS "id",a.task_id::text AS "taskId",a.job_id AS "jobId",
+  t.order_id::text AS "orderId",t.supplier,a.run_id::text AS "runId",
+  a.seq,a.mode,a.phase,a.step_index AS "stepIndex",a.created_at AS "createdAt"
+  FROM rpm_b2b_agent_events a
+  JOIN rpm_b2b_tasks t ON t.id=a.task_id
+  WHERE a.task_id=ANY($1::bigint[])
+  ORDER BY a.id DESC LIMIT 400`,[ids]):{rows:[]};
+ return {summary,tasks,events:events.rows,cartReviews:reviews.rows,
+  agentEvents:agentEvents.rows,limit:100,asOf:new Date().toISOString()};
 }
 
 /**
@@ -303,6 +326,60 @@ export async function recordFmicCartReview(
   await client.query('COMMIT');
   return {taskId:task.id,newReport:inserted.rows.length===1,verdict:review.verdict,
    notice:'Zapisano deklarowany raport koszyka FMIC. Nie jest to potwierdzenie złożenia zamówienia.'};
+ }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
+ finally{client.release()}
+}
+
+/**
+ * Authenticated local agent heartbeat. Events are intentionally narrow:
+ * no passwords, customer data, URLs, HTML, screenshots or freeform logs.
+ * Every event is linked to an active approved procurement plan and task.
+ * Nothing in this function contacts a supplier or places an order.
+ */
+export async function recordB2BAgentEvent(payload:unknown){
+ const event=validateAgentEvent(payload);
+ await readProcurement(event.orderId);await ensure();
+ const client=await getDbPool().connect();
+ try{
+  await client.query('BEGIN');
+  const job=await validatedJob(client,event.orderId,event.supplier,event.fingerprint);
+  if(job.jobId!==event.jobId)throw new QueueConflict('Identyfikator zadania różni się od bieżącego planu');
+  const current=await client.query<B2BTask>(
+   `SELECT ${cols} FROM rpm_b2b_tasks WHERE order_id=$1 AND supplier=$2 FOR UPDATE`,
+   [event.orderId,event.supplier]);
+  const task=current.rows[0];
+  if(!task||task.status==='cancelled'||task.jobId!==event.jobId)
+   throw new QueueConflict('Zadanie nie jest w aktywnej kolejce');
+  const prior=await client.query<{
+   id:string;runId:string;seq:number;mode:AgentMode;phase:AgentPhase;
+   stepIndex:number|null
+  }>(`SELECT id::text AS "id",run_id::text AS "runId",
+   seq,mode,phase,step_index AS "stepIndex"
+   FROM rpm_b2b_agent_events WHERE task_id=$1
+   ORDER BY id DESC LIMIT 1`,[task.id]);
+  const last=prior.rows[0];
+  if(last&&last.runId===event.runId&&last.seq===event.seq&&
+   last.mode===event.mode&&last.phase===event.phase&&last.stepIndex===event.stepIndex){
+   await client.query('COMMIT');
+   return {accepted:true,created:false,eventId:last.id};
+  }
+  if(event.phase==='started'){
+   if(event.seq!==1||
+     (last&&(!TERMINAL_AGENT_PHASES.includes(last.phase)||last.runId===event.runId)))
+    throw new QueueConflict('Trwa lub zakończył się już ten przebieg automatu');
+  }else{
+   if(!last||last.runId!==event.runId||last.mode!==event.mode||
+      TERMINAL_AGENT_PHASES.includes(last.phase)||event.seq!==last.seq+1){
+    throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg');
+   }
+  }
+  const added=await client.query<{id:string}>(`INSERT INTO rpm_b2b_agent_events
+   (task_id,job_id,run_id,seq,mode,phase,step_index)
+   VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id::text AS id`,
+   [task.id,event.jobId,event.runId,event.seq,event.mode,event.phase,event.stepIndex]);
+  await client.query('UPDATE rpm_b2b_tasks SET updated_at=NOW() WHERE id=$1',[task.id]);
+  await client.query('COMMIT');
+  return {accepted:true,created:true,eventId:added.rows[0].id};
  }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}
  finally{client.release()}
 }

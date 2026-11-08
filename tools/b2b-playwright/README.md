@@ -150,3 +150,76 @@ sesja nie są przekazywane do bazy. Panel
 `/admin/b2b-monitor` pokaże historię tych kontroli i czy
 koszyk wymaga ręcznej weryfikacji. Raport wgrany ręcznie nie stanowi
 niezależnego potwierdzenia od FMIC i **nie pokazuje przebiegu na żywo**.
+
+## Lokalny agent z podglądem etapów na żywo w RPM Custom
+
+Agent uruchamiany jest **na Twoim komputerze**, nie przez serwer Render.
+Jego postęp trafia do `/admin/b2b-monitor` z odświeżaniem co 10 sekund.
+Monitorujemy etapy bez przesyłania ciasteczek, haseł, danych adresowych
+klientów, URL panelu ani screenshotów.
+
+### Konfiguracja (Windows PowerShell)
+
+1. W Render, w serwisie **RPM Custom Shop**, ustaw nową zmienną środowiskową
+   `RPM_B2B_AGENT_TOKEN` na **losową wartość co najmniej 32 znaków**
+   (zalecane 64 znaki hex). Zachowaj ją prywatnie.
+2. Taką samą wartość ustaw **wyłącznie lokalnie**, w sesji PowerShell.
+   Nigdy nie commituj jej ani nie przesyłaj przez czat.
+3. W panelu `/admin/orders` zatwierdź szkic zakupowy, dodaj zadanie FMIC do
+   kolejki i pobierz `rpm-b2b-demo-<ID>-fmic.json`.
+4. Uzupełnij lokalny plik `fmic-products.local.json` przypisując
+   prawidłowe URL kart produktów do SKU. Plik ten jest ignorowany w Git.
+
+```powershell
+cd tools/b2b-playwright
+npm install
+npx playwright install chromium
+
+$env:RPM_SHOP_URL="https://rpm-custom-shop.onrender.com"
+$env:RPM_B2B_AGENT_TOKEN="<wstaw_wartosc_z_Render>"
+node agent-run.mjs "C:\\Users\\<konto>\\Downloads\\rpm-b2b-demo-123-fmic.json" "./fmic-products.local.json"
+```
+
+**Domyślnie tylko podgląd produktów:** agent kolejno odwiedza ich karty
+na FMIC, weryfikuje SKU i raportuje etapy do panelu RPM Custom.
+Nie dodaje niczego do koszyka, nie klika finalizacji.
+
+### Przygotowywanie koszyka (tylko świadomie włączony tryb)
+
+Najpierw sprawdź na lokalnym Chromium, czy selektory i bieżące ceny FMIC
+są poprawnie rozpoznawane, a koszyk jest pusty. W pliku konfiguracji
+każda pozycja musi mieć świadomie ustawione `maxUnitGrossPLN`.
+Potem użyj jednocześnie **trzech zabezpieczeń**:
+
+```powershell
+$env:RPM_FMIC_CART_WRITE="YES"
+node agent-run.mjs "C:\\Users\\<konto>\\Downloads\\rpm-b2b-demo-123-fmic.json" "./fmic-products.local.json" --cart-only --confirm-cart-only
+Remove-Item Env:RPM_FMIC_CART_WRITE
+```
+
+Agent musi mieć aktualne zadanie zatwierdzone na serwerze i aktywne
+w kolejce. Bez połączenia z monitoringiem **nie rozpocznie pracy**.
+Utrata dostępu do API w trakcie wykonywania zatrzymuje kolejne kroki.
+
+Playwright może dodać produkty tylko przez znany formularz koszyka.
+Sprawdza potem ilości, SKU i kwoty. **Nie istnieje ścieżka automatycznego
+wysyłania zamówienia.** Operator sam kontroluje pełny koszyk FMIC i
+ręcznie dokonuje zakupów, poza agentem.
+
+Po niepewnej lub częściowo zakończonej próbie pozostaje lokalna
+blokada `fmic-cart-lock-<jobId>.json` — nie uruchamiaj ponownie,
+dopóki nie sprawdzisz ręcznie zawartości koszyka.
+
+### Uprawnienia, ograniczenia i status wdrożenia
+
+- Token umożliwia **wyłącznie zgłaszanie etapów**, nie zarządzanie koszykiem
+  ani pobieranie danych klienta. Każdy etap jest weryfikowany względem
+  zatwierdzonego `jobId` i fingerprintu w PostgreSQL.
+- Lokalny agent wymaga jawnego uruchomienia przez operatora.
+  To **nie jest** automatyczny worker uruchamiany w chmurze i nie wystartuje
+  sam po dodaniu zadania do kolejki.
+- Etapy w panelu są deklarowane przez własny lokalny agent; nie stanowią
+  potwierdzenia złożenia zamówienia przez dostawcę.
+- Z powodu braku zweryfikowanego DOM produkcyjnego FMIC, selektory muszą
+  przejść realną lokalną inspekcję. Każda nierozpoznana kontrolka zatrzymuje
+  dalsze działania.

@@ -30,7 +30,16 @@ export function guardFmicRequest(method,target,cartMutationAllowed=false){
  if(isCartAdd&&(!cartMutationAllowed||method!=='POST'))return 'abort';
  const isCartView=/^\/checkout\/cart\/(?:index\/?)?$/i.test(path);
  if(orderWords.test(path)&&!(isCartAdd&&cartMutationAllowed)&&!isCartView)return 'abort';
- if(method==='GET'||method==='HEAD')return 'continue';
+ // Deliberately narrow read-only allowlist. Sites can mutate on GET
+ // (e.g. wishlist/add, logout, cart/remove). Unknown requests are aborted.
+ // Static assets and the exact public product/card route are sufficient for
+ // inspection. An unrecognized storefront implementation fails closed.
+ const product=/^\/[a-z0-9-]+\.html$/i.test(path);
+ const staticAsset=/^\/(?:static|media|pub\/static|pub\/media|skin|js)\//i.test(path)||
+  /\.(?:css|js|png|jpg|jpeg|gif|webp|svg|woff2?|ttf|ico)(?:$)/i.test(path);
+ const safeRead=product||isCartView||staticAsset||path==='/'||
+  /^\/customer\/section\/load\/?$/i.test(path);
+ if(method==='GET'||method==='HEAD')return safeRead?'continue':'abort';
  // Mutations OTHER than Magento's add-to-cart path are NEVER permitted.
  if(cartMutationAllowed&&method==='POST'&&isCartAdd)return 'continue';
  return 'abort';
