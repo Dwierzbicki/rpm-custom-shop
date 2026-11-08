@@ -39,3 +39,9 @@ test('multiple visible different .sku values are ambiguous and blocked',async()=
   await page.close();
  }finally{await browser.close()}
 });
+
+test('SKU- prefix is part of valid supplier code, never stripped as a label',()=>{
+ assert.equal(normalizeFmicSku('SKU-1234'),'SKU-1234');
+ assert.equal(normalizeFmicSku('SKU: SKU-1234'),'SKU-1234');
+ assert.equal(normalizeFmicSku('Kod produktu: SKU-1234'),'SKU-1234');
+});
