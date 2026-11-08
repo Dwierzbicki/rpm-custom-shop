@@ -5,6 +5,7 @@
 export type SupplierCsvRow = {
   line: number;
   sku: string;
+  brand: string;
   ean: string;
   mpn: string;
   name: string;
@@ -20,6 +21,7 @@ export type SupplierCsvPreview = {
 };
 const aliases: Record<keyof Omit<SupplierCsvRow, "line">, string[]> = {
   sku: ["sku", "symbol", "kod", "product_code", "indeks"],
+  brand: ["brand", "marka", "manufacturer", "producent"],
   ean: ["ean", "gtin", "barcode", "kod_ean"],
   mpn: ["mpn", "manufacturer_part_number", "numer_producenta"],
   name: ["name", "nazwa", "product_name", "produkt"],
@@ -90,7 +92,7 @@ export function previewSupplierCsv(
     const get = (key: keyof typeof columns) =>
       columns[key] < 0 ? "" : record[columns[key]].trim();
     const row: SupplierCsvRow = {
-      line, sku: get("sku"), ean: get("ean"), mpn: get("mpn"),
+      line, sku: get("sku"), brand: get("brand"), ean: get("ean"), mpn: get("mpn"),
       name: get("name"), price: get("price"), stock: get("stock"),
       variant: get("variant"),
     };
