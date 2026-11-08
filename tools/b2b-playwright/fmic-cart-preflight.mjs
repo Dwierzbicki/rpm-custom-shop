@@ -42,6 +42,52 @@ export async function checkFmicCartPreflight(page){
    return {status:'nonempty',itemCount:count,items:[],reason:'unreadable_items'};
   }
  }
+ // Current FMIC storefront (observed on the operator's Mac, 2026-11-08)
+ // does not use Magento's cart.table-wrapper rows. Its visible cart line
+ // quantity inputs have id="cart-<numericItemId>-qty" and
+ // name="cart[<numericItemId>][qty]". Do NOT treat the clear-cart button
+ // itself as a cart item, and NEVER click it.
+ // Two independent page indicators avoid mistaking a random quantity input
+ // for an actual cart line.
+ const correctLayout=await page.locator('body.checkout-cart-index').count()===1;
+ const hasSummary=(await page.locator('.cart-summary, #cart-totals').count())>0;
+ const clearControl=page.locator('#empty_cart_button');
+ const hasClearControl=await clearControl.count()===1&&await clearControl.isVisible();
+ if(correctLayout&&hasSummary&&hasClearControl){
+  const qtyInputs=page.locator('input[id^="cart-"][id$="-qty"][name$="[qty]"]');
+  const matching=[];
+  const qtyCount=await qtyInputs.count();
+  if(qtyCount>50){
+   return {status:'unknown',itemCount:0,items:[],reason:'too_many_rows'};
+  }
+  for(let i=0;i<qtyCount;i++){
+   const input=qtyInputs.nth(i);
+   if(!await input.isVisible())continue;
+   const id=(await input.getAttribute('id'))??'';
+   const found=/^cart-[0-9]{1,20}-qty$/.test(id);
+   // The diagnostic proved the cart-NNN-qty id and [qty] name suffix,
+   // not the full name prefix. This check can only BLOCK mutations.
+   if(!found)continue;
+   matching.push(input);
+  }
+  if(matching.length>0){
+   const items=[];
+   for(const input of matching){
+    let qty=null;
+    try{
+     const raw=(await input.inputValue({timeout:1500})).trim();
+     if(/^[0-9]+$/.test(raw)){
+      const parsed=Number(raw);
+      if(Number.isSafeInteger(parsed)&&parsed>=1&&parsed<=100)qty=parsed;
+     }
+    }catch{/* Unknown quantity remains null; never assume zero. */}
+    // SKU cannot be proven from quantity input alone. Do not infer it
+    // from a product title, row id or a guessed link.
+    items.push({sku:null,qty});
+   }
+   return {status:'nonempty',itemCount:items.length,items,reason:'items_detected'};
+  }
+ }
  for(const selector of emptySelectors){
   const nodes=page.locator(selector);
   if(await nodes.count()!==1)continue;

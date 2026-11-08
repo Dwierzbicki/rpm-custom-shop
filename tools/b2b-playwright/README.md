@@ -318,3 +318,22 @@ URL-i z tokenami, nazw klientów, zdjęć ani danych produktów.
 Żadne zmiany koszyka, checkout, płatności ani składanie zamówień
 nie są dozwolone. To narzędzie służy wyłącznie do diagnozy rzeczywistego
 HTML sklepu; jego uruchomienie nie znosi blokady `unknown`.
+
+### FMIC — wykrywanie pozycji koszyka z rzeczywistej strony (2026-11-08)
+
+Lokalna diagnostyka na macOS potwierdziła nowy układ HTML (Tailwind),
+zamiast starego `.cart.table-wrapper`:
+`body.checkout-cart-index`, `.cart-summary`, `#empty_cart_button`
+oraz pole ilości `input[id^="cart-"][id$="-qty"][name$="[qty]"]`.
+
+Preflight rozpoznaje **niepusty** koszyk na podstawie tych niezależnych
+wskaźników i widocznych pól ilości. Pozyskuje wyłącznie liczbę pozycji
+oraz ilości. Nie zgaduje SKU z wewnętrznego identyfikatora pozycji,
+nazwy ani tytułu; SKU może pozostać `null`. Identyfikator pozycji
+nie jest wysyłany do monitoringu. `#empty_cart_button` służy wyłącznie
+do rozpoznania struktury — **nigdy nie jest klikany**.
+
+Brak pól ilości lub brak rozpoznanej struktury nadal daje `unknown`,
+**nie** oznacza pustego koszyka. Nadal wymagamy jawnego komunikatu
+o pustym koszyku przed ewentualnym przygotowaniem zamówienia.
+Żadnych operacji czyszczenia, checkoutu, płatności ani finalizacji.
