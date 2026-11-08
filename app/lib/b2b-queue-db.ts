@@ -487,7 +487,10 @@ export async function recordB2BCartPreflight(payload:unknown){
   const prior=existing.rows[0];
   if(prior){
    if(prior.status!==preflight.status||prior.itemCount!==preflight.itemCount||
-     prior.reason!==preflight.reason||JSON.stringify(prior.items)!==JSON.stringify(preflight.items))
+     prior.reason!==preflight.reason||
+     prior.items.length!==preflight.items.length||
+     prior.items.some((row,index)=>row.sku!==preflight.items[index].sku||
+      row.qty!==preflight.items[index].qty))
     throw new QueueConflict('Nie można zmienić już zgłoszonej zawartości koszyka');
    await client.query('COMMIT');
    return {accepted:true,created:false,preflightId:prior.id};
