@@ -350,32 +350,49 @@ export async function recordB2BAgentEvent(payload:unknown){
   const task=current.rows[0];
   if(!task||task.status==='cancelled'||task.jobId!==event.jobId)
    throw new QueueConflict('Zadanie nie jest w aktywnej kolejce');
-  const prior=await client.query<{
+  const recent=await client.query<{
    id:string;runId:string;seq:number;mode:AgentMode;phase:AgentPhase;
    stepIndex:number|null
   }>(`SELECT id::text AS "id",run_id::text AS "runId",
    seq,mode,phase,step_index AS "stepIndex"
    FROM rpm_b2b_agent_events WHERE task_id=$1
    ORDER BY id DESC LIMIT 1`,[task.id]);
-  const last=prior.rows[0];
-  if(last&&last.runId===event.runId&&last.seq===event.seq&&
-   last.mode===event.mode&&last.phase===event.phase&&last.stepIndex===event.stepIndex){
+  const last=recent.rows[0];
+  // Idempotence is keyed by this run + step, not by the newest auto id:
+  // different attempts can use the sequence independently.
+  const existingStep=await client.query<{
+   id:string;runId:string;seq:number;mode:AgentMode;phase:AgentPhase;stepIndex:number|null
+  }>(`SELECT id::text AS "id",run_id::text AS "runId",
+   seq,mode,phase,step_index AS "stepIndex"
+   FROM rpm_b2b_agent_events WHERE task_id=$1 AND run_id=$2 AND seq=$3`,
+   [task.id,event.runId,event.seq]);
+  const duplicate=existingStep.rows[0];
+  if(duplicate){
+   if(duplicate.mode!==event.mode||duplicate.phase!==event.phase||
+      duplicate.stepIndex!==event.stepIndex){
+    throw new QueueConflict('Ten numer etapu już istnieje z inną zawartością');
+   }
    await client.query('COMMIT');
-   return {accepted:true,created:false,eventId:last.id};
+   return {accepted:true,created:false,eventId:duplicate.id};
   }
   if(event.phase==='started'){
    if(event.seq!==1||
-     (last&&(!TERMINAL_AGENT_PHASES.includes(last.phase)||last.runId===event.runId)))
+      (last&&(!TERMINAL_AGENT_PHASES.includes(last.phase)||last.runId===event.runId))){
     throw new QueueConflict('Trwa lub zakończył się już ten przebieg automatu');
+   }
   }else{
-   if(!last||last.runId!==event.runId||last.mode!==event.mode||
-      TERMINAL_AGENT_PHASES.includes(last.phase)||event.seq!==last.seq+1){
-    throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg'+
-      ' [run='+String(last?.runId!==event.runId)+
-      ',mode='+String(last?.mode!==event.mode)+
-      ',terminal='+String(TERMINAL_AGENT_PHASES.includes(last.phase))+
-      ',seq='+String(event.seq!==last.seq+1)+
-      ',types='+typeof event.seq+'/'+typeof last.seq+',received='+event.seq+',previous='+last.seq+']');
+   // Use the exact previous sequence, not the last BIGSERIAL id. This
+   // rejects skipped steps while tolerating non-monotonic ID allocation
+   // across concurrent transactions and pooled PostgreSQL connections.
+   const previous=await client.query<{seq:number;mode:AgentMode;phase:AgentPhase}>(
+    `SELECT seq,mode,phase FROM rpm_b2b_agent_events
+     WHERE task_id=$1 AND run_id=$2 AND seq=$3`,
+    [task.id,event.runId,event.seq-1]);
+   const earlier=previous.rows[0];
+   if(!earlier||earlier.mode!==event.mode||
+      TERMINAL_AGENT_PHASES.includes(earlier.phase)||
+      (last&&last.runId!==event.runId)){
+    throw new QueueConflict('Etap agenta jest nieaktualny, pominięty lub uruchomiono drugi przebieg');
    }
   }
   const added=await client.query<{id:string}>(`INSERT INTO rpm_b2b_agent_events
