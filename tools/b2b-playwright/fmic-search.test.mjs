@@ -16,15 +16,15 @@ async function fixture(sku,products,fn){
    if(url===fmicSearchUrl(sku)){
     const links=products.map(p=>'<a href="'+p.url+'">Produkt</a>').join('');
     return route.fulfill({status:200,contentType:'text/html',
-     body:'<main><section class="products-grid">'+links+'</section></main>'});
+     body:'<!doctype html><html><head><meta charset="utf-8"></head><body><main><section class="products-grid">'+links+'</section></main></body></html>'});
    }
    const match=products.find(p=>p.url===url);
    if(match)return route.fulfill({status:200,contentType:'text/html',
-    body:'<main><div class="product-info-main">'+
+    body:'<!doctype html><html><head><meta charset="utf-8"></head><body><main><div class="product-info-main">'+
       (match.sku===null?'<span>Nieznany kod</span>':
        '<span class="sku">SKU: '+match.sku+'</span>')+
       '<div class="price-box"><span class="price">19,99 zł</span></div>'+
-      '<span class="stock available">W magazynie</span></div></main>'});
+      '<span class="stock available">W magazynie</span></div></main></body></html>'});
    return route.abort();
   });
   const page=await context.newPage();
