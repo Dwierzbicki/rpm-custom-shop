@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useState} from 'react';
 import type {ProcurementPlan} from '../../lib/procurement-plan';
+import {groupSupplierPurchases} from '../../lib/procurement-export';
 
 type ProcurementRecord={
  id:string;orderId:string;status:'draft'|'approved'|'placed_manually';
@@ -66,6 +67,33 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
   }catch(e){setError(e instanceof Error?e.message:'Błąd zakupu')}finally{setBusy(false)}
  }
  const plan=state?.plan,record=state?.procurement;
+ const exportAllowed=!!record&&(record.status==='approved'||record.status==='placed_manually')
+  &&(record.status==='placed_manually'||record.fingerprint===plan?.fingerprint);
+ let purchaseGroups:ReturnType<typeof groupSupplierPurchases>=[];
+ if(record&&record.status!=='draft'){
+  try{purchaseGroups=groupSupplierPurchases(record.plan)}catch{/* Invalid historical plans are never exportable. */}
+ }
+ async function downloadSupplier(supplier:'fmic'|'mtuning'){
+  if(!record||busy||!exportAllowed)return;
+  setBusy(true);setError('');
+  try{
+   const params=new URLSearchParams({orderId,supplier,fingerprint:record.fingerprint});
+   const response=await fetch('/api/admin/procurement/export?'+params.toString(),{cache:'no-store'});
+   if(!response.ok){
+    const error=await response.json();
+    throw new Error(error.error||'Nie można pobrać CSV');
+   }
+   const blob=await response.blob();
+   const objectUrl=URL.createObjectURL(blob);
+   const anchor=document.createElement('a');
+   anchor.href=objectUrl;anchor.download='rpm-zakup-'+orderId+'-'+supplier+'.csv';
+   document.body.append(anchor);
+   anchor.click();
+   anchor.remove();
+   window.setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
+  }catch(e){setError(e instanceof Error?e.message:'Błąd eksportu zamówienia')}
+  finally{setBusy(false)}
+ }
  return <section className="rpm-settings-card" style={{marginTop:20}}>
   <h3>Zaopatrzenie / FMIC i MTuning</h3>
   <p>Wewnętrzna propozycja zakupu pod zamówienie #{orderId}. Żadne działanie w tym panelu nie składa zamówień automatycznie.</p>
@@ -87,6 +115,24 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
      {line.requiresVariantCheck&&<small style={{color:'#ffcb82'}}>KONIECZNA KONTROLA WARIANTU: {Object.entries(line.options).map(([key,value])=>key+': '+value).join(' · ')}</small>}
     </span>
    </div>)}
+   {record&&record.status!=='draft'&&<div className="rpm-settings-card" style={{margin:'18px 0',padding:16}}>
+    <h4>Lista zakupów dla dostawców (CSV)</h4>
+    <p>Każdy dostawca otrzymuje osobną listę SKU i ilości. Pliki nie zawierają danych osobowych klientów ani adresu dostawy — uzupełnij je ręcznie w B2B.</p>
+    {record.status==='placed_manually'&&<p><small>Archiwalna wersja potwierdzonego planu z chwili oznaczenia zakupu jako złożony.</small></p>}
+    {!exportAllowed&&<p role="alert" style={{color:'#ffcb82'}}>
+     Cena, stan lub status zmieniły się od zatwierdzenia. Wróć do ponownej kontroli planu — eksport aktualnie zablokowany.
+    </p>}
+    {purchaseGroups.map(group=><div className="rpm-admin-settings-hub-link" key={group.supplier} style={{margin:'8px 0',flexWrap:'wrap'}}>
+     <span>
+      <strong>{group.supplier.toUpperCase()}</strong>
+      <small>{group.lines.length} pozycji, {group.itemCount} szt. · szacunkowo {money(group.estimatedNetTotal)} netto</small>
+     </span>
+     <button type="button" className="outline" disabled={busy||!exportAllowed}
+      onClick={()=>void downloadSupplier(group.supplier)}>Pobierz CSV {group.supplier.toUpperCase()}</button>
+    </div>)}
+    {!purchaseGroups.length&&<p role="alert">Zapisany plan nie ma kompletnych ofert do eksportu.</p>}
+    <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem.</small></p>
+   </div>}
    {plan.notes.map((note,i)=><p key={i} className="muted" style={{fontSize:12,marginBottom:5}}>{note}</p>)}
    {!plan.canDraft&&<p role="status" style={{color:'#ffcb82'}}>
     {!['confirmed','processing'].includes(plan.orderStatus)?'Najpierw ustaw status zamówienia na Potwierdzone lub W realizacji.':

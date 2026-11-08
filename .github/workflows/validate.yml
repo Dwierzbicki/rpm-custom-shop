@@ -23,3 +23,34 @@ jobs:
         run: npm run typecheck
       - name: Production build
         run: npm run build
+
+  postgres_integration:
+    name: Procurement PostgreSQL integration
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: rpm_test
+          POSTGRES_USER: rpm_test
+          POSTGRES_PASSWORD: test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rpm_test -d rpm_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://rpm_test:test_password@127.0.0.1:5432/rpm_test
+      DATABASE_SSL: disable
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: PostgreSQL procurement integration tests
+        run: node --test tests/integration/*.test.mjs
