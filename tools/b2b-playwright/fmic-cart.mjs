@@ -7,10 +7,10 @@ import {validateFixtureJob} from './validate.mjs';
 import {validateFmicProductUrl,guardFmicRequest,exampleFmicProductUrl} from './fmic-guard.mjs';
 import {parsePlnPrice,verifyFmicCart} from './fmic-cart-verify.mjs';
 import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
+import {readFmicSku} from './fmic-sku.mjs';
 
 const folder=path.dirname(fileURLToPath(import.meta.url));
 const selectors={
- sku:['.product.attribute.sku .value','[itemprop="sku"]','.product-info-main .sku .value'],
  price:['.product-info-price [data-price-type="finalPrice"] .price',
   '.product-info-main [data-price-type="finalPrice"] .price',
   '.product-info-main .price-box .price'],
@@ -40,7 +40,7 @@ async function firstInput(page,candidates){
 async function inspection(page,url,sku){
  const checked=validateFmicProductUrl(url);
  await page.goto(checked,{waitUntil:'domcontentloaded',timeout:45000});
- const detected=await firstText(page,selectors.sku);
+ const detected=await readFmicSku(page);
  const displayPrice=await firstText(page,selectors.price);
  const stock=await firstText(page,['.stock.available','.product-info-stock-sku .stock']);
  const qty=await firstInput(page,selectors.qty);
