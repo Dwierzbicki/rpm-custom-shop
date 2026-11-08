@@ -81,7 +81,7 @@ export async function searchFmicSkuOnPage(page,sku){
     ]){
      const locator=productPage.locator(sel).first();
      if(!await locator.count()||!await locator.isVisible())continue;
-     const value=(await locator.innerText()).trim();
+     const value=((await locator.textContent())??'').trim();
      price=parsePlnPrice(value);
      if(price!==null)break;
     }
