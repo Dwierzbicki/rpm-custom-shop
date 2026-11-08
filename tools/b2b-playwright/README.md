@@ -50,3 +50,64 @@ warunki dostępu i udokumentowany albo zweryfikowany przebieg zamawiania
 oraz selektory/stany strony. Dopiero później można stworzyć adapter
 dostawcy z trybem *prepare cart only*, weryfikacją sum i odrębnym
 zatwierdzeniem przez operatora. Ten PR celowo nie wprowadza live adaptera.
+
+## Rzeczywisty sklep FMIC — adapter zwykłej strony produktu
+
+FMIC nie ma osobnego panelu B2B. Automat używa tej samej strony produktowej,
+co każdy klient. Pierwszy zweryfikowany przykład: **SKU F00VE35007-BOS**,
+adres znajdziesz w `fmic-products.example.json`.
+
+### 1. Bezpieczne sprawdzenie publicznej strony (bez zapisu koszyka)
+
+```powershell
+cd tools/b2b-playwright
+npm install
+npx playwright install chromium
+npm run fmic:inspect
+```
+
+Tworzy lokalny screenshot i raport rozpoznanego SKU, ceny oraz kontrolek.
+Działa **tylko na domenie fmic.pl**, nie wysyła żadnego POST ani nie
+przechodzi do finalizacji. Układ kontrolek bazuje na typowych wzorcach
+Magento — wciąż wymaga potwierdzenia z rzeczywistą przeglądarką FMIC.
+
+### 2. Przygotowanie koszyka — WYŁĄCZNIE po sprawdzeniu selektorów i ceny
+
+Sporządź plik `fmic-products.local.json` według dołączonego przykładu.
+Ustaw **rzeczywisty maksymalny limit ceny brutto** dla każdego SKU
+(`maxUnitGrossPLN`); `null` celowo uniemożliwia dodanie produktu.
+Plik zadania DEMO pobierz z panelu RPM Custom dla zatwierdzonego planu.
+
+```powershell
+$env:RPM_FMIC_CART_WRITE="YES"
+node fmic-cart.mjs prepare "C:\\Users\\<uzytkownik>\\Downloads\\rpm-b2b-demo-123-fmic.json" "./fmic-products.local.json" --confirm-cart-only
+Remove-Item Env:RPM_FMIC_CART_WRITE
+```
+
+Ten tryb jest uruchamiany **lokalnie**, nigdy przez automatyczny serwer
+ani GitHub Actions. Używa tylko zweryfikowanego formularza dodawania
+do koszyka, ogranicza POST do `/checkout/cart/add`, blokuje wszystkie
+ścieżki checkout, płatności i zamówienia, a potem **zatrzymuje się**.
+Nie wypełnia adresu dostawy, nie wybiera płatności i nie klika
+„Zamawiam / Wyślij zamówienie”.
+
+Każde zadanie ma **blokadę powtórzenia (lock)** w katalogu `artifacts/`.
+Jeśli wystąpi błąd po dodaniu jednej pozycji, **nie uruchamiaj automatu
+ponownie**, dopóki ręcznie nie sprawdzisz koszyka. Lock nie jest kasowany
+automatycznie.
+
+Nie przekazuj przez czat hasła ani cookies. Jeżeli konieczne będzie
+konto z rabatami, udostępnij sesję Playwright **lokalnie** przez zmienną
+`FMIC_LOCAL_AUTH_STATE` wskazującą plik `storageState` poza repozytorium.
+
+Ważne: domyślna publiczna cena może się różnić od ceny po zalogowaniu.
+Automat porównuje cenę widoczną na stronie z wpisanym limitem i odmawia
+dodania, jeśli cena jest nieznana, wariant wymaga wyboru albo SKU się nie
+zgadza. Żaden plik JSON ani screenshot z sesją nie powinien być commitowany.
+
+### Podgląd pracy w RPM Custom
+
+`/admin/b2b-monitor` pokazuje wewnętrzną kolejkę, logi zgłoszonych
+testów Playwright i historię zdarzeń, odświeżając je co 10 sekund.
+Ten panel nie jest jeszcze strumieniem na żywo z lokalnego Chromium;
+raporty muszą zostać przekazane przez administratora po zakończeniu testu.

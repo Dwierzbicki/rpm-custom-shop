@@ -1,2 +1,5 @@
 artifacts/*
 !artifacts/.gitkeep
+fmic-products.local.json
+.auth/
+*.storage-state.json

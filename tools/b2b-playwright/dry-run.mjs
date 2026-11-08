@@ -1,6 +1,7 @@
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import path from 'node:path';
+import {randomUUID} from 'node:crypto';
 import {chromium} from 'playwright';
 import {validateFixtureJob} from './validate.mjs';
 import {exampleJob} from './example-job.mjs';
@@ -39,7 +40,9 @@ function fixtureHtml(job){
  <p>Nie ma przycisku kupowania ani formularza zamówienia.</p></body></html>`;
 }
 export async function runFixture(job,options={}){
- validateFixtureJob(job); // reject corrupted, stale-formatted or injected jobs before browser startup
+ const started=Date.now();
+ validateFixtureJob(job);
+ const trace=[{action:'validate_job',result:'ok',elapsedMs:Date.now()-started}]; // reject corrupted, stale-formatted or injected jobs before browser startup
  const browser=await chromium.launch({headless:true});
  let blockedRequests=0;
  try{
@@ -47,6 +50,7 @@ export async function runFixture(job,options={}){
   const page=await context.newPage();
   await page.route('**/*',route=>{blockedRequests++;return route.abort()});
   await page.setContent(fixtureHtml(job),{waitUntil:'domcontentloaded'});
+  trace.push({action:'render_fixture',result:'ok',elapsedMs:Date.now()-started});
   for(const [i,line] of job.lines.entries()){
    // Emulate selecting offers and quantities in a locally generated fixture.
    await page.getByTestId('sku-'+i).fill(line.supplierSku,{force:true});
@@ -56,19 +60,23 @@ export async function runFixture(job,options={}){
     throw Error('Offline form did not retain expected SKU / quantity');
    }
   }
+  trace.push({action:'populate_cart',result:'ok',elapsedMs:Date.now()-started});
   if(blockedRequests!==0||page.url()!=='about:blank'||
      await page.locator('button[type="submit"],input[type="submit"]').count()!==0){
    throw Error('Safety stop: unexpected network access or checkout control');
   }
+  trace.push({action:'verify_cart',result:'ok',elapsedMs:Date.now()-started});
   const dir=options.outDir??path.join(path.dirname(fileURLToPath(import.meta.url)),'artifacts');
   await mkdir(dir,{recursive:true});
   const filename='demo-'+job.orderId+'-'+job.supplier+'-'+job.jobId.slice(0,12);
   const png=path.join(dir,filename+'.png');
-  const report=path.join(dir,filename+'.json');
+  const runId=randomUUID();
+  const report=path.join(dir,filename+'-'+runId+'.json');
   await page.screenshot({path:png,fullPage:true});
-  const result={jobId:job.jobId,supplier:job.supplier,orderId:job.orderId,
+  trace.push({action:'screenshot',result:'ok',elapsedMs:Date.now()-started});
+  const result={runId,jobId:job.jobId,supplier:job.supplier,orderId:job.orderId,
    items:job.lines.length,blockedRequests,sentToSupplier:false,orderPlaced:false,
-   status:'offline-simulation-only',image:png};
+   status:'offline-simulation-only',trace,durationMs:Date.now()-started,image:png};
   await writeFile(report,JSON.stringify(result,null,2)+'\n','utf8');
   await context.close();
   return result;

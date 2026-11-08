@@ -8,6 +8,10 @@ type ProcurementRecord={
  fingerprint:string;manualReference:string|null;createdAt:string;updatedAt:string;
  approvedAt:string|null;placedAt:string|null;plan:ProcurementPlan;
 };
+type B2BQueueTask={id:string;orderId:string;supplier:'fmic'|'mtuning';jobId:string;fingerprint:string;
+ status:'queued'|'offline_reported'|'cancelled';createdAt:string;updatedAt:string};
+type B2BQueueEvent={id:string;taskId:string;jobId:string;event:string;runId:string|null;items:number|null;createdAt:string};
+type B2BQueueData={tasks:B2BQueueTask[];events:B2BQueueEvent[]};
 type ResponseState={plan:ProcurementPlan;procurement:ProcurementRecord|null};
 const money=(n:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(n);
 const statuses={draft:'Szkic',approved:'Zatwierdzony wewnętrznie',placed_manually:'Zamówiono ręcznie'};
@@ -19,6 +23,9 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
  const [variants,setVariants]=useState(false),[manualOnly,setManualOnly]=useState(false);
  const [manualPlaced,setManualPlaced]=useState(false),[reference,setReference]=useState('');
  const [reloadKey,setReloadKey]=useState(0);
+ const [queue,setQueue]=useState<B2BQueueData>({tasks:[],events:[]});
+ const [queueError,setQueueError]=useState('');
+
  useEffect(()=>{
   let cancelled=false;
   setError('');setMessage('');setState(null);
@@ -28,6 +35,19 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
    .catch(e=>{if(!cancelled)setError(e instanceof Error?e.message:'Błąd podglądu zakupów')});
   return ()=>{cancelled=true};
  },[orderId,orderStatus,reloadKey]);
+ useEffect(()=>{
+  let active=true;
+  setQueue({tasks:[],events:[]});setQueueError('');
+  fetch('/api/admin/b2b-queue?orderId='+encodeURIComponent(orderId),{cache:'no-store'})
+   .then(async response=>{
+    const data=await response.json();
+    if(!response.ok)throw new Error(data.error||'Błąd kolejki testowej');
+    return data as B2BQueueData;
+   })
+   .then(data=>{if(active)setQueue(data)})
+   .catch(error=>{if(active)setQueueError(error instanceof Error?error.message:'Błąd pobrania kolejki')});
+  return ()=>{active=false};
+ },[orderId,reloadKey]);
  const refresh=()=>{setStock(false);setPrice(false);setVariants(false);setManualOnly(false);setManualPlaced(false);setReloadKey(n=>n+1)};
  async function act(operation:'draft'|'approve'|'recheck'|'mark_placed'){
   if(busy||!state)return;
@@ -112,11 +132,52 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
   }catch(e){setError(e instanceof Error?e.message:'Błąd przygotowania zadania testowego')}
   finally{setBusy(false)}
  }
+ async function queueAction(supplier:'fmic'|'mtuning',action:'queue'|'cancel'){
+  if(busy||!record||record.status!=='approved')return;
+  const task=queue.tasks.find(item=>item.supplier===supplier);
+  if(action==='queue'&&!exportAllowed){setError('Szkic zakupowy jest nieaktualny');return}
+  if(!window.confirm(action==='queue'
+    ?'Dodać zadanie do WEWNĘTRZNEJ kolejki DEMO? Nie nastąpi żaden zakup.'
+    :'Anulować wyłącznie wewnętrzne zadanie DEMO?'))return;
+  setBusy(true);setError('');
+  try{
+   const response=await fetch('/api/admin/b2b-queue',{
+    method:action==='queue'?'POST':'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(action==='queue'
+     ?{orderId,supplier,action,fingerprint:record.fingerprint,confirm:'QUEUE_OFFLINE_DEMO'}
+     :{orderId,supplier,action,jobId:task?.jobId,confirm:'CANCEL_OFFLINE_DEMO'}),
+   });
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||'Błąd kolejki');
+   setReloadKey(n=>n+1);
+  }catch(error){setError(error instanceof Error?error.message:'Nie udało się zaktualizować kolejki')}
+  finally{setBusy(false)}
+ }
+ async function uploadB2BReport(supplier:'fmic'|'mtuning',file:File){
+  if(busy||!record||record.status!=='approved'||!exportAllowed)return;
+  if(file.size>24000){setError('Raport przekracza 24 KB');return}
+  setBusy(true);setError('');
+  try{
+   const report:unknown=JSON.parse(await file.text());
+   if(!window.confirm('Zapisać DEKLAROWANY raport lokalnej symulacji? To nie potwierdza zamówienia u dostawcy.'))return;
+   const response=await fetch('/api/admin/b2b-queue',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({orderId,supplier,action:'report',fingerprint:record.fingerprint,
+     confirm:'RECORD_OFFLINE_REPORT',report}),
+   });
+   const data=await response.json();
+   if(!response.ok)throw new Error(data.error||'Nie udało się zapisać raportu');
+   setReloadKey(n=>n+1);
+  }catch(error){setError(error instanceof Error?error.message:'Niepoprawny raport JSON')}
+  finally{setBusy(false)}
+ }
  return <section className="rpm-settings-card" style={{marginTop:20}}>
   <h3>Zaopatrzenie / FMIC i MTuning</h3>
   <p>Wewnętrzna propozycja zakupu pod zamówienie #{orderId}. Żadne działanie w tym panelu nie składa zamówień automatycznie.</p>
   <button type="button" className="outline" disabled={busy} onClick={refresh}>Odśwież oferty i ceny</button>
   {error&&<p className="admin-warning" role="alert" style={{marginTop:10}}>{error}</p>}
+  {queueError&&<p role="alert" style={{color:'#ffcb82'}}>{queueError}</p>}
   {message&&<p role="status">{message}</p>}
   {!plan?<p className="muted">Pobieranie propozycji dostawców…</p>:<>
    <p>Status zamówienia: <strong>{orderStatus}</strong>{record&&<> · Szkic zakupowy: <strong>{statuses[record.status]}</strong></>}</p>
@@ -151,6 +212,34 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
       disabled={busy||!exportAllowed} onClick={()=>void downloadB2BJob(group.supplier)}>
       Pobierz zadanie DEMO B2B
      </button>}
+     {record.status==='approved'&&(()=>{
+      const task=queue.tasks.find(item=>item.supplier===group.supplier);
+      const active=task&&task.status!=='cancelled';
+      return <div style={{flex:'1 1 100%',display:'grid',gap:8,marginTop:8}}>
+       <small>Kolejka DEMO: <strong>{!task?'Brak zadania':task.status==='cancelled'?'Anulowane':
+        task.status==='queued'?'Oczekuje na lokalny test':'Zgłoszono symulację offline (niezweryfikowaną)'}</strong></small>
+       <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+        {(!active||task?.status==='cancelled')&&<button type="button" className="outline"
+         disabled={busy||!exportAllowed} onClick={()=>void queueAction(group.supplier,'queue')}>Dodaj do kolejki DEMO</button>}
+        {active&&<button type="button" className="outline" disabled={busy}
+         onClick={()=>void queueAction(group.supplier,'cancel')}>Anuluj zadanie DEMO</button>}
+       </div>
+       {active&&<label style={{display:'grid',gap:4}}>
+        Zarejestruj raport JSON z lokalnego Playwright (nie jest dowodem wykonania zamówienia)
+        <input type="file" accept=".json,application/json" disabled={busy||!exportAllowed}
+         onChange={e=>{
+          const file=e.currentTarget.files?.[0];e.currentTarget.value='';
+          if(file)void uploadB2BReport(group.supplier,file);
+         }}/>
+       </label>}
+       {active&&queue.events.filter(event=>event.taskId===task.id).slice(0,5).map(event=>
+        <small key={event.id}>{new Date(event.createdAt).toLocaleString('pl-PL')} ·
+         {event.event==='offline_reported'?'Raport symulacji zapisany':event.event==='queued'?'Utworzono zadanie':
+         event.event==='requeued'?'Ponownie dodano':'Anulowano'}{event.runId?' · przebieg '+event.runId.slice(0,8):''}
+        </small>)}
+      </div>;
+     })()}
+
     </div>)}
     {!purchaseGroups.length&&<p role="alert">Zapisany plan nie ma kompletnych ofert do eksportu.</p>}
     <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem. Zadanie DEMO B2B działa tylko w lokalnym symulatorze Playwright i nie ma połączenia z panelem dostawcy.</small></p>

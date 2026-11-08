@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test validate.test.mjs",
-    "demo": "node dry-run.mjs"
+    "test": "node --test *.test.mjs",
+    "demo": "node dry-run.mjs",
+    "fmic:inspect": "node fmic-cart.mjs inspect"
   },
   "dependencies": {
     "playwright": "^1.56.0"
