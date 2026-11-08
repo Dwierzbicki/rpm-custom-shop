@@ -1,4 +1,5 @@
 import {normalizeFmicSku} from './fmic-sku.mjs';
+import {validateFmicProductUrl} from './fmic-guard.mjs';
 
 // The cart quantity input is the only verified item anchor in FMIC's
 // Tailwind cart. Other SKU selectors are hypotheses: verify within the
@@ -42,4 +43,40 @@ export async function readFmicCartItemSku(qtyInput){
   },{qtySelector,skuSelectors});
  }catch{return null}
  return normalizeFmicSku(raw);
+}
+
+/**
+ * Find one unique public FMIC product card URL beside THIS quantity field.
+ * A URL is used only for navigating to an authoritative .sku marker;
+ * its product id and slug are never accepted as the SKU themselves.
+ * Return null if the matching cart item cannot be isolated.
+ */
+export async function readFmicCartItemProductUrl(qtyInput){
+ let href;
+ try{
+  href=await qtyInput.evaluate((input,qtySelector)=>{
+   let parent=input.parentElement;
+   for(let depth=0;parent&&depth<8;depth++,parent=parent.parentElement){
+    if(parent.matches('main,body,html,form[action*="checkout"],.cart-summary,#cart-totals'))break;
+    if(parent.querySelectorAll(qtySelector).length!==1)break;
+    const choices=new Set();
+    for(const anchor of parent.querySelectorAll('a[href]')){
+     const url=anchor.getAttribute('href');
+     if(!url)continue;
+     let target;
+     try{target=new URL(url,document.baseURI)}catch{continue}
+     if(target.protocol!=='https:'||
+        !['fmic.pl','www.fmic.pl'].includes(target.hostname)||
+        target.username||target.password||target.port||target.search||
+        !new RegExp('^/[a-z0-9-]+[.]html$','i').test(target.pathname))continue;
+     choices.add(target.toString().split('#')[0]);
+    }
+    if(choices.size>1)return null;
+    if(choices.size===1)return [...choices][0];
+   }
+   return null;
+  },qtySelector);
+ }catch{return null}
+ if(!href)return null;
+ try{return validateFmicProductUrl(href)}catch{return null}
 }

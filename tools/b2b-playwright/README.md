@@ -365,3 +365,37 @@ danych logowania i bez zmiany koszyka.
 **Nadal nie wolno uruchamiać zapisu do koszyka tylko dlatego, że SKU
 zostało znalezione.** Osobne reguły weryfikacji cen, wariantów i
 bezpiecznego dodawania produktów wymagają rzeczywistej walidacji.
+
+
+### Wiele produktów w koszyku — rozpoznawanie SKU z kart FMIC
+
+Preflight nadal **od razu wchodzi na** `https://fmic.pl/checkout/cart/`.
+Dla każdej rozpoznanej pozycji odczytuje ilość i:
+1. próbuje odczytać jednoznaczne SKU z samego wiersza;
+2. jeśli wiersz ma jednoznaczny link do publicznej karty produktu FMIC,
+   otwiera ją w dodatkowej karcie Chromium i odczytuje widoczne `.sku`;
+3. jeżeli kartę przekierowano, nie ma na niej SKU albo kod nie zgadza się
+   z kodem w koszyku, pozostawia dla tej pozycji `sku: null`.
+
+**Nie uznaje numeru ID ani końcówki URL za zweryfikowane SKU.**
+
+Obecny limit bezpieczeństwa: **do 50 pozycji koszyka**. Maksymalnie
+**3 publiczne karty produktów równocześnie** (przy powtarzających się
+linkach ta sama karta jest pobierana raz). Każda pozycja zachowuje
+własny kod i ilość, w tej samej kolejności co w koszyku. Jeśli
+pozycji jest więcej niż 50, automat zgłasza `unknown` i zatrzymuje
+dalsze działania.
+
+Weryfikacja korzysta wyłącznie z dozwolonych publicznych żądań GET;
+wykorzystuje zapisaną lokalnie sesję FMIC. Nie uruchamia
+`#empty_cart_button`, nie dodaje produktów, nie zmienia ilości i nie
+składa zamówienia. Status `nonempty` **zawsze zatrzymuje operacje
+zakupowe**, nawet jeśli wszystkie SKU zostaną rozpoznane.
+
+```bash
+cd ~/Projects/rpm-custom-shop
+git pull --ff-only
+cd tools/b2b-playwright
+npm test
+npm run fmic:cart-check
+```
