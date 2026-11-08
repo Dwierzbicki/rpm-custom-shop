@@ -99,7 +99,7 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
    const {order,plan}=await seed(2);
    const row=await pool.query(`SELECT id,data FROM rpm_supplier_offers
     WHERE data->>'productId'='91002' AND supplier='fmic'`);
-   const updated={...row.rows[0].data,purchaseNet:333};
+   const updated={...row.rows[0].data,purchaseNet:201};
    await pool.query('UPDATE rpm_supplier_offers SET data=$1::jsonb WHERE id=$2',
     [JSON.stringify(updated),row.rows[0].id]);
    await assert.rejects(enqueueB2BTask(order,'fmic',plan.fingerprint),QueueConflict);
