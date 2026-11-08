@@ -34,6 +34,25 @@ export function createAgentReporter(job,mode,options={}){
   runId,mode,
   get sequence(){return seq},
   get sent(){return [...sent]},
+  async preflight(snapshot){
+   // Narrow payload only; never upload cookies, URLs, HTML or full cart pages.
+   const payload={
+    orderId:job.orderId,supplier:'fmic',jobId:job.jobId,
+    fingerprint:job.procurementFingerprint,runId,
+    status:snapshot.status,itemCount:snapshot.itemCount,
+    items:snapshot.items,reason:snapshot.reason,
+   };
+   const response=await request(server+'/api/b2b-agent/cart-preflight',{
+    method:'POST',redirect:'error',
+    headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify(payload),
+   });
+   if(!response.ok)throw Error('Zgłoszenie koszyka odrzucone (HTTP '+response.status+
+    '). Dalsza praca automatu zatrzymana.');
+   const result=await response.json();
+   if(result.accepted!==true)throw Error('Monitor nie potwierdził kontroli koszyka');
+   return result;
+  },
   async report(phase,stepIndex=null){
    const payload={orderId:job.orderId,supplier:'fmic',
     jobId:job.jobId,fingerprint:job.procurementFingerprint,

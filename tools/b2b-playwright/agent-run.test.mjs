@@ -8,7 +8,8 @@ import {exampleFmicProductUrl} from './fmic-guard.mjs';
 function reporterMock(){
  const phases=[];
  return {runId:'11111111-1111-4111-8111-111111111111',phases,
-  async report(phase,stepIndex=null){phases.push({phase,stepIndex});return {accepted:true}}};
+  async report(phase,stepIndex=null){phases.push({phase,stepIndex});return {accepted:true}},
+  async preflight(snapshot){phases.push({phase:'preflight_snapshot',snapshot});return {accepted:true}}};
 }
 
 test('agent only sends private token to the exact trusted RPM Custom host',async()=>{
@@ -92,6 +93,7 @@ test('even an approved cart run only emits cart verification, never order submis
  const result=await runFmicAgent(job,{products},{
   mode:'cart-only',allowCartWrite:true,confirmCartOnly:true,cartEnvEnabled:true,
   reporter,
+  preflightImpl:async()=>({status:'empty',itemCount:0,items:[],reason:'explicit_empty_message'}),
   prepareImpl:async(_job,_config,options)=>{
    assert.equal(options.ack,'ADD_TO_CART_ONLY');
    await options.onProgress('inspect_product',0);
@@ -107,4 +109,44 @@ test('even an approved cart run only emits cart verification, never order submis
  assert.equal(result.orderPlaced,false);
  assert.equal(reporter.phases.at(-1).phase,'cart_verified');
  assert.ok(!reporter.phases.some(x=>/submit|place_order|checkout/i.test(x.phase)));
+});
+
+test('agent pauses and reports detected existing items instead of touching cart',async()=>{
+ const job=exampleJob(),reporter=reporterMock();
+ const products=Object.fromEntries(job.lines.map(line=>[line.supplierSku,
+  {url:exampleFmicProductUrl,maxUnitGrossPLN:999}]));
+ let attempts=0;
+ const result=await runFmicAgent(job,{products},{
+  mode:'cart-only',allowCartWrite:true,confirmCartOnly:true,cartEnvEnabled:true,
+  reporter,preflightImpl:async()=>({
+   status:'nonempty',itemCount:2,
+   items:[{sku:'F00VE35007-BOS',qty:2},{sku:'OTHER',qty:1}],
+   reason:'items_detected',
+  }),
+  prepareImpl:async()=>{attempts++;throw Error('Must not prepare the cart')},
+ });
+ assert.equal(result.blocked,true);
+ assert.equal(result.status,'awaiting-operator-cart-clear');
+ assert.equal(result.cartChanged,false);
+ assert.equal(attempts,0);
+ assert.deepEqual(reporter.phases.map(x=>x.phase),[
+  'started','check_cart','preflight_snapshot','cart_nonempty',
+ ]);
+});
+test('agent pauses on unknown cart layout; missing empty message is not proof',async()=>{
+ const job=exampleJob(),reporter=reporterMock();
+ const products=Object.fromEntries(job.lines.map(line=>[line.supplierSku,
+  {url:exampleFmicProductUrl,maxUnitGrossPLN:999}]));
+ let attempts=0;
+ const result=await runFmicAgent(job,{products},{
+  mode:'cart-only',allowCartWrite:true,confirmCartOnly:true,cartEnvEnabled:true,
+  reporter,preflightImpl:async()=>({
+   status:'unknown',itemCount:0,items:[],reason:'unrecognized_cart_layout',
+  }),
+  prepareImpl:async()=>{attempts++;throw Error('Must not prepare the cart')},
+ });
+ assert.equal(result.status,'unknown-cart');
+ assert.equal(result.cartChanged,false);
+ assert.equal(attempts,0);
+ assert.equal(reporter.phases.at(-1).phase,'cart_unknown');
 });

@@ -17,7 +17,8 @@ export function verifyB2BAgentBearer(header:string|null,secret:unknown):boolean{
  return timingSafeEqual(actual,expected);
 }
 export type AgentPhase=
- 'started'|'inspect_product'|'inspected'|'cart_add'|'cart_add_ack'|
+ 'started'|'check_cart'|'cart_empty'|'cart_nonempty'|'cart_unknown'|
+ 'inspect_product'|'inspected'|'cart_add'|'cart_add_ack'|
  'inspect_cart'|'cart_verified'|'needs_review'|'completed_readonly'|'stopped';
 export type AgentMode='inspect'|'cart-only';
 export type AgentEventPayload={
@@ -28,7 +29,8 @@ const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}
 const sha=/^[a-f0-9]{64}$/;
 const phases:Record<AgentMode,readonly AgentPhase[]>={
  inspect:['started','inspect_product','inspected','completed_readonly','stopped'],
- 'cart-only':['started','inspect_product','inspected','cart_add','cart_add_ack',
+ 'cart-only':['started','check_cart','cart_empty','cart_nonempty','cart_unknown',
+  'inspect_product','inspected','cart_add','cart_add_ack',
   'inspect_cart','cart_verified','needs_review','stopped'],
 };
 export class InvalidAgentEvent extends Error{}
@@ -49,11 +51,13 @@ export function validateAgentEvent(value:unknown):AgentEventPayload{
   throw new InvalidAgentEvent('Niepoprawny identyfikator, etap lub typ raportu');
  }
  if((data.phase==='started'||data.phase==='stopped'||data.phase==='completed_readonly'||
-     data.phase==='cart_verified'||data.phase==='needs_review')&&data.stepIndex!==null){
+     data.phase==='cart_verified'||data.phase==='needs_review'||
+     data.phase==='check_cart'||data.phase==='cart_empty'||
+     data.phase==='cart_nonempty'||data.phase==='cart_unknown')&&data.stepIndex!==null){
   throw new InvalidAgentEvent('Etap końcowy nie może zawierać indeksu pozycji');
  }
  if(data.phase==='started'&&data.seq!==1)throw new InvalidAgentEvent('Pierwszy etap musi mieć sekwencję 1');
  return data as AgentEventPayload;
 }
 export const TERMINAL_AGENT_PHASES:readonly AgentPhase[]=
- ['completed_readonly','cart_verified','needs_review','stopped'];
+ ['completed_readonly','cart_verified','cart_nonempty','cart_unknown','needs_review','stopped'];

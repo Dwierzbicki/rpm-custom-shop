@@ -6,6 +6,8 @@
     "test": "node --test *.test.mjs",
     "demo": "node dry-run.mjs",
     "fmic:inspect": "node fmic-cart.mjs inspect",
+    "fmic:login": "node fmic-login.mjs",
+    "fmic:cart-check": "node fmic-preflight-run.mjs",
     "agent:run": "node agent-run.mjs"
   },
   "dependencies": {

@@ -8,6 +8,8 @@ import {validateFmicProductUrl,guardFmicRequest,exampleFmicProductUrl} from './f
 import {parsePlnPrice,verifyFmicCart} from './fmic-cart-verify.mjs';
 import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
 import {readFmicSku} from './fmic-sku.mjs';
+import {checkFmicCartPreflight} from './fmic-cart-preflight.mjs';
+import {DEFAULT_FMIC_SESSION_PATH} from './fmic-login.mjs';
 
 const folder=path.dirname(fileURLToPath(import.meta.url));
 const selectors={
@@ -67,7 +69,8 @@ async function browserContext(options){
   const events={blocked:0,cartAddRequests:0};
   await context.route('**/*',route=>{
    const request=route.request();
-   const decision=guardFmicRequest(request.method(),request.url(),options.allowCartWrite===true);
+   const decision=guardFmicRequest(request.method(),request.url(),options.allowCartWrite===true&&
+    (typeof options.canWrite!=='function'||options.canWrite()));
    if(decision==='continue'){
     if(request.method()==='POST')events.cartAddRequests++;
     return route.continue();
@@ -135,23 +138,34 @@ export async function prepareFmicCart(job,config,opts={}){
  }
  const outDir=opts.outDir??path.join(folder,'artifacts');
  await mkdir(outDir,{recursive:true});
- // Atomic once-per-job local lock: never add the same SKU quantities twice.
- // If the browser crashes midway, intentionally keep the lock. The operator
- // must inspect the FMIC cart before manually deleting the lock and retrying.
+ // No cart mutation permitted during the initial logged-in cart check.
+ // The lock is created ONLY after an explicitly verified empty cart.
+ let writeEnabled=false;
  const lockPath=path.join(outDir,'fmic-cart-lock-'+job.jobId+'.json');
- try{
-  await writeFile(lockPath,JSON.stringify({jobId:job.jobId,startedAt:new Date().toISOString(),
-   warning:'Check the real FMIC cart before ever retrying this job.'}),{flag:'wx'});
- }catch{
-  throw Error('To zadanie miało już próbę dodania do koszyka. Sprawdź koszyk FMIC przed ręcznym odblokowaniem.');
- }
  const {browser,context,events}=await browserContext({
-  headless:opts.headless,storageState:opts.storageState,allowCartWrite:true,
+  headless:opts.headless,
+  storageState:opts.storageState??DEFAULT_FMIC_SESSION_PATH,
+  allowCartWrite:true,canWrite:()=>writeEnabled,
  });
  let cartChanged=false;
  let page;
  try{
   page=await context.newPage();
+  const preflight=await checkFmicCartPreflight(page);
+  await opts.onPreflight?.(preflight);
+  if(preflight.status!=='empty'){
+   throw Error(preflight.status==='nonempty'
+    ?'Koszyk FMIC zawiera '+preflight.itemCount+' pozycji. ZATRZYMANO. Nie usuwam produktów bez Twojej zgody.'
+    :'Nie potwierdzono pustego koszyka FMIC. ZATRZYMANO bez zmian.');
+  }
+  // Atomic one-attempt lock prevents adding the same job twice.
+  try{
+   await writeFile(lockPath,JSON.stringify({jobId:job.jobId,startedAt:new Date().toISOString(),
+    warning:'Check the real FMIC cart before ever retrying this job.'}),{flag:'wx'});
+  }catch{
+   throw Error('To zadanie miało już próbę dodania do koszyka. Sprawdź koszyk FMIC przed ponowieniem.');
+  }
+  writeEnabled=true;
   for(const [index,item] of setup.entries()){
    await opts.onProgress?.('inspect_product',index);
    const details=await inspection(page,item.url,item.sku);

@@ -17,7 +17,7 @@ require.extensions['.ts']=(module,filename)=>{
 const base=new URL('../../app/lib/',import.meta.url);
 const {getDbPool}=require(fileURLToPath(new URL('db.ts',base)));
 const {readProcurement,saveProcurementDraft,changeProcurement}=require(fileURLToPath(new URL('procurement-db.ts',base)));
-const {enqueueB2BTask,cancelB2BTask,recordB2BOfflineReport,recordFmicCartReview,recordB2BAgentEvent,getB2BQueue,getB2BQueueOverview,QueueConflict}=
+const {enqueueB2BTask,cancelB2BTask,recordB2BOfflineReport,recordFmicCartReview,recordB2BAgentEvent,recordB2BCartPreflight,getB2BQueue,getB2BQueueOverview,QueueConflict}=
  require(fileURLToPath(new URL('b2b-queue-db.ts',base)));
 const {createB2BFixtureJob}=require(fileURLToPath(new URL('b2b-fixture-job.ts',base)));
 const pool=getDbPool();
@@ -126,18 +126,44 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
    await recordB2BAgentEvent(agentEvent(run,2,'inspect_product','inspect',0));
    await recordB2BAgentEvent(agentEvent(run,3,'inspected','inspect',0));
    await recordB2BAgentEvent(agentEvent(run,4,'completed_readonly'));
+   const snapshot=(runId,status,itemCount,items,reason)=>({
+    orderId:order,supplier:'fmic',jobId:job.jobId,
+    fingerprint:plan.fingerprint,runId,status,itemCount,items,reason,
+   });
+   const occupiedRun='44444444-4444-4444-8444-444444444444';
+   await recordB2BAgentEvent(agentEvent(occupiedRun,1,'started','cart-only'));
+   await assert.rejects(recordB2BAgentEvent(agentEvent(
+    occupiedRun,2,'cart_add','cart-only',0)),QueueConflict);
+   await recordB2BAgentEvent(agentEvent(occupiedRun,2,'check_cart','cart-only'));
+   const occupied=snapshot(occupiedRun,'nonempty',1,[{sku:'UNKNOWN-SKU',qty:2}],
+    'items_detected');
+   const reported=await recordB2BCartPreflight(occupied);
+   assert.equal(reported.created,true);
+   assert.equal((await recordB2BCartPreflight(occupied)).created,false);
+   await recordB2BAgentEvent(agentEvent(occupiedRun,3,'cart_nonempty','cart-only'));
+   await assert.rejects(recordB2BAgentEvent(agentEvent(
+    occupiedRun,4,'cart_add','cart-only',0)),QueueConflict);
    const runCart='55555555-5555-4555-8555-555555555555';
    await recordB2BAgentEvent(agentEvent(runCart,1,'started','cart-only'));
-   await recordB2BAgentEvent(agentEvent(runCart,2,'inspect_product','cart-only',0));
-   await recordB2BAgentEvent(agentEvent(runCart,3,'inspected','cart-only',0));
-   await recordB2BAgentEvent(agentEvent(runCart,4,'cart_add','cart-only',0));
-   await recordB2BAgentEvent(agentEvent(runCart,5,'cart_add_ack','cart-only',0));
-   await recordB2BAgentEvent(agentEvent(runCart,6,'inspect_cart','cart-only'));
+   await recordB2BAgentEvent(agentEvent(runCart,2,'check_cart','cart-only'));
+   const empty=snapshot(runCart,'empty',0,[],'explicit_empty_message');
+   await recordB2BCartPreflight(empty);
+   await assert.rejects(recordB2BCartPreflight({...empty,status:'nonempty',itemCount:1,
+    items:[{sku:'XYZ',qty:1}],reason:'items_detected'}),QueueConflict);
+   await recordB2BAgentEvent(agentEvent(runCart,3,'cart_empty','cart-only'));
+   await recordB2BAgentEvent(agentEvent(runCart,4,'inspect_product','cart-only',0));
+   await recordB2BAgentEvent(agentEvent(runCart,5,'inspected','cart-only',0));
+   await recordB2BAgentEvent(agentEvent(runCart,6,'cart_add','cart-only',0));
+   await recordB2BAgentEvent(agentEvent(runCart,7,'cart_add_ack','cart-only',0));
+   await recordB2BAgentEvent(agentEvent(runCart,8,'inspect_cart','cart-only'));
    const latest=await pool.query(
     'SELECT run_id::text AS "runId",seq,mode,phase,step_index AS "stepIndex" FROM rpm_b2b_agent_events WHERE task_id=$1 ORDER BY id DESC LIMIT 1',
     [first.task.id]);
-   assert.deepEqual(latest.rows[0],{runId:runCart,seq:6,mode:'cart-only',phase:'inspect_cart',stepIndex:null});
-   await recordB2BAgentEvent(agentEvent(runCart,7,'cart_verified','cart-only'));
+   assert.deepEqual(latest.rows[0],{runId:runCart,seq:8,mode:'cart-only',phase:'inspect_cart',stepIndex:null});
+   await recordB2BAgentEvent(agentEvent(runCart,9,'cart_verified','cart-only'));
+   const preflights=(await getB2BQueueOverview()).cartPreflights;
+   assert.ok(preflights.some(x=>x.runId===occupiedRun&&x.status==='nonempty'));
+   assert.ok(preflights.some(x=>x.runId===runCart&&x.status==='empty'));
    const liveEvents=(await getB2BQueueOverview()).agentEvents;
    const cartDone=liveEvents.find(x=>x.runId===runCart&&x.phase==='cart_verified');
    assert.equal(cartDone.taskId,first.task.id);
@@ -174,7 +200,8 @@ test('PostgreSQL B2B queue: idempotence, offline reports, audit trail and confli
  }finally{
   try{
    if(orderIds.length){
-    await pool.query('DELETE FROM rpm_b2b_agent_events WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
+    await pool.query('DELETE FROM rpm_b2b_cart_preflights WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
+   await pool.query('DELETE FROM rpm_b2b_agent_events WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
     await pool.query('DELETE FROM rpm_b2b_cart_reviews WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
     await pool.query('DELETE FROM rpm_b2b_task_events WHERE task_id IN (SELECT id FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[]))',[orderIds]);
     await pool.query('DELETE FROM rpm_b2b_tasks WHERE order_id=ANY($1::bigint[])',[orderIds]);

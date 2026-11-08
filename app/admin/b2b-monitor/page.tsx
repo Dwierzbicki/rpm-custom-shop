@@ -21,12 +21,17 @@ type CartReview={id:string;taskId:string;orderId:string;supplier:'fmic';
 type AgentEvent={
  id:string;taskId:string;orderId:string;supplier:'fmic';jobId:string;
  runId:string;seq:number;mode:'inspect'|'cart-only';
- phase:'started'|'inspect_product'|'inspected'|'cart_add'|'cart_add_ack'|
+ phase:'started'|'check_cart'|'cart_empty'|'cart_nonempty'|'cart_unknown'|
+  'inspect_product'|'inspected'|'cart_add'|'cart_add_ack'|
   'inspect_cart'|'cart_verified'|'needs_review'|'completed_readonly'|'stopped';
  stepIndex:number|null;createdAt:string;
 };
 const agentPhaseName:Record<AgentEvent['phase'],string>={
  started:'Agent rozpoczął zadanie',
+ check_cart:'Sprawdzanie koszyka po zalogowaniu',
+ cart_empty:'Koszyk pusty — można kontynuować',
+ cart_nonempty:'Wykryto produkty — agent zatrzymany',
+ cart_unknown:'Nie udało się rozpoznać koszyka — agent zatrzymany',
  inspect_product:'Otwieranie karty produktu',
  inspected:'Karta i SKU sprawdzone',
  cart_add:'Przygotowanie dodania do koszyka',
@@ -38,10 +43,17 @@ const agentPhaseName:Record<AgentEvent['phase'],string>={
  stopped:'Agent zatrzymany',
 };
 const terminalPhases:AgentEvent['phase'][]=[
- 'cart_verified','needs_review','completed_readonly','stopped'];
+ 'cart_verified','cart_nonempty','cart_unknown','needs_review','completed_readonly','stopped'];
+type PreflightRecord={
+ id:string;taskId:string;orderId:string;supplier:'fmic';jobId:string;
+ runId:string;status:'empty'|'nonempty'|'unknown';itemCount:number;
+ items:Array<{sku:string|null;qty:number|null}>;
+ reason:string;createdAt:string;
+};
 type ResponseData={
  summary:{queued:number;offline_reported:number;cancelled:number;total:number};
  tasks:Task[];events:Event[];cartReviews:CartReview[];agentEvents:AgentEvent[];
+ cartPreflights:PreflightRecord[];
  limit:number;asOf:string;mode:'local-agent-telemetry';liveVendorWorker:false;localAgentTelemetryEnabled:boolean;
 };
 const statusName:Record<Status,string>={
@@ -87,6 +99,13 @@ export default function B2BMonitorPage(){
   (!query.trim()||[task.orderId,task.jobId,task.supplier].some(field=>
    field.toLowerCase().includes(query.trim().toLowerCase())))
  )??[],[data,supplier,filter,query]);
+ const preflightsByTask=useMemo(()=>{
+  const output=new Map<string,PreflightRecord[]>();
+  for(const record of data?.cartPreflights??[]){
+   output.set(record.taskId,[...(output.get(record.taskId)??[]),record]);
+  }
+  return output;
+ },[data]);
  const cartReviewsByTask=useMemo(()=>{
   const map=new Map<string,CartReview[]>();
   for(const review of data?.cartReviews??[]){
@@ -221,6 +240,39 @@ export default function B2BMonitorPage(){
          To raportowanie z lokalnego programu, nie niezależne potwierdzenie zakupu od FMIC.
         </small>
        </div>}
+       {(preflightsByTask.get(task.id)??[]).filter(check=>
+        check.jobId===task.jobId).slice(0,1).map(check=>
+        <div key={check.id} style={{
+         marginTop:12,padding:14,border:'1px solid #8c7552',borderRadius:10,
+        }}>
+         <strong>{check.status==='empty'
+          ?'Kontrola koszyka FMIC: pusty'
+          :check.status==='nonempty'
+          ?'Uwaga: FMIC ma produkty w koszyku — automat WSTRZYMANY'
+          :'Uwaga: nie potwierdzono pustego koszyka — automat WSTRZYMANY'}</strong>
+         <small style={{display:'block',marginTop:6}}>
+          {time(check.createdAt)} · Przebieg {check.runId.slice(0,8)}
+          {check.status==='nonempty'?' · Liczba pozycji: '+check.itemCount:''}
+         </small>
+         {check.status==='nonempty'&&check.items.length>0&&
+          <div style={{display:'grid',gap:3,marginTop:8}}>
+           {check.items.map((row,i)=><small key={i}>
+            {row.sku??'Nieznany kod produktu'} · {row.qty??'?'} szt.
+           </small>)}
+          </div>}
+         {check.status!=='empty'&&<p style={{fontSize:13,marginTop:8}}>
+          **Żadne produkty nie zostały usunięte.** Najpierw sprawdź koszyk
+          na FMIC. Wyczyść go samodzielnie, jeśli tego chcesz, a następnie
+          ponów kontrolę. Automat nie ma obecnie uprawnień do czyszczenia.
+         </p>}
+         {check.status!=='empty'&&<a href="https://fmic.pl/checkout/cart/"
+          target="_blank" rel="noopener noreferrer" style={{fontSize:13}}>
+          Otwórz koszyk FMIC do ręcznej kontroli
+         </a>}
+         <small style={{display:'block',marginTop:6}}>
+          To odczyt przesłany przez lokalnego agenta, nie niezależne potwierdzenie FMIC.
+         </small>
+        </div>)}
        {(cartReviewsByTask.get(task.id)??[]).filter(review=>review.jobId===task.jobId)
         .slice(0,3).map(review=><div key={review.id}
          style={{marginTop:12,border:'1px solid #676d77',borderRadius:10,padding:12}}>

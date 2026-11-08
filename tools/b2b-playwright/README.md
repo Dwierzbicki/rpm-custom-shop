@@ -223,3 +223,75 @@ dopóki nie sprawdzisz ręcznie zawartości koszyka.
 - Z powodu braku zweryfikowanego DOM produkcyjnego FMIC, selektory muszą
   przejść realną lokalną inspekcję. Każda nierozpoznana kontrolka zatrzymuje
   dalsze działania.
+
+
+## macOS (Apple Silicon): logowanie FMIC i obowiązkowa kontrola koszyka
+
+Po zaktualizowaniu repozytorium:
+
+```bash
+cd ~/Projects/rpm-custom-shop
+git pull
+cd tools/b2b-playwright
+npm install
+npx playwright install chromium
+npm test
+```
+
+### Logowanie: wyłącznie ręcznie, na Twoim Macu
+
+```bash
+npm run fmic:login
+```
+
+Otworzy się Chromium na `https://fmic.pl/`. **Ty sam** wpisujesz login i
+hasło w oficjalnym formularzu FMIC, kończysz ewentualne 2FA/CAPTCHA, a
+następnie wracasz do Terminala i wpisujesz dokładnie `ZAPISZ`.
+
+Cookies sesji będą przechowywane **tylko lokalnie** w
+`tools/b2b-playwright/.auth/fmic.storage-state.json` z uprawnieniami
+`600`. Plik jest ignorowany przez Git. Nie wysyłaj go do nikogo,
+tak samo jak hasła. Ten krok zapisuje sesję, ale **nie stanowi potwierdzenia,
+że logowanie się udało**.
+
+### Obowiązkowy test koszyka — bez jakiejkolwiek zmiany
+
+```bash
+npm run fmic:cart-check
+```
+
+Możliwe wyniki: `empty`, `nonempty` i `unknown`.
+
+- `empty` — tylko po wykryciu **jawnego komunikatu o pustym koszyku**;
+- `nonempty` — zatrzymanie i pokazanie liczby pozycji (SKU/ilości
+  jeśli rozpoznane);
+- `unknown` — nieznany HTML, brak potwierdzenia sesji, przekierowanie,
+  błąd odczytu: **bezpieczne zatrzymanie**.
+
+Dla `nonempty` i `unknown` narzędzie kończy pracę kodem 2;
+nie wysyła zamówienia, nie zmienia koszyka i nie usuwa produktów.
+Po sprawdzeniu możesz samodzielnie otworzyć
+`https://fmic.pl/checkout/cart/`, wyczyścić zawartość **ręcznie i tylko
+jeśli wyraźnie tego chcesz**, a następnie ponowić test.
+
+Panel `/admin/b2b-monitor` po uruchomieniu zadania FMIC w trybie
+`cart-only` pokaże odczyt koszyka, liczbę pozycji, status zatrzymania
+i rozpoznane SKU/ilości. Informacja pochodzi z lokalnego Playwrighta,
+nie ze zdalnego potwierdzenia FMIC. Sesja/logowanie pozostaje lokalne.
+**W panelu nie ma jeszcze przycisku czyszczącego koszyk.**
+
+### Zabezpieczenie przed dodawaniem produktów
+
+W `agent-run.mjs` preflight jest obowiązkowy przed operacjami
+`cart-only`; serwer monitoringu także odrzuca kolejne etapy bez
+wcześniejszego `cart_empty`. Sam adapter Playwright **ponownie**
+sprawdza koszyk w swojej własnej sesji przed odblokowaniem
+`POST /checkout/cart/add` — dzięki temu koszyk pełny w chwili
+startu drugiej przeglądarki również zatrzyma automat.
+
+Nie uruchamiaj `cart-only` na żywym FMIC, zanim nie potwierdzimy
+selektorów prawdziwego koszyka, sesji i formatu URL dodawania produktu.
+Dotychczasowe testy koszyka na Chromium są testami **lokalnej makiety**,
+nie testem produkcyjnego dodawania do FMIC.
+
+**Nie istnieje funkcja automatycznej finalizacji ani wysyłki zamówienia.**
