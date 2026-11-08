@@ -7,6 +7,7 @@ import ProductDetailView from './components/storefront/ProductDetailView';
 import CartView from './components/storefront/CartView';
 import CheckoutView from './components/storefront/CheckoutView';
 import PowerGuidesView from './components/storefront/PowerGuidesView';
+import StorefrontHeader from './components/storefront/StorefrontHeader';
 import type {OrderReceipt} from './components/storefront/CheckoutView';
 import type {FormEvent} from 'react';
 import {checkoutRequestKey,clearCheckoutRequestKey} from './lib/checkout-idempotency';
@@ -248,37 +249,17 @@ export default function Shop(){
  const card=(p:Product)=><ProductCard key={p.id} product={p} onOpen={openProduct} translate={t}/>;
  const cartList=(lines:CartLine[],editable:boolean)=><CartLineList lines={lines} editable={editable} products={products} onOpen={openProduct} onQuantityChange={(key,delta)=>setCart(old=>old.map(x=>x.key===key?{...x,qty:Math.max(1,Math.min(50,x.qty+delta))}:x))} onRemove={(key)=>setCart(old=>old.filter(x=>x.key!==key))}/>;
  const handleCheckoutSubmit=async (e:FormEvent<HTMLFormElement>)=>{e.preventDefault();if(orderBusy||!shippingSettingsReady)return;setOrderBusy(true);setOrderError('');try{const data=new FormData(e.currentTarget);const customer={type:String(data.get('type')??'private'),name:String(data.get('name')??''),email:String(data.get('email')??''),phone:phonePrefix+' '+String(data.get('phone')??'').trim(),company:String(data.get('company')??''),nip:String(data.get('nip')??''),city:String(data.get('city')??''),postalCode:String(data.get('postalCode')??''),address:String(data.get('address')??''),notes:String(data.get('notes')??'')};const payload=JSON.stringify({customer,language:lang,shippingMethod,paymentMethod,lines:cart.map(l=>({productId:l.productId,qty:l.qty,options:l.options}))});const requestKey=await checkoutRequestKey(payload);const response=await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':requestKey},body:payload});const result=await response.json();if(!response.ok)throw Error(result.error??t('Błąd zapisu zamówienia'));clearCheckoutRequestKey();setOrderId(String(result.orderId));setReceipt(result);setCheckoutDone(true);setCart([])}catch(err){setOrderError(err instanceof Error?err.message:t('Nie udało się wysłać zgłoszenia'))}finally{setOrderBusy(false)}};
- return <>{lightbox&&selected.images?.length&&<div className="rpm-lightbox" role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia produktu" onClick={()=>setLightbox(false)}><button className="lightbox-close" onClick={()=>setLightbox(false)} aria-label="Zamknij"><X size={25}/></button><img src={selected.images[photoIndex]??selected.images[0]} alt={selected.name} onClick={e=>e.stopPropagation()}/>{selected.images.length>1&&<div className="lightbox-nav" onClick={e=>e.stopPropagation()}><button onClick={()=>setPhotoIndex(i=>(i-1+selected.images!.length)%selected.images!.length)} aria-label="Poprzednie"><ChevronLeft/></button><span>{photoIndex+1} / {selected.images.length}</span><button onClick={()=>setPhotoIndex(i=>(i+1)%selected.images!.length)} aria-label="Następne"><ChevronRight/></button></div>}</div>}<header className={"header rpm-header-v2"+(compactCategories?" rpm-header-compact":" rpm-header-wide")}>
- <div className="rpm-header-main">
- <button className="logo rpm-header-logo" onClick={()=>navigate('home')} aria-label="RPM Custom — strona główna"><img src="/rpm-logo.png.png" alt="RPM Custom — Exhaust & Intake Solutions" className="brand-logo"/></button>
- <form className="rpm-header-search" role="search" onSubmit={e=>{e.preventDefault();setShopLanding(false);setCategory('Wszystkie');setShopSubcategory(null);setEngineFilter('Wszystkie');navigate('catalog')}}><label htmlFor="rpm-header-query" className="rpm-visually-hidden">{lang==='en'?'Search products':'Szukaj produktów'}</label><input id="rpm-header-query" value={query} onChange={e=>setQuery(e.target.value)} placeholder={lang==='en'?'Search turbochargers, manifolds, intercoolers…':'Szukaj produktów, np. kolektor, turbo, intercooler…'}/><button type="submit" aria-label={lang==='en'?'Search':'Szukaj'}><Search size={21}/></button></form>
- <div className="header-actions rpm-header-actions"><div className="language-switch" role="group" aria-label="Language / Język"><button type="button" className={lang==='pl'?'active':''} aria-label="Polski" aria-pressed={lang==='pl'} onClick={()=>changeLang('pl')}>🇵🇱<span>PL</span></button><button type="button" className={lang==='en'?'active':''} aria-label="English" aria-pressed={lang==='en'} onClick={()=>changeLang('en')}>🇬🇧<span>EN</span></button></div><a className="rpm-header-account" href="/account" title="Moje konto"><UserRound size={20}/><span>{lang==='en'?'Account':'Moje konto'}</span></a><button className="rpm-header-garage" title="RPM Garage" onClick={()=>navigate('garage')}><Warehouse size={20}/><span>RPM Garage</span></button><button className="cart-btn" title="Koszyk" onClick={()=>navigate('cart')}><ShoppingCart size={22}/><span>{lang==='en'?'Cart':'Koszyk'}</span>{count>0&&<i>{count}</i>}</button></div>
- </div>
- <nav className="rpm-desktop-categories" aria-label="Kategorie produktów">
- {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={'rpm-desktop-root'+(activeFmicRoot===i?' active':'')} onMouseEnter={()=>{setActiveFmicRoot(i);setActiveFmicSub(null)}} onMouseLeave={()=>{setActiveFmicRoot(null);setActiveFmicSub(null)}}>
- <button type="button" className="rpm-desktop-root-button" onClick={()=>openCatalogPath([root.name])}>{root.name}</button>
- {activeFmicRoot===i&&<div className="rpm-desktop-level2">
- {root.children.map((sub,j)=><div className="rpm-desktop-sub" key={j} onMouseEnter={()=>setActiveFmicSub(j)}>
- <button type="button" onClick={()=>openCatalogPath([root.name,sub.name])}>{sub.name}{sub.children.length>0&&<ChevronRight size={14}/>}</button>
- {activeFmicSub===j&&sub.children.length>0&&<div className="rpm-desktop-level3">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>openCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}
- </div>)}
- </div>}</div>)}
- <button type="button" className="rpm-desktop-motolab" onClick={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}>MOTOLAB <ArrowRight size={14}/></button>
- </nav>
- <nav className="rpm-clean-nav" aria-label="Nawigacja sklepu">
- <button type="button" className="rpm-clean-categories-button" aria-expanded={mobileMenu} aria-controls="rpm-category-drawer" onClick={()=>{setMobileMenu(v=>!v);setActiveFmicRoot(null);setActiveFmicSub(null)}}>{mobileMenu?<X size={19}/>:<Menu size={19}/>} <span>KATEGORIE PRODUKTÓW</span> <ChevronRight size={15}/></button>
- <button type="button" className="rpm-clean-motolab" onClick={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}>MOTOLAB <ArrowRight size={16}/></button>
- </nav>
- {mobileMenu&&<div className="rpm-drawer-backdrop" onClick={()=>setMobileMenu(false)} aria-hidden="true"/>}
- <aside id="rpm-category-drawer" className={'rpm-category-drawer'+(mobileMenu?' is-open':'')} aria-label="Kategorie produktów" aria-hidden={!mobileMenu}>
- <div className="rpm-drawer-head"><div className="rpm-drawer-heading"><span className="rpm-drawer-eyebrow">RPM CUSTOM / SKLEP</span><strong>Kategorie produktów</strong></div><button type="button" onClick={()=>setMobileMenu(false)} aria-label="Zamknij kategorie"><X size={22}/></button></div><div className="rpm-drawer-hint">Wybierz dział lub rozwiń strzałką podkategorie</div>
- <div className="rpm-drawer-scroll">
- {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={"rpm-drawer-root"+(activeFmicRoot===i?" is-active":"")}>
- <div className="rpm-drawer-root-line"><button type="button" onClick={()=>openCatalogPath([root.name])}>{root.name}</button><button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+root.name} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
- {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>openCatalogPath([root.name,sub.name])}>{sub.name}</button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+sub.name} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>openCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}</div>)}</div>}
- </div>)}
- </div></aside>
- </header>
+ return <>{lightbox&&selected.images?.length&&<div className="rpm-lightbox" role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia produktu" onClick={()=>setLightbox(false)}><button className="lightbox-close" onClick={()=>setLightbox(false)} aria-label="Zamknij"><X size={25}/></button><img src={selected.images[photoIndex]??selected.images[0]} alt={selected.name} onClick={e=>e.stopPropagation()}/>{selected.images.length>1&&<div className="lightbox-nav" onClick={e=>e.stopPropagation()}><button onClick={()=>setPhotoIndex(i=>(i-1+selected.images!.length)%selected.images!.length)} aria-label="Poprzednie"><ChevronLeft/></button><span>{photoIndex+1} / {selected.images.length}</span><button onClick={()=>setPhotoIndex(i=>(i+1)%selected.images!.length)} aria-label="Następne"><ChevronRight/></button></div>}</div>}<StorefrontHeader
+ compactCategories={compactCategories} lang={lang} query={query} count={count}
+ onQuery={setQuery} onHome={()=>navigate('home')}
+ onSearchSubmit={()=>{setShopLanding(false);setCategory('Wszystkie');setShopSubcategory(null);setEngineFilter('Wszystkie');navigate('catalog')}}
+ onLanguageChange={changeLang} onGarage={()=>navigate('garage')} onCart={()=>navigate('cart')}
+ mobileMenu={mobileMenu} setMobileMenu={setMobileMenu}
+ activeFmicRoot={activeFmicRoot} setActiveFmicRoot={setActiveFmicRoot}
+ activeFmicSub={activeFmicSub} setActiveFmicSub={setActiveFmicSub}
+ onOpenCatalogPath={openCatalogPath}
+ onMotoLab={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}
+/>
 
  {view==='home'&&inlineEditRequested&&<InlineHomepageEditor onChange={updateHomepageDraft}/>}
  {view==='home'&&<HomeSections
