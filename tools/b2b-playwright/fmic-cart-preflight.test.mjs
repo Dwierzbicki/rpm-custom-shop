@@ -67,3 +67,85 @@ test('cart redirect to login is unknown',async()=>{
   assert.equal(result.reason,'cart_navigation_redirect');
  }finally{await browser.close()}
 });
+
+test('FMIC Tailwind cart with one existing line stops with nonempty status (real observed selectors)',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index page-layout-1column">
+ <main>
+  <div class="cart actions flex flex-col">
+   <button id="empty_cart_button">Wyczyść koszyk</button>
+  </div>
+  <div class="cart-summary"><div id="cart-totals">Suma</div></div>
+  <input id="cart-1455360-qty" name="cart[1455360][qty]" value="3"
+   class="form-input px-2 py-2 w-14 text-center"/>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.status,'nonempty');
+  assert.equal(result.reason,'items_detected');
+  assert.equal(result.itemCount,1);
+  assert.deepEqual(result.items,[{sku:null,qty:3}]);
+  assert.ok(!JSON.stringify(result).includes('1455360'),
+   'cart row IDs must not leak into monitoring');
+ });
+});
+
+test('FMIC Tailwind cart with two distinct qty inputs reads each item without clicking clear',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index"><main>
+  <button id="empty_cart_button">Wyczyść</button>
+  <section class="cart-summary">Podsumowanie</section>
+  <input id="cart-22-qty" name="cart[22][qty]" value="1"/>
+  <input id="cart-23-qty" name="cart[23][qty]" value="5"/>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  // Installed before page.goto within the preflight; observes a click on
+  // the clear-cart button without ever clicking that button itself.
+  await page.addInitScript(()=>{
+   window.__fmicClearButtonClicked=false;
+   document.addEventListener('click',event=>{
+    if(event.target?.id==='empty_cart_button'){
+     window.__fmicClearButtonClicked=true;
+    }
+   });
+  });
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.itemCount,2);
+  assert.deepEqual(result.items,[{sku:null,qty:1},{sku:null,qty:5}]);
+  assert.equal(await page.evaluate(()=>window.__fmicClearButtonClicked),false);
+ });
+});
+
+test('FMIC cart does not infer empty from absence of item quantity inputs',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index"><main>
+ <button id="empty_cart_button">Wyczyść</button>
+ <section class="cart-summary">Podsumowanie</section>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.status,'unknown');
+  assert.equal(result.itemCount,0);
+ });
+});
+
+test('FMIC cart recognizes item id + qty suffix without assuming full name prefix',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index"><main>
+ <button id="empty_cart_button">Wyczyść</button>
+ <section class="cart-summary">Podsumowanie</section>
+ <input id="cart-12-qty" name="cart[13][qty]" value="4"/>
+ <input id="cart-14-qty" name="cart[14][qty]" value="0"/>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.status,'nonempty');
+  assert.equal(result.itemCount,2);
+  assert.deepEqual(result.items,[{sku:null,qty:4},{sku:null,qty:null}]);
+ });
+});
+
+test('FMIC cart without independent confirmation of a cart layout stays unknown',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index"><main>
+ <input id="cart-1455360-qty" name="cart[1455360][qty]" value="2"/>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  assert.equal((await checkFmicCartPreflight(page)).status,'unknown');
+ });
+});
