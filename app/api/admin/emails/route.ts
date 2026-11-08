@@ -1,19 +1,17 @@
 import {NextResponse} from 'next/server';
-import {Pool} from 'pg';
+import {getDbPool} from '../../../lib/db';
 import {getPaymentSettings} from '../../../lib/settings-db';
 import {orderMailPreview} from '../../../lib/order-email';
 import type {OrderMailData} from '../../../lib/order-email';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-const globalDb=globalThis as unknown as {rpmMailPreviewPool?:Pool};
-function db(){if(!process.env.DATABASE_URL)throw Error('Database unavailable');return globalDb.rpmMailPreviewPool??(globalDb.rpmMailPreviewPool=new Pool({connectionString:process.env.DATABASE_URL,max:3}));}
 export async function GET(request:Request){
  try{
   const url=new URL(request.url);
   const id=url.searchParams.get('id')??'';
   const language=url.searchParams.get('language');
   if(!/^[1-9][0-9]{0,17}$/.test(id)||language!==null&&language!=='pl'&&language!=='en')return NextResponse.json({error:'Niepoprawne parametry'},{status:400});
-  const result=await db().query<{id:string;customer:Record<string,unknown>;items:OrderMailData['items'];total:number}>('SELECT id::text,customer,items,total::float8 AS total FROM rpm_orders WHERE id=$1 LIMIT 1',[id]);
+  const result=await getDbPool().query<{id:string;customer:Record<string,unknown>;items:OrderMailData['items'];total:number}>('SELECT id::text,customer,items,total::float8 AS total FROM rpm_orders WHERE id=$1 LIMIT 1',[id]);
   const row=result.rows[0];
   if(!row)return NextResponse.json({error:'Nie znaleziono zamówienia'},{status:404});
   const c=row.customer;
