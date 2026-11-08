@@ -452,3 +452,16 @@ na realnym FMIC.** Jeśli strona używa innego formularza,
 automat ma zatrzymać działanie zamiast zgadywać. Obecna zawartość
 koszyka pozostaje nienaruszona. Nawet przy wyraźnej zgodzie nigdy
 nie jest dozwolony checkout, płatność ani „Złóż zamówienie”.
+
+### FMIC — adres wyszukiwania potwierdzony na żywej stronie (2026-11-08)
+
+W rzeczywistym sklepie po wyszukaniu `KSB546` uzyskujemy
+`https://fmic.pl/?q=KSB546`. Wcześniejsza ścieżka Magento
+`/catalogsearch/result/` nie odpowiadała obecnemu wyszukiwaniu.
+Agent korzysta teraz z `/?q=SKU`, dopuszczając wyłącznie pojedynczy,
+zwalidowany parametr `q` i tylko odczyt (GET). Właściwy SKU musi
+zostać zweryfikowany na karcie produktu — nie na podstawie slugów.
+
+Jeśli nowy układ strony nie udostępnia rozpoznawalnych linków,
+automat zwraca `unknown / search_layout_unrecognized` zamiast
+błędnego `not-found`. Nigdy nie modyfikuje koszyka.

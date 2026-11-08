@@ -72,15 +72,18 @@ test('read-only guard refuses unsafe GET actions with possible state mutation',(
  assert.equal(guardFmicRequest('GET','https://fmic.pl/media/catalog/product/test.jpg'),'continue');
 });
 
-test('read-only catalogsearch GET is narrowly scoped and never permits checkout/POST',()=>{
- const good='https://fmic.pl/catalogsearch/result/?q=JRSPEC-WT-40-B';
+test('read-only FMIC homepage SKU search is narrowly scoped',()=>{
+ const good='https://fmic.pl/?q=JRSPEC-WT-40-B';
  assert.equal(guardFmicRequest('GET',good,false),'continue');
+ assert.equal(guardFmicRequest('GET','https://fmic.pl/',false),'continue');
  for(const url of [
-  'https://fmic.pl/catalogsearch/result/?q=SKU%20WITH%20SPACE',
-  'https://fmic.pl/catalogsearch/result/?q=SKU&view=admin',
-  'https://fmic.pl/catalogsearch/result/?q=SKU&q=OTHER',
-  'https://evil.example/catalogsearch/result/?q=SKU',
-  'https://fmic.pl/catalogsearch/result/?q=SKU%26checkout',
+  'https://fmic.pl/?q=SKU%20WITH%20SPACE',
+  'https://fmic.pl/?q=SKU&view=admin',
+  'https://fmic.pl/?q=SKU&q=OTHER',
+  'https://evil.example/?q=SKU',
+  'https://fmic.pl/?q=SKU%26checkout',
+  'https://fmic.pl/?unknown=foo',
+  'https://fmic.pl/catalogsearch/result/?q=SKU',
  ]){
   assert.equal(guardFmicRequest('GET',url,false),'abort',url);
  }
