@@ -57,6 +57,7 @@ export async function commitSupplierFeed(
    await client.query(`INSERT INTO rpm_supplier_offers(supplier,supplier_sku,data)
     SELECT $1, element.value->>'supplierSku', element.value
     FROM jsonb_array_elements($2::jsonb) AS element(value)
+    WHERE TRUE
     ON CONFLICT (supplier,supplier_sku)
     DO UPDATE SET data=EXCLUDED.data,updated_at=NOW()`,[options.supplier,payload]);
   }
