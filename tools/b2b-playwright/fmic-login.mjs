@@ -1,5 +1,5 @@
 import {chromium} from 'playwright';
-import {mkdir,chmod,stat} from 'node:fs/promises';
+import {mkdir,chmod} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createInterface} from 'node:readline/promises';
@@ -8,6 +8,7 @@ import {checkFmicCartPreflight} from './fmic-cart-preflight.mjs';
 import {guardFmicRequest} from './fmic-guard.mjs';
 
 const folder=path.dirname(fileURLToPath(import.meta.url));
+export const FMIC_LOGIN_URL='https://fmic.pl/customer/account/login/';
 export const DEFAULT_FMIC_SESSION_PATH=path.join(folder,'.auth','fmic.storage-state.json');
 export function validateLocalSessionPath(filePath){
  if(typeof filePath!=='string'||!path.isAbsolute(filePath)||
@@ -36,7 +37,7 @@ export async function loginFmicInteractively(options={}){
   const context=await browser.newContext({acceptDownloads:false,serviceWorkers:'block'});
   try{
    const page=await context.newPage();
-   await page.goto('https://fmic.pl/',{waitUntil:'domcontentloaded',timeout:45000});
+   await page.goto(FMIC_LOGIN_URL,{waitUntil:'domcontentloaded',timeout:45000});
    output.write('\nFMIC: zaloguj się ręcznie w otwartym oknie Chromium.\n');
    output.write('Nie wpisuj hasła do Terminala ani do repozytorium.\n');
    output.write('Kiedy upewnisz się, że jesteś zalogowany, wróć do Terminala.\n');
