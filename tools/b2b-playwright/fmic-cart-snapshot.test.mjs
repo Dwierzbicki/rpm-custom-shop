@@ -23,6 +23,10 @@ test('offline fixture parses cart SKU, quantity, unit gross and subtotal without
    return route.abort();
   });
   const observed=await inspectFmicCart(page);
+  const firstPrice=page.locator('.cart.table-wrapper tbody.cart.item').first()
+   .locator('.col.price .cart-price .price');
+  assert.equal(await firstPrice.count(),1,'price locator must find the unit price in cart row');
+  assert.equal((await firstPrice.textContent())?.trim(),'3,99 zł');
   assert.deepEqual(observed.items,[
    {sku:'F00VE35007-BOS',qty:2,unitGrossPLN:3.99},
    {sku:'FMIC-ABC',qty:1,unitGrossPLN:350},
