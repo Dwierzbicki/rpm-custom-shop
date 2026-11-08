@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
 import {verifyFmicCart} from './fmic-cart-verify.mjs';
-const html=`<!doctype html><html><body><div class="cart table-wrapper"><table>
+const html=`<!doctype html><html><head><meta charset="utf-8"></head><body><div class="cart table-wrapper"><table>
 <tbody class="cart item"><tr><td><span class="product-item-sku">SKU: F00VE35007-BOS</span></td>
 <td class="col price"><span class="cart-price"><span class="price">3,99 zł</span></span></td>
 <td><input class="qty" value="2"></td></tr></tbody>
@@ -19,7 +19,7 @@ test('offline fixture parses cart SKU, quantity, unit gross and subtotal without
   const page=await browser.newPage();
   await page.route('**/*',route=>{
    if(route.request().url()==='https://fmic.pl/checkout/cart/')
-    return route.fulfill({status:200,contentType:'text/html',body:html});
+    return route.fulfill({status:200,contentType:'text/html; charset=utf-8',body:html});
    return route.abort();
   });
   const observed=await inspectFmicCart(page);
