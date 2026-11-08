@@ -3,12 +3,10 @@ import {availablePaymentMethods,PaymentMethod} from '../../lib/payment-settings'
 import {getShippingSettings,getPaymentSettings} from '../../lib/settings-db';
 import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
-import {Pool} from 'pg';
+import {getDbPool} from '../../lib/db';
 import {getCatalog} from '../../lib/catalog-db';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
-const globalDb=globalThis as unknown as {rpmOrdersPool?:Pool};
-function db(){if(!process.env.DATABASE_URL)throw Error('Database unavailable');return globalDb.rpmOrdersPool??(globalDb.rpmOrdersPool=new Pool({connectionString:process.env.DATABASE_URL,max:4}));}
 type IncomingLine={productId:number;qty:number;options?:Record<string,string>};
 function validText(value:unknown,max:number){return typeof value==='string'&&value.trim().length>0&&value.trim().length<=max;}
 export async function POST(request:Request){
@@ -63,8 +61,8 @@ export async function POST(request:Request){
   if(shippingMethod==='pickup'&&!shippingSettings.pickupEnabled||shippingMethod==='courier'&&!shippingSettings.courierEnabled)return NextResponse.json({error:'Wybrany sposób dostawy jest niedostępny'},{status:400});
   const shipping=shippingQuote(shippingMethod,total,shippingSettings);
   const grandTotal=Math.round((total+shipping.cost)*100)/100;
-  await db().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
-  const saved=await db().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({language,type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
+  await getDbPool().query('CREATE TABLE IF NOT EXISTS rpm_orders (id BIGSERIAL PRIMARY KEY, customer JSONB NOT NULL, items JSONB NOT NULL, total NUMERIC(12,2) NOT NULL, status TEXT NOT NULL DEFAULT \'new\', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
+  const saved=await getDbPool().query<{id:string}>('INSERT INTO rpm_orders(customer,items,total) VALUES($1::jsonb,$2::jsonb,$3) RETURNING id',[JSON.stringify({language,type,name:customer.name.trim(),email:customer.email.trim(),phone:customer.phone?.trim()??'',company:type==='company'?customer.company.trim():'',nip:type==='company'?customer.nip.trim():'',city:customer.city.trim(),postalCode:customer.postalCode.trim(),address:customer.address.trim(),notes:customer.notes?.trim()??'',shipping,payment:{method:paymentMethod,status:'pending'}}),JSON.stringify(items),grandTotal]);
   const orderId=saved.rows[0].id;
   const paymentInstructions=paymentMethod==='bank_transfer'?{recipient:payments.transferRecipient,account:payments.bankAccount,instructions:payments.transferInstructions,title:`RPM CUSTOM - Zamowienie #${orderId}`} : null;
   try{
