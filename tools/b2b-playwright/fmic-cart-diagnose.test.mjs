@@ -34,3 +34,23 @@ test('empty-message detection returns boolean hints only, never original page te
   await page.close();
  }finally{await browser.close()}
 });
+
+test('diagnostics reveal only selector structure around cart qty inputs, not SKU or item IDs',async()=>{
+ const browser=await chromium.launch();
+ try{
+  const page=await browser.newPage();
+  await page.setContent(`<main><div class="cart-item">
+    <span class="sku">CONFIDENTIAL-123</span>
+    <section class="quantity"><input id="cart-1455360-qty" name="cart[1455360][qty]" value="2"></section>
+    <p>Private email: jane@example.org</p>
+   </div></main>`);
+  const result=await inspectCartStructure(page);
+  assert.equal(result.skuNeighborhood.length,1);
+  assert.ok(result.skuNeighborhood[0].ancestors.some(x=>x.skuMarkers===1&&x.quantityFields===1));
+  const printed=JSON.stringify(result.skuNeighborhood);
+  for(const secret of ['CONFIDENTIAL-123','1455360','jane@example.org']){
+   assert.ok(!printed.includes(secret),'diagnostic leaked: '+secret);
+  }
+  await page.close();
+ }finally{await browser.close()}
+});

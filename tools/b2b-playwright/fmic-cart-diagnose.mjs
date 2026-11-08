@@ -43,6 +43,26 @@ export async function inspectCartStructure(page){
    classes:[...element.classList].map(safeToken).filter(Boolean).slice(0,12),
    childCount:element.children.length,
   }));
+  // Diagnostic structure around each observed quantity input. Never
+  // print text, item id, SKU value, HTML, URL, email or cookies.
+  const qtyNodes=[...document.querySelectorAll(
+   'input[id^="cart-"][id$="-qty"][name$="[qty]"]')].slice(0,4);
+  const skuNeighborhood=qtyNodes.map(node=>{
+   const ancestors=[];
+   let parent=node.parentElement;
+   for(let depth=0;parent&&depth<7;depth++,parent=parent.parentElement){
+    if(parent.matches('main,body,html'))break;
+    ancestors.push({
+     depth,tag:parent.tagName.toLowerCase(),
+     classes:[...parent.classList].map(safeToken).filter(Boolean).slice(0,10),
+     quantityFields:parent.querySelectorAll(
+      'input[id^="cart-"][id$="-qty"][name$="[qty]"]').length,
+     skuMarkers:parent.querySelectorAll(
+      '.product-item-sku,.sku,[itemprop="sku"],[data-sku]').length,
+    });
+   }
+   return {ancestors};
+  });
   const location=new URL(window.location.href);
   const pageLocation=location.origin==='https://fmic.pl'||location.origin==='https://www.fmic.pl'
    ?location.pathname.startsWith('/customer/account/login')?'login':
@@ -56,6 +76,7 @@ export async function inspectCartStructure(page){
    pageLocation,
    selectors:selectorCounts,
    structures,
+   skuNeighborhood,
    words:{
     koszyk:/\bkoszyk\b/i.test(visibleText),
     pusty:/\bpusty\b/i.test(visibleText),

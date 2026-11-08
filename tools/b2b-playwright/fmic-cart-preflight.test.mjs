@@ -149,3 +149,54 @@ test('FMIC cart without independent confirmation of a cart layout stays unknown'
   assert.equal((await checkFmicCartPreflight(page)).status,'unknown');
  });
 });
+
+test('FMIC cart extracts verified SKU from the same isolated cart row',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index">
+ <main>
+  <button id="empty_cart_button">Wyczyść</button>
+  <section class="cart-summary">Podsumowanie</section>
+  <div class="cart-item">
+   <span class="sku">SKU: F00VE35007-BOS</span>
+   <section><input id="cart-1455360-qty" name="cart[1455360][qty]" value="1"/></section>
+  </div>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.status,'nonempty');
+  assert.deepEqual(result.items,[{sku:'F00VE35007-BOS',qty:1}]);
+ });
+});
+
+test('FMIC cart never assigns an adjacent product SKU to a different row',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index">
+ <main>
+  <button id="empty_cart_button">Wyczyść</button>
+  <section class="cart-summary">Podsumowanie</section>
+  <div class="cart-item"><span class="sku">RPM-111</span>
+   <input id="cart-111-qty" name="cart[111][qty]" value="2"/></div>
+  <div class="cart-item"><span class="sku">RPM-222</span>
+   <input id="cart-222-qty" name="cart[222][qty]" value="3"/></div>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.deepEqual(result.items,[
+   {sku:'RPM-111',qty:2},{sku:'RPM-222',qty:3},
+  ]);
+ });
+});
+
+test('FMIC cart retains nonempty status and null SKU if structure is ambiguous',async()=>{
+ const markup=`<!doctype html><html><body class="checkout-cart-index">
+ <main>
+  <button id="empty_cart_button">Wyczyść</button>
+  <section class="cart-summary">Podsumowanie</section>
+  <div class="cart-item"><span class="sku">RPM-111</span>
+   <span class="sku">RPM-222</span>
+   <input id="cart-111-qty" name="cart[111][qty]" value="1"/></div>
+ </main></body></html>`;
+ await withCart(markup,async page=>{
+  const result=await checkFmicCartPreflight(page);
+  assert.equal(result.status,'nonempty');
+  assert.deepEqual(result.items,[{sku:null,qty:1}]);
+ });
+});
