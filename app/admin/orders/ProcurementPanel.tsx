@@ -94,6 +94,24 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
   }catch(e){setError(e instanceof Error?e.message:'Błąd eksportu zamówienia')}
   finally{setBusy(false)}
  }
+ async function downloadB2BJob(supplier:'fmic'|'mtuning'){
+  if(!record||record.status!=='approved'||!exportAllowed||busy)return;
+  setBusy(true);setError('');
+  try{
+   const params=new URLSearchParams({orderId,supplier,fingerprint:record.fingerprint});
+   const response=await fetch('/api/admin/procurement/b2b-job?'+params.toString(),{cache:'no-store'});
+   if(!response.ok){const data=await response.json();throw new Error(data.error||'Nie można pobrać zadania DEMO')}
+   const job=await response.json();
+   if(job.mode!=='fixture-only'||job.manualApprovalRequired!==true)throw new Error('Nieprawidłowy tryb zadania');
+   const blob=new Blob([JSON.stringify(job,null,2)],{type:'application/json'});
+   const objectUrl=URL.createObjectURL(blob);
+   const anchor=document.createElement('a');
+   anchor.href=objectUrl;anchor.download='rpm-b2b-demo-'+orderId+'-'+supplier+'.json';
+   document.body.append(anchor);anchor.click();anchor.remove();
+   window.setTimeout(()=>URL.revokeObjectURL(objectUrl),1000);
+  }catch(e){setError(e instanceof Error?e.message:'Błąd przygotowania zadania testowego')}
+  finally{setBusy(false)}
+ }
  return <section className="rpm-settings-card" style={{marginTop:20}}>
   <h3>Zaopatrzenie / FMIC i MTuning</h3>
   <p>Wewnętrzna propozycja zakupu pod zamówienie #{orderId}. Żadne działanie w tym panelu nie składa zamówień automatycznie.</p>
@@ -129,9 +147,13 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
      </span>
      <button type="button" className="outline" disabled={busy||!exportAllowed}
       onClick={()=>void downloadSupplier(group.supplier)}>Pobierz CSV {group.supplier.toUpperCase()}</button>
+     {record.status==='approved'&&<button type="button" className="outline"
+      disabled={busy||!exportAllowed} onClick={()=>void downloadB2BJob(group.supplier)}>
+      Pobierz zadanie DEMO B2B
+     </button>}
     </div>)}
     {!purchaseGroups.length&&<p role="alert">Zapisany plan nie ma kompletnych ofert do eksportu.</p>}
-    <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem.</small></p>
+    <p><small>Plik jest listą pomocniczą, a nie dyspozycją zakupową. Potwierdź ceny, dostępność, warianty i wysyłkę przed zamówieniem. Zadanie DEMO B2B działa tylko w lokalnym symulatorze Playwright i nie ma połączenia z panelem dostawcy.</small></p>
    </div>}
    {plan.notes.map((note,i)=><p key={i} className="muted" style={{fontSize:12,marginBottom:5}}>{note}</p>)}
    {!plan.canDraft&&<p role="status" style={{color:'#ffcb82'}}>
