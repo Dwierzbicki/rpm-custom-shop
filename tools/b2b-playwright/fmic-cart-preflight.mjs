@@ -1,4 +1,5 @@
 import {inspectFmicCart} from './fmic-cart-snapshot.mjs';
+import {readFmicCartItemSku} from './fmic-cart-sku.mjs';
 
 export const FMIC_CART_URL='https://fmic.pl/checkout/cart/';
 const itemSelectors=['.cart.table-wrapper tbody.cart.item','.cart.table-wrapper tr.item'];
@@ -81,9 +82,10 @@ export async function checkFmicCartPreflight(page){
       if(Number.isSafeInteger(parsed)&&parsed>=1&&parsed<=100)qty=parsed;
      }
     }catch{/* Unknown quantity remains null; never assume zero. */}
-    // SKU cannot be proven from quantity input alone. Do not infer it
-    // from a product title, row id or a guessed link.
-    items.push({sku:null,qty});
+    // SKU may only come from exactly one visible marker inside this
+    // specific row; no guessing from the id, a title or a product URL.
+    const sku=await readFmicCartItemSku(input);
+    items.push({sku,qty});
    }
    return {status:'nonempty',itemCount:items.length,items,reason:'items_detected'};
   }

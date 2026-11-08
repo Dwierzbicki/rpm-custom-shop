@@ -337,3 +337,31 @@ Brak pól ilości lub brak rozpoznanej struktury nadal daje `unknown`,
 **nie** oznacza pustego koszyka. Nadal wymagamy jawnego komunikatu
 o pustym koszyku przed ewentualnym przygotowaniem zamówienia.
 Żadnych operacji czyszczenia, checkoutu, płatności ani finalizacji.
+
+
+### Kod SKU w prawdziwym koszyku FMIC (kolejny etap)
+
+Po potwierdzeniu jednej pozycji w prawdziwym koszyku (1 sztuka)
+dodatkowo próbujemy znaleźć widoczny kod SKU **w obrębie tej samej
+pozycji co jej pole ilości**. Wspierane jawne znaczniki to:
+`.sku`, `.product-item-sku`, `[itemprop="sku"]` oraz `[data-sku]`.
+
+Nigdy nie wyprowadzamy SKU z nazwy produktu, URL, `cart-<id>-qty`,
+danych sesji lub sąsiedniej pozycji. Nieznany albo niejednoznaczny kod
+pozostaje `null`; wykrycie niepustego koszyka działa nadal niezależnie.
+
+```bash
+cd ~/Projects/rpm-custom-shop/tools/b2b-playwright
+npm run fmic:cart-check
+```
+
+Jeśli SKU nadal jest `null`, uruchom `npm run fmic:cart-diagnose`.
+W polu `skuNeighborhood` pokażą się wyłącznie poziomy przodków
+elementu ilości, nazwy tagów/klas i **liczby** znaczników SKU. Nie ma
+tam treści SKU, wewnętrznego numeru pozycji koszyka, haseł czy cookies.
+Dzięki temu można uściślić odczyt prawdziwego HTML bez udostępniania
+danych logowania i bez zmiany koszyka.
+
+**Nadal nie wolno uruchamiać zapisu do koszyka tylko dlatego, że SKU
+zostało znalezione.** Osobne reguły weryfikacji cen, wariantów i
+bezpiecznego dodawania produktów wymagają rzeczywistej walidacji.
