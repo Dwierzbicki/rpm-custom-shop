@@ -8,6 +8,8 @@
     "fmic:inspect": "node fmic-cart.mjs inspect",
     "fmic:login": "node fmic-login.mjs",
     "fmic:cart-check": "node fmic-preflight-run.mjs",
+    "fmic:sku-search": "node fmic-search.mjs",
+    "fmic:cart-clear": "node fmic-cart-clear.mjs",
     "fmic:cart-diagnose": "node fmic-cart-diagnose.mjs",
     "agent:run": "node agent-run.mjs"
   },

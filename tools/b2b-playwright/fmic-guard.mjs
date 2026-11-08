@@ -25,6 +25,15 @@ export function guardFmicRequest(method,target,cartMutationAllowed=false){
   return 'abort';
  }
  const path=decodeURIComponent(url.pathname);
+ // Only one narrowly scoped, read-only FMIC catalog search query.
+ // All other querystrings and methods remain subject to existing guards.
+ if(/^\/catalogsearch\/result\/$/i.test(path)){
+  const params=[...url.searchParams.entries()];
+  if((method!=='GET'&&method!=='HEAD')||params.length!==1||
+     params[0][0]!=='q'||typeof params[0][1]!=='string'||
+     !/^[A-Za-z0-9][A-Za-z0-9_.\/-]{1,59}$/.test(params[0][1]))return 'abort';
+  return 'continue';
+ }
  const isCartAdd=/^\/checkout\/cart\/add(?:\/|$)/i.test(path);
  // Even GET /checkout/cart/add is forbidden: a storefront can mutate on GET.
  if(isCartAdd&&(!cartMutationAllowed||method!=='POST'))return 'abort';

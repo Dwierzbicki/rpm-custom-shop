@@ -399,3 +399,56 @@ cd tools/b2b-playwright
 npm test
 npm run fmic:cart-check
 ```
+
+
+## Kolejny etap: wyszukiwanie po SKU i kontrolowana zgoda na czyszczenie
+
+Oba polecenia uruchamiamy **lokalnie na Macu**, z zapisanym
+`.auth/fmic.storage-state.json`. Ani hasło, ani cookie nie są
+wysyłane do RPM Custom Shop, GitHuba czy do czatu.
+
+### Wyszukiwanie SKU (100% tylko odczyt)
+
+```bash
+cd ~/Projects/rpm-custom-shop/tools/b2b-playwright
+npm run fmic:sku-search -- KSB546
+```
+
+Agent otwiera katalogowe wyszukiwanie FMIC
+(`/catalogsearch/result/?q=KSB546`), znajduje linki do publicznych
+kart i sprawdza widoczne SKU na KAŻDEJ dopuszczonej karcie.
+Wynik z nazwą/URL nie wystarcza. Kody muszą zgadzać się dokładnie.
+Przy wielu identycznych wynikach zgłaszane jest `ambiguous`, przy
+braku kart `not-found`, przy błędnym lub nieznanym UI `unknown`.
+Nie robi się żadnego zakupu ani zmiany koszyka.
+
+To wstępny, read-only adapter pod wyszukiwarkę Magento: prawdziwe
+rezultaty FMIC należy sprawdzić lokalnie, ponieważ nie wszystkie
+instalacje Magento używają tego samego formularza.
+
+### Opróżnienie koszyka — najpierw tylko podgląd
+
+```bash
+npm run fmic:cart-clear
+```
+
+Program pokazuje wszystkie rozpoznane SKU, ilości i liczbę pozycji,
+ale **NICZEGO NIE USUWA**. Wykrywanie niepełnej listy, brak choćby
+jednego SKU/ilości, ponad 50 pozycji lub `unknown` zatrzymuje operację.
+
+Implementacja opcjonalnego usunięcia jest dodatkowo chroniona przez:
+- osobny argument `--execute` i lokalną zmienną
+  `RPM_FMIC_ALLOW_CLEAR=YES`;
+- dokładne ręczne wpisanie jednorazowego wyzwania z liczbą pozycji;
+- ponowne pobranie i porównanie odcisku SKU+ilości przed działaniem;
+- wymaganie **zweryfikowanego POST formularza**
+  `https://fmic.pl/checkout/cart/updatePost/` oraz parametru
+  `update_cart_action=empty_cart`;
+- jedną dozwoloną próbę usunięcia i ponowną kontrolę koszyka.
+  Nie ma żadnego automatycznego retry.
+
+**Nie uruchamiaj trybu wykonania, zanim nie zweryfikujemy formularza
+na realnym FMIC.** Jeśli strona używa innego formularza,
+automat ma zatrzymać działanie zamiast zgadywać. Obecna zawartość
+koszyka pozostaje nienaruszona. Nawet przy wyraźnej zgodzie nigdy
+nie jest dozwolony checkout, płatność ani „Złóż zamówienie”.
