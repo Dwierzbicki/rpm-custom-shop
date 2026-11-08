@@ -6,20 +6,26 @@ const globals=await readFile(new URL('../app/globals.css',import.meta.url),'utf8
 const base=await readFile(new URL('../app/styles/base.css',import.meta.url),'utf8');
 const brand=await readFile(new URL('../app/styles/brand.css',import.meta.url),'utf8');
 const admin=await readFile(new URL('../app/styles/admin-foundation.css',import.meta.url),'utf8');
+const gallery=await readFile(new URL('../app/styles/product-gallery.css',import.meta.url),'utf8');
+const adminOperations=await readFile(new URL('../app/styles/admin-operations.css',import.meta.url),'utf8');
 const orderedImports=[
  "@import './styles/base.css';",
  "@import './styles/brand.css';",
  "@import './styles/admin-foundation.css';",
+ "@import './styles/product-gallery.css';",
+ "@import './styles/admin-operations.css';",
 ].join('\n')+'\n';
 assert.equal(globals.startsWith(orderedImports),true,'CSS imports must stay in original cascade order');
 assert.ok(brand.startsWith('/* RPM Custom identity'),'brand CSS must preserve the original first section');
 assert.ok(admin.startsWith('/* Local-only admin prototype */'),'admin CSS must preserve the original next section');
-assert.ok(globals.slice(orderedImports.length).startsWith('/* Product galleries */'),'remaining styles must follow the admin section');
-for(const [name,source] of [['brand',brand],['admin',admin]]){
+assert.ok(gallery.startsWith('/* Product galleries */'),'product gallery section must follow admin foundation');
+assert.ok(adminOperations.startsWith('/* Admin option builder v0.6 */'),'admin operations section must follow product galleries');
+assert.ok(globals.slice(orderedImports.length).startsWith('/* Live product quantity price */'),'remaining CSS must retain the live product pricing section');
+for(const [name,source] of [['brand',brand],['admin',admin],['gallery',gallery],['admin operations',adminOperations]]){
  assert.ok(!source.includes('@import'),'nested CSS imports not expected in '+name);
  assert.ok(!source.includes('url('),'relative asset URLs require path review before moving CSS');
 }
-const css=base+brand+admin+globals.slice(orderedImports.length);
+const css=base+brand+admin+gallery+adminOperations+globals.slice(orderedImports.length);
 
 
 /**
