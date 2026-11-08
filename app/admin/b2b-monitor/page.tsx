@@ -18,9 +18,31 @@ type CartReview={id:string;taskId:string;orderId:string;supplier:'fmic';
  jobId:string;runId:string;verdict:'verified'|'needs_review';items:number;
  cartAddRequests:number;durationMs:number;calculatedGrossPLN:number|null;
  observedSubtotalGrossPLN:number|null;issues:string[];createdAt:string};
+type AgentEvent={
+ id:string;taskId:string;orderId:string;supplier:'fmic';jobId:string;
+ runId:string;seq:number;mode:'inspect'|'cart-only';
+ phase:'started'|'inspect_product'|'inspected'|'cart_add'|'cart_add_ack'|
+  'inspect_cart'|'cart_verified'|'needs_review'|'completed_readonly'|'stopped';
+ stepIndex:number|null;createdAt:string;
+};
+const agentPhaseName:Record<AgentEvent['phase'],string>={
+ started:'Agent rozpoczął zadanie',
+ inspect_product:'Otwieranie karty produktu',
+ inspected:'Karta i SKU sprawdzone',
+ cart_add:'Przygotowanie dodania do koszyka',
+ cart_add_ack:'Dodanie do koszyka zgłoszone',
+ inspect_cart:'Sprawdzanie zawartości koszyka',
+ cart_verified:'Lokalna kontrola koszyka zakończona — sprawdź ręcznie',
+ needs_review:'Wymagana ręczna kontrola koszyka',
+ completed_readonly:'Inspekcja tylko do odczytu zakończona',
+ stopped:'Agent zatrzymany',
+};
+const terminalPhases:AgentEvent['phase'][]=[
+ 'cart_verified','needs_review','completed_readonly','stopped'];
 type ResponseData={
  summary:{queued:number;offline_reported:number;cancelled:number;total:number};
- tasks:Task[];events:Event[];cartReviews:CartReview[];limit:number;asOf:string;mode:'offline-demo-only';liveVendorWorker:false;
+ tasks:Task[];events:Event[];cartReviews:CartReview[];agentEvents:AgentEvent[];
+ limit:number;asOf:string;mode:'local-agent-telemetry';liveVendorWorker:false;localAgentTelemetryEnabled:boolean;
 };
 const statusName:Record<Status,string>={
  queued:'Oczekuje na test',offline_reported:'Raport symulacji',cancelled:'Anulowano',
@@ -72,6 +94,13 @@ export default function B2BMonitorPage(){
   }
   return map;
  },[data]);
+ const agentEventsByTask=useMemo(()=>{
+  const output=new Map<string,AgentEvent[]>();
+  for(const event of data?.agentEvents??[]){
+   output.set(event.taskId,[...(output.get(event.taskId)??[]),event]);
+  }
+  return output;
+ },[data]);
  const eventsByTask=useMemo(()=>{
   const output=new Map<string,Event[]>();
   for(const event of data?.events??[]){
@@ -84,7 +113,7 @@ export default function B2BMonitorPage(){
    <div>
     <span className="eyebrow">RPM CUSTOM / B2B OPERATIONS</span>
     <h1><Monitor size={26} style={{verticalAlign:'middle',marginRight:10}}/>Automatyzacja B2B</h1>
-    <p>Podgląd kolejki zadań FMIC i MTuning, przebiegów testowych i zdarzeń historycznych.</p>
+    <p>Kolejka FMIC/MTuning, etapy pracy lokalnego agenta Playwright i historia kontroli koszyka.</p>
    </div>
    <div className="admin-toolbar">
     <Link href="/admin/orders" className="outline">Zamówienia</Link>
@@ -95,11 +124,13 @@ export default function B2BMonitorPage(){
 
   <div className="admin-warning" style={{marginBottom:18}}>
    <ShieldCheck size={22}/>
-   <div><strong>Tryb bezpieczny: lokalna symulacja, bez wysyłania zamówień</strong>
-    <p>Ten panel pokazuje zadania zapisane w PostgreSQL i raporty przekazane przez operatora.
-     Nie jest to transmisja obrazu z przeglądarki: widzimy zgłoszone raporty.
-     Lokalny adapter FMIC może po ręcznym włączeniu dodać produkty do koszyka,
-     ale nie przechodzi do płatności ani nie klika „Złóż zamówienie”.</p>
+   <div><strong>Monitorowanie lokalnego agenta FMIC — bez wysyłania zamówień</strong>
+    <p>Etapy pracy są raportowane do PostgreSQL z komputera operatora, gdy agent jest uruchomiony
+     z bezpiecznym tokenem. Panel nie przesyła obrazu przeglądarki ani nie steruje nią zdalnie.
+     W trybie „tylko koszyk” agent nie przechodzi do płatności i nigdy nie klika „Złóż zamówienie”.</p>
+    <p><small>{data?.localAgentTelemetryEnabled
+     ?'Raportowanie etapów agenta jest skonfigurowane po stronie serwera.'
+     :'Raportowanie agenta nie jest jeszcze skonfigurowane na serwerze (RPM_B2B_AGENT_TOKEN).'}</small></p>
    </div>
   </div>
 
@@ -147,6 +178,11 @@ export default function B2BMonitorPage(){
     <div style={{display:'grid',gap:12}}>
      {tasks.map(task=>{
       const recent=eventsByTask.get(task.id)??[];
+      const live=(agentEventsByTask.get(task.id)??[]).filter(item=>item.jobId===task.jobId);
+      const last=live[0];
+      const isRunning=!!last&&!terminalPhases.includes(last.phase)&&
+       Date.now()-new Date(last.createdAt).getTime()<90000;
+      const isStale=!!last&&!terminalPhases.includes(last.phase)&&!isRunning;
       const report=recent.find(event=>event.event==='offline_reported');
       return <article key={task.id} className="rpm-admin-settings-hub-link" style={{
        display:'block',padding:16,borderRadius:12,
@@ -164,6 +200,27 @@ export default function B2BMonitorPage(){
          <Link href="/admin/orders" className="outline">Otwórz zamówienia</Link>
         </div>
        </div>
+       {last&&<div style={{marginTop:12,padding:12,border:'1px solid #6d7480',borderRadius:10}}>
+        <strong>Agent FMIC: {isRunning?'W trakcie pracy (ostatni etap świeży)':
+         isStale?'Brak aktualizacji — sprawdź komputer operatora':
+         last.phase==='stopped'?'Zatrzymany':
+         'Zakończony — wymagana kontrola operatora'}</strong>
+        <small style={{display:'block'}}>Tryb: {last.mode==='inspect'?'Tylko podgląd':'Wyłącznie przygotowanie koszyka'}
+         {' · '}Przebieg: {last.runId.slice(0,8)}
+         {' · '}Ostatni sygnał: {time(last.createdAt)}</small>
+        <details style={{marginTop:8}} open={isRunning}>
+         <summary style={{cursor:'pointer'}}>Dziennik etapów agenta ({live.length} widocznych)</summary>
+         <div style={{display:'grid',gap:5,marginTop:8}}>
+          {live.slice(0,15).map(event=><small key={event.id}>
+           {time(event.createdAt)} · {agentPhaseName[event.phase]}
+           {event.stepIndex!==null?' · pozycja '+(event.stepIndex+1):''}
+          </small>)}
+         </div>
+        </details>
+        <small style={{display:'block',marginTop:6}}>
+         To raportowanie z lokalnego programu, nie niezależne potwierdzenie zakupu od FMIC.
+        </small>
+       </div>}
        {(cartReviewsByTask.get(task.id)??[]).filter(review=>review.jobId===task.jobId)
         .slice(0,3).map(review=><div key={review.id}
          style={{marginTop:12,border:'1px solid #676d77',borderRadius:10,padding:12}}>
@@ -218,7 +275,7 @@ export default function B2BMonitorPage(){
    <p className="muted" style={{fontSize:12,marginTop:14}}>
     Wyświetlamy maksymalnie {data?.limit??100} ostatnio aktualizowanych zadań i 10 ostatnich zdarzeń na zadanie.
     Podgląd nie zawiera haseł, adresów dostawy ani danych klientów.
-    Raporty koszyka są deklaracjami operatora, nie zdalnymi pomiarami na żywo.
+    Etapy automatu pojawiają się przy odświeżaniu co 10 sekund. Nie przesyłamy haseł, cookies ani zrzutów ekranu.
    </p>
   </section>
  </main>;

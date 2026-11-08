@@ -84,7 +84,7 @@ export async function inspectFmicProduct(url=exampleFmicProductUrl,opts={}){
  const {browser,context,events}=await browserContext({headless:opts.headless,storageState:opts.storageState});
  try{
   const page=await context.newPage();
-  const found=await inspection(page,safe);
+  const found=await inspection(page,safe,opts.expectedSku);
   const outDir=opts.outDir??path.join(folder,'artifacts');
   await mkdir(outDir,{recursive:true});
   const screenshot=path.join(outDir,'fmic-inspection-'+runId+'.png');
@@ -129,7 +129,10 @@ export async function prepareFmicCart(job,config,opts={}){
  if(setup.length!==new Set(setup.map(x=>x.sku)).size){
   throw Error('Powtórzone SKU: bezpiecznie zatrzymano przed dodaniem do koszyka');
  }
- const runId=randomUUID(),trace=[],start=Date.now();
+ const runId=opts.runId??randomUUID(),trace=[],start=Date.now();
+ if(!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(runId)){
+  throw Error('Niepoprawny identyfikator przebiegu lokalnego agenta');
+ }
  const outDir=opts.outDir??path.join(folder,'artifacts');
  await mkdir(outDir,{recursive:true});
  // Atomic once-per-job local lock: never add the same SKU quantities twice.
@@ -149,8 +152,10 @@ export async function prepareFmicCart(job,config,opts={}){
  let page;
  try{
   page=await context.newPage();
-  for(const item of setup){
+  for(const [index,item] of setup.entries()){
+   await opts.onProgress?.('inspect_product',index);
    const details=await inspection(page,item.url,item.sku);
+   await opts.onProgress?.('inspected',index);
    if(details.stock&&!/w magazynie|in stock/i.test(details.stock))
     throw Error('Produkt '+item.sku+' nie został potwierdzony jako dostępny');
    if(details.currentGrossPrice===null||details.currentGrossPrice>item.cap)
@@ -169,6 +174,7 @@ export async function prepareFmicCart(job,config,opts={}){
    }else{
     throw Error('Brak zweryfikowanego formularza Dodaj do koszyka — wymagane mapowanie adaptera');
    }
+   await opts.onProgress?.('cart_add',index);
    const before=events.cartAddRequests;
    // Capture Magento's actual add-to-cart response. Merely clicking the
    // button is not proof that FMIC accepted the cart modification.
@@ -182,11 +188,13 @@ export async function prepareFmicCart(job,config,opts={}){
    if(!cartChanged||response.status()<200||response.status()>=400){
     throw Error('FMIC nie potwierdził dodania do koszyka; status: '+response.status());
    }
+   await opts.onProgress?.('cart_add_ack',index);
    trace.push({action:'add_to_cart',sku:item.sku,qty:item.qty,
     responseStatus:response.status(),result:'requested'});
   }
   // Only a read-only GET cart view is allowed after cart additions.
   // Unknown SKU, quantity, unit price or product subtotal -> fail closed.
+  await opts.onProgress?.('inspect_cart',null);
   const cart=await inspectFmicCart(page);
   const checked=verifyFmicCart(setup,cart.items,cart.subtotalGrossPLN);
   const screenshot=path.join(outDir,'fmic-cart-'+runId+'.png');
@@ -204,12 +212,12 @@ export async function prepareFmicCart(job,config,opts={}){
  }catch(error){
   const message=error instanceof Error?error.message:String(error);
   log('SAFETY STOP',message);
-  if(cartChanged)log('NOTICE','Koszyk mógł już zostać zmieniony. NIE uruchamiaj drugi raz bez sprawdzenia.');
+  if(cartChanged||events.cartAddRequests>0)log('NOTICE','Koszyk mógł już zostać zmieniony. NIE uruchamiaj drugi raz bez sprawdzenia.');
   // Record a safe local failure even if the DOM changed after a partial add.
   // Never upload screenshots, credentials or customer data.
   await writeFile(path.join(outDir,'fmic-cart-failure-'+runId+'.json'),
    JSON.stringify({runId,jobId:job.jobId,orderId:job.orderId,supplier:'fmic',
-    status:'manual-review-required',cartMayHaveChanged:cartChanged,
+    status:'manual-review-required',cartMayHaveChanged:cartChanged||events.cartAddRequests>0,
     cartAddRequests:events.cartAddRequests,durationMs:Date.now()-start,
     error:message.slice(0,500),orderPlaced:false,orderSubmitted:false},null,2)+'\n'
   ).catch(()=>{});

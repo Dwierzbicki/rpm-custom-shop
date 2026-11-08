@@ -54,3 +54,20 @@ test('rejects third-party collection endpoints and external host redirects',()=>
   assert.equal(guardFmicRequest('POST',endpoint,true),'abort',endpoint);
  }
 });
+
+test('read-only guard refuses unsafe GET actions with possible state mutation',()=>{
+ for(const path of [
+  '/wishlist/index/add/product/1',
+  '/customer/account/logout',
+  '/checkout/cart/delete/id/123',
+  '/checkout/cart/updatePost',
+  '/review/product/post',
+  '/rest/V1/carts/mine',
+  '/customer/account/edit',
+ ]){
+  assert.equal(guardFmicRequest('GET','https://fmic.pl'+path,false),'abort',path);
+  assert.equal(guardFmicRequest('GET','https://fmic.pl'+path,true),'abort',path);
+ }
+ assert.equal(guardFmicRequest('GET','https://fmic.pl/static/version123/frontend/fmic/style.css'),'continue');
+ assert.equal(guardFmicRequest('GET','https://fmic.pl/media/catalog/product/test.jpg'),'continue');
+});
