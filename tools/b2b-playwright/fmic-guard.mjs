@@ -25,14 +25,15 @@ export function guardFmicRequest(method,target,cartMutationAllowed=false){
   return 'abort';
  }
  const path=decodeURIComponent(url.pathname);
- // Only one narrowly scoped, read-only FMIC catalog search query.
- // All other querystrings and methods remain subject to existing guards.
- if(/^\/catalogsearch\/result\/$/i.test(path)){
+ // FMIC uses /?q=SKU, not /catalogsearch/result/?q=SKU.
+ // Only a strictly validated search query or a plain homepage is allowed.
+ if(path==='/'){
+  if(method!=='GET'&&method!=='HEAD')return 'abort';
+  if(url.searchParams.size===0)return 'continue';
   const params=[...url.searchParams.entries()];
-  if((method!=='GET'&&method!=='HEAD')||params.length!==1||
-     params[0][0]!=='q'||typeof params[0][1]!=='string'||
-     !/^[A-Za-z0-9][A-Za-z0-9_.\/-]{1,59}$/.test(params[0][1]))return 'abort';
-  return 'continue';
+  return params.length===1&&params[0][0]==='q'&&
+   /^[A-Za-z0-9][A-Za-z0-9_.\/-]{1,59}$/.test(params[0][1])
+   ?'continue':'abort';
  }
  const isCartAdd=/^\/checkout\/cart\/add(?:\/|$)/i.test(path);
  // Even GET /checkout/cart/add is forbidden: a storefront can mutate on GET.

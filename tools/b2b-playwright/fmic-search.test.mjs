@@ -34,13 +34,13 @@ async function fixture(sku,products,fn){
 }
 test('SKU search URL is limited to one safe GET q parameter',()=>{
  const url=fmicSearchUrl('USA-ARE-14107');
- assert.equal(url,'https://fmic.pl/catalogsearch/result/?q=USA-ARE-14107');
+ assert.equal(url,'https://fmic.pl/?q=USA-ARE-14107');
  assert.equal(guardFmicRequest('GET',url,false),'continue');
  for(const invalid of ['', 'hello world', 'a', 'q=1&x=2', 'foo@bar', 'foo?bar']){
   assert.throws(()=>validateSearchSku(invalid));
  }
- for(const value of ['https://fmic.pl/catalogsearch/result/?q=abc&from=admin',
-  'https://fmic.pl/catalogsearch/result/?q=abc%20def',
+ for(const value of ['https://fmic.pl/?q=abc&from=admin',
+  'https://fmic.pl/?q=abc%20def',
   'https://fmic.pl/checkout/cart/updatePost/']){
   assert.equal(guardFmicRequest('GET',value,false),'abort');
  }
@@ -104,8 +104,25 @@ test('product redirects or unsafe host cannot be used as a verified match',async
  const sku='ABC-55',cards=[{url:'https://evil.example/123-abc-55.html',sku}];
  await fixture(sku,cards,async(page,calls)=>{
   const r=await searchFmicSkuOnPage(page,sku);
-  assert.equal(r.status,'not-found');
+  assert.equal(r.status,'unknown');
+  assert.equal(r.reason,'search_layout_unrecognized');
   assert.equal(r.product,null);
   assert.ok(calls.every(c=>!c.url.startsWith('https://evil.example')));
  });
+});
+
+test('unrecognized search layout is unknown, not a false negative',async()=>{
+ const sku='KSB546';
+ await fixture(sku,[],async page=>{
+  const result=await searchFmicSkuOnPage(page,sku);
+  assert.equal(result.status,'unknown');
+  assert.equal(result.reason,'search_layout_unrecognized');
+ });
+});
+test('actual FMIC root URL search uses exact SKU in q parameter',()=>{
+ for(const sku of ['KSB546','USA-ARE-14107','JRSPEC-WT-40-B']){
+  assert.equal(fmicSearchUrl(sku),'https://fmic.pl/?q='+sku);
+  assert.equal(guardFmicRequest('GET',fmicSearchUrl(sku),false),'continue');
+ }
+ assert.equal(guardFmicRequest('POST',fmicSearchUrl('KSB546'),false),'abort');
 });

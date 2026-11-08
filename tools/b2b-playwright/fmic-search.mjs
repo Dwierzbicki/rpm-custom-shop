@@ -7,7 +7,7 @@ import {validateFmicProductUrl,guardFmicRequest} from './fmic-guard.mjs';
 import {readFmicSku} from './fmic-sku.mjs';
 import {parsePlnPrice} from './fmic-cart-verify.mjs';
 
-export const FMIC_SEARCH_BASE='https://fmic.pl/catalogsearch/result/';
+export const FMIC_SEARCH_BASE='https://fmic.pl/';
 export const MAX_FMIC_SEARCH_CANDIDATES=24;
 export const MAX_FMIC_SEARCH_CONCURRENCY=3;
 
@@ -32,15 +32,37 @@ function secureProductLinks(urls){
 export async function inspectFmicSearchPage(page,sku){
  const url=fmicSearchUrl(sku);
  const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000});
- if(!response||response.status()<200||response.status()>=400||
-  page.url()!==url)return {status:'unknown',reason:'search_redirect_or_error',links:[]};
+ if(!response||response.status()<200||response.status()>=400){
+  return {status:'unknown',reason:'search_http_error',links:[]};
+ }
+ // Both recognized FMIC hosts may represent the same public search.
+ // Any extra querystring/redirect is not recognized and must fail closed.
+ let landing;
+ try{landing=new URL(page.url())}catch{
+  return {status:'unknown',reason:'search_redirect_or_error',links:[]};
+ }
+ const params=[...landing.searchParams.entries()];
+ if(!['fmic.pl','www.fmic.pl'].includes(landing.hostname)||
+   landing.protocol!=='https:'||landing.pathname!=='/'||
+   params.length!==1||params[0][0]!=='q'||params[0][1]!==sku){
+  return {status:'unknown',reason:'search_redirect_or_error',links:[]};
+ }
  const links=await page.locator('main a[href], .products-grid a[href], .product-items a[href]')
   .evaluateAll(nodes=>nodes.map(node=>node.href));
  const productLinks=secureProductLinks(links);
  if(productLinks.length>MAX_FMIC_SEARCH_CANDIDATES)return {
   status:'unknown',reason:'too_many_search_candidates',links:[]};
- if(productLinks.length===0)return {
-  status:'not-found',reason:'no_product_links',links:[]};
+ if(productLinks.length===0){
+  // No recognized product links may mean a changed storefront layout,
+  // not that a SKU does not exist. Only a visible explicit message can
+  // confirm no results.
+  const hasEmptyMessage=await page.locator('main').evaluateAll(nodes=>
+   nodes.some(node=>/brak wynik[oó]w|nie znaleziono produkt[oó]w|no results found|no products found/i.test(
+    node.innerText||'')));
+  return hasEmptyMessage?
+   {status:'not-found',reason:'explicit_no_results',links:[]}:
+   {status:'unknown',reason:'search_layout_unrecognized',links:[]};
+ }
  return {status:'candidates',reason:null,links:productLinks};
 }
 
