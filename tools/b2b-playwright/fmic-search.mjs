@@ -85,14 +85,6 @@ export async function searchFmicSkuOnPage(page,sku){
      price=parsePlnPrice(value);
      if(price!==null)break;
     }
-    if(process.env.CI==='true'&&price===null){
-     const probe=productPage.locator('.product-info-main .price-box .price');
-     console.error('[FMIC PRICE FIXTURE DEBUG]',{
-      count:await probe.count(),
-      text:await probe.first().textContent().catch(()=>null),
-      check:parsePlnPrice('19,99 zł'),
-     });
-    }
     let stock=null;
     for(const sel of ['.stock.available','.product-info-stock-sku .stock']){
      const locator=productPage.locator(sel).first();
