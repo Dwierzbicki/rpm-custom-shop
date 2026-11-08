@@ -97,13 +97,20 @@ test('FMIC Tailwind cart with two distinct qty inputs reads each item without cl
   <input id="cart-23-qty" name="cart[23][qty]" value="5"/>
  </main></body></html>`;
  await withCart(markup,async page=>{
-  let clearClicked=0;
-  await page.locator('#empty_cart_button').evaluate(button=>
-   button.addEventListener('click',()=>{button.dataset.clicked='yes'}));
+  // Installed before page.goto within the preflight; observes a click on
+  // the clear-cart button without ever clicking that button itself.
+  await page.addInitScript(()=>{
+   window.__fmicClearButtonClicked=false;
+   document.addEventListener('click',event=>{
+    if(event.target?.id==='empty_cart_button'){
+     window.__fmicClearButtonClicked=true;
+    }
+   });
+  });
   const result=await checkFmicCartPreflight(page);
   assert.equal(result.itemCount,2);
   assert.deepEqual(result.items,[{sku:null,qty:1},{sku:null,qty:5}]);
-  assert.equal(await page.locator('#empty_cart_button').getAttribute('data-clicked'),null);
+  assert.equal(await page.evaluate(()=>window.__fmicClearButtonClicked),false);
  });
 });
 
