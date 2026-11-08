@@ -1,0 +1,245 @@
+/* Checkout radio controls: override broad text-input selectors */
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options input[type="radio"]{
+ appearance:auto;
+ -webkit-appearance:radio;
+ width:18px;
+ min-width:18px;
+ max-width:18px;
+ height:18px;
+ min-height:18px;
+ flex:0 0 18px;
+ padding:0;
+ margin:0;
+ border:0;
+ border-radius:50%;
+ background:transparent;
+ box-shadow:none;
+ accent-color:#f3426d;
+ cursor:pointer;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label{
+ display:flex;
+ flex-direction:row;
+ align-items:center;
+ gap:12px;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label:focus-within{
+ outline:2px solid #f3426d;
+ outline-offset:2px;
+}
+
+
+/* Checkout design system: consistent dimensions and spacing */
+.rpm-checkout-page{
+ --checkout-control-height:48px;
+ --checkout-gap:16px;
+}
+.rpm-checkout-page .rpm-checkout-section{
+ padding:26px 28px;
+ border-radius:12px;
+}
+.rpm-checkout-page .rpm-checkout-section h2{
+ font-size:18px;
+ line-height:1.35;
+ margin:0 0 22px;
+}
+.rpm-checkout-page .rpm-checkout-section label{
+ gap:8px;
+ margin-bottom:var(--checkout-gap);
+ font-size:13px;
+ line-height:1.4;
+}
+.rpm-checkout-page .rpm-checkout-section input:not([type="checkbox"]):not([type="radio"]),
+.rpm-checkout-page .rpm-checkout-section select{
+ display:block;
+ box-sizing:border-box;
+ width:100%;
+ height:var(--checkout-control-height);
+ min-height:var(--checkout-control-height);
+ max-height:var(--checkout-control-height);
+ padding:0 14px;
+ border-radius:8px;
+ font-size:14px;
+ line-height:normal;
+}
+.rpm-checkout-page .rpm-checkout-section textarea{
+ box-sizing:border-box;
+ display:block;
+ width:100%;
+ min-height:120px;
+ padding:14px;
+ border-radius:8px;
+ font-size:14px;
+ line-height:1.5;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-pair{
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:16px;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options{
+ display:grid;
+ grid-template-columns:repeat(2,minmax(0,1fr));
+ gap:12px;
+ align-items:stretch;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label{
+ display:flex;
+ flex-direction:row;
+ align-items:center;
+ box-sizing:border-box;
+ width:100%;
+ min-height:54px;
+ height:100%;
+ margin:0;
+ padding:12px 14px;
+ border-radius:8px;
+ font-size:13px;
+ line-height:1.35;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options input[type="radio"]{
+ width:18px;
+ height:18px;
+ min-width:18px;
+ min-height:18px;
+ max-width:18px;
+ flex:0 0 18px;
+ padding:0;
+ margin:0;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options label span{
+ min-width:0;
+ overflow-wrap:anywhere;
+}
+.rpm-checkout-page .rpm-checkout-fields{gap:18px}
+@media(max-width:600px){
+ .rpm-checkout-page .rpm-checkout-section{padding:20px 18px}
+ .rpm-checkout-page .rpm-checkout-section .rpm-checkout-customer-options{grid-template-columns:1fr}
+ .rpm-checkout-page .rpm-checkout-section .rpm-checkout-pair{grid-template-columns:1fr;gap:0}
+}
+
+
+/* Order confirmation */
+.rpm-order-confirmation{display:flex;flex-direction:column;gap:24px;max-width:1100px}
+.rpm-confirmation-heading{padding:28px 30px;background:#171d26;border:1px solid #394250;border-radius:12px}
+.rpm-confirmation-heading>svg{color:#f3426d;margin-bottom:12px}
+.rpm-confirmation-heading h2{font-size:clamp(25px,3vw,36px);margin-bottom:12px}
+.rpm-confirmation-heading p{margin:8px 0}
+.rpm-confirmation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.rpm-confirmation-grid .rpm-settings-card{width:100%;max-width:none;min-width:0;gap:16px}
+.rpm-confirmation-grid .rpm-settings-card h3{margin:0;font-size:19px}
+.rpm-confirmation-grid .rpm-checkout-total{padding-top:12px}
+.rpm-confirmation-detail{display:flex;flex-direction:column;align-items:flex-start;gap:7px;border-top:1px solid #394250;padding-top:14px;min-width:0}
+.rpm-confirmation-detail span{font-size:12px;color:#aeb9c7}
+.rpm-confirmation-detail strong{font-size:15px;overflow-wrap:anywhere}
+.rpm-confirmation-detail .outline{padding:9px 12px;font-size:12px}
+.rpm-order-confirmation>.primary{align-self:flex-start}
+@media(max-width:760px){.rpm-confirmation-grid{grid-template-columns:1fr}.rpm-confirmation-heading{padding:22px}.rpm-confirmation-grid .rpm-settings-card{padding:20px}}
+
+
+/* Distinct feedback panel for VAT registry lookup */
+.rpm-checkout-page .rpm-company-lookup-alert{
+ display:flex;
+ align-items:flex-start;
+ gap:14px;
+ width:100%;
+ padding:18px 20px;
+ margin:4px 0 8px;
+ border:1px solid #2e9c79;
+ border-left:5px solid #38d39f;
+ border-radius:10px;
+ background:linear-gradient(115deg,rgba(30,112,86,.28),rgba(24,65,57,.3));
+ box-shadow:0 6px 24px rgba(0,0,0,.16);
+ color:#f2fff9;
+}
+.rpm-checkout-page .rpm-company-lookup-alert-icon{
+ display:grid;
+ place-items:center;
+ flex:0 0 30px;
+ width:30px;
+ height:30px;
+ border-radius:50%;
+ background:#2eb88b;
+ color:#071d17;
+ font-size:19px;
+ font-weight:900;
+ line-height:1;
+}
+.rpm-checkout-page .rpm-company-lookup-alert>div{min-width:0}
+.rpm-checkout-page .rpm-company-lookup-alert strong{
+ display:block;
+ margin:1px 0 5px;
+ font-size:15px;
+ font-weight:800;
+ letter-spacing:0;
+ color:#f2fff9;
+}
+.rpm-checkout-page .rpm-company-lookup-alert p{
+ margin:0;
+ color:#c8e8db;
+ font-size:13px;
+ line-height:1.55;
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error{
+ border-color:#b84a5f;
+ border-left-color:#ff6b85;
+ background:linear-gradient(115deg,rgba(134,37,60,.24),rgba(75,28,41,.2));
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error .rpm-company-lookup-alert-icon{
+ background:#f36b83;
+ color:#2a0810;
+}
+.rpm-checkout-page .rpm-company-lookup-alert.is-error p{color:#ffd5dc}
+@media(max-width:600px){.rpm-checkout-page .rpm-company-lookup-alert{padding:15px;gap:10px}}
+
+
+/* Consent belongs to the final submit action, not the notes card */
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer{
+ display:flex;
+ flex-direction:row;
+ align-items:flex-start;
+ gap:12px;
+ width:100%;
+ margin:22px 0 14px;
+ padding:0;
+ color:#e3eaf3;
+ font-size:13px;
+ font-weight:500;
+ line-height:1.55;
+ cursor:pointer;
+}
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer input[type="checkbox"]{
+ appearance:auto;
+ flex:0 0 19px;
+ width:19px;
+ height:19px;
+ min-width:19px;
+ margin:1px 0 0;
+ padding:0;
+ accent-color:#f3426d;
+ cursor:pointer;
+}
+.rpm-checkout-page .checkout-form.rpm-checkout-pro>.rpm-checkout-consent-footer span{flex:1;min-width:0}
+
+
+/* Country calling code + national number, aligned with checkout inputs */
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field{
+ display:grid;
+ grid-template-columns:minmax(122px,34%) minmax(0,1fr);
+ gap:10px;
+ align-items:stretch;
+ width:100%;
+}
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field select,
+.rpm-checkout-page .rpm-checkout-section .rpm-phone-field input{
+ box-sizing:border-box;
+ width:100%;
+ height:var(--checkout-control-height,48px);
+ min-height:var(--checkout-control-height,48px);
+ margin:0;
+}
+@media(max-width:560px){
+ .rpm-checkout-page .rpm-checkout-section .rpm-phone-field{grid-template-columns:minmax(112px,42%) minmax(0,1fr);gap:8px}
+ .rpm-checkout-page .rpm-checkout-section .rpm-phone-field select{padding-inline:8px;font-size:12px}
+}
+
+
