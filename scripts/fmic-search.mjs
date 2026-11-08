@@ -32,8 +32,8 @@ try {
       const r = await candidate.goto(match.href, { waitUntil: "domcontentloaded", timeout: 15000 });
       if (!r?.ok()) continue;
       const candidateText = await candidate.locator("body").innerText();
-      const exactSku = new RegExp(`(^|[^A-Za-z0-9])${sku.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}($|[^A-Za-z0-9])`, "i");
-      if (exactSku.test(candidateText)) {
+      const tokens = candidateText.toUpperCase().match(/[A-Z0-9_-]+/g) ?? [];
+      if (tokens.includes(normalized)) {
         result.status = "found";
         result.product = { title: await candidate.title(), url: candidate.url() };
         result.reason = null;
