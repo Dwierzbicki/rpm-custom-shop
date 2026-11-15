@@ -50,40 +50,40 @@ export async function handleOrderEmail(order:OrderMailData):Promise<void>{
  const mode=process.env.EMAIL_MODE??'mock';
  const preview=orderMailPreview(order);
  if(mode==='mock'){
-  // Do not log customer PII, bank details or email content in production logs.
-  console.info('[order-email] mock preview generated',{orderId:order.orderId,language:order.language,subject:preview.subject,itemCount:order.items.length});
+  // Never log customer details or payment instructions in mock mode.
+  console.info('[order-email] mock preview generated',{orderId:order.orderId,language:order.language,itemCount:order.items.length});
   return;
  }
-
- if(mode==='test'){
-  const key=process.env.RESEND_API_KEY;
-  const recipient=process.env.EMAIL_TEST_RECIPIENT;
-  if(!key||!recipient||!/^\S+@\S+\.\S+$/.test(recipient)){
-   console.warn('[order-email] test mode not configured; no message sent',{orderId:order.orderId});
-   return;
-  }
-  const response=await fetch('https://api.resend.com/emails',{
-   method:'POST',
-   headers:{Authorization:`Bearer ${key}`,'Content-Type':'application/json'},
-   body:JSON.stringify({
-    from:process.env.EMAIL_FROM||'RPM Custom Test <onboarding@resend.dev>',
-    to:[recipient],
-    subject:`[TEST #${order.orderId}] ${preview.subject}`,
-    html:preview.html,text:preview.text
-   }),
-   signal:AbortSignal.timeout(10000)
-  });
-  if(!response.ok){
-   console.error('[order-email] Resend request failed',{orderId:order.orderId,status:response.status});
-   return;
-  }
-  console.info('[order-email] test accepted by provider',{orderId:order.orderId,language:order.language});
-  return;
+ if(mode!=='test'&&mode!=='production'){
+  console.error('[order-email] unsupported EMAIL_MODE',{orderId:order.orderId});
+  throw Error('Unsupported EMAIL_MODE');
  }
- if(mode==='production'){
-  console.warn('[order-email] production sending disabled pending verified domain',{orderId:order.orderId});
-  return;
+ const apiKey=process.env.RESEND_API_KEY?.trim()??'';
+ const from=mode==='test'?(process.env.EMAIL_FROM?.trim()||'RPM Custom Test <onboarding@resend.dev>'):(process.env.EMAIL_FROM?.trim()??'');
+ const to=mode==='test'?(process.env.EMAIL_TEST_RECIPIENT?.trim()??''):preview.to;
+ const fromAddress=from.match(/<([^<>]+)>$/)?.[1]??from;
+ const validAddress=(value:string)=>/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value);
+ if(!apiKey||!validAddress(fromAddress)||!validAddress(to)){
+  console.error('[order-email] delivery settings incomplete',{orderId:order.orderId,mode});
+  throw Error('Email delivery requires valid RESEND_API_KEY, EMAIL_FROM and recipient');
  }
-
- console.warn('[order-email] invalid EMAIL_MODE; no message sent',{orderId:order.orderId});
+ const response=await fetch('https://api.resend.com/emails',{
+  method:'POST',
+  headers:{Authorization:`Bearer ${apiKey}`,'Content-Type':'application/json'},
+  body:JSON.stringify({
+   from,
+   to:[to],
+   subject:mode==='test'?`[TEST #${order.orderId}] ${preview.subject}`:preview.subject,
+   html:preview.html,
+   text:preview.text
+  }),
+  signal:AbortSignal.timeout(10000)
+ });
+ if(!response.ok){
+  // Log status only: no email content, addresses, or payment data.
+  console.error('[order-email] Resend request failed',{orderId:order.orderId,mode,status:response.status});
+  throw Error('Email provider rejected request');
+ }
+ // Accepted by Resend does not mean the message has been delivered.
+ console.info('[order-email] accepted by provider',{orderId:order.orderId,mode,language:order.language});
 }
