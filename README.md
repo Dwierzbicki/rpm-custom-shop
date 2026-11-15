@@ -35,7 +35,8 @@ Wzór zmiennych środowiskowych znajduje się w `.env.example`. Właściwe sekre
 
 - Katalog, produkty, zamówienia, klienci i ustawienia korzystają z PostgreSQL. W katalogu są nadal produkty demonstracyjne.
 - Checkout **zapisuje zamówienia do bazy** przez `POST /api/orders`. Nie ma płatności online.
-- `EMAIL_MODE=mock` nie wysyła wiadomości, `test` wysyła tylko na adres testowy; obsługa wysyłki w trybie `production` nie jest obecnie włączona.
+- E-maile: `EMAIL_MODE=mock` nie wysyła wiadomości, `test` kieruje je wyłącznie na `EMAIL_TEST_RECIPIENT`, a `production` wysyła potwierdzenie na adres klienta przez Resend **tylko po świadomym ustawieniu trybu i wymaganych sekretów**. Zweryfikuj domenę nadawcy w Resend oraz `EMAIL_FROM` / `RESEND_API_KEY` w Render. Nie przełącza to sklepu automatycznie na sprzedaż z płatnościami online.
+- Wysyłka jest obecnie best-effort po zapisaniu zamówienia. Błąd Resend jest logowany bez danych osobowych, ale nie cofa zamówienia. Do niezawodnych ponowień potrzebny będzie outbox / kolejka i status doręczenia.
 - Dostawcy FMIC/MTuning: zapis ofert, ręczne dopasowanie oraz potwierdzanie publikacji ceny; parser CSV działa tylko jako podgląd, bez zapisu.
 - Szkice edytora strony głównej zapisują się lokalnie w przeglądarce admina, nie są publikowane w bazie.
 
