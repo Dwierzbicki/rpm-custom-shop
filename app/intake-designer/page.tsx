@@ -2,13 +2,13 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { IntakeParameters, EnginePreset, PlenumShape, BuildMethod, ThrottleSide } from "./model";
+import type { IntakeParameters, EnginePreset, PlenumShape, BuildMethod, ThrottleSide, TigPlenumFinish } from "./model";
 import { DEFAULT_INTAKE, intakePreset, normalizeIntake, calculateManifold, intakeSummary } from "./model";
 import styles from "./intake.module.css";
 
 const Scene=dynamic(()=>import("./manifold-scene"),{ssr:false});
 
-type NumericKey="cylinderCount"|"portPitch"|"runnerInnerDiameter"|"runnerWall"|"runnerReach"|"runnerRise"|"plenumVolume"|"throttleDiameter"|"flangeThickness";
+type NumericKey="cylinderCount"|"portPitch"|"runnerInnerDiameter"|"runnerWall"|"runnerReach"|"runnerRise"|"plenumVolume"|"plenumTaper"|"throttleDiameter"|"flangeThickness";
 
 function NumberSlider({label,value,min,max,step,unit,onChange}:{label:string;value:number;min:number;max:number;step:number;unit:string;onChange:(n:number)=>void}) {
   return <div className={styles.field}>
@@ -39,7 +39,7 @@ export default function IntakeDesignerPage(){
   const fileInput=useRef<HTMLInputElement>(null);
   const dims=useMemo(()=>calculateManifold(p),[p]);
   const number=(key:NumericKey)=>(value:number)=>setP(previous=>normalizeIntake({...previous,[key]:value}));
-  const text=<K extends "method"|"plenumShape"|"throttleSide">(key:K)=>(value:IntakeParameters[K])=>setP(previous=>normalizeIntake({...previous,[key]:value}));
+  const text=<K extends "method"|"plenumShape"|"throttleSide"|"tigPlenumFinish">(key:K)=>(value:IntakeParameters[K])=>setP(previous=>normalizeIntake({...previous,[key]:value}));
   const selectEngine=(engine:EnginePreset)=>setP(previous=>normalizeIntake({...intakePreset(engine),method:previous.method,plenumShape:previous.plenumShape,throttleSide:previous.throttleSide}));
   const save=()=>{
     const blob=new Blob([JSON.stringify(intakeSummary(p),null,2)],{type:"application/json"});
@@ -123,13 +123,15 @@ export default function IntakeDesignerPage(){
         <section className={styles.section}>
           <HeaderLabel no="04" title="Technologia produkcji"/>
           <Choices<BuildMethod> value={p.method} onChange={text("method")} choices={[{value:"tig",label:"TIG · spawany"},{value:"cnc",label:"CNC · billet"}]}/>
-          <p className={styles.helper}>{p.method==="tig"?"Widok złożenia z rur, flanszy i spawanego plenum.":"Widok koncepcyjnego korpusu billet — przyszły model będzie wymagał podziału na obrabialne części."}</p>
+          <p className={styles.helper}>{p.method==="tig"?"Widok złożenia z sześciu rur, flanszy, spawanego plenum i przepustnicy.":"Widok koncepcyjnego korpusu billet — przyszły model będzie wymagał podziału na obrabialne części."}</p>
+          {p.method==="tig"&&<div style={{marginTop:12}}><label style={{fontSize:12,color:"#cbd5e1",display:"block",marginBottom:8}}>Wygląd plenum TIG</label><Choices<TigPlenumFinish> value={p.tigPlenumFinish} onChange={text("tigPlenumFinish")} choices={[{value:"graphite",label:"Grafit + polerowane runnery"},{value:"aluminum",label:"Surowe aluminium"}]}/></div>}
         </section>
         <section className={styles.section}>
           <HeaderLabel no="05" title="Plenum"/>
           <Choices<PlenumShape> value={p.plenumShape} onChange={text("plenumShape")} choices={[{value:"round",label:"Okrągłe"},{value:"oval",label:"Owalne"},{value:"box",label:"Prostokątne"}]}/>
           <div style={{marginTop:14}}><NumberSlider label="Docelowa pojemność" value={p.plenumVolume} min={1} max={18} step={.1} unit="l" onChange={number("plenumVolume")}/></div>
-          <p className={styles.helper}>Pojemność to przybliżenie geometryczne samego plenum — bez dokładnego odejmowania objętości runnerów i elementów wewnętrznych.</p>
+          {p.plenumShape!=="box"&&<NumberSlider label="Zwężenie plenum ku przepustnicy" value={p.plenumTaper} min={0} max={45} step={1} unit="%" onChange={number("plenumTaper")}/>}
+          <p className={styles.helper}>Zwężenie określa różnicę średnic końców plenum; kierunek zależy od położenia przepustnicy. Pojemność to przybliżenie geometryczne, bez dokładnego odjęcia objętości kanałów.</p>
         </section>
         <section className={styles.section}>
           <HeaderLabel no="06" title="Przepustnica"/>
