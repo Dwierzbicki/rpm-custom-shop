@@ -32,8 +32,8 @@ export default function DesignersPage(){
      <article style={{border:'1px solid #ffffff20',borderRadius:18,padding:26,background:'#151b25'}}>
       <div style={{fontSize:12,letterSpacing:2,color:'#94a3b8',fontWeight:700}}>INTAKE MANIFOLD DESIGNER</div>
       <h2 style={{fontSize:25,margin:'14px 0'}}>Kolektory ssące TIG / CNC</h2>
-      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Plenum, runnery, flansze, przepustnice i elementy do produkcji. Jeden projekt, dwa tryby technologiczne.</p>
-      <p style={{marginTop:22,color:'#94a3b8',fontWeight:700}}>W przygotowaniu — projekt następnego modułu</p>
+      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Koncepcyjny model 3D: plenum, runnery, flansze i przepustnice. Dwa widoki technologiczne TIG i CNC, zapis projektu JSON.</p>
+      <a href="/intake-designer" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#f97316',borderRadius:10,color:'#111827',fontWeight:800,textDecoration:'none'}}>Otwórz Intake Designer · MVP</a>
      </article>
     </div>
     <p style={{marginTop:28,color:'#71717a',fontSize:13}}>Modele CAD wymagają sprawdzenia wymiarów i technologii wykonania przed produkcją. Funkcje płatności i automatycznego udostępniania plików nie są jeszcze uruchomione.</p>
