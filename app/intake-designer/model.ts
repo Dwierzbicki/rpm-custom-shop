@@ -1,6 +1,7 @@
 export type EnginePreset = "2jz-gte" | "2jz-ge" | "m50-m52" | "m54" | "universal";
 export type BuildMethod = "tig" | "cnc";
-export type PlenumShape = "round" | "oval" | "box";
+export type PlenumShape = "round" | "oval" | "box" | "wedge";
+export type PortShape = "round" | "oval" | "rounded-rect";
 export type ThrottleSide = "left" | "right";
 export type TigPlenumFinish = "graphite" | "aluminum";
 
@@ -13,12 +14,18 @@ export type IntakeParameters = {
   runnerWall: number;
   runnerReach: number;
   runnerRise: number;
+  runnerBend: number;
+  runnerOffset: number;
+  portShape: PortShape;
   plenumVolume: number;
   plenumShape: PlenumShape;
   plenumTaper: number;
   tigPlenumFinish: TigPlenumFinish;
   throttleDiameter: number;
   throttleSide: ThrottleSide;
+  throttleAngle: number;
+  injectorBosses: boolean;
+  vacuumPorts: boolean;
   flangeThickness: number;
 };
 
@@ -31,12 +38,18 @@ export const DEFAULT_INTAKE: IntakeParameters = {
   runnerWall: 3,
   runnerReach: 145,
   runnerRise: 90,
+  runnerBend: 58,
+  runnerOffset: 0,
+  portShape: "round",
   plenumVolume: 4.8,
   plenumShape: "round",
   plenumTaper: 24,
   tigPlenumFinish: "graphite",
   throttleDiameter: 80,
   throttleSide: "left",
+  throttleAngle: 0,
+  injectorBosses: false,
+  vacuumPorts: false,
   flangeThickness: 12,
 };
 
@@ -49,6 +62,19 @@ export const ENGINE_TEMPLATES: Record<EnginePreset, Pick<IntakeParameters, "cyli
 };
 
 // The pitches are concept placeholders, NOT OEM specifications. GE/GTE and BMW head face patterns must never be treated as interchangeable.
+// M50 TIG is a visual design preset inspired by user-provided product photos, not a measured duplicate.
+export function m50TigPreset(): IntakeParameters {
+  return normalizeIntake({
+    ...DEFAULT_INTAKE,
+    engine: "m50-m52", method: "tig",
+    portPitch: 91, runnerInnerDiameter: 43, runnerWall: 2.5,
+    runnerReach: 175, runnerRise: 125, runnerBend: 75, runnerOffset: 12,
+    portShape: "rounded-rect", plenumShape: "wedge", plenumTaper: 32,
+    plenumVolume: 4.5, tigPlenumFinish: "aluminum",
+    throttleSide: "right", throttleAngle: 10, throttleDiameter: 80,
+    injectorBosses: true, vacuumPorts: true, flangeThickness: 12,
+  });
+}
 export function intakePreset(name: EnginePreset): IntakeParameters {
   return { ...DEFAULT_INTAKE, ...ENGINE_TEMPLATES[name], engine: name };
 }
@@ -73,12 +99,18 @@ export function normalizeIntake(input: Partial<IntakeParameters>): IntakeParamet
     runnerWall: wall,
     runnerReach: clamp(numberOr(base.runnerReach, 145), 70, 320),
     runnerRise: clamp(numberOr(base.runnerRise, 90), 40, 200),
+    runnerBend: clamp(numberOr(base.runnerBend, 58), 0, 100),
+    runnerOffset: clamp(numberOr(base.runnerOffset, 0), -35, 35),
+    portShape: oneOf(base.portShape, ["round", "oval", "rounded-rect"] as const, "round"),
     plenumVolume: clamp(numberOr(base.plenumVolume, 4.8), 1, 18),
-    plenumShape: oneOf(base.plenumShape, ["round", "oval", "box"] as const, "round"),
+    plenumShape: oneOf(base.plenumShape, ["round", "oval", "box", "wedge"] as const, "round"),
     plenumTaper: clamp(numberOr(base.plenumTaper, 24), 0, 45),
     tigPlenumFinish: oneOf(base.tigPlenumFinish, ["graphite", "aluminum"] as const, "graphite"),
     throttleDiameter: clamp(numberOr(base.throttleDiameter, 80), 40, 120),
     throttleSide: oneOf(base.throttleSide, ["left", "right"] as const, "left"),
+    throttleAngle: clamp(numberOr(base.throttleAngle, 0), -25, 25),
+    injectorBosses: base.injectorBosses === true,
+    vacuumPorts: base.vacuumPorts === true,
     flangeThickness: clamp(numberOr(base.flangeThickness, 12), 6, 25),
   };
 }
@@ -102,11 +134,11 @@ export function calculateManifold(p: IntakeParameters): ManifoldDimensions {
   // Frustum volume correction keeps the nominal plenum volume closer to the target
   // when tapered toward the throttle. Exact effective volume still requires CAD booleans.
   const taperRatio = 1 - p.plenumTaper / 100;
-  const taperAreaFactor = p.plenumShape === "box" ? 1 : (1 + taperRatio + taperRatio * taperRatio) / 3;
+  const taperAreaFactor = p.plenumShape === "box" ? 1 : p.plenumShape === "wedge" ? (1 + (1 - p.plenumTaper / 100)) / 2 : (1 + taperRatio + taperRatio * taperRatio) / 3;
   const area = mm3 / plenumLength / taperAreaFactor;
   let plenumHeight: number;
   let plenumDepth: number;
-  if (p.plenumShape === "box") {
+  if (p.plenumShape === "box" || p.plenumShape === "wedge") {
     const side = Math.sqrt(area * 1.2);
     plenumHeight = side;
     plenumDepth = area / side;
