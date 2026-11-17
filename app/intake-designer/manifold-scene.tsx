@@ -103,7 +103,7 @@ function CameraPose({view,revision,p,dims,orbit}:{view:CameraView;revision:numbe
     controls.update();
     initial.current=true;
     invalidate();
-  },[camera,dims.totalLength,dims.plenumDepth,p.cylinderCount,revision,view,invalidate,orbit]); // eslint-disable-line react-hooks/exhaustive-deps
+  },[camera,revision,view,invalidate,orbit]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
