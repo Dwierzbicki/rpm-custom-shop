@@ -1,4 +1,4 @@
-export type EnginePreset = "2jz" | "m54" | "universal";
+export type EnginePreset = "2jz-gte" | "2jz-ge" | "m50-m52" | "m54" | "universal";
 export type BuildMethod = "tig" | "cnc";
 export type PlenumShape = "round" | "oval" | "box";
 export type ThrottleSide = "left" | "right";
@@ -20,7 +20,7 @@ export type IntakeParameters = {
 };
 
 export const DEFAULT_INTAKE: IntakeParameters = {
-  engine: "2jz",
+  engine: "2jz-gte",
   method: "tig",
   cylinderCount: 6,
   portPitch: 92,
@@ -36,12 +36,14 @@ export const DEFAULT_INTAKE: IntakeParameters = {
 };
 
 export const ENGINE_TEMPLATES: Record<EnginePreset, Pick<IntakeParameters, "cylinderCount" | "portPitch">> = {
-  "2jz": { cylinderCount: 6, portPitch: 92 },
+  "2jz-gte": { cylinderCount: 6, portPitch: 92 },
+  "2jz-ge": { cylinderCount: 6, portPitch: 92 },
+  "m50-m52": { cylinderCount: 6, portPitch: 91 },
   m54: { cylinderCount: 6, portPitch: 91 },
   universal: { cylinderCount: 4, portPitch: 95 },
 };
 
-// The presets are concept layouts, NOT measured OEM port positions.
+// The pitches are concept placeholders, NOT OEM specifications. GE/GTE and BMW head face patterns must never be treated as interchangeable.
 export function intakePreset(name: EnginePreset): IntakeParameters {
   return { ...DEFAULT_INTAKE, ...ENGINE_TEMPLATES[name], engine: name };
 }
@@ -53,7 +55,7 @@ const oneOf = <T extends string>(value: unknown, choices: readonly T[], fallback
 
 export function normalizeIntake(input: Partial<IntakeParameters>): IntakeParameters {
   const base = { ...DEFAULT_INTAKE, ...input };
-  const engine = oneOf(base.engine, ["2jz", "m54", "universal"] as const, "2jz");
+  const engine = oneOf(base.engine, ["2jz-gte", "2jz-ge", "m50-m52", "m54", "universal"] as const, "2jz-gte");
   const count = Math.round(clamp(numberOr(base.cylinderCount, 6), 3, 12));
   const inner = clamp(numberOr(base.runnerInnerDiameter, 43), 25, 75);
   const wall = clamp(numberOr(base.runnerWall, 3), 1.5, 8);
