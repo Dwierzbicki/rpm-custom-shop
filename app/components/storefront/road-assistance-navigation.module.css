@@ -1,0 +1,16 @@
+/* Scoped: does not change the shop's archived stylesheet baseline. */
+.desktopRoad {
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:9px;
+  flex:0 0 auto;padding:11px 18px;min-height:49px;
+  font-size:12px;font-weight:850;letter-spacing:.45px;white-space:nowrap;
+  color:#f2f3f6;background:#282a30;border-left:1px solid #555965;
+  text-decoration:none;
+}
+.desktopRoad:hover,.desktopRoad:focus-visible{background:#713544;color:#fff}
+.drawerRoad {
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  margin:10px 13px 14px;padding:13px 11px;border:1px solid #ae5164;
+  border-radius:10px;background:linear-gradient(120deg,#752c40,#352833);
+  color:#fff;text-decoration:none;font-size:12px;font-weight:850;text-align:center;
+}
+.drawerRoad:hover,.drawerRoad:focus-visible{background:linear-gradient(120deg,#b53451,#513341)}

@@ -1,6 +1,7 @@
 'use client';
 import type {Dispatch,SetStateAction} from 'react';
 import {ArrowRight,ChevronRight,Menu,Truck,X} from 'lucide-react';
+import styles from './road-assistance-navigation.module.css';
 import {FMIC_CATEGORY_TREE} from '../../fmic-categories';
 
 export type CategoryNavigationProps={
@@ -31,7 +32,7 @@ export default function CategoryNavigation({
  </div>)}
  </div>}</div>)}
  <button type="button" className="rpm-desktop-motolab" onClick={onMotoLab}>MOTOLAB <ArrowRight size={14}/></button>
- <a className="rpm-desktop-road" href="/autopomoc"><Truck size={15}/> AUTO POMOC</a>
+ <a className={styles.desktopRoad} href="/autopomoc"><Truck size={15}/> AUTO POMOC</a>
  </nav>
  <nav className="rpm-clean-nav" aria-label="Nawigacja sklepu">
  <button type="button" className="rpm-clean-categories-button" aria-expanded={mobileMenu} aria-controls="rpm-category-drawer" onClick={()=>{setMobileMenu(v=>!v);setActiveFmicRoot(null);setActiveFmicSub(null)}}>{mobileMenu?<X size={19}/>:<Menu size={19}/>} <span>KATEGORIE PRODUKTÓW</span> <ChevronRight size={15}/></button>
@@ -40,7 +41,7 @@ export default function CategoryNavigation({
  {mobileMenu&&<div className="rpm-drawer-backdrop" onClick={()=>setMobileMenu(false)} aria-hidden="true"/>}
  <aside id="rpm-category-drawer" className={'rpm-category-drawer'+(mobileMenu?' is-open':'')} aria-label="Kategorie produktów" aria-hidden={!mobileMenu}>
  <div className="rpm-drawer-head"><div className="rpm-drawer-heading"><span className="rpm-drawer-eyebrow">RPM CUSTOM / SKLEP</span><strong>Kategorie produktów</strong></div><button type="button" onClick={()=>setMobileMenu(false)} aria-label="Zamknij kategorie"><X size={22}/></button></div><div className="rpm-drawer-hint">Wybierz dział lub rozwiń strzałką podkategorie</div>
- <a className="rpm-drawer-road" href="/autopomoc"><Truck size={18}/> POMOC DROGOWA — WEZWIJ LAWETĘ <ArrowRight size={15}/></a>
+ <a className={styles.drawerRoad} href="/autopomoc"><Truck size={18}/> POMOC DROGOWA — WEZWIJ LAWETĘ <ArrowRight size={15}/></a>
  <div className="rpm-drawer-scroll">
  {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={"rpm-drawer-root"+(activeFmicRoot===i?" is-active":"")}>
  <div className="rpm-drawer-root-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name])}>{root.name}</button><button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+root.name} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
