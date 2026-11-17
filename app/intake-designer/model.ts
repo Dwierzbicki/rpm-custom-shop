@@ -72,7 +72,7 @@ export function m50TigPreset(): IntakeParameters {
     portShape: "rounded-rect", plenumShape: "wedge", plenumTaper: 32,
     plenumVolume: 4.5, tigPlenumFinish: "aluminum",
     throttleSide: "right", throttleAngle: 10, throttleDiameter: 80,
-    injectorBosses: true, vacuumPorts: true, flangeThickness: 12,
+    injectorBosses: false, vacuumPorts: true, flangeThickness: 12,
   });
 }
 export function intakePreset(name: EnginePreset): IntakeParameters {
