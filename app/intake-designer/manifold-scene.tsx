@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ComponentRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { IntakeParameters, ManifoldDimensions } from "./model";
 import styles from "./intake.module.css";
@@ -73,7 +73,7 @@ function Runner({x, p, dims, ghost}:{x:number;p:IntakeParameters;dims:ManifoldDi
   return (
     <group position={[x,0,0]}>
       <mesh geometry={geometry} castShadow receiveShadow>
-        <meshStandardMaterial color={p.method==="tig"?"#b7c4cb":"#8cb1d1"} metalness={.8} roughness={p.method==="tig"?.28:.36} side={THREE.DoubleSide} transparent={ghost} opacity={ghost?.42:1} depthWrite={!ghost}/>
+        <meshStandardMaterial color={p.method==="tig"?"#d4dce3":"#8cb1d1"} metalness={.74} roughness={p.method==="tig"?.27:.33} side={THREE.DoubleSide} transparent={ghost} opacity={ghost?.42:1} depthWrite={!ghost}/>
       </mesh>
       <mesh position={[0,0,p.flangeThickness/2+6]} rotation={[0,0,0]}>
         <torusGeometry args={[dims.runnerOutside/2+1.5,1.65,8,36]}/>
@@ -85,16 +85,15 @@ function Runner({x, p, dims, ghost}:{x:number;p:IntakeParameters;dims:ManifoldDi
 
 function CameraPose({view,revision,p,dims,orbit}:{view:CameraView;revision:number;p:IntakeParameters;dims:ManifoldDimensions;orbit:React.RefObject<OrbitHandle|null>}) {
   const {camera,invalidate}=useThree();
-  const initial=useRef(false);
   useEffect(()=>{
     const controls=orbit.current;
     if (!controls || !(camera instanceof THREE.PerspectiveCamera)) return;
     const center=new THREE.Vector3(0,p.runnerRise*.48,(p.runnerReach+dims.plenumDepth)*.52);
     const distance=Math.max(400,dims.totalLength * 1.45);
     const directions:Record<CameraView,THREE.Vector3>={
-      iso:new THREE.Vector3(.85,.55,1),
-      front:new THREE.Vector3(0,.12,1),
-      side:new THREE.Vector3(1,.12,0),
+      iso:new THREE.Vector3(.32,.72,1.38),
+      front:new THREE.Vector3(0,.18,1),
+      side:new THREE.Vector3(1,.20,.10),
       top:new THREE.Vector3(0,1,.005),
     };
     // Preserve manual orbit/zoom while dragging sliders; only refit when changing views.
@@ -103,9 +102,8 @@ function CameraPose({view,revision,p,dims,orbit}:{view:CameraView;revision:numbe
     camera.lookAt(center);
     camera.updateProjectionMatrix();
     controls.update();
-    initial.current=true;
     invalidate();
-  },[camera,revision,view,invalidate,orbit]); // eslint-disable-line react-hooks/exhaustive-deps
+  },[camera,revision,view,p.engine,p.cylinderCount,invalidate,orbit]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 }
 
@@ -129,9 +127,11 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
   useEffect(()=>()=>{wedge?.dispose();},[wedge]);
   return <>
     <ambientLight intensity={1.6}/>
-    <hemisphereLight intensity={.85} color="#c1defa" groundColor="#11151c"/>
-    <directionalLight position={[320,500,260]} intensity={3.2}/>
+    <hemisphereLight intensity={1.15} color="#c1defa" groundColor="#17202d"/>
+    <directionalLight position={[320,500,260]} intensity={3.6}/>
+    <directionalLight position={[-250,250,340]} intensity={2.2}/>
     <pointLight position={[-220,190,320]} intensity={32000} distance={1100}/>
+    <Environment preset="city" environmentIntensity={.85}/>
     <gridHelper args={[1200,24,"#29384b","#1c2735"]} position={[0,-75,110]}/>
     <mesh geometry={flange} position={[0,0,-p.flangeThickness/2]} castShadow receiveShadow>
       <meshStandardMaterial color={outsideColor} metalness={metal} roughness={.3} side={THREE.DoubleSide}/>
@@ -173,8 +173,8 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
       </mesh>
     ))}
     {p.method==="tig" && stations.map((x,i)=>(
-      <mesh key={"weld-"+i} position={[x+p.runnerOffset,p.runnerRise,p.runnerReach+5]}>
-        <torusGeometry args={[dims.runnerOutside/2+2.5,2.1,8,36]}/>
+      <mesh key={"weld-"+i} position={[x+p.runnerOffset,p.runnerRise,p.runnerReach+2]}>
+        <torusGeometry args={[dims.runnerOutside/2+1.2,1.5,8,48]}/>
         <meshStandardMaterial color="#d2dce3" metalness={.75} roughness={.34} transparent={ghost} opacity={ghost?.22:1} depthWrite={!ghost}/>
       </mesh>
     ))}
