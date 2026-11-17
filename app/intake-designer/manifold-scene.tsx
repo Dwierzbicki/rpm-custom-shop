@@ -7,7 +7,7 @@ import { OrbitControls, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import type { IntakeParameters, ManifoldDimensions } from "./model";
 import styles from "./intake.module.css";
-import {conceptualHeadFlange, conceptualThrottleFlange, wedgePlenumGeometry} from "./concept-geometry";
+import {conceptualHeadFlange, conceptualThrottleFlange, wedgePlenumGeometry, wedgeOutletBoreRadius} from "./concept-geometry";
 
 type CameraView = "iso" | "front" | "side" | "top";
 type OrbitHandle = ComponentRef<typeof OrbitControls>;
@@ -119,9 +119,11 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
   const bottomRadius=dims.plenumHeight/2*(p.throttleSide==="right"?taperRatio:1);
   const metal=.83;
   const throttleSign=p.throttleSide==="left"?-1:1;
+  const neckRadius=isWedge?wedgeOutletBoreRadius(dims,p.plenumTaper,p.throttleDiameter):p.throttleDiameter/2;
+  const inletYOffset=isWedge?-dims.plenumHeight*p.plenumTaper/200:0;
   const flange=useMemo(()=>conceptualHeadFlange(p,dims),[p,dims]);
   const throttlePlate=useMemo(()=>conceptualThrottleFlange(p.throttleDiameter),[p.throttleDiameter]);
-  const wedge=useMemo(()=>isWedge?wedgePlenumGeometry(dims,p.plenumTaper,p.throttleSide):null,[dims,isWedge,p.plenumTaper,p.throttleSide]);
+  const wedge=useMemo(()=>isWedge?wedgePlenumGeometry(dims,p.plenumTaper,p.throttleSide,p.throttleDiameter):null,[dims,isWedge,p.plenumTaper,p.throttleSide,p.throttleDiameter]);
   useEffect(()=>()=>{flange.dispose();},[flange]);
   useEffect(()=>()=>{throttlePlate.dispose();},[throttlePlate]);
   useEffect(()=>()=>{wedge?.dispose();},[wedge]);
@@ -208,9 +210,9 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
         </mesh>
       </group>
     ))}
-    <group position={[throttleSign*(dims.plenumLength/2+18),p.runnerRise,plenumZ]} rotation={[0,0,p.throttleAngle*Math.PI/180]}>
-      <mesh rotation={[0,0,Math.PI/2]}>
-        <cylinderGeometry args={[p.throttleDiameter/2+4,p.throttleDiameter/2+4,44,48,1,true]}/>
+    <group position={[throttleSign*(dims.plenumLength/2+18),p.runnerRise+inletYOffset,plenumZ]} rotation={[0,0,p.throttleAngle*Math.PI/180]}>
+      <mesh rotation={[0,0,throttleSign*Math.PI/2]}>
+        <cylinderGeometry args={[neckRadius+1,p.throttleDiameter/2+4,44,48,1,true]}/>
         <meshStandardMaterial color="#c4d0db" metalness={.85} roughness={.25} side={THREE.DoubleSide}/>
       </mesh>
       <mesh geometry={throttlePlate} position={[throttleSign*26,0,0]} rotation={[0,throttleSign*Math.PI/2,0]}>
