@@ -86,7 +86,7 @@ export default function IntakeDesignerPage(){
       <aside className={styles.left+" "+styles.panel}>
         <section className={styles.section}>
           <HeaderLabel no="01" title="Wybierz silnik"/>
-          <Choices value={p.engine} onChange={selectEngine} choices={[{value:"2jz",label:"Toyota 2JZ"},{value:"m54",label:"BMW M50/M52/M54"},{value:"universal",label:"Uniwersalny"}] as const}/>
+          <Choices value={p.engine} onChange={selectEngine} choices={[{value:"2jz-gte",label:"2JZ-GTE"},{value:"2jz-ge",label:"2JZ-GE"},{value:"m50-m52",label:"BMW M50/M52"},{value:"m54",label:"BMW M54"},{value:"universal",label:"Uniwersalny"}] as const}/>
           <p className={styles.helper}>Presety pokazują układ cylindrów, ale rozstaw i kształt portów nie są pomiarami seryjnej głowicy.</p>
           {p.engine==="universal"&&<NumberSlider label="Liczba cylindrów" value={p.cylinderCount} min={3} max={12} step={1} unit="szt." onChange={number("cylinderCount")}/>}
           <div style={{marginTop:12}}><NumberSlider label="Rozstaw osi runnerów" value={p.portPitch} min={p.runnerInnerDiameter+p.runnerWall*2+5} max={150} step={1} unit="mm" onChange={number("portPitch")}/></div>
@@ -102,7 +102,15 @@ export default function IntakeDesignerPage(){
         <section className={styles.section}>
           <HeaderLabel no="03" title="Flansza głowicy"/>
           <NumberSlider label="Grubość flanszy" value={p.flangeThickness} min={6} max={25} step={1} unit="mm" onChange={number("flangeThickness")}/>
-          <div className={styles.warning}>Kształt portów i otwory śrub są tylko wizualizacją. Przed eksportem produkcyjnym potrzebny jest zweryfikowany rysunek flanszy 2JZ lub BMW (DXF/STEP/pomiary).</div>
+          
+          <div className={styles.warning}>Kształt portów i otwory śrub są tylko wizualizacją. Nie wycinaj flanszy na podstawie tego modelu. Wersja produkcyjna wymaga potwierdzonego DXF/STEP albo pomiaru głowicy.</div>
+          <div style={{marginTop:12,display:"grid",gap:6,fontSize:11}}>
+            <strong style={{color:"#fbbf83"}}>Źródła danych do flansz (zewnętrzne)</strong>
+            {(p.engine==="2jz-gte"||p.engine==="2jz-ge")&&<a href={p.engine==="2jz-gte"?"https://3dengine.shop/shop/2jz-gte-intake-runners-3d-scan/":"https://3dengine.shop/shop/2jz-ge-vvti-cylinder-head-3d-scan/"} target="_blank" rel="noopener noreferrer" style={{color:"#93c5fd"}}>Otwórz skan 3D {p.engine==="2jz-gte"?"2JZ-GTE runners":"2JZ-GE VVTi head"} ↗</a>}
+            {p.engine==="m50-m52"&&<a href="https://www.etsy.com/listing/1854507188/bmw-m50m52-engine-intake-flange-dxfdwg" target="_blank" rel="noopener noreferrer" style={{color:"#93c5fd"}}>Zobacz DXF/DWG flanszy BMW M50/M52 ↗</a>}
+            {p.engine==="m54"&&<a href="https://www.bdsystems.com.au/products/bmw-m54-intake-manifold" target="_blank" rel="noopener noreferrer" style={{color:"#93c5fd"}}>Referencja — skan kolektora BMW M54 ↗</a>}
+            <small style={{color:"#8293a8",lineHeight:1.5}}>Pliki źródłowe mogą być płatne i objęte licencją. Na razie nie są częścią kreatora ani produkcyjnego modelu.</small>
+          </div>
         </section>
       </aside>
 
