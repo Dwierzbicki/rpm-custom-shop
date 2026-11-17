@@ -111,7 +111,11 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
   const stations=Array.from({length:p.cylinderCount},(_,i)=>(i-(p.cylinderCount-1)/2)*p.portPitch);
   const plenumZ=p.runnerReach+dims.plenumDepth/2;
   const isBox=p.plenumShape==="box";
-  const outsideColor=p.method==="tig"?"#c4cbd4":"#819db4";
+  const outsideColor=p.method==="tig"?"#c4d1d9":"#819db4";
+  const plenumColor=p.method==="tig" && p.tigPlenumFinish==="graphite"?"#394351":outsideColor;
+  const taperRatio=1-p.plenumTaper/100;
+  const topRadius=dims.plenumHeight/2*(p.throttleSide==="left"?taperRatio:1);
+  const bottomRadius=dims.plenumHeight/2*(p.throttleSide==="right"?taperRatio:1);
   const metal=.83;
   const throttleSign=p.throttleSide==="left"?-1:1;
   return <>
@@ -136,12 +140,12 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
     {isBox ? (
       <mesh position={[0,p.runnerRise,plenumZ]} castShadow>
         <boxGeometry args={[dims.plenumLength,dims.plenumHeight,dims.plenumDepth]}/>
-        <meshStandardMaterial color={outsideColor} metalness={metal} roughness={p.method==="tig"?.35:.24} transparent={ghost} opacity={ghost?.27:1} depthWrite={!ghost}/>
+        <meshStandardMaterial color={plenumColor} metalness={metal} roughness={p.method==="tig"?.35:.24} transparent={ghost} opacity={ghost?.27:1} depthWrite={!ghost}/>
       </mesh>
     ):(
       <mesh position={[0,p.runnerRise,plenumZ]} rotation={[0,0,Math.PI/2]} scale={[1,1,dims.plenumDepth/dims.plenumHeight]} castShadow>
-        <cylinderGeometry args={[dims.plenumHeight/2,dims.plenumHeight/2,dims.plenumLength,64,1,false]}/>
-        <meshStandardMaterial color={outsideColor} metalness={metal} roughness={p.method==="tig"?.3:.24} transparent={ghost} opacity={ghost?.28:1} depthWrite={!ghost}/>
+        <cylinderGeometry args={[topRadius,bottomRadius,dims.plenumLength,64,1,false]}/>
+        <meshStandardMaterial color={plenumColor} metalness={metal} roughness={p.method==="tig"?.3:.24} transparent={ghost} opacity={ghost?.28:1} depthWrite={!ghost}/>
       </mesh>
     )}
     {p.method==="cnc" && [-1,1].map(s=>(
@@ -152,7 +156,7 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
     ))}
     {p.method==="tig" && [-1,1].map(s=>(
       <mesh key={s} position={[s*(dims.plenumLength/2-7),p.runnerRise,plenumZ]} rotation={[0,0,Math.PI/2]} scale={[1,1,dims.plenumDepth/dims.plenumHeight]}>
-        <cylinderGeometry args={[dims.plenumHeight/2+1,dims.plenumHeight/2+1,3,64]}/>
+        <cylinderGeometry args={[s===-1?topRadius+1:bottomRadius+1,s===-1?topRadius+1:bottomRadius+1,3,64]}/>
         <meshStandardMaterial color="#d9e0e7" metalness={.75} roughness={.32} transparent={ghost} opacity={ghost?.35:1} depthWrite={!ghost}/>
       </mesh>
     ))}
@@ -163,7 +167,7 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
       </mesh>
       <mesh position={[throttleSign*27,0,0]} rotation={[0,Math.PI/2,0]}>
         <torusGeometry args={[p.throttleDiameter/2+7,4,10,48]}/>
-        <meshStandardMaterial color="#ee893d" metalness={.75} roughness={.27}/>
+        <meshStandardMaterial color={p.method==="tig"?"#e1e7ef":"#ee893d"} metalness={.75} roughness={.27}/>
       </mesh>
     </group>
   </>;
