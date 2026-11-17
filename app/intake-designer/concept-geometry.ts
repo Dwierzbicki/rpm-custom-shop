@@ -1,11 +1,22 @@
 import * as THREE from "three";
 import type { IntakeParameters, ManifoldDimensions } from "./model";
 
-/** The returned mesh is a conceptual shell, not a watertight manufacturing solid. */
+/** The preliminary inlet aperture is smaller than the throttle if the wedge throat is narrow. */
+export function wedgeOutletBoreRadius(d: ManifoldDimensions, taperPercent: number, throttleDiameter: number): number {
+  const reduction = Math.max(.55, 1 - taperPercent / 100);
+  return Math.max(8, Math.min(
+    throttleDiameter / 2,
+    d.plenumHeight * reduction / 2 * .82,
+    d.plenumDepth / 2 * (.96 + .04 * reduction) * .82,
+  ));
+}
+
+/** The returned mesh is a conceptual shell, not a validated manufacturing solid. */
 export function wedgePlenumGeometry(
   dimensions: ManifoldDimensions,
   taperPercent: number,
   throttleSide: "left" | "right",
+  throttleDiameter: number,
 ): THREE.BufferGeometry {
   // Superellipse loft: softly rounded TIG plenum, not a sharp-edged six-face box.
   // The bottom remains aligned to the runners; the roof tapers toward the inlet.
@@ -60,16 +71,32 @@ export function wedgePlenumGeometry(
     const height = dimensions.plenumHeight * scale;
     const x = side === 0 ? -halfLength : halfLength;
     const cy = bottom + height / 2;
-    const center = add(x, cy, 0);
     const perimeter: number[] = [];
     for (let j = 0; j < crossSections; j++) {
       const a = j / crossSections * Math.PI * 2;
       perimeter.push(add(x,cy + height/2 * signedPower(Math.cos(a)),halfDepth*(.96+.04*scale)*signedPower(Math.sin(a))));
     }
-    for (let j = 0; j < crossSections; j++) {
-      const k=(j+1)%crossSections;
-      if(side === 0) index.push(center,perimeter[k],perimeter[j]);
-      else index.push(center,perimeter[j],perimeter[k]);
+    const isThrottleEnd=(throttleSide==="left" && side===0)||(throttleSide==="right" && side===axialStations);
+    if(isThrottleEnd){
+      // The tube enters an actual circular opening rather than hitting a solid end cap.
+      const radius=wedgeOutletBoreRadius(dimensions,taperPercent,throttleDiameter);
+      const inner: number[]=[];
+      for(let j=0;j<crossSections;j++){
+        const angle=j/crossSections*Math.PI*2;
+        inner.push(add(x,cy+radius*Math.cos(angle),radius*Math.sin(angle)));
+      }
+      for(let j=0;j<crossSections;j++){
+        const k=(j+1)%crossSections;
+        if(side===0)index.push(perimeter[j],inner[j],perimeter[k],perimeter[k],inner[j],inner[k]);
+        else index.push(perimeter[j],perimeter[k],inner[j],perimeter[k],inner[k],inner[j]);
+      }
+    }else{
+      const center=add(x,cy,0);
+      for(let j=0;j<crossSections;j++){
+        const k=(j+1)%crossSections;
+        if(side===0)index.push(center,perimeter[k],perimeter[j]);
+        else index.push(center,perimeter[j],perimeter[k]);
+      }
     }
   }
   const geom = new THREE.BufferGeometry();
