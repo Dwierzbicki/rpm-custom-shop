@@ -7,6 +7,7 @@ import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import type { IntakeParameters, ManifoldDimensions } from "./model";
 import styles from "./intake.module.css";
+import {conceptualHeadFlange, conceptualThrottleFlange, wedgePlenumGeometry} from "./concept-geometry";
 
 type CameraView = "iso" | "front" | "side" | "top";
 type OrbitHandle = ComponentRef<typeof OrbitControls>;
@@ -58,15 +59,16 @@ function buildHollowRunner(curve: THREE.CatmullRomCurve3, outside: number, insid
 function Runner({x, p, dims, ghost}:{x:number;p:IntakeParameters;dims:ManifoldDimensions;ghost:boolean}) {
   const geometry = useMemo(() => {
     const startZ = p.flangeThickness/2 + 4;
+    const bend=p.runnerBend/100;
     const curve = new THREE.CatmullRomCurve3([
       new THREE.Vector3(0,0,startZ),
-      new THREE.Vector3(0,5,p.runnerReach*.25),
-      new THREE.Vector3(0,p.runnerRise*.42,p.runnerReach*.65),
-      new THREE.Vector3(0,p.runnerRise*.88,p.runnerReach*.88),
-      new THREE.Vector3(0,p.runnerRise,p.runnerReach+dims.plenumDepth*.16),
+      new THREE.Vector3(p.runnerOffset*.10,p.runnerRise*(.08+.12*(1-bend)),p.runnerReach*.20),
+      new THREE.Vector3(p.runnerOffset*.42,p.runnerRise*(.27+.36*bend),p.runnerReach*.50),
+      new THREE.Vector3(p.runnerOffset*.82,p.runnerRise*(.68+.20*bend),p.runnerReach*.80),
+      new THREE.Vector3(p.runnerOffset,p.runnerRise,p.runnerReach+dims.plenumDepth*.16),
     ]);
     return buildHollowRunner(curve, dims.runnerOutside/2, p.runnerInnerDiameter/2);
-  },[p.flangeThickness,p.runnerReach,p.runnerRise,p.runnerInnerDiameter,dims.runnerOutside,dims.plenumDepth]);
+  },[p.flangeThickness,p.runnerReach,p.runnerRise,p.runnerBend,p.runnerOffset,p.runnerInnerDiameter,dims.runnerOutside,dims.plenumDepth]);
   useEffect(()=>()=>geometry.dispose(),[geometry]);
   return (
     <group position={[x,0,0]}>
@@ -111,6 +113,7 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
   const stations=Array.from({length:p.cylinderCount},(_,i)=>(i-(p.cylinderCount-1)/2)*p.portPitch);
   const plenumZ=p.runnerReach+dims.plenumDepth/2;
   const isBox=p.plenumShape==="box";
+  const isWedge=p.plenumShape==="wedge";
   const outsideColor=p.method==="tig"?"#c4d1d9":"#819db4";
   const plenumColor=p.method==="tig" && p.tigPlenumFinish==="graphite"?"#394351":outsideColor;
   const taperRatio=1-p.plenumTaper/100;
@@ -118,15 +121,20 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
   const bottomRadius=dims.plenumHeight/2*(p.throttleSide==="right"?taperRatio:1);
   const metal=.83;
   const throttleSign=p.throttleSide==="left"?-1:1;
+  const flange=useMemo(()=>conceptualHeadFlange(p,dims),[p,dims]);
+  const throttlePlate=useMemo(()=>conceptualThrottleFlange(p.throttleDiameter),[p.throttleDiameter]);
+  const wedge=useMemo(()=>isWedge?wedgePlenumGeometry(dims,p.plenumTaper,p.throttleSide):null,[dims,isWedge,p.plenumTaper,p.throttleSide]);
+  useEffect(()=>()=>{flange.dispose();},[flange]);
+  useEffect(()=>()=>{throttlePlate.dispose();},[throttlePlate]);
+  useEffect(()=>()=>{wedge?.dispose();},[wedge]);
   return <>
     <ambientLight intensity={1.6}/>
     <hemisphereLight intensity={.85} color="#c1defa" groundColor="#11151c"/>
     <directionalLight position={[320,500,260]} intensity={3.2}/>
     <pointLight position={[-220,190,320]} intensity={32000} distance={1100}/>
     <gridHelper args={[1200,24,"#29384b","#1c2735"]} position={[0,-75,110]}/>
-    <mesh position={[0,0,0]} castShadow receiveShadow>
-      <boxGeometry args={[dims.span+70,68,p.flangeThickness]}/>
-      <meshStandardMaterial color={outsideColor} metalness={metal} roughness={.3}/>
+    <mesh geometry={flange} position={[0,0,-p.flangeThickness/2]} castShadow receiveShadow>
+      <meshStandardMaterial color={outsideColor} metalness={metal} roughness={.3} side={THREE.DoubleSide}/>
     </mesh>
     {stations.map((x,i)=><Runner key={i} x={x} p={p} dims={dims} ghost={ghost}/>)}
     {[-1,1].map(edge=>(
@@ -137,7 +145,11 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
         </mesh>)}
       </group>
     ))}
-    {isBox ? (
+    {isWedge && wedge ? (
+      <mesh geometry={wedge} position={[0,p.runnerRise,plenumZ]} castShadow receiveShadow>
+        <meshStandardMaterial color={plenumColor} metalness={metal} roughness={p.method==="tig"?.31:.25} side={THREE.DoubleSide} transparent={ghost} opacity={ghost?.27:1} depthWrite={!ghost}/>
+      </mesh>
+    ):isBox ? (
       <mesh position={[0,p.runnerRise,plenumZ]} castShadow>
         <boxGeometry args={[dims.plenumLength,dims.plenumHeight,dims.plenumDepth]}/>
         <meshStandardMaterial color={plenumColor} metalness={metal} roughness={p.method==="tig"?.35:.24} transparent={ghost} opacity={ghost?.27:1} depthWrite={!ghost}/>
@@ -148,26 +160,61 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
         <meshStandardMaterial color={plenumColor} metalness={metal} roughness={p.method==="tig"?.3:.24} transparent={ghost} opacity={ghost?.28:1} depthWrite={!ghost}/>
       </mesh>
     )}
-    {p.method==="cnc" && [-1,1].map(s=>(
+    {p.method==="cnc" && !isWedge && !isBox && [-1,1].map(s=>(
       <mesh key={s} position={[s*(dims.plenumLength/2-12),p.runnerRise,plenumZ]} rotation={[0,0,Math.PI/2]} scale={[1,1,dims.plenumDepth/dims.plenumHeight]}>
         <cylinderGeometry args={[dims.plenumHeight/2+3,dims.plenumHeight/2+3,7,64]}/>
         <meshStandardMaterial color="#385572" metalness={.82} roughness={.28} transparent={ghost} opacity={ghost?.35:1} depthWrite={!ghost}/>
       </mesh>
     ))}
-    {p.method==="tig" && [-1,1].map(s=>(
+    {p.method==="tig" && !isWedge && !isBox && [-1,1].map(s=>(
       <mesh key={s} position={[s*(dims.plenumLength/2-7),p.runnerRise,plenumZ]} rotation={[0,0,Math.PI/2]} scale={[1,1,dims.plenumDepth/dims.plenumHeight]}>
         <cylinderGeometry args={[s===-1?topRadius+1:bottomRadius+1,s===-1?topRadius+1:bottomRadius+1,3,64]}/>
         <meshStandardMaterial color="#d9e0e7" metalness={.75} roughness={.32} transparent={ghost} opacity={ghost?.35:1} depthWrite={!ghost}/>
       </mesh>
     ))}
-    <group position={[throttleSign*(dims.plenumLength/2+18),p.runnerRise,plenumZ]}>
+    {p.method==="tig" && stations.map((x,i)=>(
+      <mesh key={"weld-"+i} position={[x+p.runnerOffset,p.runnerRise,p.runnerReach+5]}>
+        <torusGeometry args={[dims.runnerOutside/2+2.5,2.1,8,36]}/>
+        <meshStandardMaterial color="#d2dce3" metalness={.75} roughness={.34} transparent={ghost} opacity={ghost?.22:1} depthWrite={!ghost}/>
+      </mesh>
+    ))}
+    {p.injectorBosses && <>
+      {stations.map((x,i)=>(
+        <group key={"injector-"+i} position={[x, p.runnerRise*.24, p.runnerReach*.32]}>
+          <mesh rotation={[Math.PI*.28,0,0]}>
+            <cylinderGeometry args={[9,10,30,16,1,true]}/>
+            <meshStandardMaterial color="#c4d5df" metalness={.79} roughness={.3} side={THREE.DoubleSide}/>
+          </mesh>
+          <mesh position={[0,14,-8]} rotation={[Math.PI*.28,0,0]}>
+            <cylinderGeometry args={[7,7,4,16]}/>
+            <meshStandardMaterial color="#1e293b" metalness={.2} roughness={.7}/>
+          </mesh>
+        </group>
+      ))}
+      <mesh position={[0,p.runnerRise*.24+28,p.runnerReach*.32-8]}>
+        <boxGeometry args={[dims.span+75,12,15]}/>
+        <meshStandardMaterial color="#202630" metalness={.62} roughness={.34}/>
+      </mesh>
+    </>}
+    {p.vacuumPorts && [0,1].map((i)=>(
+      <group key={"vacuum-"+i} position={[(i===0?.1:.3)*dims.span*-throttleSign,p.runnerRise+dims.plenumHeight*.48,plenumZ]}>
+        <mesh>
+          <cylinderGeometry args={[7,8,22,18,1,true]}/>
+          <meshStandardMaterial color="#cad4dd" metalness={.77} roughness={.3} side={THREE.DoubleSide}/>
+        </mesh>
+        <mesh position={[0,12,0]} rotation={[Math.PI/2,0,0]}>
+          <torusGeometry args={[7,1.6,7,18]}/>
+          <meshStandardMaterial color="#dce3eb" metalness={.7} roughness={.3}/>
+        </mesh>
+      </group>
+    ))}
+    <group position={[throttleSign*(dims.plenumLength/2+18),p.runnerRise,plenumZ]} rotation={[0,0,p.throttleAngle*Math.PI/180]}>
       <mesh rotation={[0,0,Math.PI/2]}>
         <cylinderGeometry args={[p.throttleDiameter/2+4,p.throttleDiameter/2+4,44,48,1,true]}/>
         <meshStandardMaterial color="#c4d0db" metalness={.85} roughness={.25} side={THREE.DoubleSide}/>
       </mesh>
-      <mesh position={[throttleSign*27,0,0]} rotation={[0,Math.PI/2,0]}>
-        <torusGeometry args={[p.throttleDiameter/2+7,4,10,48]}/>
-        <meshStandardMaterial color={p.method==="tig"?"#e1e7ef":"#ee893d"} metalness={.75} roughness={.27}/>
+      <mesh geometry={throttlePlate} position={[throttleSign*26,0,0]} rotation={[0,throttleSign*Math.PI/2,0]}>
+        <meshStandardMaterial color={p.method==="tig"?"#dee7ec":"#8facc2"} metalness={.79} roughness={.29} side={THREE.DoubleSide}/>
       </mesh>
     </group>
   </>;
