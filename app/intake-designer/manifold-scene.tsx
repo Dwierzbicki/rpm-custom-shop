@@ -191,7 +191,7 @@ function Model({p,dims,ghost}:{p:IntakeParameters;dims:ManifoldDimensions;ghost:
           </mesh>
         </group>
       ))}
-      <mesh position={[0,p.runnerRise*.24+28,p.runnerReach*.32-8]}>
+      <mesh position={[0,-dims.runnerOutside*.95,p.runnerReach*.25]}>
         <boxGeometry args={[dims.span+75,12,15]}/>
         <meshStandardMaterial color="#202630" metalness={.62} roughness={.34}/>
       </mesh>
