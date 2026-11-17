@@ -2,13 +2,13 @@
 
 import { useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { IntakeParameters, EnginePreset, PlenumShape, BuildMethod, ThrottleSide, TigPlenumFinish } from "./model";
-import { DEFAULT_INTAKE, intakePreset, normalizeIntake, calculateManifold, intakeSummary } from "./model";
+import type { IntakeParameters, EnginePreset, PlenumShape, BuildMethod, ThrottleSide, TigPlenumFinish, PortShape } from "./model";
+import { DEFAULT_INTAKE, intakePreset, m50TigPreset, normalizeIntake, calculateManifold, intakeSummary } from "./model";
 import styles from "./intake.module.css";
 
 const Scene=dynamic(()=>import("./manifold-scene"),{ssr:false});
 
-type NumericKey="cylinderCount"|"portPitch"|"runnerInnerDiameter"|"runnerWall"|"runnerReach"|"runnerRise"|"plenumVolume"|"plenumTaper"|"throttleDiameter"|"flangeThickness";
+type NumericKey="cylinderCount"|"portPitch"|"runnerInnerDiameter"|"runnerWall"|"runnerReach"|"runnerRise"|"runnerBend"|"runnerOffset"|"plenumVolume"|"plenumTaper"|"throttleDiameter"|"throttleAngle"|"flangeThickness";
 
 function NumberSlider({label,value,min,max,step,unit,onChange}:{label:string;value:number;min:number;max:number;step:number;unit:string;onChange:(n:number)=>void}) {
   return <div className={styles.field}>
@@ -39,7 +39,7 @@ export default function IntakeDesignerPage(){
   const fileInput=useRef<HTMLInputElement>(null);
   const dims=useMemo(()=>calculateManifold(p),[p]);
   const number=(key:NumericKey)=>(value:number)=>setP(previous=>normalizeIntake({...previous,[key]:value}));
-  const text=<K extends "method"|"plenumShape"|"throttleSide"|"tigPlenumFinish">(key:K)=>(value:IntakeParameters[K])=>setP(previous=>normalizeIntake({...previous,[key]:value}));
+  const text=<K extends "method"|"plenumShape"|"throttleSide"|"tigPlenumFinish"|"portShape">(key:K)=>(value:IntakeParameters[K])=>setP(previous=>normalizeIntake({...previous,[key]:value}));
   const selectEngine=(engine:EnginePreset)=>setP(previous=>normalizeIntake({...intakePreset(engine),method:previous.method,plenumShape:previous.plenumShape,throttleSide:previous.throttleSide}));
   const save=()=>{
     const blob=new Blob([JSON.stringify(intakeSummary(p),null,2)],{type:"application/json"});
@@ -87,7 +87,8 @@ export default function IntakeDesignerPage(){
         <section className={styles.section}>
           <HeaderLabel no="01" title="Wybierz silnik"/>
           <Choices value={p.engine} onChange={selectEngine} choices={[{value:"2jz-gte",label:"2JZ-GTE"},{value:"2jz-ge",label:"2JZ-GE"},{value:"m50-m52",label:"BMW M50/M52"},{value:"m54",label:"BMW M54"},{value:"universal",label:"Uniwersalny"}] as const}/>
-          <p className={styles.helper}>Presety pokazują układ cylindrów, ale rozstaw i kształt portów nie są pomiarami seryjnej głowicy.</p>
+          <button type="button" className={styles.action} style={{width:"100%",marginTop:12,background:"#f97316"}} onClick={()=>{setP(m50TigPreset());setNotice("Wczytano preset koncepcyjny BMW M50 TIG.");}}>⚙ Załaduj preset BMW M50 TIG · Wedge</button>
+          <p className={styles.helper}>Preset M50 TIG bazuje na wyglądzie kolektora z przesłanych zdjęć. Porty, śruby i ich rozstaw nie są zweryfikowanymi wymiarami OEM.</p>
           {p.engine==="universal"&&<NumberSlider label="Liczba cylindrów" value={p.cylinderCount} min={3} max={12} step={1} unit="szt." onChange={number("cylinderCount")}/>}
           <div style={{marginTop:12}}><NumberSlider label="Rozstaw osi runnerów" value={p.portPitch} min={p.runnerInnerDiameter+p.runnerWall*2+5} max={150} step={1} unit="mm" onChange={number("portPitch")}/></div>
         </section>
@@ -97,11 +98,15 @@ export default function IntakeDesignerPage(){
           <NumberSlider label="Grubość ścianki" value={p.runnerWall} min={1.5} max={8} step={.5} unit="mm" onChange={number("runnerWall")}/>
           <NumberSlider label="Wysięg runnerów" value={p.runnerReach} min={70} max={320} step={5} unit="mm" onChange={number("runnerReach")}/>
           <NumberSlider label="Wysokość osi plenum" value={p.runnerRise} min={40} max={200} step={5} unit="mm" onChange={number("runnerRise")}/>
+          <NumberSlider label="Stopień wygięcia runnerów" value={p.runnerBend} min={0} max={100} step={1} unit="%" onChange={number("runnerBend")}/>
+          <NumberSlider label="Przesunięcie wlotów przy plenum" value={p.runnerOffset} min={-35} max={35} step={1} unit="mm" onChange={number("runnerOffset")}/>
           <p className={styles.helper}>Wysięg i wysokość definiują przebieg kanału. Długość rzeczywistej osi zakrzywionego kanału jest od nich różna.</p>
         </section>
         <section className={styles.section}>
           <HeaderLabel no="03" title="Flansza głowicy"/>
           <NumberSlider label="Grubość flanszy" value={p.flangeThickness} min={6} max={25} step={1} unit="mm" onChange={number("flangeThickness")}/>
+          <p className={styles.helper} style={{marginBottom:8}}>Wizualny kształt portu dolotowego</p>
+          <Choices<PortShape> value={p.portShape} onChange={text("portShape")} choices={[{value:"round",label:"Okrągły"},{value:"oval",label:"Owalny"},{value:"rounded-rect",label:"Zaokrąglony prostokąt"}]}/>
           
           <div className={styles.warning}>Kształt portów i otwory śrub są tylko wizualizacją. Nie wycinaj flanszy na podstawie tego modelu. Wersja produkcyjna wymaga potwierdzonego DXF/STEP albo pomiaru głowicy.</div>
           <div style={{marginTop:12,display:"grid",gap:6,fontSize:11}}>
@@ -128,7 +133,7 @@ export default function IntakeDesignerPage(){
         </section>
         <section className={styles.section}>
           <HeaderLabel no="05" title="Plenum"/>
-          <Choices<PlenumShape> value={p.plenumShape} onChange={text("plenumShape")} choices={[{value:"round",label:"Okrągłe"},{value:"oval",label:"Owalne"},{value:"box",label:"Prostokątne"}]}/>
+          <Choices<PlenumShape> value={p.plenumShape} onChange={text("plenumShape")} choices={[{value:"round",label:"Okrągłe"},{value:"oval",label:"Owalne"},{value:"box",label:"Prostokątne"},{value:"wedge",label:"Klinowe · Wedge"}]}/>
           <div style={{marginTop:14}}><NumberSlider label="Docelowa pojemność" value={p.plenumVolume} min={1} max={18} step={.1} unit="l" onChange={number("plenumVolume")}/></div>
           {p.plenumShape!=="box"&&<NumberSlider label="Zwężenie plenum ku przepustnicy" value={p.plenumTaper} min={0} max={45} step={1} unit="%" onChange={number("plenumTaper")}/>}
           <p className={styles.helper}>Zwężenie określa różnicę średnic końców plenum; kierunek zależy od położenia przepustnicy. Pojemność to przybliżenie geometryczne, bez dokładnego odjęcia objętości kanałów.</p>
@@ -137,9 +142,19 @@ export default function IntakeDesignerPage(){
           <HeaderLabel no="06" title="Przepustnica"/>
           <NumberSlider label="Średnica przepustnicy" value={p.throttleDiameter} min={40} max={120} step={2} unit="mm" onChange={number("throttleDiameter")}/>
           <Choices<ThrottleSide> value={p.throttleSide} onChange={text("throttleSide")} choices={[{value:"left",label:"Po lewej"},{value:"right",label:"Po prawej"}]}/>
+          <div style={{marginTop:12}}><NumberSlider label="Kąt przepustnicy" value={p.throttleAngle} min={-25} max={25} step={1} unit="°" onChange={number("throttleAngle")}/></div>
+          <p className={styles.helper}>Wizualizowana flansza przepustnicy zawiera orientacyjne otwory montażowe.</p>
         </section>
         <section className={styles.section}>
-          <HeaderLabel no="07" title="Podsumowanie projektu"/>
+          <HeaderLabel no="07" title="Detale montażowe · koncepcja"/>
+          <div className={styles.pills}>
+            <button type="button" aria-pressed={p.injectorBosses} className={p.injectorBosses?styles.pillActive:styles.pill} onClick={()=>setP(prev=>normalizeIntake({...prev,injectorBosses:!prev.injectorBosses}))}>Wtryski + listwa {p.injectorBosses?"✓":"+"}</button>
+            <button type="button" aria-pressed={p.vacuumPorts} className={p.vacuumPorts?styles.pillActive:styles.pill} onClick={()=>setP(prev=>normalizeIntake({...prev,vacuumPorts:!prev.vacuumPorts}))}>Króćce podciśnienia {p.vacuumPorts?"✓":"+"}</button>
+          </div>
+          <p className={styles.helper}>Pozycje bossów, listwy i króćców są poglądowe. Nie stanowią dokumentacji montażowej ani sprawdzenia kolizji.</p>
+        </section>
+        <section className={styles.section}>
+          <HeaderLabel no="08" title="Podsumowanie projektu"/>
           <div className={styles.metricGrid}>
             <div className={styles.metric}><div className={styles.metricValue}>{p.cylinderCount}</div><div className={styles.metricLabel}>Runnerów</div></div>
             <div className={styles.metric}><div className={styles.metricValue}>{p.plenumVolume.toFixed(1)} l</div><div className={styles.metricLabel}>Docelowe plenum</div></div>
@@ -149,7 +164,7 @@ export default function IntakeDesignerPage(){
           <p className={styles.helper}>{p.method==="tig"?"Plan TIG: flansza → gięte kanały → plenum → przepustnica → spawanie i kontrola szczelności.":"Plan CNC: podział korpusu → kontrola dostępności narzędzia → obróbka kanałów → powierzchnie łączenia → montaż."}</p>
         </section>
         <section className={styles.section}>
-          <HeaderLabel no="08" title="Zapis projektu"/>
+          <HeaderLabel no="09" title="Zapis projektu"/>
           <div className={styles.actionRow}>
             <button type="button" className={styles.action} onClick={save}>↓ Zapisz JSON</button>
             <button type="button" className={styles.actionSecondary} onClick={()=>fileInput.current?.click()}>↑ Wczytaj JSON</button>
