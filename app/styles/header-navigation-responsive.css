@@ -270,3 +270,27 @@
 .rpm-header-v2.rpm-header-wide .rpm-desktop-categories{justify-content:space-evenly!important}
 .rpm-header-v2.rpm-header-compact .rpm-desktop-categories{justify-content:flex-start!important}
 
+
+
+/* Road Assistance: desktop direct link + compact mobile drawer entry. */
+.rpm-header-v2 .rpm-desktop-road {
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:9px;
+  flex:0 0 auto;padding:11px 18px;min-height:49px;
+  font-size:12px;font-weight:850;letter-spacing:.45px;white-space:nowrap;
+  color:#f2f3f6;background:#282a30;border-left:1px solid #555965;
+  text-decoration:none;
+}
+.rpm-header-v2 .rpm-desktop-road:hover,
+.rpm-header-v2 .rpm-desktop-road:focus-visible {
+  background:#713544;color:#fff;
+}
+.rpm-header-v2 .rpm-drawer-road {
+  display:flex;align-items:center;justify-content:center;gap:9px;
+  margin:10px 13px 14px;padding:13px 11px;border:1px solid #ae5164;
+  border-radius:10px;background:linear-gradient(120deg,#752c40,#352833);
+  color:#fff;text-decoration:none;font-size:12px;font-weight:850;text-align:center;
+}
+.rpm-header-v2 .rpm-drawer-road:hover,
+.rpm-header-v2 .rpm-drawer-road:focus-visible {
+  background:linear-gradient(120deg,#b53451,#513341);
+}
