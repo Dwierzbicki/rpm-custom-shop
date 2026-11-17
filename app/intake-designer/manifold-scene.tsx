@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ComponentRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -8,7 +9,7 @@ import type { IntakeParameters, ManifoldDimensions } from "./model";
 import styles from "./intake.module.css";
 
 type CameraView = "iso" | "front" | "side" | "top";
-type OrbitHandle = { target: THREE.Vector3; update: () => void };
+type OrbitHandle = ComponentRef<typeof OrbitControls>;
 
 function buildHollowRunner(curve: THREE.CatmullRomCurve3, outside: number, inside: number): THREE.BufferGeometry {
   const sections = 44;
