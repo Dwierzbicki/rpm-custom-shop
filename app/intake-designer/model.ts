@@ -2,6 +2,7 @@ export type EnginePreset = "2jz-gte" | "2jz-ge" | "m50-m52" | "m54" | "universal
 export type BuildMethod = "tig" | "cnc";
 export type PlenumShape = "round" | "oval" | "box";
 export type ThrottleSide = "left" | "right";
+export type TigPlenumFinish = "graphite" | "aluminum";
 
 export type IntakeParameters = {
   engine: EnginePreset;
@@ -14,6 +15,8 @@ export type IntakeParameters = {
   runnerRise: number;
   plenumVolume: number;
   plenumShape: PlenumShape;
+  plenumTaper: number;
+  tigPlenumFinish: TigPlenumFinish;
   throttleDiameter: number;
   throttleSide: ThrottleSide;
   flangeThickness: number;
@@ -30,6 +33,8 @@ export const DEFAULT_INTAKE: IntakeParameters = {
   runnerRise: 90,
   plenumVolume: 4.8,
   plenumShape: "round",
+  plenumTaper: 24,
+  tigPlenumFinish: "graphite",
   throttleDiameter: 80,
   throttleSide: "left",
   flangeThickness: 12,
@@ -70,6 +75,8 @@ export function normalizeIntake(input: Partial<IntakeParameters>): IntakeParamet
     runnerRise: clamp(numberOr(base.runnerRise, 90), 40, 200),
     plenumVolume: clamp(numberOr(base.plenumVolume, 4.8), 1, 18),
     plenumShape: oneOf(base.plenumShape, ["round", "oval", "box"] as const, "round"),
+    plenumTaper: clamp(numberOr(base.plenumTaper, 24), 0, 45),
+    tigPlenumFinish: oneOf(base.tigPlenumFinish, ["graphite", "aluminum"] as const, "graphite"),
     throttleDiameter: clamp(numberOr(base.throttleDiameter, 80), 40, 120),
     throttleSide: oneOf(base.throttleSide, ["left", "right"] as const, "left"),
     flangeThickness: clamp(numberOr(base.flangeThickness, 12), 6, 25),
@@ -92,7 +99,11 @@ export function calculateManifold(p: IntakeParameters): ManifoldDimensions {
   const span = (p.cylinderCount - 1) * p.portPitch;
   const plenumLength = span + 150;
   const mm3 = p.plenumVolume * 1_000_000;
-  const area = mm3 / plenumLength;
+  // Frustum volume correction keeps the nominal plenum volume closer to the target
+  // when tapered toward the throttle. Exact effective volume still requires CAD booleans.
+  const taperRatio = 1 - p.plenumTaper / 100;
+  const taperAreaFactor = p.plenumShape === "box" ? 1 : (1 + taperRatio + taperRatio * taperRatio) / 3;
+  const area = mm3 / plenumLength / taperAreaFactor;
   let plenumHeight: number;
   let plenumDepth: number;
   if (p.plenumShape === "box") {
