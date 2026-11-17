@@ -7,36 +7,76 @@ export function wedgePlenumGeometry(
   taperPercent: number,
   throttleSide: "left" | "right",
 ): THREE.BufferGeometry {
-  const halfLength=dimensions.plenumLength/2;
-  const halfDepth=dimensions.plenumDepth/2;
-  const bottom=-dimensions.plenumHeight/2;
-  const reduction=Math.max(.52,1-taperPercent/100);
-  const leftScale=throttleSide==="left"?reduction:1;
-  const rightScale=throttleSide==="right"?reduction:1;
-  const end=(x:number,scale:number)=>[
-    new THREE.Vector3(x,bottom,-halfDepth),
-    new THREE.Vector3(x,bottom,halfDepth),
-    new THREE.Vector3(x,bottom+dimensions.plenumHeight*scale,-halfDepth*(.8+.2*scale)),
-    new THREE.Vector3(x,bottom+dimensions.plenumHeight*scale,halfDepth*(.8+.2*scale)),
-  ];
-  const corners=[...end(-halfLength,leftScale),...end(halfLength,rightScale)];
-  const positions:number[]=[];
-  function triangle(a:number,b:number,c:number){
-    for(const idx of [a,b,c])positions.push(corners[idx].x,corners[idx].y,corners[idx].z);
+  // Superellipse loft: softly rounded TIG plenum, not a sharp-edged six-face box.
+  // The bottom remains aligned to the runners; the roof tapers toward the inlet.
+  const axialStations = 24;
+  const crossSections = 48;
+  const halfLength = dimensions.plenumLength / 2;
+  const halfDepth = dimensions.plenumDepth / 2;
+  const bottom = -dimensions.plenumHeight / 2;
+  const taper = Math.max(.55, 1 - taperPercent / 100);
+  const exponent = 3.8;
+  const signedPower = (v: number) => Math.sign(v) * Math.pow(Math.abs(v), 2 / exponent);
+  const position: number[] = [];
+  const index: number[] = [];
+
+  const add = (x: number, y: number, z: number) => {
+    const at = position.length / 3;
+    position.push(x, y, z);
+    return at;
+  };
+  const ring: number[][] = [];
+  for (let station = 0; station <= axialStations; station++) {
+    const u = station / axialStations;
+    const towardThrottle = throttleSide === "right" ? u : 1 - u;
+    const roofScale = 1 - (1 - taper) * towardThrottle;
+    const height = dimensions.plenumHeight * roofScale;
+    const centerY = bottom + height / 2;
+    const halfH = height / 2;
+    const halfD = halfDepth * (.96 + .04 * roofScale);
+    const x = (u - .5) * dimensions.plenumLength;
+    const ids: number[] = [];
+    for (let j = 0; j < crossSections; j++) {
+      const a = j / crossSections * Math.PI * 2;
+      ids.push(add(x, centerY + halfH * signedPower(Math.cos(a)), halfD * signedPower(Math.sin(a))));
+    }
+    ring.push(ids);
   }
-  function quad(a:number,b:number,c:number,d:number){
-    triangle(a,b,c);triangle(a,c,d);
+
+  // Outward-facing winding, no open seam, with smooth normals along each wall.
+  for (let i = 0; i < axialStations; i++) {
+    for (let j = 0; j < crossSections; j++) {
+      const k = (j + 1) % crossSections;
+      const a = ring[i][j], b = ring[i][k];
+      const c = ring[i+1][j], d = ring[i+1][k];
+      index.push(a, b, c, b, d, c);
+    }
   }
-  quad(0,4,5,1); // bottom
-  quad(2,3,7,6); // top ramp
-  quad(0,2,6,4); // near side
-  quad(1,5,7,3); // far side
-  quad(0,1,3,2); // end cap
-  quad(4,6,7,5); // throttle end cap
-  const geometry=new THREE.BufferGeometry();
-  geometry.setAttribute("position",new THREE.Float32BufferAttribute(positions,3));
-  geometry.computeVertexNormals();
-  return geometry;
+  // Flat end caps have independent vertices so side normals stay rounded.
+  for (const side of [0, axialStations]) {
+    const u = side / axialStations;
+    const towards = throttleSide === "right" ? u : 1 - u;
+    const scale = 1 - (1 - taper) * towards;
+    const height = dimensions.plenumHeight * scale;
+    const x = side === 0 ? -halfLength : halfLength;
+    const cy = bottom + height / 2;
+    const center = add(x, cy, 0);
+    const perimeter: number[] = [];
+    for (let j = 0; j < crossSections; j++) {
+      const a = j / crossSections * Math.PI * 2;
+      perimeter.push(add(x,cy + height/2 * signedPower(Math.cos(a)),halfDepth*(.96+.04*scale)*signedPower(Math.sin(a))));
+    }
+    for (let j = 0; j < crossSections; j++) {
+      const k=(j+1)%crossSections;
+      if(side === 0) index.push(center,perimeter[k],perimeter[j]);
+      else index.push(center,perimeter[j],perimeter[k]);
+    }
+  }
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position",new THREE.Float32BufferAttribute(position,3));
+  geom.setIndex(index);
+  geom.computeVertexNormals();
+  return geom;
 }
 
 function roundedRectangle(path:THREE.Shape|THREE.Path,x:number,y:number,w:number,h:number,rad:number,clockwise=false){
