@@ -17,8 +17,8 @@ export default function DesignersPage(){
     </nav>
     <header style={{padding:'64px 0 36px'}}>
      <p style={{color:'#fb923c',fontSize:12,fontWeight:700,letterSpacing:4}}>RPM CUSTOM · MOTOLAB</p>
-     <h1 style={{fontSize:'clamp(32px,5vw,56px)',margin:'12px 0',lineHeight:1.12}}>Projektuj części do swojego silnika</h1>
-     <p style={{color:'#a1a1aa',maxWidth:720,lineHeight:1.65}}>Kreatory CAD połączone ze sklepem RPM Custom. Projektuj geometrię, oglądaj model 3D na żywo i przygotowuj pliki do dalszej pracy.</p>
+     <h1 style={{fontSize:'clamp(32px,5vw,56px)',margin:'12px 0',lineHeight:1.12}}>Projektuj i analizuj swój silnik</h1>
+     <p style={{color:'#a1a1aa',maxWidth:720,lineHeight:1.65}}>Kreatory 3D i narzędzia inżynierskie RPM Custom. Projektuj części, analizuj geometrię silnika i eksperymentuj z konfiguracją w czasie rzeczywistym.</p>
     </header>
     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:18}}>
      <article style={{border:'1px solid #9a341244',borderRadius:18,padding:26,background:'#151b25'}}>
@@ -34,6 +34,12 @@ export default function DesignersPage(){
       <h2 style={{fontSize:25,margin:'14px 0'}}>Kolektory ssące TIG / CNC</h2>
       <p style={{color:'#a1a1aa',lineHeight:1.6}}>Koncepcyjny model 3D: plenum, runnery, flansze i przepustnice. Dwa widoki technologiczne TIG i CNC, zapis projektu JSON.</p>
       <a href="/intake-designer" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#f97316',borderRadius:10,color:'#111827',fontWeight:800,textDecoration:'none'}}>Otwórz Intake Designer · MVP</a>
+     </article>
+     <article style={{border:'1px solid #e4456366',borderRadius:18,padding:26,background:'linear-gradient(135deg,#311a28,#141d2a 80%)'}}>
+      <div style={{fontSize:12,letterSpacing:2,color:'#fb7185',fontWeight:700}}>NOWOŚĆ · ENGINE SIMULATION 3D</div>
+      <h2 style={{fontSize:25,margin:'14px 0'}}>CR Calculator 3D</h2>
+      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Animowany przekrój silnika: tłok, korbowód i wał korbowy. Oblicz geometryczny stopień sprężania, zobacz zmianę objętości i dobierz denko tłoka do docelowego CR.</p>
+      <a href="/cr-calculator" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#e93d5e',borderRadius:10,color:'#fff',fontWeight:800,textDecoration:'none'}}>Uruchom CR Calculator 3D →</a>
      </article>
     </div>
     <p style={{marginTop:28,color:'#71717a',fontSize:13}}>Modele CAD wymagają sprawdzenia wymiarów i technologii wykonania przed produkcją. Funkcje płatności i automatycznego udostępniania plików nie są jeszcze uruchomione.</p>
