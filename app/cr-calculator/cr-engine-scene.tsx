@@ -143,17 +143,22 @@ function Housing({ radius, deck, bottom, crankY, roof, gasket, xray }: {
         <Cylinder radius={0.12} height={0.12} material="journal" />
       </group>
     </group>)}
-    <mesh position={[0, crankY - 0.86, -0.34]}>
-      <boxGeometry args={[radius * 2 + 0.68, 0.69, 1.52]} />
+    {/* Hollow sump and thin pan floor; the counterweights do not clip a solid box. */}
+    <mesh position={[0, crankY - 1.45, -0.32]}>
+      <boxGeometry args={[radius * 2 + 0.69, 0.19, 1.64]} />
       <meshStandardMaterial {...iron} />
     </mesh>
-    <mesh position={[0, crankY - 1.23, -0.32]}>
-      <boxGeometry args={[radius * 2 + 0.53, 0.13, 1.55]} />
+    <mesh position={[0, crankY - 1.17, -1.04]}>
+      <boxGeometry args={[radius * 2 + 0.69, 0.52, 0.18]} />
       <meshStandardMaterial {...cast} />
     </mesh>
     {[-1, 1].map(side => <group key={side}>
-      {[-0.58, 0, 0.58].map((z, i) => <mesh key={i} position={[side * (radius + 0.14), crankY - 0.93, z]}>
-        <boxGeometry args={[0.055, 0.45, 0.075]} />
+      <mesh position={[side * (radius + 0.27), crankY - 1.15, -0.32]}>
+        <boxGeometry args={[0.15, 0.52, 1.61]} />
+        <meshStandardMaterial {...cast} />
+      </mesh>
+      {[-0.58, 0, 0.58].map((z, i) => <mesh key={i} position={[side * (radius + 0.37), crankY - 1.18, z]}>
+        <boxGeometry args={[0.055, 0.36, 0.075]} />
         <meshStandardMaterial {...alloy} />
       </mesh>)}
     </group>)}
@@ -348,7 +353,9 @@ function Mechanics({ params, running, rpm, angle, onAngle, xray, showGas }: Omit
   const deck = 2.0;
   const crankY = deck - params.deckClearance * SCALE - pinDrop - (rodLength + throwRadius);
   const linerBottom = deck - params.stroke * SCALE - 1.14;
-  const roof = deck + (c.valid ? Math.max(0.07, c.clearance * 1000 / (Math.PI * params.bore * params.bore / 4) * SCALE) : 0.18);
+  // Roof is placed above the ACTUAL TDC piston crown; avoids counting deck clearance twice.
+  const pistonTdc = deck - params.deckClearance * SCALE;
+  const roof = pistonTdc + (c.valid ? Math.max(0.07, c.clearance * 1000 / (Math.PI * params.bore * params.bore / 4) * SCALE) : 0.18);
   const angleRef = useRef(angle);
   const ticker = useRef(0);
   const pistonRef = useRef<Group>(null);
