@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Grid, OrbitControls, Sparkles } from "@react-three/drei";
-import { DoubleSide, Group, Mesh, Quaternion, Vector3 } from "three";
+import { DoubleSide, Group, Mesh, Quaternion, Vector2, Vector3 } from "three";
 import type { EngineParams } from "./model";
 import { calculateCompression } from "./model";
 
@@ -52,7 +52,7 @@ function TorusRing({ y, radius, color = "#8ca0b5", thickness = 0.024 }: {
 
 function EngineMechanics({ params, running, rpm, angle, onAngle, xray, showGas }: Omit<Props, "view">) {
   const compression = useMemo(() => calculateCompression(params), [params]);
-  const scale = 1.76 / params.bore;
+  const scale = 1.76 / 84; // Fixed world scale: changing the bore changes the visible cylinder.
   const radius = params.bore * scale / 2;
   const deckY = 2.05;
   const crankRadius = params.stroke * scale / 2;
@@ -178,13 +178,30 @@ function EngineMechanics({ params, running, rpm, angle, onAngle, xray, showGas }
     {/* Piston crown, barrel, ring pack, skirt and wrist pin all move together. */}
     <group ref={pistonRef}>
       <mesh castShadow>
-        <cylinderGeometry args={[radius - 0.045, radius - 0.065, 0.75, 72]} />
+        <cylinderGeometry args={[radius - 0.045, radius - 0.065, 0.75, 72, 1, true]} />
         <meshStandardMaterial {...steel} />
       </mesh>
-      <mesh position={[0, 0.39, 0]} castShadow>
-        <cylinderGeometry args={[radius - 0.04, radius - 0.04, 0.045, 72]} />
-        <meshStandardMaterial color="#dce4e9" metalness={0.95} roughness={0.18} />
-      </mesh>
+      {params.pistonCc > 0.2 ? (
+        <mesh castShadow>
+          <latheGeometry args={[[
+            new Vector2(0, 0.39 - Math.min(0.22, params.pistonCc * 0.012)),
+            new Vector2(radius * 0.35, 0.39 - Math.min(0.2, params.pistonCc * 0.01)),
+            new Vector2(radius * 0.69, 0.39 - Math.min(0.11, params.pistonCc * 0.006)),
+            new Vector2(radius * 0.86, 0.39),
+            new Vector2(radius - 0.04, 0.39),
+          ], 72]} />
+          <meshStandardMaterial color="#dce4e9" metalness={0.95} roughness={0.2} side={DoubleSide} />
+        </mesh>
+      ) : (
+        <mesh position={[0, 0.39, 0]} castShadow>
+          <cylinderGeometry args={[radius - 0.04, radius - 0.04, 0.045, 72]} />
+          <meshStandardMaterial color="#dce4e9" metalness={0.95} roughness={0.18} />
+        </mesh>
+      )}
+      {params.pistonCc < -0.2 && <mesh position={[0, 0.41, 0]} scale={[radius * 0.78, Math.min(0.28, -params.pistonCc * 0.013), radius * 0.78]} castShadow>
+        <sphereGeometry args={[1, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2]} />
+        <meshStandardMaterial color="#d2dce5" metalness={0.95} roughness={0.22} />
+      </mesh>}
       {[-0.02, -0.12, -0.22].map((pos, i) => (
         <mesh key={i} position={[0, pos, 0]}>
           <cylinderGeometry args={[radius - 0.023, radius - 0.023, 0.028, 72]} />
@@ -285,7 +302,7 @@ export default function CrEngineScene(props: Props) {
     <directionalLight position={[4.5, 8, 6]} color="#fff4ea" intensity={4.0} castShadow />
     <spotLight position={[-5, 3, 5]} color="#6baefc" intensity={90} angle={0.55} penumbra={0.75} distance={20} />
     <pointLight position={[2.8, -2.5, -2]} color="#eb3555" intensity={9} distance={9} />
-    <Sparkles count={32} scale={[8, 7, 4]} size={1.5} speed={0.18} color="#627f9e" opacity={0.5} />
+    <Sparkles count={32} scale={[8, 7, 4]} size={1.5} speed={0.18} color="#627f9e" />
     <Grid position={[0, -3.5, 0]} args={[16, 16]} cellSize={0.7} sectionSize={3.5} cellColor="#1d2a37" sectionColor="#32485b" fadeDistance={13} fadeStrength={1.6} infiniteGrid={false} />
     <EngineMechanics {...props} />
     <CameraViews view={props.view} />
