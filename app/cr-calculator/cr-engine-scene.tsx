@@ -445,7 +445,7 @@ function Mechanics({ params, running, rpm, angle, onAngle, xray, showGas }: Omit
         <Crankshaft throwRadius={throwRadius} />
       </group>
       {/* Main bearings are fixed; only the crank rotates. */}
-      {[-0.88, 0.88].map(z => <group key={z} position={[0, 0, z]} rotation={[Math.PI / 2, 0, 0]}>
+      {[-0.88, 0.88].map(z => <group key={z} position={[0, 0, z]}>
         <mesh>
           <torusGeometry args={[0.35, 0.065, 10, 40]} />
           <meshStandardMaterial {...alloy} />
