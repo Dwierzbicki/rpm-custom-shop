@@ -109,6 +109,7 @@ export default function CrCalculatorPage() {
     setNote("Zapisano projekt JSON.");
   };
   const angleUpdate = (a: number) => setAngle(a);
+  const phase = angle < 180 ? "SSANIE" : angle < 360 ? "SPRĘŻANIE" : angle < 540 ? "PRACA" : "WYDECH";
   const views: { id: CameraView; text: string }[] = [
     { id: "perspective", text: "Perspektywa" },
     { id: "front", text: "Przód" },
@@ -142,15 +143,15 @@ export default function CrCalculatorPage() {
         <section className={styles.stageColumn} aria-label="Animowany przekrój silnika 3D">
           <div className={styles.stage}>
             <div className={styles.stageTop}>
-              <span className={styles.stageTag}><span className={styles.pulse} /> LIVE / KINEMATYKA 3D</span>
-              <span className={styles.stageTopRight}>INTERACTIVE MODEL · WEBGL</span>
+              <span className={styles.stageTag}><span className={styles.pulse} /> LIVE / SILNIK CZTEROSUWOWY</span>
+              <span className={styles.stageTopRight}>CYKL 720° · PRZEKRÓJ CYLINDRA</span>
             </div>
             <div className={styles.canvasWrap}>
               <Scene params={params} running={running} rpm={rpm} angle={angle} onAngle={angleUpdate}
                 view={view} xray={xray} showGas={showGas} />
             </div>
             <div className={styles.stageHUD}>
-              <div className={styles.hudMetric}><small>POŁOŻENIE WAŁU</small><strong>{format(angle, 0)}°</strong></div>
+              <div className={styles.hudMetric}><small>SUW SILNIKA</small><strong>{phase}</strong></div>
               <div className={styles.hudMetric}><small>PRZEMIESZCZENIE TŁOKA</small><strong>{format(travel, 1)} <span>mm</span></strong></div>
               <div className={styles.hudMetric}><small>OBJĘTOŚĆ W CYLINDRZE</small><strong>{calc.valid ? format(volume, 1) : "—"} <span>cm³</span></strong></div>
             </div>
@@ -176,9 +177,9 @@ export default function CrCalculatorPage() {
             </div>
           </div>
           <div className={styles.manual}>
-            <div className={styles.manualLabel}><span>RĘCZNY OBRÓT WAŁU</span><strong>{format(angle, 0)}°</strong></div>
-            <input type="range" min="0" max="360" step="1" value={angle} onChange={e => { setRunning(false); setAngle(Number(e.currentTarget.value) % 360); }} aria-label="Ręczny kąt wału korbowego" />
-            <div className={styles.angleStops}><span>0° GMP</span><span>180° DMP</span><span>360° GMP</span></div>
+            <div className={styles.manualLabel}><span>RĘCZNY OBRÓT WAŁU · PEŁNY CYKL 4-SUWOWY</span><strong>{format(angle, 0)}°</strong></div>
+            <input type="range" min="0" max="720" step="1" value={angle} onChange={e => { setRunning(false); setAngle(Number(e.currentTarget.value)); }} aria-label="Ręczny kąt wału korbowego" />
+            <div className={styles.angleStops}><span>0° GMP</span><span>180° DMP</span><span>360° GMP</span><span>540° DMP</span><span>720° GMP</span></div>
           </div>
         </section>
 
@@ -232,7 +233,7 @@ export default function CrCalculatorPage() {
 
       <footer className={styles.foot}>
         <div><strong>RPM CUSTOM // ENGINEERING TOOLS</strong><p>CR = (pojemność skokowa jednego cylindra + objętość nad tłokiem w GMP) / objętość nad tłokiem w GMP.</p></div>
-        <p>Symulacja poglądowa. Model 3D pokazuje kinematykę i objętość równoważną; nie jest odwzorowaniem konstrukcyjnym konkretnego silnika ani pomiarem dynamicznego CR.</p>
+        <p>Poglądowy przekrój jednego cylindra, nie wierny model OEM. Mechanizm korbowy odtwarza geometrię ruchu; uproszczony rozrząd i kolory faz czterosuwu służą edukacji. CR jest geometryczny, nie dynamiczny.</p>
       </footer>
     </div>
   </main>;
