@@ -8,6 +8,7 @@ import {
 } from "./model";
 import type { R6View, R6Mode } from "./r6-cutaway-scene";
 import styles from "./cr-calculator.module.css";
+import RealEngineViewer, { REAL_ENGINE_MODELS, type RealEngineModelId } from "./real-engine-viewer";
 
 const ReferenceScene = dynamic(() => import("./reference-engine-scene"), {
   ssr: false,
@@ -69,6 +70,7 @@ function Icon({ name }: { name: "play" | "pause" | "reset" | "download" }) {
 
 export default function CrCalculatorPage() {
   const [sceneType, setSceneType] = useState<"reference" | "animated">("reference");
+  const [referenceId, setReferenceId] = useState<RealEngineModelId>("2jz");
   const [modelStatus, setModelStatus] = useState<"loading" | "ready" | "error">("loading");
   const [localGlb, setLocalGlb] = useState<string | null>(null);
   const [localGlbName, setLocalGlbName] = useState("");
@@ -93,6 +95,13 @@ export default function CrCalculatorPage() {
     setLocalGlb(url);
     setLocalGlbName(file.name);
   };
+  const chooseReference = (id: RealEngineModelId) => {
+    setReferenceId(id);
+    if (localGlbRef.current) URL.revokeObjectURL(localGlbRef.current);
+    localGlbRef.current = null;
+    setLocalGlb(null);
+    setLocalGlbName("");
+  };
   const [preset, setPreset] = useState<EnginePresetId>("m54");
   const [params, setParams] = useState<EngineParams>({ ...PRESETS.m54.params });
   const [running, setRunning] = useState(true);
@@ -107,6 +116,7 @@ export default function CrCalculatorPage() {
   const [target, setTarget] = useState(9);
   const [note, setNote] = useState("");
   const calc = useMemo(() => calculateCompression(params), [params]);
+  const referenceAsset = REAL_ENGINE_MODELS[referenceId];
   // 1–5–3–6–2–4, power TDC every 120 crankshaft degrees.
   const firingAngles = [0, 480, 240, 600, 120, 360] as const;
   const crankOffsets = [0, 240, 120, 120, 240, 0] as const;
@@ -171,7 +181,7 @@ export default function CrCalculatorPage() {
         <div className={styles.heroTitle}>
           <div>
             <h1>CR <em>Calculator</em> <span>3D.</span></h1>
-            <p>Sprawdź rzeczywisty model bryły silnika R6 w formacie GLB lub przejdź do animowanego przekroju 720°. Podgląd referencyjny i kalkulator stopnia sprężania to dwa niezależne narzędzia.</p>
+            <p>Obejrzyj szczegółowe modele 2JZ-GTE i BMW R6 albo prawdziwy skan silnika. Osobno uruchom animowany przekrój 720° z interaktywnym kalkulatorem stopnia sprężania.</p>
           </div>
           <div className={styles.heroStamp}>ENGINE<br />LAB<span>01 / 03</span></div>
         </div>
@@ -181,18 +191,27 @@ export default function CrCalculatorPage() {
         <section className={styles.stageColumn} aria-label="Model 3D i animacja R6">
           <div className={styles.sceneTabs} role="group" aria-label="Wybierz rodzaj modelu">
             <button type="button" aria-pressed={sceneType === "reference"} className={sceneType === "reference" ? styles.sceneTabActive : ""}
-              onClick={() => setSceneType("reference")}>Model R6 · GLB</button>
+              onClick={() => setSceneType("reference")}>Realistyczne silniki · 3D</button>
             <button type="button" aria-pressed={sceneType === "animated"} className={sceneType === "animated" ? styles.sceneTabActive : ""}
               onClick={() => setSceneType("animated")}>Animowany przekrój · 720°</button>
           </div>
+          {sceneType === "reference" && <div className={styles.referencePicker} role="group" aria-label="Wybierz model silnika">
+            {(Object.keys(REAL_ENGINE_MODELS) as RealEngineModelId[]).map(id =>
+              <button type="button" key={id}
+                aria-pressed={referenceId === id && !localGlb}
+                className={referenceId === id && !localGlb ? styles.referencePickerActive : ""}
+                onClick={() => chooseReference(id)}>{REAL_ENGINE_MODELS[id].label}</button>)}
+          </div>}
           <div className={styles.stage}>
             <div className={styles.stageTop}>
-              <span className={styles.stageTag}><span className={styles.pulse} /> {sceneType === "reference" ? "REFERENCYJNY MODEL 3D · R6" : "LIVE / R6 CUTAWAY 3D"}</span>
-              <span className={styles.stageTopRight}>{sceneType === "reference" ? "CC0 · GLB · MODEL STATYCZNY" : "SZEŚĆ CYLINDRÓW · 24 ZAWORY"}</span>
+              <span className={styles.stageTag}><span className={styles.pulse} /> {sceneType === "reference" ? (localGlb ? "WŁASNY PLIK GLB · 3D" : referenceAsset.scanned ? "PRAWDZIWY SKAN SILNIKA · 3D" : "REALISTYCZNY MODEL SILNIKA · 3D") : "LIVE / R6 CUTAWAY 3D"}</span>
+              <span className={styles.stageTopRight}>{sceneType === "reference" ? (localGlb ? "PLIK LOKALNY" : "SKETCHFAB · CC BY") : "SZEŚĆ CYLINDRÓW · 24 ZAWORY"}</span>
             </div>
             <div className={styles.canvasWrap}>
               {sceneType === "reference"
-                ? <ReferenceScene src={localGlb ?? "/api/cr-reference-model"} view={view} onStatus={onModelStatus} />
+                ? (localGlb
+                  ? <ReferenceScene src={localGlb} view={view} onStatus={onModelStatus} />
+                  : <RealEngineViewer model={referenceId} />)
                 : <Scene params={params} running={running} rpm={rpm} angle={angle} onAngle={angleUpdate}
                     view={view} mode={mode} selectedCylinder={selectedCylinder} focusCylinder={focusCylinder}
                     xray={xray} showGas={showGas} />}
@@ -201,32 +220,33 @@ export default function CrCalculatorPage() {
               <div className={styles.hudMetric}><small>CYLINDER {selectedCylinder} · SUW</small><strong>{phase}</strong></div>
               <div className={styles.hudMetric}><small>PRZEMIESZCZENIE TŁOKA</small><strong>{format(travel, 1)} <span>mm</span></strong></div>
               <div className={styles.hudMetric}><small>OBJĘTOŚĆ W CYLINDRZE</small><strong>{calc.valid ? format(volume, 1) : "—"} <span>cm³</span></strong></div>
-            </div> : <div className={styles.assetHud}>
-              <strong>{modelStatus === "ready" ? "MODEL 3D GOTOWY" : modelStatus === "error" ? "NIE UDAŁO SIĘ WCZYTAĆ" : "WCZYTYWANIE GEOMETRII…"}</strong>
-              <span>{localGlbName || "Innerscene · Inline-6 Diesel · CC0"}</span>
-            </div>}
+            </div> : localGlb ? <div className={styles.assetHud}>
+              <strong>{modelStatus === "ready" ? "WŁASNY MODEL WCZYTANY" : modelStatus === "error" ? "BŁĄD PLIKU GLB" : "WCZYTYWANIE PLIKU…"}</strong>
+              <span>{localGlbName}</span>
+            </div> : null}
           </div>
           <div className={styles.cameraBar}>
-            <div className={styles.cameraViews} role="group" aria-label="Widok kamery">
-              {views.map(item => <button key={item.id} className={view === item.id ? styles.cameraActive : ""} type="button" aria-pressed={view === item.id} onClick={() => setView(item.id)}>{sceneType === "reference" && item.id === "front" ? "Przód" : item.text}</button>)}
-            </div>
-            <div className={styles.cameraHelp}>Przeciągnij, aby obrócić · Dwa palce, aby przybliżyć</div>
+            {(sceneType === "animated" || !!localGlb) ? <>
+              <div className={styles.cameraViews} role="group" aria-label="Widok kamery">
+                {views.map(item => <button key={item.id} className={view === item.id ? styles.cameraActive : ""} type="button" aria-pressed={view === item.id} onClick={() => setView(item.id)}>{sceneType === "reference" && item.id === "front" ? "Przód" : item.text}</button>)}
+              </div>
+              <div className={styles.cameraHelp}>Przeciągnij, aby obrócić · Dwa palce, aby przybliżyć</div>
+            </> : <div className={styles.cameraExternal}>Obracaj silnik palcem · przybliżaj dwoma palcami · pełny ekran w odtwarzaczu 3D</div>}
           </div>
           {sceneType === "reference" && <div className={styles.assetInfo}>
-            <strong>Rzeczywisty plik GLB — model referencyjny</strong>
-            <p>To statyczny model z biblioteki CC0, a nie skan CT, przecięty model CAD ani animowany zespół. Służy do oceny bryły silnika. Nie zmienia kształtu pod wpływem suwaków CR.</p>
-            {modelStatus === "error" && <p className={styles.assetError}>Nie udało się pobrać lub odczytać modelu z serwera. Możesz pobrać plik u źródła i wczytać go bezpośrednio z urządzenia.</p>}
+            <strong>{localGlb ? "Twój model GLB" : referenceAsset.title}</strong>
+            <p>{localGlb
+              ? "Model wczytany z tego urządzenia — widok statyczny. Plik nie jest wysyłany na serwer ani powiązany z wymiarami kalkulatora."
+              : referenceAsset.description}</p>
+            <p>Modele 3D służą do oglądania budowy zewnętrznej. <b>Nie reagują na suwaki CR.</b> Pełen obrót wału i ruch tłoków dostępny jest w zakładce „Animowany przekrój · 720°”.</p>
+            {!localGlb && <p className={styles.modelCredit}>Autor: <b>{referenceAsset.creator}</b> · Sketchfab · licencja CC BY (wymagane uznanie autorstwa). Wizualizacja od zewnętrznego dostawcy; jeśli nie działa w przeglądarce, otwórz ją w Sketchfab.</p>}
+            {localGlb && modelStatus === "error" && <p className={styles.assetError}>Nie udało się wczytać GLB. Sprawdź format i spróbuj ponownie.</p>}
             <div className={styles.assetActions}>
               <label className={styles.assetUpload}>Wczytaj własny plik .GLB
                 <input type="file" accept=".glb,model/gltf-binary" onChange={e => handleLocalModel(e.currentTarget.files?.[0])} />
               </label>
-              <a href="https://www.innerscene.com/tools/library/3d-parts/inline-6-truck-diesel-engine-with-turbocharger-b5416332" target="_blank" rel="noopener noreferrer">Źródło modelu CC0 ↗</a>
-              {localGlb && <button type="button" onClick={() => {
-                setLocalGlb(null);
-                setLocalGlbName("");
-                if (localGlbRef.current) URL.revokeObjectURL(localGlbRef.current);
-                localGlbRef.current = null;
-              }}>Przywróć model bazowy</button>}
+              {!localGlb && <a href={referenceAsset.source} target="_blank" rel="noopener noreferrer">Otwórz model u autora ↗</a>}
+              {localGlb && <button type="button" onClick={() => chooseReference(referenceId)}>Wróć do modelu online</button>}
             </div>
           </div>}
           {sceneType === "animated" && <div className={styles.r6Toolbar}>
@@ -324,7 +344,7 @@ export default function CrCalculatorPage() {
 
       <footer className={styles.foot}>
         <div><strong>RPM CUSTOM // ENGINEERING TOOLS</strong><p>CR = (pojemność skokowa jednego cylindra + objętość nad tłokiem w GMP) / objętość nad tłokiem w GMP.</p></div>
-        <p>Model referencyjny: Innerscene, Inline-6 truck diesel engine with turbocharger, CC0. Importowana bryła nie jest animowana i nie reprezentuje M54/2JZ. Animowany model R6 pozostaje uproszczoną wizualizacją; stopień sprężania jest geometryczny.</p>
+        <p>Modele zewnętrzne: 2JZ-GTE (autoNgraphic), M52 (Lauri Grekula), skan silnika (Ele.Gpro), Sketchfab, CC BY. Nie są połączone z obliczeniami CR. Przekrój 720° jest osobną, uproszczoną wizualizacją ruchomego mechanizmu.</p>
       </footer>
     </div>
   </main>;

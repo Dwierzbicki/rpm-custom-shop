@@ -230,3 +230,31 @@
  .assetActions{gap:7px}
  .assetActions a,.assetActions button,.assetUpload{min-height:39px}
 }
+
+
+/* Independent Sketchfab engine references (2JZ / M52 / actual photo scan). */
+.referencePicker{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;
+ margin:0 0 10px
+}
+.referencePicker button{
+ min-width:0;min-height:42px;padding:9px 10px;border:1px solid #34485e;
+ border-radius:8px;background:#101b2a;color:#aabbce;
+ font-weight:900;font-size:11px;letter-spacing:.01em
+}
+.referencePicker button:hover,.referencePicker .referencePickerActive{
+ color:#fff;background:#84253e;border-color:#ff6680;
+ box-shadow:inset 0 0 0 1px #ff668025
+}
+.canvasWrap iframe{touch-action:auto}
+.cameraExternal{
+ width:100%;text-align:center;color:#a5bad0;
+ font-size:11px;font-weight:700;line-height:1.5;
+ padding:5px
+}
+.assetInfo .modelCredit{color:#9db1c8;font-size:10px}
+@media(max-width:530px){
+ .referencePicker{gap:5px;margin-bottom:8px}
+ .referencePicker button{min-height:39px;padding:7px 4px;font-size:9px;line-height:1.3}
+ .cameraExternal{font-size:10px}
+}
