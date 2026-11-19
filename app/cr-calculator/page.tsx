@@ -6,10 +6,10 @@ import {
   PRESETS, calculateCompression, requiredPistonCc, volumeAtAngle,
   pistonTravel, type EngineParams, type EnginePresetId,
 } from "./model";
-import type { CameraView } from "./cr-engine-scene";
+import type { R6View, R6Mode } from "./r6-cutaway-scene";
 import styles from "./cr-calculator.module.css";
 
-const Scene = dynamic(() => import("./cr-engine-scene"), {
+const Scene = dynamic(() => import("./r6-cutaway-scene"), {
   ssr: false,
   loading: () => <div className={styles.loading}><span className={styles.loadingSpinner} />Inicjalizacja silnika 3D…</div>,
 });
@@ -68,14 +68,22 @@ export default function CrCalculatorPage() {
   const [running, setRunning] = useState(true);
   const [rpm, setRpm] = useState(18);
   const [angle, setAngle] = useState(0);
-  const [view, setView] = useState<CameraView>("perspective");
+  const [view, setView] = useState<R6View>("front");
+  const [mode, setMode] = useState<R6Mode>("complete");
+  const [selectedCylinder, setSelectedCylinder] = useState(1);
+  const [focusCylinder, setFocusCylinder] = useState(false);
   const [xray, setXray] = useState(false);
   const [showGas, setShowGas] = useState(true);
   const [target, setTarget] = useState(9);
   const [note, setNote] = useState("");
   const calc = useMemo(() => calculateCompression(params), [params]);
-  const volume = useMemo(() => volumeAtAngle(params, angle), [params, angle]);
-  const travel = useMemo(() => pistonTravel(params, angle), [params, angle]);
+  // 1–5–3–6–2–4, power TDC every 120 crankshaft degrees.
+  const firingAngles = [0, 480, 240, 600, 120, 360] as const;
+  const crankOffsets = [0, 240, 120, 120, 240, 0] as const;
+  const selectedPhase = ((angle - firingAngles[selectedCylinder - 1]) % 720 + 720) % 720;
+  const selectedCrankAngle = angle + crankOffsets[selectedCylinder - 1];
+  const volume = useMemo(() => volumeAtAngle(params, selectedCrankAngle), [params, selectedCrankAngle]);
+  const travel = useMemo(() => pistonTravel(params, selectedCrankAngle), [params, selectedCrankAngle]);
   const targetPistonCc = useMemo(() => requiredPistonCc(params, target), [params, target]);
 
   const change = (key: NumericKey, value: number) => {
@@ -109,10 +117,10 @@ export default function CrCalculatorPage() {
     setNote("Zapisano projekt JSON.");
   };
   const angleUpdate = (a: number) => setAngle(a);
-  const phase = angle < 180 ? "SSANIE" : angle < 360 ? "SPRĘŻANIE" : angle < 540 ? "PRACA" : "WYDECH";
-  const views: { id: CameraView; text: string }[] = [
-    { id: "perspective", text: "Perspektywa" },
-    { id: "front", text: "Przód" },
+  const phase = selectedPhase < 180 ? "PRACA" : selectedPhase < 360 ? "WYDECH" : selectedPhase < 540 ? "SSANIE" : "SPRĘŻANIE";
+  const views: { id: R6View; text: string }[] = [
+    { id: "perspective", text: "Izometria" },
+    { id: "front", text: "Przekrój" },
     { id: "side", text: "Bok" },
     { id: "top", text: "Góra" },
   ];
@@ -133,7 +141,7 @@ export default function CrCalculatorPage() {
         <div className={styles.heroTitle}>
           <div>
             <h1>CR <em>Calculator</em> <span>3D.</span></h1>
-            <p>Stopień sprężania obliczony z geometrii. Zobacz, jak pracuje tłok, korbowód i wał — zmieniaj parametry i obserwuj, co dzieje się wewnątrz silnika.</p>
+            <p>Pełny przekrój rzędowej szóstki: 6 tłoków, wspólny wał, 24 zawory i kolejność zapłonu 1–5–3–6–2–4. Animacja 720° zsynchronizowana z kalkulatorem CR.</p>
           </div>
           <div className={styles.heroStamp}>ENGINE<br />LAB<span>01 / 03</span></div>
         </div>
@@ -143,15 +151,16 @@ export default function CrCalculatorPage() {
         <section className={styles.stageColumn} aria-label="Animowany przekrój silnika 3D">
           <div className={styles.stage}>
             <div className={styles.stageTop}>
-              <span className={styles.stageTag}><span className={styles.pulse} /> LIVE / SILNIK CZTEROSUWOWY</span>
-              <span className={styles.stageTopRight}>CYKL 720° · PRZEKRÓJ CYLINDRA</span>
+              <span className={styles.stageTag}><span className={styles.pulse} /> LIVE / R6 CUTAWAY 3D</span>
+              <span className={styles.stageTopRight}>SZEŚĆ CYLINDRÓW · 24 ZAWORY</span>
             </div>
             <div className={styles.canvasWrap}>
               <Scene params={params} running={running} rpm={rpm} angle={angle} onAngle={angleUpdate}
-                view={view} xray={xray} showGas={showGas} />
+                view={view} mode={mode} selectedCylinder={selectedCylinder} focusCylinder={focusCylinder}
+                xray={xray} showGas={showGas} />
             </div>
             <div className={styles.stageHUD}>
-              <div className={styles.hudMetric}><small>SUW SILNIKA</small><strong>{phase}</strong></div>
+              <div className={styles.hudMetric}><small>CYLINDER {selectedCylinder} · SUW</small><strong>{phase}</strong></div>
               <div className={styles.hudMetric}><small>PRZEMIESZCZENIE TŁOKA</small><strong>{format(travel, 1)} <span>mm</span></strong></div>
               <div className={styles.hudMetric}><small>OBJĘTOŚĆ W CYLINDRZE</small><strong>{calc.valid ? format(volume, 1) : "—"} <span>cm³</span></strong></div>
             </div>
@@ -161,6 +170,30 @@ export default function CrCalculatorPage() {
               {views.map(item => <button key={item.id} className={view === item.id ? styles.cameraActive : ""} type="button" aria-pressed={view === item.id} onClick={() => setView(item.id)}>{item.text}</button>)}
             </div>
             <div className={styles.cameraHelp}>Przeciągnij, aby obrócić · Dwa palce, aby przybliżyć</div>
+          </div>
+          <div className={styles.r6Toolbar}>
+            <div className={styles.r6ModeRow} role="group" aria-label="Widok przekroju silnika">
+              {([
+                { id: "complete", text: "Cały silnik" },
+                { id: "bottom", text: "Dół silnika" },
+                { id: "head", text: "Głowica" },
+              ] as const).map(item =>
+                <button key={item.id} type="button" aria-pressed={mode === item.id}
+                  className={mode === item.id ? styles.r6Selected : ""}
+                  onClick={() => { setMode(item.id); if (item.id === "head") setFocusCylinder(false); }}>
+                  {item.text}
+                </button>)}
+            </div>
+            <div className={styles.r6CylinderRow}>
+              <span>CYLINDER</span>
+              {Array.from({ length: 6 }, (_, i) => <button type="button" key={i + 1}
+                aria-label={"Wybierz cylinder " + (i + 1)} aria-pressed={selectedCylinder === i + 1}
+                className={selectedCylinder === i + 1 ? styles.r6Selected : ""}
+                onClick={() => setSelectedCylinder(i + 1)}>{i + 1}</button>)}
+              <button type="button" aria-pressed={focusCylinder} onClick={() => { setFocusCylinder(f => !f); if (mode === "head") setMode("complete"); }}
+                className={focusCylinder ? styles.r6Selected : ""}>ZOOM</button>
+            </div>
+            <span className={styles.r6Firing}>KOLEJNOŚĆ ZAPŁONU: 1–5–3–6–2–4</span>
           </div>
           <div className={styles.player}>
             <button type="button" className={styles.playButton} onClick={() => setRunning(v => !v)} aria-label={running ? "Zatrzymaj animację" : "Uruchom animację"}>
@@ -203,7 +236,7 @@ export default function CrCalculatorPage() {
             <div className={styles.presetGrid}>
               {(Object.keys(PRESETS) as EnginePresetId[]).map(id => <button key={id} type="button" className={preset === id ? styles.presetActive : styles.preset} onClick={() => selectPreset(id)} aria-pressed={preset === id}>{PRESETS[id].label}</button>)}
             </div>
-            <p className={styles.helper}>Presety to przykładowe zestawy wymiarów, nie zweryfikowane dane wszystkich odmian OEM. Przed budową zmierz rzeczywiste elementy.</p>
+            <p className={styles.helper}>Model 3D przedstawia zawsze układ R6. Pole „Liczba cylindrów” wpływa na pojemność obliczeniową całego silnika. Presety są przykładowe — przed budową zmierz elementy.</p>
           </section>
           <section className={styles.panel}>
             <div className={styles.panelTitle}><span className={styles.number}>02</span><h2>Blok i mechanizm</h2></div>
@@ -233,7 +266,7 @@ export default function CrCalculatorPage() {
 
       <footer className={styles.foot}>
         <div><strong>RPM CUSTOM // ENGINEERING TOOLS</strong><p>CR = (pojemność skokowa jednego cylindra + objętość nad tłokiem w GMP) / objętość nad tłokiem w GMP.</p></div>
-        <p>Poglądowy przekrój jednego cylindra, nie wierny model OEM. Mechanizm korbowy odtwarza geometrię ruchu; uproszczony rozrząd i kolory faz czterosuwu służą edukacji. CR jest geometryczny, nie dynamiczny.</p>
+        <p>Koncepcyjny przekrój całego R6, a nie zwymiarowany CAD konkretnego BMW lub Toyoty. Kinematyka tłoków i kolejność zapłonu są zsynchronizowane; profil krzywek i fazy zaworowe uproszczono. CR jest geometryczny, nie dynamiczny.</p>
       </footer>
     </div>
   </main>;
