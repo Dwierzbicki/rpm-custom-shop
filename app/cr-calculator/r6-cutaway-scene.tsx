@@ -259,14 +259,16 @@ function RealisticR6({
       const pinY = crankY + throwRadius * Math.cos(crankA);
       const wristY = pinY + Math.sqrt(Math.max(0, rodLength * rodLength - pinZ * pinZ));
       const top = wristY + pinToCrown;
-      if (pistons.current[i]) pistons.current[i].position.y = top - 0.405;
-      if (crankThrows.current[i]) crankThrows.current[i].rotation.x = crankA;
-      if (rods.current[i]) {
-        const r = rods.current[i];
-        r.position.set(positions[i], (pinY + wristY) / 2, pinZ / 2);
+      const piston = pistons.current[i];
+      const crank = crankThrows.current[i];
+      const rod = rods.current[i];
+      if (piston) piston.position.y = top - 0.405;
+      if (crank) crank.rotation.x = crankA;
+      if (rod) {
+        rod.position.set(positions[i], (pinY + wristY) / 2, pinZ / 2);
         v.set(0, wristY - pinY, -pinZ).normalize();
         q.setFromUnitVectors(up, v);
-        r.quaternion.copy(q);
+        rod.quaternion.copy(q);
       }
       const gas = volumes.current[i];
       if (gas) {
