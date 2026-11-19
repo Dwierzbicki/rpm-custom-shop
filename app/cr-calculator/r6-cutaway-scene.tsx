@@ -187,14 +187,15 @@ function Valve({
   </group>;
 }
 
-function CameraRig({ view, focus, selectedCylinder, pitch }: {
-  view: R6View; focus: boolean; selectedCylinder: number; pitch: number;
+function CameraRig({ view, mode, focus, selectedCylinder, pitch }: {
+  view: R6View; mode: R6Mode; focus: boolean; selectedCylinder: number; pitch: number;
 }) {
   const { camera, size } = useThree();
   const x = focus ? (selectedCylinder - 3.5) * pitch : 0;
+  const targetY = mode === "head" ? 2.9 : mode === "bottom" ? -0.8 : 0.1;
   useEffect(() => {
     const narrow = size.width / Math.max(1, size.height) < 1.35;
-    const distance = (focus ? 8.7 : narrow ? 23.5 : 17.8);
+    const distance = focus ? 8.7 : mode === "head" ? 14.1 : mode === "bottom" ? 15.5 : narrow ? 17.5 : 17.8;
     const positions: Record<R6View, [number, number, number]> = {
       perspective: [x + (focus ? 2.0 : 3.5), 2.8, distance],
       front: [x, 0.3, distance],
@@ -202,9 +203,9 @@ function CameraRig({ view, focus, selectedCylinder, pitch }: {
       top: [x + 0.01, distance, 0.01],
     };
     camera.position.set(...positions[view]);
-    camera.lookAt(x, 0.1, 0);
+    camera.lookAt(x, targetY, 0);
     camera.updateProjectionMatrix();
-  }, [camera, view, focus, x, size.width, size.height]);
+  }, [camera, view, mode, focus, x, targetY, size.width, size.height]);
   return null;
 }
 
@@ -272,7 +273,7 @@ function RealisticR6({
         const h = Math.max(0.01, roof - top);
         gas.position.y = top + h / 2;
         gas.scale.y = h;
-        gas.visible = ratio.valid && showGas && mode !== "bottom";
+        gas.visible = ratio.valid && showGas && mode === "complete";
         const phase = phaseFor(theta, i);
         const mat = gas.material as MeshBasicMaterial;
         mat.color.set(phase < 180 ? "#ff6436" : phase < 360 ? "#b2beca" : phase < 540 ? "#419de9" : "#e5b964");
@@ -451,9 +452,9 @@ export default function R6CutawayScene(props: R6SceneProps) {
     <Grid position={[0, -4.35, 0]} args={[22, 14]} cellSize={0.85} sectionSize={4}
       cellColor="#1c3043" sectionColor="#37536a" fadeDistance={24} fadeStrength={1.4} />
     <RealisticR6 {...props} />
-    <CameraRig view={props.view} selectedCylinder={props.selectedCylinder}
+    <CameraRig view={props.view} mode={props.mode} selectedCylinder={props.selectedCylinder}
       pitch={pitch} focus={props.focusCylinder} />
-    <OrbitControls target={[cameraTargetX, 0.1, 0]} enablePan={false} enableDamping dampingFactor={0.07}
+    <OrbitControls target={[cameraTargetX, props.mode === "head" ? 2.9 : props.mode === "bottom" ? -0.8 : 0.1, 0]} enablePan={false} enableDamping dampingFactor={0.07}
       minDistance={4.2} maxDistance={35} minPolarAngle={0.1} maxPolarAngle={Math.PI - 0.2} />
   </Canvas>;
 }
