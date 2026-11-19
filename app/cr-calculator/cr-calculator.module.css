@@ -201,3 +201,32 @@
   .r6CylinderRow button:last-child{margin:0}
   .r6ModeRow button{font-size:10px}
 }
+
+
+/* CAD/scan reference viewer. Imported GLB is intentionally static; controls
+   for the animated R6 are shown only when the cutaway scene is selected. */
+.sceneTabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 10px;padding:7px;border:1px solid #384559;border-radius:12px;background:#111a28}
+.sceneTabs button{font-size:11px;letter-spacing:.025em;font-weight:900;min-height:42px;border:1px solid #2e4156;border-radius:7px;background:#192434;color:#9cafc4;padding:9px 10px}
+.sceneTabs button:hover,.sceneTabs .sceneTabActive{color:#fff;border-color:#fa5876;background:linear-gradient(105deg,#aa2d48,#7f2a43)}
+.assetHud{position:absolute;left:12px;right:12px;bottom:12px;z-index:4;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;border:1px solid #40536c;border-radius:8px;background:#101b29dd;backdrop-filter:blur(10px)}
+.assetHud strong{font-size:11px;letter-spacing:.09em;color:#f1f6fb;font-weight:950}
+.assetHud span{font-size:11px;color:#a8b9c9;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.assetInfo{padding:17px 18px;margin-top:10px;border:1px solid #33445a;border-radius:11px;background:linear-gradient(115deg,#1a2737,#101a28)}
+.assetInfo strong{font-size:12px;color:#e9f0f9;font-weight:900}
+.assetInfo p{font-size:11px;line-height:1.65;margin:8px 0;color:#adbdcf}
+.assetInfo .assetError{color:#ffc3cc}
+.assetActions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+.assetActions a,.assetActions button,.assetUpload{display:inline-flex;align-items:center;justify-content:center;min-height:37px;padding:8px 12px;font-size:10px;color:#b9cee3;background:#162639;border:1px solid #3a5065;border-radius:6px;font-weight:850;text-decoration:none}
+.assetActions a:hover,.assetActions button:hover,.assetUpload:hover{border-color:#fa5571;color:#fff}
+.assetUpload{position:relative;overflow:hidden;background:#a32c46;color:#fff;border-color:#dd3b5c;cursor:pointer}
+.assetUpload input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+@media(max-width:940px){
+ .sceneTabs{padding:5px;gap:5px}
+ .sceneTabs button{font-size:10px;min-height:40px;padding:8px 5px}
+ .assetHud{flex-direction:column;align-items:flex-start;gap:3px;padding:10px}
+ .assetHud strong{font-size:10px}
+ .assetHud span{font-size:10px}
+ .assetInfo{padding:14px;margin-top:9px}
+ .assetActions{gap:7px}
+ .assetActions a,.assetActions button,.assetUpload{min-height:39px}
+}
