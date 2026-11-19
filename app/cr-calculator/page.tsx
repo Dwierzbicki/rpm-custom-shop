@@ -252,7 +252,7 @@ export default function CrCalculatorPage() {
                 className={focusCylinder ? styles.r6Selected : ""}>ZOOM</button>
             </div>
             <span className={styles.r6Firing}>KOLEJNOŚĆ ZAPŁONU: 1–5–3–6–2–4</span>
-          </div>
+          </div>}
           {sceneType === "animated" && <div className={styles.player}>
             <button type="button" className={styles.playButton} onClick={() => setRunning(v => !v)} aria-label={running ? "Zatrzymaj animację" : "Uruchom animację"}>
               <Icon name={running ? "pause" : "play"} /> {running ? "PAUZA" : "START"}
@@ -266,12 +266,12 @@ export default function CrCalculatorPage() {
               <button type="button" aria-pressed={showGas} className={showGas ? styles.toggleActive : ""} onClick={() => setShowGas(v => !v)}>Komora</button>
               <button type="button" aria-pressed={xray} className={xray ? styles.toggleActive : ""} onClick={() => setXray(v => !v)}>X-RAY</button>
             </div>
-          </div>
+          </div>}
           {sceneType === "animated" && <div className={styles.manual}>
             <div className={styles.manualLabel}><span>RĘCZNY OBRÓT WAŁU · PEŁNY CYKL 4-SUWOWY</span><strong>{format(angle, 0)}°</strong></div>
             <input type="range" min="0" max="720" step="1" value={angle} onChange={e => { setRunning(false); setAngle(Number(e.currentTarget.value)); }} aria-label="Ręczny kąt wału korbowego" />
             <div className={styles.angleStops}><span>0° GMP</span><span>180° DMP</span><span>360° GMP</span><span>540° DMP</span><span>720° GMP</span></div>
-          </div>
+          </div>}
         </section>
 
         <aside className={styles.controls}>
