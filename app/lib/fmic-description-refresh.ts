@@ -7,7 +7,7 @@ export function sameRefreshIdentity(previous:Record<string,unknown>,next:Record<
 }
 export async function refreshSupplierDescription(sku:string){
  const db=getDbPool();
- const old=(await db.query("SELECT e.data,e.source_url,e.fetched_at,c.name,c.target_category,c.data->>'url' AS catalog_url FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog c USING(sku) WHERE e.sku=$1",[sku])).rows[0];
+ const old=(await db.query("SELECT e.data,e.source_url,e.fetched_at::text AS fetched_at,c.name,c.target_category,c.data->>'url' AS catalog_url FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog c USING(sku) WHERE e.sku=$1",[sku])).rows[0];
  if(!old)throw Error('Brak poprzedniego opisu');
  const next=await inspectProduct(sku,{persist:false});
  if(old.source_url!==next.source_url||old.catalog_url!==next.source_url||!sameRefreshIdentity(old.data,next.data,sku,old.name)||!next.data.description.trim())throw Error('Zmiana tożsamości produktu lub brak opisu — wymagana weryfikacja');
