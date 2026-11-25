@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const source=readFileSync(new URL('../app/lib/header-search.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+const {searchTokens,matchesSearch,suggestionHref}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+test('search trims whitespace and handles case',()=>assert.deepEqual(searchTokens('  Pulsar   T4  .91 '),['pulsar','t4','.91']));
+test('all words must match regardless of order or field',()=>{assert.equal(matchesSearch('6266 pulsar',['Pulsar PSR 6266','T4']),true);assert.equal(matchesSearch('pulsar 9999',['Pulsar PSR 6266']),false);assert.equal(matchesSearch('   ',['Pulsar']),false)});
+test('SKU and EAN can match across fields',()=>assert.equal(matchesSearch('ABC-123 5901234567890',['ABC-123','5901234567890']),true));
+test('suggestion URL safely preserves query and SKU',()=>{const u=new URL(suggestionHref('A&B/1','Pulsar + T4'),'https://rpmcustom.pl');assert.equal(u.pathname,'/sklep');assert.equal(u.searchParams.get('fmicPreview'),'1');assert.equal(u.searchParams.get('sku'),'A&B/1');assert.equal(u.searchParams.get('q'),'Pulsar + T4')});
