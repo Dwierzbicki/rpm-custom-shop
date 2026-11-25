@@ -93,3 +93,47 @@
 @media(max-height:800px) and (min-width:761px){.rpm-build-side{position:static}}
 
 .rpm-build-workspace .rpm-build-risk-inline{display:flex;align-items:center;gap:7px;margin:0;font-size:12px;color:var(--rpm-color-muted)}.rpm-build-risk-inline svg{color:#e7aa62;flex-shrink:0}.rpm-build-workspace .rpm-build-assessment[open]{max-height:none}
+
+/* Result v3: horizontal systems, spacious product rows, clear actions. */
+.rpm-build-workspace .rpm-build-workspace-grid{grid-template-columns:minmax(0,1fr) minmax(250px,290px);gap:18px}
+.rpm-build-workspace .rpm-build-systems{position:static;grid-column:1/-1;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.rpm-build-workspace .rpm-build-systems h3{grid-column:1/-1;font-size:13px;padding:0}
+.rpm-build-workspace .rpm-build-systems button{grid-template-columns:20px minmax(0,1fr);padding:12px 10px;min-height:76px;align-items:center}
+.rpm-build-workspace .rpm-build-systems button>small:last-child{display:none}
+.rpm-build-workspace .rpm-build-systems button>.rpm-system-conflict{grid-column:2}
+.rpm-build-workspace .rpm-build-systems button strong{font-size:13px;line-height:1.35}
+.rpm-build-workspace .rpm-build-systems button small{font-size:11px;line-height:1.4}
+.rpm-build-workspace .rpm-build-systems button.active{box-shadow:inset 0 -2px 0 var(--rpm-color-accent)}
+.rpm-build-workspace .rpm-build-system-head{align-items:center;padding:12px 0 4px}
+.rpm-build-workspace .rpm-build-system-head h3{font-size:24px}
+.rpm-build-workspace .rpm-build-system-head p{font-size:12px;margin:4px 0 0}
+.rpm-build-pending-toggle{font-size:12px;white-space:normal;max-width:100%}
+.rpm-build-workspace .rpm-build-parts-group{padding:14px;gap:12px}
+.rpm-build-workspace .rpm-parts-slot-head h3{font-size:16px;flex:1 1 120px}
+.rpm-slot-status{font-size:11px;line-height:1.3;color:var(--rpm-color-muted);font-weight:650;white-space:nowrap}
+.rpm-slot-status.matched,.rpm-slot-status.owned{color:#8fd0aa}
+.rpm-slot-status.conflict{color:var(--rpm-color-accent-hover)}
+.rpm-slot-status.pending{color:#e7aa62}
+.rpm-build-workspace .rpm-parts-edit{min-height:36px;padding:8px 12px;font-size:12px}
+.rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{display:grid;grid-template-columns:88px minmax(0,1fr) minmax(108px,145px);align-items:start;gap:14px;padding:12px}
+.rpm-build-workspace .rpm-build-clean-card>div{grid-column:auto}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:88px;height:88px;display:grid;place-items:center;overflow:hidden;border-radius:6px;background:#fff;color:#6d7179}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-photo img{width:100%;height:100%;object-fit:contain;border-radius:0}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-info{min-width:0;display:grid;gap:5px}
+.rpm-build-workspace .rpm-build-product-name{font-size:14px;line-height:1.4;font-weight:700;overflow-wrap:anywhere}
+.rpm-build-workspace .rpm-build-evidence{font-size:11px;line-height:1.4;color:var(--rpm-color-muted)}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{display:grid;gap:6px;align-content:start;text-align:right}
+.rpm-build-workspace .rpm-build-product-action .rpm-build-add{width:100%;justify-self:stretch}
+.rpm-build-workspace .rpm-build-product-price{font-size:21px;white-space:normal}
+.rpm-build-workspace .rpm-build-product-details summary{font-size:12px;color:var(--rpm-color-text)}
+.rpm-build-workspace .rpm-parts-options h4{margin:0;font-size:14px}
+.rpm-build-workspace .rpm-parts-options{background:var(--rpm-color-background);border:1px solid var(--rpm-color-panel-border);border-radius:6px;padding:12px}
+.rpm-build-workspace .rpm-parts-option{grid-template-columns:52px minmax(0,1fr) auto;align-items:center}
+.rpm-build-workspace .rpm-parts-option>button{grid-column:3}
+.rpm-build-match-progress{width:100%;height:7px;accent-color:var(--rpm-color-accent)}
+.rpm-build-workspace .rpm-build-side-price>strong{font-size:30px}
+.rpm-build-workspace .rpm-build-side-price{padding:16px}
+@media(max-width:1200px){.rpm-build-workspace .rpm-build-systems{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:950px){.rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{grid-template-columns:68px minmax(0,1fr)}.rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:68px;height:68px}.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:2;text-align:left;grid-template-columns:minmax(0,1fr) minmax(100px,135px);align-items:center}.rpm-build-workspace .rpm-build-product-action>small{grid-column:1;grid-row:2}.rpm-build-workspace .rpm-build-product-action>button{grid-column:2;grid-row:1/3}.rpm-build-workspace .rpm-build-product-action>p{grid-column:1/-1}}
+@media(max-width:760px){.rpm-build-workspace .rpm-build-workspace-grid{grid-template-columns:minmax(0,1fr);gap:12px}.rpm-build-workspace .rpm-build-systems{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-build-workspace .rpm-build-systems button{min-height:62px}.rpm-build-workspace .rpm-build-side{grid-row:2;position:static}.rpm-build-workspace .rpm-build-main{grid-row:3}.rpm-build-workspace .rpm-build-side-price>strong{font-size:27px}.rpm-build-workspace .rpm-build-parts-group{padding:10px}.rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{padding:9px;gap:10px}.rpm-build-workspace .rpm-build-product-name{font-size:13px}.rpm-build-workspace .rpm-build-product-price{font-size:18px}.rpm-build-workspace .rpm-parts-option{grid-template-columns:48px minmax(0,1fr)}.rpm-build-workspace .rpm-parts-option>button{grid-column:2}}
+@media(max-width:380px){.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:1/-1}.rpm-build-workspace .rpm-build-systems button strong{font-size:12px}}
