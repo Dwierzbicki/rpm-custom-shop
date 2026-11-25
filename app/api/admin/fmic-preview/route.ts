@@ -46,7 +46,7 @@ export async function GET(request:Request){
  const all=filtered();
  const [count,items,...facetRows]=await Promise.all([
  db.query(source+'SELECT count(*)::int AS total FROM catalog'+all.sql,all.args),
- db.query(source+'SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(images) WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM catalog'+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2),[...all.args,size,(page-1)*size]),
+ db.query(source+"SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(images) WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2),[...all.args,size,(page-1)*size]),
  ...defs.map((d,i)=>{const f=filtered(i);return db.query(source+'SELECT '+d.key+' AS value,count(*)::int AS count FROM catalog'+f.sql+(f.sql?' AND ':' WHERE ')+d.key+' IS NOT NULL GROUP BY 1 ORDER BY 1',f.args)})
  ]);
  const facets=defs.map((d,i)=>({key:d.key,label:d.label,options:facetRows[i].rows.sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]);
