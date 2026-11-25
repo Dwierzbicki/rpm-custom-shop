@@ -9,7 +9,7 @@ import FmicProductPreview from './FmicProductPreview';
 import {productPath} from '../../lib/product-path';
 import {matchesSearch} from '../../lib/header-search';
 import type {CatalogItem} from '../../lib/catalog-db';
-import {categoryPath,resolveCategoryPath} from '../../category-routing';
+import {categoryPath,resolveCategoryPath,manualCategoryPath} from '../../category-routing';
 import {buildSearchTree,searchCategoryHref,visibleCategories,type CategoryCount,type CategoryNode} from '../../lib/search-category-tree';
 type BranchProps={current:string;query:string;onSelect:(event:MouseEvent<HTMLAnchorElement>,path:string)=>void};
 function SearchBranches({nodes,current,query,onSelect,limit=5}:{nodes:CategoryNode[];limit?:number}&BranchProps){
@@ -35,13 +35,7 @@ function ProducerFilter({facet,value,onChange}:{facet:Facet;value:string;onChang
  const shown=expanded||query?options:options.slice(0,6);
  return <details className="fplp-filter-section" open><summary>{t("Producent")}</summary><div className="fplp-brand-search"><Search size={15}/><input aria-label={t("Szukaj producenta")} placeholder={t("Szukaj producenta…")} value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="fplp-brand-options"><label className="fplp-brand-option"><input type="radio" name="fplp-producer" checked={!value} onChange={()=>onChange('')}/>{t("Wszyscy producenci")}</label>{value&&!shown.some(o=>o.value===value)&&<label className="fplp-brand-option"><input type="radio" name="fplp-producer" checked readOnly/>{value}<small>{facet.options.find(o=>o.value===value)?.count??0}</small></label>}{shown.map(o=><label className="fplp-brand-option" key={o.value}><input type="radio" name="fplp-producer" checked={value===o.value} onChange={()=>onChange(o.value)}/><span>{o.value}</span><small>{o.count.toLocaleString('pl-PL')}</small></label>)}{!options.length&&<small>{t("Brak pasujących producentów")}</small>}</div>{!query&&options.length>6&&<button className="fplp-more-categories" type="button" onClick={()=>setExpanded(v=>!v)}>{expanded?t('Pokaż mniej'):t('Pokaż więcej (')+(options.length-6)+')'}</button>}</details>
 }
-// Manual catalog categories use the admin vocabulary, not supplier category names.
-const ownPaths:Record<string,string[]>={
- Korbowody:['Silnik i turbo','Kute korbowody'],Tłoki:['Silnik i turbo','Kute tłoki'],Panewki:['Silnik i turbo','Panewki'],Pierścienie:['Silnik i turbo','Tuleje i pierścienie tłokowe','Pierścienie tłokowe'],
- 'Uszczelki głowicy':['Silnik i turbo','Uszczelki głowicy i silnika'],'Mocowania głowicy':['Silnik i turbo','Śruby i szpilki ARP'],'Wały korbowe':['Silnik i turbo','Kute wały i podpory wału'],
- Kolektory:['Układ wydechowy','Kolektory wydechowe'],Turbo:['Silnik i turbo','Turbosprężarki'],Intercoolery:['Układ chłodzenia','Intercoolery'],Wastegate:['Układ wydechowy','Wastegate'],Elektronika:['Elektronika'],Paliwo:['Układ paliwowy'],Osprzęt:['Pozostałe']
-};
-const ownCategory=(p:CatalogItem)=>ownPaths[p.category]??[];
+const ownCategory=manualCategoryPath;
 const ownHref=(p:CatalogItem)=>'/?product='+encodeURIComponent(String(p.id));
 type Result={categories?:CategoryCount[];facets?:Facet[];items:{sku:string;name:string;proposed_gross:string;available:boolean;image:string|null;brand?:string|null}[];total:number;page:number;size:number;path:string[]};
 export default function FmicPreview({pathname,lang,sort,globalQuery='',onCategorySelect}:{pathname:string;lang:'pl'|'en';sort:string;globalQuery?:string;onCategorySelect:(path:string,query:string)=>void}){
