@@ -33,7 +33,6 @@ const styleFiles=[
   "header-category-flyouts.css",
   "header-navigation-fit.css",
   "homepage-responsive.css",
-  "homepage-editor.css",
   "customer-account.css",
   "product-placeholder.css",
   "community.css"
@@ -138,4 +137,11 @@ test('Admin-only styles retain ordered imports and critical selectors',async()=>
  assert.ok(!parts.join('').includes('.rpm-toast-overlay'));
  const layout=await readFile(new URL('../app/admin/layout.tsx',import.meta.url),'utf8');
  assert.ok(layout.includes("import '../styles/admin-local.css';"));
+});
+
+test('Retired homepage editor is not mounted or linked',async()=>{
+ for(const path of ['app/page.tsx','app/components/storefront/HomeSections.tsx','app/admin/layout.tsx','app/globals.css']){
+  const source=await readFile(new URL('../'+path,import.meta.url),'utf8');
+  assert.doesNotMatch(source,/useHomepagePreview|InlineHomepageEditor|homepageDraft|data-rpm-edit|\/admin\/editor|homepage-editor\.css/);
+ }
 });

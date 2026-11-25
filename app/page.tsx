@@ -13,7 +13,6 @@ import dynamic from 'next/dynamic';
 import {ShoppingCart,X,ChevronRight,Warehouse,Check,ChevronLeft} from 'lucide-react';
 import {products as demoProducts,money,type Product,type CartLine} from './data';
 import type {ShopSubcategory} from './shop-departments';
-import {useHomepagePreview} from './components/storefront/hooks/useHomepagePreview';
 import {categoryPath} from './category-routing';
 import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storefront-navigation';
 import {useStorefrontMenu} from './components/storefront/hooks/useStorefrontMenu';
@@ -28,13 +27,11 @@ const ProductDetailView=dynamic(()=>import('./components/storefront/ProductDetai
 const CartView=dynamic(()=>import('./components/storefront/CartView'),{loading:ViewLoading});
 const CheckoutView=dynamic(()=>import('./components/storefront/CheckoutView'),{loading:ViewLoading});
 const PowerGuidesView=dynamic(()=>import('./components/storefront/PowerGuidesView'),{loading:ViewLoading});
-const InlineHomepageEditor=dynamic(()=>import('./inline-homepage-editor'));
 
 export default function Shop(){
  const [globalFmicQuery,setGlobalFmicQuery]=useState('');
  const fmicPreview=true;const [fmicPath,setFmicPath]=useState('');
  useEffect(()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'');const sync=()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'')};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
- const {homepageDraft,inlineEditRequested,updateHomepageDraft}=useHomepagePreview();
  const [products,setProducts]=useState<Product[]>(demoProducts);
  const [shopSubcategory,setShopSubcategory]=useState<ShopSubcategory|null>(null);
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
@@ -73,9 +70,7 @@ export default function Shop(){
  onMotoLab={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}
 />
 
- {view==='home'&&inlineEditRequested&&<InlineHomepageEditor onChange={updateHomepageDraft}/>}
  {view==='home'&&<HomeSections
-    homepageDraft={homepageDraft}
     lang={lang}
     products={products}
     onCategory={(name)=>{setCategory(name);navigate('catalog')}}
