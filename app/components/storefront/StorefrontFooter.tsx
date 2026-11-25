@@ -35,7 +35,7 @@ export default function StorefrontFooter({lang}:{lang?:Lang}){
     </ul></nav>
     <nav aria-label="RPM Custom"><h2>RPM Custom</h2><ul>
      <li><a href="/#rpm-custom-home">{tr('Produkcja i projekty custom','Custom fabrication')}</a></li>
-     <li><a href="/power-guides">MotoLab</a></li>
+     <li><a href="/motolab">MotoLab</a></li>
      <li><a href="/designery">{tr('Kreatory CAD','CAD designers')}</a></li>
      <li><a href="/cr-calculator">{tr('Kalkulator CR','CR calculator')}</a></li>
      <li><a href="/garage">RPM Garage</a></li>
