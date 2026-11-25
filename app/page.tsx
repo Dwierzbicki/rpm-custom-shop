@@ -16,6 +16,7 @@ import {useStorefrontLanguage} from './components/storefront/hooks/useStorefront
 import {FMIC_CATEGORY_DESCRIPTIONS,FMIC_CATEGORY_ICONS,POWER_ENGINES,POWER_RANGES,categories,phonePrefixes} from './lib/storefront-config';
 import type {View} from './lib/storefront-config';
 import {useShopCollections} from './components/storefront/hooks/useShopCollections';
+import {useProductConfiguration} from './components/storefront/hooks/useProductConfiguration';
 import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetails';
 import {useEffect,useMemo,useState} from 'react';
 import InlineHomepageEditor from './inline-homepage-editor';
@@ -110,12 +111,10 @@ export default function Shop(){
  const [technicalFilters,setTechnicalFilters]=useState<Record<string,string>>({});
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
  useEffect(()=>{fetch('/api/catalog',{cache:'no-store'}).then(async response=>{if(response.ok){const data=await response.json();if(Array.isArray(data.products))setProducts(data.products)}}).catch(()=>{})},[]);
- const [chosenOptions,setChosenOptions]=useState<Record<string,string>>({});
- const [photoIndex,setPhotoIndex]=useState(0);
- const [lightbox,setLightbox]=useState(false);
  const {lang,t,changeLang}=useStorefrontLanguage();
+ const {selected,setSelected,chosenOptions,setChosenOptions,photoIndex,setPhotoIndex,lightbox,setLightbox,engine,setEngine,flange,setFlange,wg,setWg,egt,setEgt,qty,setQty,customGroups,automaticWg,usesCustom,customExtra,selectedPrice,unitPrice,totalPrice,canAdd,resetProduct,buildLine}=useProductConfiguration(products[0]);
 
- const [view,setView]=useState<View>('home'),[selected,setSelected]=useState<Product>(products[0]),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[mobileMenu,setMobileMenu]=useState(false),[engine,setEngine]=useState(''),[flange,setFlange]=useState(''),[wg,setWg]=useState(''),[egt,setEgt]=useState(false),[qty,setQty]=useState(1),[toast,setToast]=useState(''),[checkoutDone,setCheckoutDone]=useState(false),[orderId,setOrderId]=useState(''),[orderError,setOrderError]=useState(''),[orderBusy,setOrderBusy]=useState(false);
+ const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[mobileMenu,setMobileMenu]=useState(false),[toast,setToast]=useState(''),[checkoutDone,setCheckoutDone]=useState(false),[orderId,setOrderId]=useState(''),[orderError,setOrderError]=useState(''),[orderBusy,setOrderBusy]=useState(false);
  const [receipt,setReceipt]=useState<OrderReceipt|null>(null);
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t);
  const {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
@@ -129,18 +128,8 @@ export default function Shop(){
  useEffect(()=>{const sync=()=>{const names=resolveCategoryPath(window.location.pathname);if(names===null){setQuery('');setGlobalFmicQuery('')}if(names!==null){setCategory('Wszystkie');const params=new URLSearchParams(window.location.search);setQuery(params.get('q')??'');setShopSubcategory(null);setView('catalog')}else if(window.location.pathname==='/power-guides')setView('guides');else if(window.location.pathname==='/koszyk')setView('cart');else if(window.location.pathname==='/garage')setView('garage');else if(window.location.pathname==='/')setView('home')};sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('power-guides')==='1')setView('guides')},[]);
  useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
- const openProduct=(p:Product)=>{setSelected(p);setChosenOptions({});setPhotoIndex(0);setLightbox(false);setEngine('');setFlange('');setWg('');setEgt(false);setQty(1);navigate('product')};
- const customGroups=(selected.optionGroups??[]).filter(g=>!(selected.optionGroups??[]).some(f=>f.id==='rpm-flange')||g.id!=='rpm-wastegate');
- const rpmFlange=chosenOptions['rpm-flange'];
- const automaticWg=rpmFlange?(rpmFlange.endsWith('-twin')?'2× WG':'1× WG'):'';
- const usesCustom=customGroups.length>0;
- const customReady=customGroups.every(g=>!g.required||!!chosenOptions[g.id]);
- const customExtra=customGroups.reduce((sum,g)=>sum+(g.options.find(o=>o.id===chosenOptions[g.id])?.price??0),0);
- const selectedPrice=selected.price+customExtra;
- const unitPrice=usesCustom?selectedPrice:selected.price;
- const totalPrice=Math.round(unitPrice*qty*100)/100;
- const canAdd=usesCustom?customReady:!selected.configurable||((selected.id!==1||!!engine)&&!!flange&&!!wg);
- const addLine=(target:'cart'|'garage')=>{if(!canAdd){notify('Wybierz wymagane opcje kolektora');return}const options:Record<string,string>|undefined=usesCustom?{...Object.fromEntries(customGroups.filter(g=>chosenOptions[g.id]).map(g=>[g.name,g.options.find(o=>o.id===chosenOptions[g.id])?.label??''])),...(automaticWg?{Wastegate:automaticWg}:{})}:selected.configurable?{Silnik:selected.id===1?engine:selected.engine,Flansza:flange,Wastegate:wg,EGT:egt?'Tak':'Nie'}:undefined;const key=selected.id+'-'+JSON.stringify(options||{});const line:CartLine={key,productId:selected.id,qty,options,unitPrice:usesCustom?selectedPrice:selected.price};addSavedLine(target,line);notify(target==='cart'?'Dodano do koszyka DEMO':'Zapisano w RPM Garage Lite')};
+ const openProduct=(p:Product)=>{resetProduct(p);navigate('product')};
+ const addLine=(target:'cart'|'garage')=>{const line=buildLine();if(!line){notify('Wybierz wymagane opcje kolektora');return}addSavedLine(target,line);notify(target==='cart'?'Dodano do koszyka DEMO':'Zapisano w RPM Garage Lite')};
  const [activeFmicRoot,setActiveFmicRoot]=useState<number|null>(null);
  const [compactCategories,setCompactCategories]=useState(true);
  useEffect(()=>{
