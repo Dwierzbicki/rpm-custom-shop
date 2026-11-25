@@ -15,7 +15,8 @@ export function mergeFmicQuotes(lines:CartLine[],quotes:FmicQuote[]):CartLine[]{
   if(!l.fmicSku)return l;
   const q=bySku.get(l.fmicSku);
   if(!q)return {...l,fmicAvailable:false};
-  return {...l,unitPrice:q.unitPrice,fmicName:q.name,fmicImage:q.image,fmicAvailable:q.available};
+  const validPrice=Number.isFinite(q.unitPrice)&&q.unitPrice>0;
+  return {...l,unitPrice:validPrice?q.unitPrice:l.unitPrice,fmicPreviousPrice:validPrice&&l.unitPrice!==undefined&&l.unitPrice!==q.unitPrice?l.unitPrice:l.fmicPreviousPrice,fmicName:q.name,fmicImage:q.image,fmicAvailable:q.available&&validPrice};
  });
 }
 export async function addFmicToCart(sku:string,qty:number,displayedPrice:number){
