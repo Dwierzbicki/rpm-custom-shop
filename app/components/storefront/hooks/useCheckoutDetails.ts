@@ -3,14 +3,14 @@ import {useEffect,useState} from 'react';
 import {PaymentMethod,PaymentSettings,DEFAULT_PAYMENT_SETTINGS,availablePaymentMethods} from '../../../lib/payment-settings';
 import {ShippingMethod,ShippingSettings,DEFAULT_SHIPPING_SETTINGS} from '../../../lib/shipping';
 import {parsePolishAddress} from '../../../company-utils.mjs';
-export function useCheckoutDetails(t:(value:string)=>string){
+export function useCheckoutDetails(t:(value:string)=>string,enabled=true){
  const [checkoutType,setCheckoutType]=useState<'private'|'company'>('private');
  const [shippingMethod,setShippingMethod]=useState<ShippingMethod>('courier');
  const [shippingSettings,setShippingSettings]=useState<ShippingSettings>(DEFAULT_SHIPPING_SETTINGS);
  const [shippingSettingsReady,setShippingSettingsReady]=useState(false);
  const [paymentSettings,setPaymentSettings]=useState<PaymentSettings>(DEFAULT_PAYMENT_SETTINGS);
  const [paymentMethod,setPaymentMethod]=useState<PaymentMethod>('pay_on_pickup');
- useEffect(()=>{fetch('/api/settings',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Settings unavailable');return r.json()}).then(d=>{setShippingSettings(d.shipping);setPaymentSettings(d.payments);setShippingMethod(m=>m==='courier'&&d.shipping.courierEnabled||m==='pickup'&&d.shipping.pickupEnabled?m:d.shipping.courierEnabled?'courier':'pickup');setShippingSettingsReady(true)}).catch(()=>setShippingSettingsReady(false))},[]);
+ useEffect(()=>{if(!enabled)return;const controller=new AbortController();setShippingSettingsReady(false);fetch('/api/settings',{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('Settings unavailable');return r.json()}).then(d=>{if(controller.signal.aborted)return;setShippingSettings(d.shipping);setPaymentSettings(d.payments);setShippingMethod(m=>m==='courier'&&d.shipping.courierEnabled||m==='pickup'&&d.shipping.pickupEnabled?m:d.shipping.courierEnabled?'courier':'pickup');setShippingSettingsReady(true)}).catch(()=>{if(!controller.signal.aborted)setShippingSettingsReady(false)});return()=>controller.abort()},[enabled]);
  useEffect(()=>{const methods=availablePaymentMethods(paymentSettings,shippingMethod);if(!methods.includes(paymentMethod)&&methods.length)setPaymentMethod(methods[0])},[paymentSettings,shippingMethod,paymentMethod]);
  const [phonePrefix,setPhonePrefix]=useState('+48');
  const [phoneMenuOpen,setPhoneMenuOpen]=useState(false);

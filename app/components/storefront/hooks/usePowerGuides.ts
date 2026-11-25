@@ -4,8 +4,8 @@ import type {Product,CartLine} from '../../../data';
 import type {GuidePart} from '../../../lib/power-guides';
 import {POWER_ENGINES,POWER_RANGES} from '../../../lib/storefront-config';
 import {openPowerGuidePdf} from '../../../lib/power-guide-pdf';
-type Options={products:Product[];storageReady:boolean;setCart:Dispatch<SetStateAction<CartLine[]>>;onCart:()=>void;notify:(text:string)=>void};
-export function usePowerGuides({products,storageReady,setCart,onCart,notify}:Options){
+type Options={enabled?:boolean;products:Product[];storageReady:boolean;setCart:Dispatch<SetStateAction<CartLine[]>>;onCart:()=>void;notify:(text:string)=>void};
+export function usePowerGuides({enabled=true,products,storageReady,setCart,onCart,notify}:Options){
  const [guideEngine,setGuideEngine]=useState('');
  const [guideVersion,setGuideVersion]=useState('');
  const [guideRange,setGuideRange]=useState(-1);
@@ -71,7 +71,7 @@ export function usePowerGuides({products,storageReady,setCart,onCart,notify}:Opt
  const [guideDataError,setGuideDataError]=useState(false);
  const exportGuidePdf=()=>openPowerGuidePdf({guideParts,guideVersion,guideRange,guideUsage,guideTier,guideEngine,guideDiscount,products});
 
- useEffect(()=>{fetch('/api/power-guides',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('guides');return r.json()}).then(d=>{setGuideParts(d.parts);setGuideDiscount(d.discountPercent);setGuideDataError(false)}).catch(()=>setGuideDataError(true))},[]);
+ useEffect(()=>{if(!enabled)return;const controller=new AbortController();fetch('/api/power-guides',{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('guides');return r.json()}).then(d=>{if(controller.signal.aborted)return;setGuideParts(d.parts);setGuideDiscount(d.discountPercent);setGuideDataError(false)}).catch(()=>{if(!controller.signal.aborted)setGuideDataError(true)});return()=>controller.abort()},[enabled]);
 
  useEffect(()=>{try{const raw=localStorage.getItem('rpm-power-guide-form-v1');if(!raw)return;const saved=JSON.parse(raw) as Record<string,unknown>;if(typeof saved.engine==='string'&&POWER_ENGINES.some(e=>e.id===saved.engine))setGuideEngine(saved.engine);if(typeof saved.version==='string'&&POWER_ENGINES.some(e=>e.versions.some(v=>v.id===saved.version)))setGuideVersion(saved.version);if(typeof saved.range==='number'&&Number.isInteger(saved.range)&&saved.range>=-1&&saved.range<POWER_RANGES.length)setGuideRange(saved.range);if(saved.usage==='street'||saved.usage==='drift'||saved.usage==='track')setGuideUsage(saved.usage);if(saved.tier==='budget'||saved.tier==='recommended'||saved.tier==='premium')setGuideTier(saved.tier);if(Array.isArray(saved.openCategories))setGuideOpenCategories(saved.openCategories.filter((v:unknown):v is string=>typeof v==='string'))}catch{}},[]);
  useEffect(()=>{if(!storageReady)return;try{localStorage.setItem('rpm-power-guide-form-v1',JSON.stringify({engine:guideEngine,version:guideVersion,range:guideRange,usage:guideUsage,tier:guideTier,openCategories:guideOpenCategories}))}catch{}},[storageReady,guideEngine,guideVersion,guideRange,guideUsage,guideTier,guideOpenCategories]);
