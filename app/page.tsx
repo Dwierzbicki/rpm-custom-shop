@@ -24,7 +24,9 @@ import {products as demoProducts,money,Product,CartLine} from './data';
 import {SHOP_DEPARTMENTS,ShopSubcategory} from './shop-departments';
 import {FMIC_CATEGORY_TREE} from './fmic-categories';
 import {useHomepagePreview} from './components/storefront/hooks/useHomepagePreview';
-import {categoryPath,resolveCategoryPath} from './category-routing';
+import {categoryPath} from './category-routing';
+import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storefront-navigation';
+import {useStorefrontMenu} from './components/storefront/hooks/useStorefrontMenu';
 import {usePowerGuides} from './components/storefront/hooks/usePowerGuides';
 import {buildCatalogFilters,matchesCatalogAttributes} from './lib/catalog-filters';
 export default function Shop(){
@@ -44,41 +46,20 @@ export default function Shop(){
  const {lang,t,changeLang}=useStorefrontLanguage();
  const {selected,setSelected,chosenOptions,setChosenOptions,photoIndex,setPhotoIndex,lightbox,setLightbox,engine,setEngine,flange,setFlange,wg,setWg,egt,setEgt,qty,setQty,customGroups,automaticWg,usesCustom,customExtra,selectedPrice,unitPrice,totalPrice,canAdd,resetProduct,buildLine}=useProductConfiguration(products[0]);
 
- const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[mobileMenu,setMobileMenu]=useState(false),[toast,setToast]=useState('');
+ const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[toast,setToast]=useState('');
+ const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t);
  const {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
  const resetSearch=()=>{setQuery('');setGlobalFmicQuery('')};
-  const navigate=(v:View)=>{if(v!=='product')resetSearch();if(view==='guides'&&v!=='guides')resetGuide();setView(v);setMobileMenu(false);setFmicMenuOpen(false);if(typeof window!=='undefined'){const path=v==='home'?'/':v==='catalog'?'/sklep':v==='guides'?'/power-guides':v==='cart'?'/koszyk':v==='garage'?'/garage':null;if(path){setFmicPath(path);if(window.location.pathname!==path||window.location.search)window.history.pushState({},'',path)}}window.scrollTo({top:0,behavior:'smooth'})};
- const openCatalogPath=(names:string[])=>{setGlobalFmicQuery('');setShopSubcategory(null);setEngineFilter('Wszystkie');setSort('featured');setShopLanding(false);setCategory('Wszystkie');setQuery(fmicPreview?'':(names.at(-1)??''));setView('catalog');setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null);setFmicMenuOpen(false);const path=categoryPath(names);setFmicPath(path);if(window.location.pathname!==path||window.location.search)window.history.pushState({},'',path);window.scrollTo({top:0,behavior:'smooth'})};
- useEffect(()=>{const sync=()=>{const names=resolveCategoryPath(window.location.pathname);if(names===null){setQuery('');setGlobalFmicQuery('')}if(names!==null){setCategory('Wszystkie');const params=new URLSearchParams(window.location.search);setQuery(params.get('q')??'');setShopSubcategory(null);setView('catalog')}else if(window.location.pathname==='/power-guides')setView('guides');else if(window.location.pathname==='/koszyk')setView('cart');else if(window.location.pathname==='/garage')setView('garage');else if(window.location.pathname==='/')setView('home')};sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
+  const navigate=(v:View)=>{if(v!=='product')resetSearch();if(view==='guides'&&v!=='guides')resetGuide();setView(v);setMobileMenu(false);setFmicMenuOpen(false);if(typeof window!=='undefined'){const path=storefrontPath(v);if(path){setFmicPath(path);pushStorefrontPath(path)}}window.scrollTo({top:0,behavior:'smooth'})};
+ const openCatalogPath=(names:string[])=>{setGlobalFmicQuery('');setShopSubcategory(null);setEngineFilter('Wszystkie');setSort('featured');setShopLanding(false);setCategory('Wszystkie');setQuery(fmicPreview?'':(names.at(-1)??''));setView('catalog');setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null);setFmicMenuOpen(false);const path=categoryPath(names);setFmicPath(path);pushStorefrontPath(path);window.scrollTo({top:0,behavior:'smooth'})};
+ useEffect(()=>{const sync=()=>{const location=storefrontLocation(window.location.pathname,window.location.search);if(location.category===null){setQuery('');setGlobalFmicQuery('')}else{setCategory('Wszystkie');setQuery(location.query);setShopSubcategory(null)}if(location.view)setView(location.view)};sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('power-guides')==='1')setView('guides')},[]);
  useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
  const openProduct=(p:Product)=>{resetProduct(p);navigate('product')};
  const addLine=(target:'cart'|'garage')=>{const line=buildLine();if(!line){notify('Wybierz wymagane opcje kolektora');return}addSavedLine(target,line);notify(target==='cart'?'Dodano do koszyka DEMO':'Zapisano w RPM Garage Lite')};
- const [activeFmicRoot,setActiveFmicRoot]=useState<number|null>(null);
- const [compactCategories,setCompactCategories]=useState(true);
- useEffect(()=>{
-  let frame=0;
-  const measure=()=>{
-   cancelAnimationFrame(frame);
-   frame=requestAnimationFrame(()=>{
-    const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
-    if(!nav)return;
-    const required=Array.from(nav.children).reduce((sum,child)=>sum+(child as HTMLElement).offsetWidth,0);
-    const available=document.documentElement.clientWidth-24;
-    setCompactCategories(required>available);
-   });
-  };
-  measure();
-  window.addEventListener('resize',measure);
-  document.fonts?.ready.then(measure);
-  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure)};
- },[view]);
- useEffect(()=>{setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null)},[compactCategories]);
- const [fmicMenuOpen,setFmicMenuOpen]=useState(false);
- const [activeFmicSub,setActiveFmicSub]=useState<number|null>(null);
  const openShopCategory=(name:string)=>{setInlineShopOpen(false);setShopSubcategory(null);setCategory(name);setEngineFilter('Wszystkie');setQuery('');setSort('featured');setShopLanding(false);navigate('catalog')};
  const openDepartmentSubcategory=(sub:ShopSubcategory)=>{if(!sub.catalogCategory)return;setShopSubcategory(sub);setCategory(sub.catalogCategory);setEngineFilter('Wszystkie');setQuery('');setSort('featured');setShopLanding(false);setInlineShopOpen(false);requestAnimationFrame(()=>document.getElementById('rpm-inline-catalog')?.scrollIntoView({behavior:'smooth',block:'start'}))};
  const categoryLabel=(name:string)=>lang==='en'?({'Wszystkie':'All products','Kolektory':'Turbo manifolds','Turbo':'Turbochargers','Intercoolery':'Intercoolers','Wastegate':'Wastegates','Osprzęt':'Fittings & hardware','Elektronika':'Electronics','Paliwo':'Fuel system'}[name]??name):name;
