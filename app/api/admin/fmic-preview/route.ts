@@ -4,7 +4,10 @@ import {brandSearchNames} from '../../../lib/brand-search';
 import {getDbPool} from '../../../lib/db';
 import {fmicSearchFacets} from '../../../lib/fmic-facets';
 import {visibleCatalog,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
-import {resolveCategoryPath} from '../../../category-routing';
+import {getCatalog} from '../../../lib/catalog-db';
+import {matchesSearch} from '../../../lib/header-search';
+import {createHash} from 'node:crypto';
+import {manualCategoryPath,resolveCategoryPath} from '../../../category-routing';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 import {cachedSearch,searchPatterns,searchConditions,listingCacheKeys} from '../../../lib/fmic-search-performance';
@@ -15,10 +18,11 @@ export async function GET(request:Request){
  if(!path)return NextResponse.json({error:'Wybierz kategorię sklepu'},{status:400});
  const raw=Number(params.get('page')??1),page=Number.isSafeInteger(raw)?Math.max(1,Math.min(10000,raw)):1,size=24;
  const q=(params.get('q')??'').trim().slice(0,120);
- if(!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[]});
+ const includeManual=new URL(request.url).pathname==='/api/catalog/fmic';
+ if(!includeManual&&!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[]});
  const sort=params.get('sort');
  const stock=params.get('stock')==='available'?'available':params.get('stock')==='unavailable'?'unavailable':'all';
- const order=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
+ const supplierOrder=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
  const patterns=searchPatterns(q);
  // Exact supplier brand metadata can identify products without the brand in the title.
  // Keep ordinary keyword searches unchanged.
@@ -33,13 +37,34 @@ export async function GET(request:Request){
  const base=[path,q,stock];
  const min=params.get('min'),max=params.get('max');
  const price=(v:string|null)=>v&&/^\d{1,8}(\.\d{1,2})?$/.test(v)?Number(v):null;
- const values=[...base,price(min),price(max),...patterns];
+ const lower=price(min),upper=price(max);
+ const manualGlobal=includeManual?(await getCatalog()).filter(p=>p.visible!==false).flatMap(p=>{
+  const target_category=manualCategoryPath(p);if(!target_category.length)return [];
+  const available=p.stockStatus==='available';
+  if(q&&!matchesSearch(q,[p.name,p.sku,p.brand,p.engine,p.category,p.description,...target_category,...Object.values(p.attributes??{})]))return [];
+  if(stock!=='all'&&(stock==='available')!==available)return [];
+  if((lower!==null&&p.price<lower)||(upper!==null&&p.price>upper))return [];
+  const numeric=(value?:string)=>{const m=value?.trim().match(/^([0-9]+(?:[.,][0-9]+)?)(?:\s*mm)?$/i);return m?String(Number(m[1].replace(',','.'))):null};
+  const profile=p.attributes?.['Profil']?.trim().toUpperCase();
+  const facetValues={rod_length:numeric(p.attributes?.['Długość między osiami']??p.attributes?.['Długość korbowodu (mm)']),rod_type:profile&&['H','I','X'].includes(profile)?profile+'-Beam':null};
+  return [{sku:p.sku,name:p.name,proposed_gross:p.price,available,manual_id:p.id,manual_stock_status:p.stockStatus,target_category,data:{brand:p.brand,images:p.images??[],facetValues},mapping_status:'manual'}];
+ }):[];
+ const manualRows=manualGlobal.filter(p=>path.every((name,i)=>p.target_category[i]===name));
+ const mixed=manualRows.length>0;
+ const order=sort==='priceAsc'||sort==='priceDesc'?supplierOrder:mixed?'available DESC, manual_id DESC NULLS LAST, sku ASC':supplierOrder;
+ const manualParameter=6+patterns.length;
+ const values:unknown[]=[...base,lower,upper,...patterns,...(mixed?[JSON.stringify(manualRows)]:[])];
+ const manualCte=mixed?'manual_rows AS MATERIALIZED (SELECT * FROM jsonb_to_recordset($'+manualParameter+'::jsonb) AS m(sku text,name text,proposed_gross numeric,available boolean,manual_id integer,manual_stock_status text,target_category text[],data jsonb,mapping_status text)), ':'';
+ const manualFacets=defs.map(d=>"COALESCE(NULLIF(data->'facetValues'->>'"+d.key+"',''),"+d.expression+") AS "+d.key).join(',');
+ const manualSelect=(columns:string)=>mixed?' UNION ALL SELECT '+columns+(manualFacets?','+manualFacets:'')+' FROM manual_rows':'';
+ const manualId=mixed?',NULL::integer AS manual_id':'';
  const facetColumns=defs.map(d=>d.expression+' AS '+d.key).join(',');
- const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)) ";
- const source="WITH catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+from;
- const facetSource="WITH catalog AS MATERIALIZED (SELECT "+facetColumns+from;
- // Keep large product JSON and image-audit lookups out of the sorting step.
- const itemSource="WITH catalog AS (SELECT sku,proposed_gross,available"+(facetColumns?','+facetColumns:'')+from;
+ const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)"+(!path.length&&q.length<2?' AND FALSE':'');
+ const source="WITH "+manualCte+"catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+from+manualSelect("sku,name,proposed_gross,available,data->'images' AS images")+") ";
+ const facetSource="WITH "+manualCte+"catalog AS MATERIALIZED (SELECT "+facetColumns+from+(mixed?' UNION ALL SELECT '+manualFacets+' FROM manual_rows':'')+") ";
+ const itemSource="WITH "+manualCte+"catalog AS (SELECT sku,proposed_gross,available"+manualId+(facetColumns?','+facetColumns:'')+from+manualSelect("sku,proposed_gross,available,manual_id")+") ";
+ const manualKey=mixed?':manual:'+createHash('sha256').update(JSON.stringify(manualRows)).digest('hex'):'';
+ const listingKey=(key:string)=>key+':v3:'+String(includeManual)+manualKey;
  function filtered(except=-1){
  const args:unknown[]=[...values];const conditions:string[]=[];
  defs.forEach((d,i)=>{if(i!==except&&selected[i]){args.push(selected[i]);conditions.push(d.key+'=$'+args.length)}});
@@ -55,13 +80,15 @@ export async function GET(request:Request){
  return "SELECT '"+d.key+"' AS facet,"+d.key+" AS value,count(*)::int AS count FROM catalog WHERE "+conditions.join(' AND ')+" GROUP BY 1,2";
  });
  const [count,items,facetRows,categories]=await Promise.all([
- cachedSearch(keys.count,15000,async()=> (await db.query(source+'SELECT count(*)::int AS total FROM catalog'+all.sql,all.args)).rows),
- cachedSearch(keys.items,15000,async()=> (await db.query(itemSource+", page_rows AS MATERIALIZED (SELECT sku,proposed_gross,available FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2)+") SELECT p.sku,c.name,p.proposed_gross,p.available,COALESCE(NULLIF(trim(c.data->>'brand'),''),CASE WHEN e.source_url=c.data->>'url' AND e.data->>'sku'=c.sku AND e.data->>'name'=c.name THEN NULLIF(trim(e.data->>'brand'),'') END) AS brand,(SELECT img.url FROM jsonb_array_elements_text(c.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM page_rows p JOIN rpm_fmic_catalog c ON c.sku=p.sku LEFT JOIN rpm_fmic_enrichment e ON e.sku=p.sku ORDER BY "+order.replace(/\b(sku|available|proposed_gross)\b/g,'p.$1'),[...all.args,size,(page-1)*size])).rows),
- branches.length?cachedSearch(keys.facets,15000,async()=> (await db.query(facetSource+branches.join(' UNION ALL '),facetArgs)).rows):Promise.resolve([]),
+ cachedSearch(listingKey(keys.count),15000,async()=> (await db.query(source+'SELECT count(*)::int AS total FROM catalog'+all.sql,all.args)).rows),
+ cachedSearch(listingKey(keys.items),15000,async()=> (await db.query(itemSource+", page_rows AS MATERIALIZED (SELECT sku,proposed_gross,available"+(mixed?',manual_id':'')+" FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2)+") SELECT p.sku,"+(mixed?'COALESCE(m.name,c.name)':'c.name')+" AS name,p.proposed_gross,p.available,"+(mixed?"p.manual_id,m.manual_stock_status,COALESCE(m.data->>'brand',":"")+"COALESCE(NULLIF(trim(c.data->>'brand'),''),CASE WHEN e.source_url=c.data->>'url' AND e.data->>'sku'=c.sku AND e.data->>'name'=c.name THEN NULLIF(trim(e.data->>'brand'),'') END)"+(mixed?')':'')+" AS brand,"+(mixed?"COALESCE(m.data->'images'->>0,":"")+"(SELECT img.url FROM jsonb_array_elements_text(c.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1)"+(mixed?')':'')+" AS image FROM page_rows p "+(mixed?"LEFT JOIN rpm_fmic_catalog c ON c.sku=p.sku AND p.manual_id IS NULL LEFT JOIN manual_rows m ON m.manual_id=p.manual_id":"JOIN rpm_fmic_catalog c ON c.sku=p.sku")+" LEFT JOIN rpm_fmic_enrichment e ON e.sku=c.sku ORDER BY "+order.replace(/\b(sku|available|proposed_gross|manual_id)\b/g,'p.$1'),[...all.args,size,(page-1)*size])).rows),
+ branches.length?cachedSearch(listingKey(keys.facets),15000,async()=> (await db.query(facetSource+branches.join(' UNION ALL '),facetArgs)).rows):Promise.resolve([]),
  q.length>=2?cachedSearch(keys.categories,15000,async()=> (await db.query("SELECT memberships.path AS path,count(*)::int AS count FROM rpm_fmic_catalog "+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+conditions(4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
  ]);
  const facets=defs.map(d=>({key:d.key,label:d.label,options:facetRows.filter(row=>row.facet===d.key).map(row=>({value:row.value,count:row.count})).sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]);
- const payload={items,total:count[0].total,page,size,path,facets,categories};
+ const categoryCounts=new Map<string,{path:string[];count:number}>(categories.map(row=>[JSON.stringify(row.path),{path:row.path,count:Number(row.count)}]));
+ if(q.length>=2)for(const p of manualGlobal){const key=JSON.stringify(p.target_category),current=categoryCounts.get(key);categoryCounts.set(key,{path:p.target_category,count:(current?.count??0)+1})}
+ const payload={items,total:count[0].total,page,size,path,facets,categories:[...categoryCounts.values()],includesManual:includeManual};
  return NextResponse.json(payload,{headers:{'Cache-Control':'private, no-store'}});
 
  }catch(e){console.error('FMIC preview failed',e);return NextResponse.json({error:'Nie udało się pobrać podglądu'},{status:500})}
