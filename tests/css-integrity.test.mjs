@@ -13,8 +13,6 @@ const styleFiles=[
   "product-gallery.css",
   "storefront-toast.css",
   "product-cart.css",
-  "checkout-primary.css",
-  "checkout-details.css",
   "product-detail-final.css",
   "legacy-home-catalog.css",
   "legacy-shop-directory.css",
@@ -99,11 +97,12 @@ test('critical storefront sections retain their CSS selectors',()=>{
  for(const selector of [
   '.rpm-header-v2','.rpm-desktop-root','.rpm-category-drawer',
   '.rpm-guide-page','.rpm-hp-hero','.rpm-products-modern',
-  '.rpm-checkout-page','.rpm-cart-layout','.rpm-toast-overlay','scrollbar-gutter:stable'
+  '.rpm-cart-layout','.rpm-toast-overlay','scrollbar-gutter:stable'
  ])assert.ok(css.includes(selector),'missing CSS selector '+selector);
 });
 
 const componentStyles=[
+ {entry:'checkout-local.css',component:'CheckoutView.tsx',files:["checkout-confirmation-card.css","checkout-primary.css","checkout-details.css"]},
  {entry:'power-guides-detail.css',component:'PowerGuidesView.tsx',files:["power-guides-pricing.css","power-guides-recommendations.css","power-guides-cart.css"]},
  {entry:'fmic-product.css',component:'FmicProductPreview.tsx',files:["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"]},
  {entry:'fmic-listing.css',component:'FmicPreview.tsx',files:["fmic-listing-base.css","fmic-listing-controls.css","fmic-listing-layout.css","fmic-listing-search.css","fmic-listing-refinements.css","fmic-listing-media.css"]}

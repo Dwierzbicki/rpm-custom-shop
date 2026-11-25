@@ -1,4 +1,5 @@
 'use client';
+import '../../styles/checkout-local.css';
 import type {Dispatch,FormEventHandler,SetStateAction} from 'react';
 import {Check,ChevronRight} from 'lucide-react';
 import {money} from '../../data';
