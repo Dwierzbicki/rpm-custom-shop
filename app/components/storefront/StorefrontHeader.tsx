@@ -21,6 +21,7 @@ type Props=CategoryNavigationProps&{
  onQuery:(value:string)=>void;
  onHome:()=>void;
  onSearchSubmit:()=>void;
+ onClearSearch?:()=>void;
  onLanguageChange:(value:'pl'|'en')=>void;
  onGarage:()=>void;
  onCart:()=>void;
@@ -28,7 +29,7 @@ type Props=CategoryNavigationProps&{
 
 /** Storefront header keeps the existing DOM and CSS class names. */
 export default function StorefrontHeader({
- compactCategories,lang,query,count,onQuery,onHome,onSearchSubmit,fmicPreview=false,ownSuggestions=[],onOwnSuggestion,
+ compactCategories,lang,query,count,onQuery,onHome,onSearchSubmit,onClearSearch,fmicPreview=false,ownSuggestions=[],onOwnSuggestion,
  onLanguageChange,onGarage,onCart,mobileMenu,setMobileMenu,
  activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,
  onOpenCatalogPath,onMotoLab
@@ -41,6 +42,7 @@ export default function StorefrontHeader({
  const results=[...own.map(p=>({key:'own-'+p.id,name:p.name,sku:p.sku,price:p.price,image:p.image??null,available:null as boolean|null,choose:()=>onOwnSuggestion?.(p.id)})),...remote.map(p=>({key:'fmic-'+p.sku,name:p.name,sku:p.sku,price:Number(p.proposed_gross),image:p.image,available:p.available as boolean|null,choose:()=>{window.location.assign(suggestionHref(p.sku,term))}}))];
  useEffect(()=>{setRemote([]);setCategories([]);setRemoteTotal(null);setActive(-1);setFailed(false);setPending(false);if(!open||!fmicPreview||term.length<2)return;const controller=new AbortController();setPending(true);const timer=setTimeout(async()=>{try{const response=await fetch('/api/catalog/fmic/suggest?'+new URLSearchParams({q:term}),{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('Search unavailable');const data=await response.json();if(!controller.signal.aborted){setRemote(data.items??[]);setCategories(data.categories??[]);setRemoteTotal(data.total??null)}}catch{if(!controller.signal.aborted)setFailed(true)}finally{if(!controller.signal.aborted)setPending(false)}},350);return()=>{clearTimeout(timer);controller.abort()}},[term,open,fmicPreview]);
  useEffect(()=>{const outside=(e:PointerEvent)=>{if(!form.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('pointerdown',outside);return()=>document.removeEventListener('pointerdown',outside)},[]);
+ useEffect(()=>{if(!term){setOpen(false);setActive(-1)}},[term]);
  const visible=open&&term.length>=2;
  function choose(i:number){const result=results[i];if(!result)return;setOpen(false);setActive(-1);result.choose()}
  return (
@@ -50,6 +52,7 @@ export default function StorefrontHeader({
  <form ref={form} className="rpm-header-search rpm-live-search" role="search" onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false)}} onSubmit={e=>{e.preventDefault();if(active>=0&&visible&&results[active]){choose(active);return}setOpen(false);setActive(-1);onSearchSubmit()}}>
  <label htmlFor="rpm-header-query" className="rpm-visually-hidden">{lang==='en'?'Search products':'Szukaj produktów'}</label>
  <input id="rpm-header-query" value={query} maxLength={120} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={visible} aria-controls="rpm-search-results" aria-activedescendant={visible&&active>=0&&results[active]?'rpm-search-option-'+active:undefined} onFocus={()=>setOpen(true)} onChange={e=>{setRemote([]);setCategories([]);setRemoteTotal(null);setActive(-1);onQuery(e.target.value);setOpen(true)}} onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);setActive(-1)}else if(e.key==='ArrowDown'){e.preventDefault();setOpen(true);setActive(i=>Math.min(results.length-1,i+1))}else if(e.key==='ArrowUp'){e.preventDefault();setActive(i=>Math.max(-1,i-1))}}} placeholder={lang==='en'?'Search by name or part number':'Szukaj po nazwie lub numerze części'}/>
+ <button type="button" hidden={!query} style={{display:query?'':'none',flexShrink:0,width:32,background:'transparent',color:'inherit'}} aria-label={lang==='en'?'Clear search':'Wyczyść wyszukiwanie'} onClick={()=>{setOpen(false);setActive(-1);if(onClearSearch)onClearSearch();else onQuery('')}}>×</button>
  <button type="submit" aria-label={lang==='en'?'Search':'Szukaj'}><Search size={21}/></button>
  {visible&&<div className="rpm-search-dropdown"><div id="rpm-search-results" role="listbox" aria-label="Produkty">{categories.length>0&&<><div className="rpm-search-caption">{lang==='en'?'Matching categories':'Pasujące kategorie'}</div>{categories.map(c=><a className="rpm-search-category" key={c.name} href={searchCategoryHref(categoryPath([c.name]),term)} onMouseDown={e=>e.preventDefault()}><span>{c.name}</span><small>{c.count}</small><span aria-hidden="true">›</span></a>)}</>}<div className="rpm-search-caption">{lang==='en'?'Product suggestions':'Podpowiedzi produktów'}</div>{results.map((p,i)=><div role="option" aria-selected={active===i} id={'rpm-search-option-'+i} key={p.key} className={'rpm-search-result '+(active===i?'active':'')} onMouseDown={e=>e.preventDefault()} onClick={()=>choose(i)}><span className="rpm-search-thumb">{p.image?<img src={p.image} alt="" loading="lazy" onError={e=>{e.currentTarget.style.display='none'}}/>:<Package size={22}/>}</span><span className="rpm-search-info"><strong>{p.name}</strong><small>{p.sku}</small>{p.available!==null&&<small className={p.available?'in-stock':'out-stock'}>{p.available?'Dostępny':'Niedostępny'}</small>}</span><strong className="rpm-search-price">{p.price.toLocaleString('pl-PL',{style:'currency',currency:'PLN'})}</strong></div>)}</div>{pending&&<p role="status">Szukam…</p>}{failed&&<p role="status">Nie udało się pobrać podpowiedzi FMIC. Spróbuj wyszukać ponownie.</p>}{!pending&&!failed&&!results.length&&<p role="status">Brak pasujących produktów</p>}<button type="button" className="rpm-search-all" onMouseDown={e=>e.preventDefault()} onClick={()=>{setOpen(false);setActive(-1);onSearchSubmit()}}>{lang==='en'?'View all results':'Zobacz wszystkie wyniki'}{remoteTotal!==null?' ('+remoteTotal.toLocaleString('pl-PL') + ')':''}</button></div>}
  </form>
