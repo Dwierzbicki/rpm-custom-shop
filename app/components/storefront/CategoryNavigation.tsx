@@ -18,7 +18,7 @@ export type CategoryNavigationProps={
  productsOnly?:boolean;
 };
 
-const shortLabels:Record<string,string>={'Układ dolotowy':t("Dolot"),'Układ chłodzenia':t("Chłodzenie"),'Układ paliwowy':'Paliwo','Układ wydechowy':t("Wydech"),'Wyposażenie wnętrza i kierowcy':t("Wnętrze i kierowca")};
+const shortLabels:Record<string,string>={'Układ dolotowy':'Dolot','Układ chłodzenia':'Chłodzenie','Układ paliwowy':'Paliwo','Układ wydechowy':'Wydech','Wyposażenie wnętrza i kierowcy':'Wnętrze i kierowca'};
 
 const categoryIcons:Record<string,string>={"Układ dolotowy":"intake","Układ chłodzenia":"cooling","Układ paliwowy":"fuel","Układ wydechowy":"exhaust","Hamulce i koła":"brakes","Napęd i zawieszenie":"drivetrain","Silnik i turbo":"turbo","Elektronika":"ecu","Wyposażenie wnętrza i kierowcy":"seat","Detailing":"detail","Pozostałe":"other"};
 function CategoryIcon({name}:{name:string}){
@@ -106,11 +106,11 @@ export default function CategoryNavigation({
  aria-expanded={sub.children.length?activeFmicSub===j:undefined}
  onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)}
  onKeyDown={e=>{if(e.key==='ArrowRight'&&sub.children.length){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-leaves button')?.focus()}}}
- onClick={()=>navigate([root.name,sub.name])}><span>{t(sub.name)}<///span>{sub.children.length>0&&<ChevronRight size={15} aria-hidden="true"/>}</button>)}
+ onClick={()=>navigate([root.name,sub.name])}><span>{t(sub.name)}</span>{sub.children.length>0&&<ChevronRight size={15} aria-hidden="true"/>}</button>)}
  </div>
  {selected&&selected.children.length>0&&<div className="rpm-cascade-leaves" key={selected.name} aria-label={t(selected.name)}
  onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-group.is-selected')?.focus()}}}>
- {selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}>{t(leaf.name)}<///button>)}
+ {selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}>{t(leaf.name)}</button>)}
  </div>}
  </div>}</div>
  })}
@@ -127,8 +127,8 @@ export default function CategoryNavigation({
  {!productsOnly&&<a className={styles.drawerRoad} href="/autopomoc"><Truck size={18}/> POMOC DROGOWA — WEZWIJ LAWETĘ <ArrowRight size={15}/></a>}
  <div className="rpm-drawer-scroll">
  {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={"rpm-drawer-root"+(activeFmicRoot===i?" is-active":"")}>
- <div className="rpm-drawer-root-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name])}><CategoryIcon name={root.name}/><span>{t(root.name)}<///span></button><button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(root.name)} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
- {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name,sub.name])}>{t(sub.name)}<///button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(sub.name)} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>onOpenCatalogPath([root.name,sub.name,leaf.name])}>{t(leaf.name)}<///button>)}</div>}</div>)}</div>}
+ <div className="rpm-drawer-root-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name])}><CategoryIcon name={root.name}/><span>{t(root.name)}</span></button><button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(root.name)} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
+ {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name,sub.name])}>{t(sub.name)}</button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(sub.name)} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>onOpenCatalogPath([root.name,sub.name,leaf.name])}>{t(leaf.name)}</button>)}</div>}</div>)}</div>}
  </div>)}
  </div></aside>
   </>
