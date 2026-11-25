@@ -1,0 +1,63 @@
+/* Motorsport Icons / Racing Navigation. Shared desktop and mobile storefront header. */
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-categories{
+ background:linear-gradient(180deg,#1a1d23 0%,#121419 100%)!important;
+ border-top:1px solid #30343d;
+ border-bottom:1px solid #353943;
+}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root{isolation:auto}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root:not(:first-child)::before{
+ top:14px;bottom:14px;background:#3a3d46;transform:skewX(-12deg);
+}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button{
+ position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:5px;min-height:78px;min-width:64px;
+ padding:9px clamp(7px,.8vw,18px) 7px!important;
+ font-size:clamp(11px,.79vw,13px)!important;
+ font-weight:750;letter-spacing:.015em!important;
+ border-radius:0!important;background:transparent!important;
+ color:#e9ebef;box-shadow:none!important;
+ transition:background .18s ease,color .18s ease;
+}
+.rpm-nav-pictogram{
+ display:block;width:27px;height:27px;flex:0 0 27px;
+ background-color:currentColor;
+ mask-size:contain;mask-repeat:no-repeat;mask-position:center;
+ -webkit-mask-size:contain;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;
+ color:#b6bdc8;transition:color .18s ease,transform .18s ease,filter .18s ease;
+}
+.rpm-header-v2 .rpm-nav-category-label{position:relative;line-height:1.25;white-space:nowrap}
+.rpm-header-v2 .rpm-nav-chevron{color:#7f8794;transition:color .18s ease,transform .18s ease}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button::after{
+ content:"";position:absolute;bottom:0;left:12%;right:12%;height:3px;
+ transform:skewX(-18deg) scaleX(0);background:#f12748;transition:transform .18s ease;
+}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root.active>.rpm-desktop-root-button,
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button:hover,
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button:focus-visible{
+ background:linear-gradient(180deg,#321b24,#241820)!important;color:#fff;
+}
+.rpm-header-v2 .rpm-desktop-root.active .rpm-nav-pictogram,
+.rpm-header-v2 .rpm-desktop-root-button:hover .rpm-nav-pictogram,
+.rpm-header-v2 .rpm-desktop-root-button:focus-visible .rpm-nav-pictogram{
+ color:#ff4865;filter:drop-shadow(0 0 5px #f1274850);transform:translateY(-1px);
+}
+.rpm-header-v2 .rpm-desktop-root.active .rpm-nav-chevron{color:#ff4865;transform:rotate(180deg)}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button::after,
+.rpm-header-v2 .rpm-desktop-root-button:hover::after,
+.rpm-header-v2 .rpm-desktop-root-button:focus-visible::after{transform:skewX(-18deg) scaleX(1)}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-level2,
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-level3{
+ border-top:2px solid #f12748!important;
+ background:#181b22!important;
+}
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-sub:hover>button,
+.rpm-header-v2.rpm-header-product-first .rpm-desktop-level3>button:hover{
+ background:#35222c!important;box-shadow:inset 3px 0 #f12748;color:#fff!important;
+}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child{display:flex;align-items:center;gap:12px;text-align:left}
+.rpm-header-v2 .rpm-drawer-root-line .rpm-nav-pictogram{width:24px;height:24px;flex-basis:24px;color:#c3c9d3}
+.rpm-header-v2 .rpm-drawer-root.is-active .rpm-nav-pictogram{color:#fff}
+@media(prefers-reduced-motion:reduce){
+ .rpm-header-v2 .rpm-desktop-root-button,.rpm-header-v2 .rpm-desktop-root-button::after,
+ .rpm-header-v2 .rpm-nav-pictogram,.rpm-header-v2 .rpm-nav-chevron{transition:none!important}
+}
