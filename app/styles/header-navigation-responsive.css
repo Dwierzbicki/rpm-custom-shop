@@ -270,3 +270,7 @@
 .rpm-header-v2.rpm-header-wide .rpm-desktop-categories{justify-content:space-evenly!important}
 .rpm-header-v2.rpm-header-compact .rpm-desktop-categories{justify-content:flex-start!important}
 
+
+/* Homepage: product-first header; keep all departments on one row whenever they fit. */
+.rpm-header-v2.rpm-header-home .rpm-desktop-root-button{padding:13px clamp(7px,.65vw,15px)!important;font-size:clamp(12px,.8vw,14px)!important}
+.rpm-header-v2.rpm-header-home .rpm-clean-categories-button{flex:1;justify-content:space-between}
