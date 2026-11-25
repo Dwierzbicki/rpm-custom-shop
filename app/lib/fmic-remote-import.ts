@@ -5,7 +5,8 @@ import {pipeline} from 'node:stream/promises';
 import {getDbPool} from './db';
 import {setupFmicCatalog,stageFmicBatch,type FmicRow} from './fmic-catalog-db';
 
-export async function importFmicRemote(){
+export type ImportProgress={phase:'download'|'processing'|'commit';count:number;percent:number|null;bytes:number};
+export async function importFmicRemote(report:(p:ImportProgress)=>void=()=>{}){
  const url=process.env.FMIC_FEED_URL;
  if(!url||new URL(url).origin!=='https://fmic.eu')throw new Error('FMIC_FEED_URL is not configured');
  await setupFmicCatalog();
@@ -28,21 +29,27 @@ export async function importFmicRemote(){
   const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(10*60*1000)});
   if(!response.ok||!response.body)throw new Error('FMIC feed HTTP '+response.status);
   const reader=response.body.getReader();
+  const total=Number(response.headers.get('content-length'));
+  const known=total>0&&(!response.headers.get('content-encoding')||response.headers.get('content-encoding')==='identity');
+  let bytes=0,count=0,last=0;
+  const progress=(phase:ImportProgress['phase'],force=false)=>{if(force||Date.now()-last>=500){last=Date.now();report({phase,count,bytes,percent:known?Math.min(99,Math.floor(bytes/total*100)):null})}};
+  progress('download',true);
   async function* chunks(){
-   try{for(;;){const {done,value}=await reader.read();if(done)break;yield Buffer.from(value)}}
+   try{for(;;){const {done,value}=await reader.read();if(done)break;bytes+=value.byteLength;progress('processing');yield Buffer.from(value)}}
    finally{await reader.cancel().catch(()=>{});reader.releaseLock()}
   }
   const input=pipeline(chunks(),proc.stdin!);
   input.catch(()=>proc.kill());
-  let batch:FmicRow[]=[],count=0;
+  let batch:FmicRow[]=[];
   for await(const line of createInterface({input:proc.stdout!,crlfDelay:Infinity})){
    batch.push(JSON.parse(line));
-   if(batch.length===1000){count+=await stageFmicBatch(batch,client);batch=[]}
+   if(batch.length===1000){count+=await stageFmicBatch(batch,client);batch=[];progress('processing',true)}
   }
   if(batch.length)count+=await stageFmicBatch(batch,client);
   await input;
   const code=await done;
   if(code!==0||!count){console.error('FMIC parser report',diagnostics);throw new Error('Feed validation failed; import rolled back')}
+  progress('commit',true);
   await client.query('COMMIT');
   return {imported:count,published:0};
  }catch(e){child?.kill();await client.query('ROLLBACK').catch(()=>{});throw e}
