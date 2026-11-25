@@ -69,7 +69,7 @@ export default function Shop(){
  activeFmicRoot={activeFmicRoot} setActiveFmicRoot={setActiveFmicRoot}
  activeFmicSub={activeFmicSub} setActiveFmicSub={setActiveFmicSub}
  onOpenCatalogPath={openCatalogPath}
- onMotoLab={()=>{navigate('home');setTimeout(()=>document.getElementById('rpm-motolab')?.scrollIntoView({behavior:'smooth',block:'start'}),100)}}
+ onMotoLab={()=>window.location.assign('/motolab')}
 />
 
  {view==='home'&&<HomeSections
