@@ -1,5 +1,5 @@
 import {getDbPool} from './db';
-import {mapFmicCategory} from './fmic-category-mapping';
+import {mapFmicProductCategory} from './fmic-category-mapping';
 
 export type FmicRow={sku:string;name:string;source_price:string;proposed_gross:string;availability:'in stock'|'out of stock';category_path:string;currency:'PLN';price_kind:'unknown';images:string[]};
 
@@ -36,7 +36,7 @@ export async function stageFmicBatch(rows:FmicRow[], db:Pick<ReturnType<typeof g
  if(rows.length>1000)throw new Error('Maximum batch size 1000');
  const payload=rows.map(row=>{
   if(!row.sku||!row.name||row.currency!=='PLN'||row.price_kind!=='unknown'||!['in stock','out of stock'].includes(row.availability)||!/^\d+\.\d{2}$/.test(row.source_price)||!/^\d+\.00$/.test(row.proposed_gross))throw new Error('Invalid FMIC row');
-  const match=mapFmicCategory(row.category_path);
+  const match=mapFmicProductCategory(row.category_path,row.name);
   return {...row,target_category:match.targetPath,mapping_status:match.status};
  });
  const result=await db.query(`INSERT INTO rpm_fmic_catalog(sku,name,source_price,proposed_gross,available,source_category,target_category,mapping_status,data)

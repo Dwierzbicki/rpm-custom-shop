@@ -84,3 +84,14 @@ test('Approved category remapping preserves product grouping and rejects unknown
  assert.equal(mapper.mapFmicCategory('Elektronika > nieznana').status,'parent_review');
  assert.equal(mapper.mapFmicCategory('').status,'unmapped');
 });
+
+test('Product classification only fills missing supplier categories with explicit product types',()=>{
+ const classify=(name,source='')=>mapper.mapFmicProductCategory(source,name);
+ assert.deepEqual(classify('Zestaw sprzęgła Xtreme Clutch BMW').targetPath,['Napęd i zawieszenie','Sprzęgło','Zestawy sprzęgła']);
+ assert.deepEqual(classify('Dystanse przykręcane FMIC.Pro','Default Category').targetPath,['Hamulce i koła','Dystanse kół']);
+ assert.deepEqual(classify('Xtreme Flywheel - Lightweight').targetPath,['Napęd i zawieszenie','Sprzęgło','Koła zamachowe']);
+ assert.deepEqual(classify('Zestaw zawieszenia B12 PK VW Passat').targetPath,['Napęd i zawieszenie','Amortyzatory i sprężyny']);
+ assert.equal(classify('Xtreme Replacement Bolt').status,'unmapped');
+ assert.equal(classify('Zestaw sprzęgła BMW','Elektronika > nieznana').status,'parent_review');
+ assert.deepEqual(classify('Zestaw sprzęgła BMW','Hamulce i koła > Tarcze hamulcowe').targetPath,['Hamulce i koła','Tarcze hamulcowe']);
+});

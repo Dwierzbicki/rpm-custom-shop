@@ -92,3 +92,19 @@ export function mapFmicCategory(sourcePath:string):FmicCategoryMatch{
  const status=complete?(targetPath.join(' > ')===sourcePath.split('>').map(p=>p.trim()).filter(Boolean).join(' > ')?'exact':'normalized'):'parent_review';
  return {sourcePath,targetPath,url:categoryPath(targetPath),status};
 }
+
+/** Infer only unclassified supplier rows from explicit product-type prefixes. */
+export function mapFmicProductCategory(sourcePath:string,name:string):FmicCategoryMatch{
+ const match=mapFmicCategory(sourcePath);
+ if(match.status!=='unmapped'||!['','default category','produkty bez kategorii'].includes(key(sourcePath)))return match;
+ const title=key(name);
+ let path:string[]|undefined;
+ if(/^zestaw sprzęgła(?:\s|$)/u.test(title))path=['Napęd i zawieszenie','Sprzęgło','Zestawy sprzęgła'];
+ else if(/^dystanse (?:przykręcane|przelotowe)(?:\s|$)/u.test(title))path=['Hamulce i koła','Dystanse kół'];
+ else if(/^xtreme flywheel(?:\s|$)/u.test(title))path=['Napęd i zawieszenie','Sprzęgło','Koła zamachowe'];
+ else if(/^sprzęgło xtreme clutch(?:\s|$)/u.test(title))path=['Napęd i zawieszenie','Sprzęgło'];
+ else if(/^zestaw zawieszenia b12(?:\s|$)/u.test(title))path=['Napęd i zawieszenie','Amortyzatory i sprężyny'];
+ if(!path)return match;
+ const validated=mapFmicCategory(path.join(' > '));
+ return validated.status==='exact'?{...validated,sourcePath,status:'normalized'}:match;
+}
