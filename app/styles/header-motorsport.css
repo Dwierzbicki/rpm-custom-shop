@@ -71,7 +71,7 @@
 .rpm-header-v2 .rpm-mega-panel{
  position:absolute;top:100%;left:50%;transform:translateX(-50%);
  width:min(1260px,calc(100% - 32px));box-sizing:border-box;
- height:min(520px,calc(100dvh - 180px));min-height:0;
+ height:min(520px,max(120px,calc(100dvh - 180px)));min-height:0;
  display:grid;grid-template-rows:auto minmax(0,1fr);
  color:#f4f5f7;background:#181b22;border:1px solid #3a404a;border-top:3px solid #f12748;
  border-radius:0 0 10px 10px;box-shadow:0 24px 64px #000b;overflow:hidden;z-index:160;
@@ -83,7 +83,7 @@
 .rpm-header-v2 .rpm-mega-heading>div{display:grid;gap:4px;min-width:0}
 .rpm-header-v2 .rpm-mega-heading strong{font-size:22px;line-height:1.2;letter-spacing:-.02em}
 .rpm-header-v2 .rpm-mega-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:800;color:#ff4865}
-.rpm-header-v2 .rpm-mega-panel button{font:inherit;cursor:pointer;border:0;color:inherit;text-align:left}
+.rpm-header-v2 .rpm-mega-panel :where(button){font:inherit;cursor:pointer;border:0;color:inherit;text-align:left}
 .rpm-header-v2 .rpm-mega-heading .rpm-mega-all,.rpm-header-v2 .rpm-mega-feature button{
  display:flex;align-items:center;justify-content:center;gap:10px;
  padding:11px 14px;background:#da1538;color:#fff;font-size:12px;font-weight:800;border-radius:5px;
