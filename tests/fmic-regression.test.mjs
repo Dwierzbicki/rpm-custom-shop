@@ -127,3 +127,29 @@ test('Final reviewed SKU assignments keep uncertain products for review',()=>{
  assert.equal(mapper.mapFmicProductCategory('Produkty bez kategorii','Boost Up System - Blue','UNKNOWN-SKU').status,'unmapped');
  assert.equal(mapper.mapFmicProductCategory('Produkty bez kategorii','Different product','TS-0991-1001').status,'unmapped');
 });
+
+const searchPerformance=await load('app/lib/fmic-search-performance.ts',[["import {searchTokens} from './header-search';","const searchTokens=(q)=>q.split(' ');"]]);
+test('Listing cache reuses aggregate results across pagination and sorting only',()=>{
+ const input={path:['Hamulce i koła'],q:'BMW',stock:'all',sort:null,page:1,min:null,max:null,selected:['']};
+ const keys=searchPerformance.listingCacheKeys(input);
+ const next=searchPerformance.listingCacheKeys({...input,page:2,sort:'priceAsc'});
+ assert.equal(keys.count,next.count);
+ assert.equal(keys.facets,next.facets);
+ assert.equal(keys.categories,next.categories);
+ assert.notEqual(keys.items,next.items);
+ const selected=searchPerformance.listingCacheKeys({...input,selected:['HEL']});
+ assert.notEqual(keys.count,selected.count);
+ assert.notEqual(keys.facets,selected.facets);
+ assert.notEqual(keys.items,selected.items);
+ assert.equal(keys.categories,selected.categories);
+ const price=searchPerformance.listingCacheKeys({...input,min:100});
+ for(const key of Object.keys(keys))assert.notEqual(keys[key],price[key]);
+});
+test('Aggregate cache deduplicates concurrent requests and retries rejected loads',async()=>{
+ let calls=0;
+ const load=async()=>{calls++;return 42};
+ const values=await Promise.all([searchPerformance.cachedSearch('test-shared',1000,load),searchPerformance.cachedSearch('test-shared',1000,load)]);
+ assert.deepEqual(values,[42,42]);assert.equal(calls,1);
+ await assert.rejects(searchPerformance.cachedSearch('test-retry',1000,async()=>{throw Error('retry')}));
+ assert.equal(await searchPerformance.cachedSearch('test-retry',1000,load),42);
+});
