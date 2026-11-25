@@ -7,7 +7,8 @@ export async function setupAuditWorker(){
  if(!setup)setup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_audit_control (
  id integer PRIMARY KEY CHECK(id=1), enabled boolean NOT NULL DEFAULT false,
  heartbeat timestamptz, last_error text, processed bigint NOT NULL DEFAULT 0
- ); INSERT INTO rpm_fmic_audit_control(id) VALUES(1) ON CONFLICT DO NOTHING;
+ ); ALTER TABLE rpm_fmic_audit_control ADD COLUMN IF NOT EXISTS intensity integer NOT NULL DEFAULT 2;
+ INSERT INTO rpm_fmic_audit_control(id) VALUES(1) ON CONFLICT DO NOTHING;
  CREATE TABLE IF NOT EXISTS rpm_fmic_audit_priority(url text PRIMARY KEY);`).catch(e=>{setup=undefined;throw e});
  await setup;
 }
@@ -36,16 +37,16 @@ export function startAuditWorker(){
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,2) AS acquired');
  locked=lock.rows[0].acquired;
  if(locked){
- const state=await client.query('SELECT enabled FROM rpm_fmic_audit_control WHERE id=1');
+ const state=await client.query('SELECT enabled,intensity FROM rpm_fmic_audit_control WHERE id=1');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_audit_control SET heartbeat=NOW() WHERE id=1');
- const pending=await client.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT 2");
+ const pending=await client.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT $1",[Math.max(1,Math.min(4,Number(state.rows[0].intensity)||2))]);
  if(pending.rows.length){
  const outcomes=await Promise.all(pending.rows.map(async ({url})=>({url,...await inspectImage(url)})));
  await client.query('BEGIN');
  try{
- for(const result of outcomes)await client.query("UPDATE rpm_fmic_image_audit SET status=$2,hash=$3,detail=$4,checked_at=NOW() WHERE url=$1 AND status='pending'",[result.url,result.status,result.hash,result.detail]);
- await client.query('UPDATE rpm_fmic_audit_control SET processed=processed+$1,heartbeat=NOW(),last_error=NULL WHERE id=1',[outcomes.length]);
+ for(const result of outcomes.filter(x=>x.detail!=='HTTP 429'&&x.detail!=='HTTP 503'))await client.query("UPDATE rpm_fmic_image_audit SET status=$2,hash=$3,detail=$4,checked_at=NOW() WHERE url=$1 AND status='pending'",[result.url,result.status,result.hash,result.detail]);
+ await client.query('UPDATE rpm_fmic_audit_control SET processed=processed+$1,heartbeat=NOW(),last_error=NULL WHERE id=1',[outcomes.filter(x=>x.detail!=='HTTP 429'&&x.detail!=='HTTP 503').length]);
  await client.query('COMMIT');
  }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}
  delay=outcomes.some(x=>x.detail==='HTTP 429'||x.detail==='HTTP 503')?30000:1000;
