@@ -10,7 +10,7 @@ export function validGuideSettings(x:unknown):x is GuideSettings{
  const ids=new Set<string>();
  return v.parts.every((raw:unknown)=>{if(!raw||typeof raw!=='object')return false;const p=raw as Record<string,unknown>;
  if(typeof p.id!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(p.id)||ids.has(p.id))return false;ids.add(p.id);
- return typeof p.engineVersion==='string'&&/^(m50b20|m50b25|m52b20|m52b25|m52b28|m54b22|m54b25|m54b30|2jz-ge|2jz-gte)$/.test(p.engineVersion)
+ return typeof p.engineVersion==='string'&&/^(m50b20|m50b25|m50b30-stroker|m52b20|m52b25|m52b28|m54b22|m54b25|m54b30|2jz-ge|2jz-gte)$/.test(p.engineVersion)
  &&Number.isInteger(p.rangeIndex)&&Number(p.rangeIndex)>=0&&Number(p.rangeIndex)<powerRangesFor(String(p.engineVersion)).length
  &&['street','drift','track'].includes(String(p.usage))&&['budget','recommended','premium'].includes(String(p.tier))
  &&typeof p.category==='string'&&p.category.length<=80&&typeof p.name==='string'&&p.name.trim().length>0&&p.name.length<=180
