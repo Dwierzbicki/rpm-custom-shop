@@ -1,5 +1,5 @@
 /* RPM Custom: real drift-car hero image, with responsive focal points */
-.drift-hero-photo{background-image:url('/rpm-hero-drift.png');background-size:cover;background-position:center 52%;background-repeat:no-repeat}
+.drift-hero-photo{background-image:url('/optimized/hero.webp');background-size:cover;background-position:center 52%;background-repeat:no-repeat}
 .drift-hero-photo:after{content:none}
 .drift-hero-shade{background:linear-gradient(90deg,rgba(6,7,11,.97) 0%,rgba(6,7,11,.91) 26%,rgba(6,7,11,.58) 49%,rgba(6,7,11,.12) 77%,rgba(6,7,11,.17) 100%),linear-gradient(0deg,rgba(6,7,11,.82),transparent 28%)}
 .drift-hero-inner{position:relative;z-index:2}

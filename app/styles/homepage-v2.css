@@ -1,7 +1,7 @@
 /* RPM Custom storefront v2 — home only */
 .rpm-hp-v2{background:#090a0c;color:#f5f5f6}
 .rpm-hp-v2 .drift-hero.rpm-hp-hero{min-height:560px;background:#0c0d11}
-.rpm-hp-v2 .rpm-hp-hero .drift-hero-photo{background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,.05)),url('/rpm-hero-drift.png') center 45%/cover no-repeat}
+.rpm-hp-v2 .rpm-hp-hero .drift-hero-photo{background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(0,0,0,.05)),url('/optimized/hero.webp') center 45%/cover no-repeat}
 .rpm-hp-v2 .rpm-hp-hero .drift-hero-photo:after{display:none}
 .rpm-hp-v2 .rpm-hp-hero .drift-hero-shade{background:linear-gradient(90deg,#07080bed 0%,#07080bd6 32%,#07080b44 67%,#07080b16 100%)}
 .rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{padding:108px 24px 98px}
@@ -38,7 +38,7 @@
 .rpm-hp-featured .products-grid>*{min-width:0}
 .rpm-hp-brandstrip{display:flex;justify-content:space-around;flex-wrap:wrap;gap:20px;padding:28px 24px;background:#111216;border-top:1px solid #27282d;border-bottom:1px solid #27282d;color:#b8b8bc;font-weight:1000;font-style:italic;letter-spacing:.08em}
 .rpm-hp-custom{display:grid;grid-template-columns:1fr 1fr;min-height:430px;background:#111216}
-.rpm-hp-custom-image{background:linear-gradient(90deg,transparent,#11121644),url('/rpm-hero-drift.png') center/cover no-repeat;min-height:350px}
+.rpm-hp-custom-image{background:linear-gradient(90deg,transparent,#11121644),url('/optimized/hero.webp') center/cover no-repeat;min-height:350px}
 .rpm-hp-custom-copy{padding:clamp(30px,5vw,78px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center}
 .rpm-hp-custom-copy h2{font-size:clamp(28px,3.6vw,52px);font-weight:1000;font-style:italic;line-height:1.04;letter-spacing:-.055em}
 .rpm-hp-custom-copy p{max-width:540px;color:#c7c7cb;line-height:1.7}
@@ -62,3 +62,6 @@
 @media(max-width:780px){.rpm-hp-brandstrip img{width:125px}}
 
 
+
+/* Accessible text accents on the dark homepage cards. */
+.rpm-hp-v2 .product-card .product-link,.rpm-hp-v2 .rpm-community-copy .eyebrow{color:#f05289}
