@@ -2,15 +2,26 @@
 
 import {useState} from 'react';
 import brands from './brand-assets.json';
+import generated from './brand-display.generated.json';
 import './brand-carousel.css';
 
+const logos:Record<string,string>=generated;
+
+function BrandLogo({brand}:{brand:(typeof brands)[number]}){
+ const [loaded,setLoaded]=useState(false);
+ const [failed,setFailed]=useState(false);
+ const src=logos[brand.slug];
+ return <span className={'rpm-brand-mark rpm-brand-'+brand.slug}>
+  {src&&!failed&&<img src={src} alt="" aria-hidden="true" width={140} height={55} decoding="async" className={loaded?'is-ready':''} onLoad={()=>setLoaded(true)} onError={()=>setFailed(true)} ref={node=>{if(node?.complete&&node.naturalWidth>0)setLoaded(true)}}/>}
+  {(!src||failed||!loaded)&&<span className="rpm-brand-name">{brand.name}</span>}
+ </span>;
+}
 
 export default function BrandCarousel({lang}:{lang:'pl'|'en'}){
- const [failed,setFailed]=useState<string[]>([]);
- const [fallback,setFallback]=useState<string[]>([]);
- const visible=brands.filter(brand=>!failed.includes(brand.name));
- const animated=visible.length>=9;
- if(!visible.length)return null;
+ const visible=brands.filter(brand=>Boolean(logos[brand.slug]));
+ // On builds with a temporary supplier outage, retain a useful text-based brand rail.
+ const entries=visible.length>=9?visible:brands;
+ const animated=entries.length>=9;
  return <section className="rpm-brand-carousel" aria-labelledby="rpm-brand-carousel-title">
   <div className="rpm-brand-carousel-head">
    <h2 id="rpm-brand-carousel-title">{lang==='en'?'BRANDS IN OUR RANGE':'MARKI W NASZEJ OFERCIE'}</h2>
@@ -18,8 +29,8 @@ export default function BrandCarousel({lang}:{lang:'pl'|'en'}){
   <div className={'rpm-brand-carousel-window'+(animated?' is-animated':'')}>
    <div className="rpm-brand-carousel-track">
     {(animated?[0,1]:[0]).map(copy=><div className={'rpm-brand-carousel-group'+(copy?' is-copy':'')} key={copy} aria-hidden={copy?true:undefined}>
-     {visible.map(brand=><a key={brand.name} href={'/sklep?'+new URLSearchParams({q:brand.name})} tabIndex={copy?-1:undefined} title={brand.name} aria-label={(lang==='en'?'Search products: ':'Szukaj produktów: ')+brand.name}>
-      <img className={fallback.includes(brand.name)?'is-original':'is-normalized'} src={fallback.includes(brand.name)?brand.url:'/optimized/brands/'+brand.slug+'.webp'} alt={brand.name} width={140} height={55} decoding="async" referrerPolicy="no-referrer" onError={()=>{if(!fallback.includes(brand.name))setFallback(old=>old.includes(brand.name)?old:[...old,brand.name]);else setFailed(old=>old.includes(brand.name)?old:[...old,brand.name])}}/>
+     {entries.map(brand=><a key={brand.name} href={'/sklep?'+new URLSearchParams({q:brand.name})} tabIndex={copy?-1:undefined} title={brand.name} aria-label={(lang==='en'?'Search products: ':'Szukaj produktów: ')+brand.name}>
+      <BrandLogo brand={brand}/>
      </a>)}
     </div>)}
    </div>
