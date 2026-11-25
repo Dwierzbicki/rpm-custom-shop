@@ -1,5 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
-import {authorizedBasic,isRoadAssistance,isAdminPath} from './app/lib/site-lock';
+import {verifySiteSession,SITE_COOKIE,isRoadAssistance,isAdminPath} from './app/lib/site-lock';
 const COOKIE='rpm_admin_session';
 async function sign(value:string,secret:string){
  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
@@ -9,11 +9,14 @@ async function sign(value:string,secret:string){
 export async function middleware(request:NextRequest){
  const path=request.nextUrl.pathname;
  const username=process.env.ADMIN_USERNAME,password=process.env.ADMIN_PASSWORD;
- if(process.env.SITE_LOCK_ENABLED==='1'&&!isRoadAssistance(path)){
-  const gateUser=process.env.SITE_LOCK_USERNAME??username,gatePassword=process.env.SITE_LOCK_PASSWORD??password;
+ if(process.env.SITE_LOCK_ENABLED==='1'&&!isRoadAssistance(path)&&path!=='/site-access'){
+  const gateUser=process.env.SITE_LOCK_USERNAME??username,gatePassword=process.env.SITE_LOCK_PASSWORD??password,gateSecret=process.env.ADMIN_SESSION_SECRET;
   const headers={'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'};
-  if(!gateUser||!gatePassword)return new NextResponse('Site access not configured',{status:503,headers});
-  if(!(await authorizedBasic(request.headers.get('authorization'),gateUser,gatePassword)))return new NextResponse('RPM Custom — dostęp testowy',{status:401,headers:{...headers,'WWW-Authenticate':'Basic realm="RPM Custom testing", charset="UTF-8"'}});
+  if(!gateUser||!gatePassword||!gateSecret||gateSecret.length<32)return new NextResponse('Site access not configured',{status:503,headers});
+  if(!(await verifySiteSession(request.cookies.get(SITE_COOKIE)?.value??'',gateSecret,gateUser,gatePassword))){
+   if(path.startsWith('/api/')||path.startsWith('/_next/')||request.headers.get('sec-fetch-dest')&&request.headers.get('sec-fetch-dest')!=='document'&&request.headers.get('sec-fetch-dest')!=='empty')return new NextResponse('Site access required',{status:401,headers});
+   const url=new URL('/site-access',request.url);url.searchParams.set('next',path+request.nextUrl.search);const response=NextResponse.redirect(url);for(const [k,v] of Object.entries(headers))response.headers.set(k,v);return response;
+  }
   if(!isAdminPath(path)){const response=NextResponse.next();for(const [k,v] of Object.entries(headers))response.headers.set(k,v);return response;}
  }
  if(!isAdminPath(path))return NextResponse.next();
