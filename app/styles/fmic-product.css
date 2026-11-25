@@ -1,0 +1,34 @@
+/* FMIC product detail: scoped to the supplier preview. */
+.fmic-pdp{width:100%;max-width:1420px;margin:0 auto;color:#e9edf3}
+.fmic-pdp .fmic-pdp-back{margin:0 0 8px;color:#c3cad5;font-size:13px}
+.fmic-pdp-crumbs{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 20px;font-size:12px;color:#929eac}
+.fmic-pdp-crumbs a{color:inherit;text-decoration:none}.fmic-pdp-crumbs a:hover{color:#fff}
+.fmic-pdp-grid{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:start}
+.fmic-pdp-gallery,.fmic-pdp-info{min-width:0}
+.fmic-pdp-gallery .detail-gallery{gap:12px}
+.fmic-pdp-gallery .detail-main-photo{background:#fff;border:1px solid #d8dce2;border-radius:12px;min-height:0;aspect-ratio:5/4;overflow:hidden;padding:24px;box-sizing:border-box}
+.fmic-pdp-gallery .detail-photo{height:100%;max-height:440px;width:100%;object-fit:contain}
+.fmic-pdp-gallery .detail-thumbnails{justify-content:flex-start;align-self:stretch}
+.fmic-pdp-gallery .detail-thumbnails button{background:#fff;border:2px solid #343b45;border-radius:7px;overflow:hidden}
+.fmic-pdp-gallery .detail-thumbnails button.selected{border-color:#e3385b}
+.fmic-pdp-gallery .detail-thumbnails img{object-fit:contain}
+.fmic-pdp-placeholder{aspect-ratio:5/4;display:grid;place-items:center;background:#1c222b;border:1px solid #343b45;border-radius:12px;color:#9daab9}
+.fmic-pdp-info h1{font-size:clamp(24px,3vw,38px);line-height:1.17;letter-spacing:-.025em;margin:12px 0 8px;overflow-wrap:anywhere}
+.fmic-pdp-info .rpm-product-sku{margin:12px 0 20px}
+.fmic-pdp-buy{border:1px solid #343d49;background:linear-gradient(140deg,#202630,#171c24);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.fmic-pdp-buy .product-availability{margin:0;font-weight:600}
+.fmic-pdp-buy .price-large{font-size:clamp(30px,4vw,46px);line-height:1.1;color:#fff;font-weight:800;margin:0;display:flex;flex-direction:column;gap:8px}
+.fmic-pdp-buy .price-large small{font-size:12px;font-weight:400;color:#aeb9c9}
+.fmic-pdp-buy .buy-row{display:block;margin:0}.fmic-pdp-buy .buy-row .primary{width:100%;justify-content:center;min-height:48px}
+.fmic-pdp-note{font-size:12px;color:#aeb9c9;margin:0}
+.fmic-pdp-spec{margin-top:32px;border:1px solid #343d49;border-radius:12px;background:#171c24;padding:22px;max-width:none}
+.fmic-pdp-spec h2,.fmic-pdp-related-title{font-size:20px;margin:0 0 16px}
+.fmic-pdp-spec dl{margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px}
+.fmic-pdp-spec-row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid #303844;font-size:13px}
+.fmic-pdp-spec-row dt{color:#aeb9c9}.fmic-pdp-spec-row dd{overflow-wrap:anywhere;font-weight:600}
+.fmic-pdp-related-title{margin-top:32px}.fmic-pdp-related{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.fmic-pdp-related-card{border:1px solid #343b45;background:#171c24;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;min-width:0}
+.fmic-pdp-related-info{padding:14px;display:flex;flex-direction:column;gap:8px;flex:1;font-size:14px;overflow-wrap:anywhere}
+.fmic-pdp-related-info small{color:#aeb9c9}.fmic-pdp-related-info button{margin-top:auto;width:100%}
+.fmic-pdp dialog::backdrop{background:#000d}
+@media(max-width:800px){.fmic-pdp-grid{grid-template-columns:1fr;gap:22px}.fmic-pdp-gallery .detail-main-photo{aspect-ratio:4/3;padding:12px}.fmic-pdp-spec dl{grid-template-columns:1fr}.fmic-pdp-related{grid-template-columns:repeat(2,minmax(0,1fr))}.fmic-pdp-buy,.fmic-pdp-spec{padding:16px}}
