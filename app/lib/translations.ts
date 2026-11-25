@@ -139,3 +139,5 @@ Object.assign(en,{
  "Moje konto": "My account",
  "Produkt nie jest dostępny w aktualnym katalogu.": "This product is no longer available in the catalogue."
 });
+
+Object.assign(en,{'Przejdź do zamówienia':'Proceed to checkout','Wartość zapisanych części':'Saved parts total','Dodano do koszyka':'Added to cart'});
