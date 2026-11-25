@@ -6,7 +6,7 @@
 }
 .rpm-header-v2.rpm-header-product-first .rpm-desktop-root{isolation:auto}
 .rpm-header-v2.rpm-header-product-first .rpm-desktop-root:not(:first-child)::before{
- top:14px;bottom:14px;background:#3a3d46;transform:skewX(-12deg);
+ top:14px;bottom:14px;background:#3a3d46;transform:none;
 }
 .rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button{
  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -67,7 +67,7 @@
    Panels share an edge; no gap between the trigger or between columns. */
 .rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root{position:relative}
 .rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root:not(:first-child)::before{
- content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:#3a3d46;transform:skewX(-12deg);pointer-events:none;
+ content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:#3a3d46;transform:none;pointer-events:none;
 }
 .rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root.active{z-index:2}
 .rpm-header-v2 .rpm-cascade-panel{
