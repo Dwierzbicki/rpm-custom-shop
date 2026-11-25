@@ -14,3 +14,29 @@ export async function getCatalog():Promise<CatalogItem[]>{await ensure();const [
 export async function saveCatalog(item:CatalogItem){await ensure();await getDbPool().query('INSERT INTO rpm_catalog (id,data,updated_at) VALUES ($1,$2::jsonb,NOW()) ON CONFLICT(id) DO UPDATE SET data=EXCLUDED.data, updated_at=NOW()',[item.id,JSON.stringify(item)]);}
 export async function createCatalog(input:Omit<CatalogItem,'id'|'sku'>){await ensure();const client=await getDbPool().connect();try{await client.query('BEGIN');await client.query('SELECT pg_advisory_xact_lock(9382761)');const result=await client.query<{id:number}>('SELECT GREATEST(COALESCE((SELECT MAX(id) FROM rpm_catalog),0),COALESCE((SELECT MAX(id) FROM rpm_catalog_deleted),0),$1::integer)+1 AS id',[RETIRED_DEMO_MAX_ID]);const id=result.rows[0].id;const item:CatalogItem={...input,id,sku:'RPM-'+String(id).padStart(5,'0')};await client.query('INSERT INTO rpm_catalog (id,data) VALUES ($1,$2::jsonb)',[id,JSON.stringify(item)]);await client.query('COMMIT');return item}catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}}
 export async function deleteCatalog(id:number){await ensure();const client=await getDbPool().connect();try{await client.query('BEGIN');await client.query('INSERT INTO rpm_catalog_deleted(id) VALUES($1) ON CONFLICT DO NOTHING',[id]);await client.query('DELETE FROM rpm_catalog WHERE id=$1',[id]);await client.query('COMMIT')}catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}}
+
+/** One-time operator-requested manual catalogue entry. Same allocation lock and
+ * storage shape as the normal admin editor; never updates or resurrects a row. */
+export async function importPrismManualDraft(){
+ await ensure();
+ const client=await getDbPool().connect();
+ const marker='manual_catalog_import:prism_zzz135:2026-11-25';
+ try{
+  await client.query('BEGIN');
+  await client.query('SELECT pg_advisory_xact_lock(9382761)');
+  const done=await client.query('SELECT 1 FROM rpm_shop_settings WHERE key=$1',[marker]);
+  if(done.rowCount){await client.query('COMMIT');return}
+  const duplicate=await client.query("SELECT id FROM rpm_catalog WHERE id>$1 AND lower(data->>'brand')='prism' AND (data->'attributes'->>'Numer katalogowy'='ZZZ135' OR data->>'name' ILIKE '%135%') LIMIT 1",[RETIRED_DEMO_MAX_ID]);
+  let id:number;
+  if(duplicate.rows.length){id=duplicate.rows[0].id}
+  else{
+   const r=await client.query<{id:number}>('SELECT GREATEST(COALESCE((SELECT MAX(id) FROM rpm_catalog),0),COALESCE((SELECT MAX(id) FROM rpm_catalog_deleted),0),$1::integer)+1 AS id',[RETIRED_DEMO_MAX_ID]);
+   id=r.rows[0].id;
+   const item:CatalogItem={id,sku:'RPM-'+String(id).padStart(5,'0'),name:'Kute korbowody PRISM BMW M50 / M52 / M54 135 mm',brand:'PRISM',category:'Korbowody',price:2100,engine:'BMW M50 / M52 / M54 — wyłącznie geometria 135 mm',description:'Komplet sześciu kutych korbowodów PRISM ZZZ135. Według oferty dostawcy: stal 42CrMo, profil H, obróbka CNC, tulejki brązowe i dobór masy w komplecie. Długość między osiami 135 mm, otwór stopy 48 mm, otwór sworznia 22,01 mm. Przygotowane pod śruby 3/8 cala; zawartość śrub wymaga potwierdzenia. Przed zakupem sprawdź dokładną wersję silnika, wymiary wału, tłoków i szerokość stopy. Nie wszystkie silniki z rodzin M50/M52/M54 mają korbowody 135 mm.',configurable:false,images:[],optionGroups:[],stockStatus:'order',leadTime:'Do potwierdzenia',visible:false,attributes:{'Numer katalogowy':'ZZZ135','Długość między osiami':'135 mm','Otwór stopy':'48 mm','Otwór sworznia':'22,01 mm','Materiał':'42CrMo (dane oferty)','Profil':'H','Komplet':'6 szt.','Śruby':'Przygotowane pod 3/8 cala; zawartość do potwierdzenia'},motolab:{slot:'rods',versions:['m52b28','m54b30'],maxPowerPs:700,note:'Rekomendacja warsztatowa RPM Custom do projektów do 700 KM. Dotyczy konfiguracji o potwierdzonej geometrii 135 mm; wymiary stopy, sworznia, śrub i tłoków wymagają sprawdzenia. Nie jest deklaracją producenta ani gwarancją trwałości.',noteEn:'RPM Custom workshop recommendation for projects up to 700 PS with confirmed 135 mm geometry. Verify big-end dimensions, pin, bolts and pistons. Not a manufacturer rating or durability guarantee.',enabled:true}};
+   await client.query('INSERT INTO rpm_catalog (id,data) VALUES ($1,$2::jsonb)',[id,JSON.stringify(item)]);
+  }
+  await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[marker,JSON.stringify({id,source:'https://allegro.pl/oferta/18688035757',referenceOfferPrice:2100,checkedOn:'2026-11-25',draft:true})]);
+  await client.query('COMMIT');
+  console.info('[catalog] PRISM manual draft import completed');
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}
