@@ -1,0 +1,15 @@
+.rpm-header-search.rpm-live-search{position:relative;overflow:visible}
+.rpm-live-search .rpm-search-dropdown{position:absolute;top:calc(100% + 8px);left:0;right:0;z-index:2000;min-width:min(320px,85vw);max-height:min(65vh,530px);overflow:auto;background:#171c24;border:1px solid #3b4554;border-radius:10px;box-shadow:0 12px 35px #0008;color:#f4f6fa;text-align:left}
+.rpm-live-search .rpm-search-caption{padding:10px 12px;color:#a8b2bf;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.rpm-live-search .rpm-search-result{display:flex;align-items:center;gap:10px;padding:9px 12px;border-top:1px solid #303744;cursor:pointer;font-size:12px}
+.rpm-live-search .rpm-search-result:hover,.rpm-live-search .rpm-search-result.active{background:#2b3440}
+.rpm-live-search .rpm-search-thumb{width:48px;height:48px;flex:0 0 48px;background:#fff;color:#657081;border-radius:5px;overflow:hidden;display:grid;place-items:center}
+.rpm-live-search .rpm-search-thumb img{width:100%;height:100%;object-fit:contain}
+.rpm-live-search .rpm-search-info{min-width:0;flex:1;display:grid;gap:3px}
+.rpm-live-search .rpm-search-info strong{font-size:12px;font-weight:600;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rpm-live-search .rpm-search-info small{font-size:10px;color:#aab5c5}
+.rpm-live-search .rpm-search-info .in-stock{color:#70d99b}.rpm-live-search .rpm-search-info .out-stock{color:#eeb078}
+.rpm-live-search .rpm-search-price{white-space:nowrap;font-size:12px;font-weight:600}
+.rpm-live-search .rpm-search-dropdown p{font-size:12px;padding:12px;margin:0}
+.rpm-live-search .rpm-search-dropdown .rpm-search-all{display:block;width:100%;height:auto;padding:12px;background:#e3385b;color:#fff;font-size:12px;border:0;border-radius:0;text-align:center;font-weight:600;cursor:pointer}
+@media(max-width:600px){.rpm-live-search .rpm-search-dropdown{min-width:0}.rpm-live-search .rpm-search-result{padding:8px;gap:7px}.rpm-live-search .rpm-search-thumb{width:38px;height:38px;flex-basis:38px}.rpm-live-search .rpm-search-price{font-size:11px}}
