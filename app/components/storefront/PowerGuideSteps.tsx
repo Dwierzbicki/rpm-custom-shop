@@ -1,0 +1,24 @@
+'use client';
+import {useState} from 'react';
+import {Check,ChevronRight,ArrowLeft} from 'lucide-react';
+import {POWER_ENGINES,POWER_RANGES} from '../../lib/storefront-config';
+import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
+type Props={engine:string;version:string;range:number;usage:string;tier:string;onEngine:(v:string)=>void;onVersion:(v:string)=>void;onRange:(v:number)=>void;onUsage:(v:string)=>void;onTier:(v:string)=>void};
+export default function PowerGuideSteps({engine,version,range,usage,tier,onEngine,onVersion,onRange,onUsage,onTier}:Props){
+ const {lang}=useStorefrontLanguage();const tr=(pl:string,en:string)=>lang==='en'?en:pl;
+ const family=POWER_ENGINES.find(e=>e.id===engine);
+ const validVersion=family?.versions.some(v=>v.id===version);
+ const next=!family?0:!validVersion?1:!POWER_RANGES[range]?2:!usage?3:!tier?4:5;
+ const [editing,setEditing]=useState<number|null>(null);
+ const step=editing===null?next:Math.min(editing,next);
+ const labels=[tr('Rodzina','Family'),tr('Wersja','Version'),tr('Moc','Power'),tr('Przeznaczenie','Use case'),tr('Wariant','Build tier')];
+ const values=[family?.id.toUpperCase(),validVersion?family?.versions.find(v=>v.id===version)?.name:null,POWER_RANGES[range]?POWER_RANGES[range].min+'–'+POWER_RANGES[range].max+' '+tr('KM','PS'):null,usage?.toUpperCase(),tier?.toUpperCase()];
+ const choose=(action:()=>void)=>{action();setEditing(null)};
+ return <section className="rpm-builder-wizard" aria-label={tr('Konfiguracja silnika','Engine configuration')}><nav className="rpm-builder-progress" aria-label={tr('Etapy konfiguracji','Configuration steps')}>{labels.map((label,i)=><button type="button" key={i} disabled={i>next} className={i===step?'current':i<next?'complete':''} aria-current={i===step?'step':undefined} onClick={()=>setEditing(i)}><span>{i<next?<Check size={15}/>:i+1}</span><div><small>{label}</small><strong>{values[i]||'—'}</strong></div></button>)}</nav>{step<5?<div className="rpm-builder-panel"><div className="rpm-builder-panel-head"><span className="eyebrow">0{step+1} / 05</span><h2>{[tr('Wybierz rodzinę silnika','Choose an engine family'),tr('Wybierz wersję silnika','Choose an engine variant'),tr('Jaki jest Twój cel mocy?','What is your power target?'),tr('Do czego budujesz auto?','What is the car built for?'),tr('Wybierz wariant konfiguracji','Choose a build tier')][step]}</h2></div>
+ {step===0&&<div className="rpm-builder-options">{POWER_ENGINES.map(e=><button type="button" key={e.id} aria-pressed={engine===e.id} onClick={()=>choose(()=>onEngine(e.id))}><small>{e.make}</small><strong>{e.id.toUpperCase()}</strong><span>{e.subtitle}</span><ChevronRight size={17}/></button>)}</div>}
+ {step===1&&<div className="rpm-builder-options">{family?.versions.map(v=><button type="button" key={v.id} aria-pressed={version===v.id} onClick={()=>choose(()=>onVersion(v.id))}><strong>{v.name}</strong><span>{v.detail.replace('wolnossący',tr('wolnossący','naturally aspirated')).replace('fabrycznie turbo',tr('fabrycznie turbo','factory turbo'))}</span><ChevronRight size={17}/></button>)}</div>}
+ {step===2&&<div className="rpm-builder-options">{POWER_RANGES.map((r,i)=><button type="button" key={r.min} aria-pressed={range===i} onClick={()=>choose(()=>onRange(i))}><strong>{r.min}–{r.max} {tr('KM','PS')}</strong><ChevronRight size={17}/></button>)}</div>}
+ {step===3&&<div className="rpm-builder-options">{[{id:'street',name:tr('Ulica','Street'),desc:tr('Codzienna jazda','Daily driving')},{id:'drift',name:'Drift',desc:tr('Kontrolowany poślizg','Controlled sliding')},{id:'track',name:tr('Tor','Track'),desc:tr('Jazda torowa','Circuit driving')}].map(v=><button type="button" key={v.id} aria-pressed={usage===v.id} onClick={()=>choose(()=>onUsage(v.id))}><strong>{v.name}</strong><span>{v.desc}</span><ChevronRight size={17}/></button>)}</div>}
+ {step===4&&<div className="rpm-builder-options rpm-builder-tiers">{[{id:'budget',name:'Budget',desc:tr('Priorytet kosztów bez pomijania kluczowych wymagań.','Cost-conscious without overlooking essential requirements.')},{id:'recommended',name:'Recommended',desc:tr('Balans kosztów, reakcji i rezerwy wydajności.','Balance of cost, response and performance headroom.')},{id:'premium',name:'Premium',desc:tr('Większa rezerwa wydajności i termiczna.','Greater performance and thermal headroom.')}].map(v=><button type="button" key={v.id} aria-pressed={tier===v.id} onClick={()=>choose(()=>onTier(v.id))}><strong>{v.name}</strong><span>{v.desc}</span><ChevronRight size={17}/></button>)}</div>}
+ {step>0&&<button type="button" className="outline rpm-builder-prev" onClick={()=>setEditing(step-1)}><ArrowLeft size={15}/>{tr('Poprzedni krok','Previous step')}</button>}</div>:<div className="rpm-builder-completed"><Check size={20}/>{tr('Konfiguracja wybrana. Możesz zmienić dowolny etap powyżej.','Configuration selected. You can edit any step above.')}</div>}</section>
+}
