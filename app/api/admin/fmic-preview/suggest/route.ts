@@ -1,7 +1,6 @@
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../lib/db';
 import {visibleCatalog,categoryExpansion} from '../../../../lib/fmic-category-membership';
-import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {cachedSearch,searchPatterns,searchConditions} from '../../../../lib/fmic-search-performance';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -10,7 +9,6 @@ export async function GET(request:Request){
  const headers={'Cache-Control':'private, no-store'};
  if(q.length<2)return NextResponse.json({items:[]},{headers});
  try{
- await setupImageAudit();
  const patterns=searchPatterns(q);
  const payload=await cachedSearch('suggest:'+q,15000,async()=>{
  const db=getDbPool();
