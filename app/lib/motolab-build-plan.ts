@@ -49,7 +49,7 @@ export function estimateFuel(version:string,range:number,fuel:Fuel){
  return {powerPs:band.max,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
-export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string};
+export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[]};
 export function buildParts(version:string,range:number,usage:string,tier:string,fuel:Fuel):PartsSlot[]{
  const tasks=buildPlan(version,range,usage,tier,fuel);
  if(!tasks.length)return [];
@@ -114,7 +114,7 @@ export const alternatives:Record<string,BuildCandidate>={
 export const allCandidates:Record<string,BuildCandidate>={...candidates,...alternatives};
 const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband','garrett3076'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco'],pump:['pumpAem','pumpWalbro'],wastegate45:['wastegateTial']};
 export function partOptions(slot:PartsSlot):string[]{
- return slot.candidate?[slot.candidate,...(optionKeys[slot.candidate]??[])]:[];
+ return [...(slot.candidate?[slot.candidate,...(optionKeys[slot.candidate]??[])]:[]),...(slot.rpmOptions??[])];
 }
 export function selectedPart(slot:PartsSlot,selection:Record<string,string>):string|undefined{
  const options=partOptions(slot),choice=selection[slot.id];
