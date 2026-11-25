@@ -48,3 +48,40 @@ export function estimateFuel(version:string,range:number,fuel:Fuel){
  const litres=hp*bsfc*0.45359237/density;
  return {powerPs:band.max,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
+
+export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string};
+export function buildParts(version:string,range:number,usage:string,tier:string,fuel:Fuel):PartsSlot[]{
+ const tasks=buildPlan(version,range,usage,tier,fuel);
+ if(!tasks.length)return [];
+ const assigned=new Set(tasks.flatMap(t=>t.candidates??[]));
+ const slot=(id:string,pl:string,en:string,qty:number|null,conditional=false,candidate?:string):PartsSlot=>({id,label:[pl,en],qty,conditional,candidate:candidate&&assigned.has(candidate)?candidate:undefined});
+ return [
+ slot('turbo','Turbosprężarka','Turbocharger',1,version==='2jz-gte','turbo'),
+ slot('manifold','Kolektor turbo','Turbo manifold',1,version==='2jz-gte'),
+ slot('wastegate','Wastegate','Wastegate',null,true),
+ slot('bov','Zawór upustowy BOV','Blow-off valve',1,true),
+ slot('intercooler','Intercooler','Intercooler',1,true,'intercooler'),
+ slot('chargepipes','Rury i złącza dolotowe','Charge pipes and couplers',null,true),
+ slot('filter','Filtr powietrza','Air filter',1,true),
+ slot('injectors','Wtryskiwacze (komplet 6 szt.)','Injectors (set of six)',1,true,'injectors'),
+ slot('pump','Pompa paliwa','Fuel pump',null,true,'pump'),
+ slot('regulator','Regulator ciśnienia paliwa','Fuel pressure regulator',1,true),
+ slot('rail','Listwa paliwowa','Fuel rail',1,true),
+ slot('fuel-lines','Przewody i filtr paliwa','Fuel lines and filter',null,true),
+ slot('pistons','Tłoki (komplet)','Piston set',1,true,'pistons'),
+ slot('rods','Korbowody (komplet)','Connecting rod set',1,true,'rods'),
+ slot('bearings','Panewki główne i korbowodowe','Main and rod bearings',null,true),
+ slot('rings','Pierścienie tłokowe','Piston rings',null,true),
+ slot('gasket','Uszczelka głowicy','Head gasket',1,true),
+ slot('fasteners','Mocowanie głowicy (komplet)','Head fastener set',1,true),
+ ...(version==='m50b30-stroker'?[slot('crank','Wał korbowy B30','B30 crankshaft',1,true)]:[]),
+ slot('oil-feed','Przewody zasilania i spływu oleju turbo','Turbo oil feed and drain',null,true),
+ slot('breather','Odma / catch tank','Breather / catch tank',null,true),
+ slot('oil-cooler','Chłodnica oleju','Oil cooler',1,true),
+ slot('radiator','Chłodnica cieczy i wentylator','Radiator and fan',null,true),
+ slot('downpipe','Downpipe i elementy wydechu','Downpipe and exhaust components',null,true),
+ slot('ecu','Sterownik silnika','Engine management ECU',1,true,'ecu'),
+ slot('sensors','Czujniki, wiązka i osprzęt ECU','Sensors, harness and ECU accessories',null,true),
+ slot('clutch','Sprzęgło / elementy przeniesienia napędu','Clutch / drivetrain components',null,true)
+ ];
+}
