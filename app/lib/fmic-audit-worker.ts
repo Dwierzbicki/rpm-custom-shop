@@ -6,12 +6,19 @@ import {setupImageAudit,inspectImage} from './fmic-image-quality';
 let setup:Promise<unknown>|undefined;
 export async function setupAuditWorker(){
  await setupImageAudit();
- if(!setup)setup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_audit_control (
+ if(!setup)setup=(async()=>{await getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_audit_control (
  id integer PRIMARY KEY CHECK(id=1), enabled boolean NOT NULL DEFAULT false,
  heartbeat timestamptz, last_error text, processed bigint NOT NULL DEFAULT 0
  ); ALTER TABLE rpm_fmic_audit_control ADD COLUMN IF NOT EXISTS intensity integer NOT NULL DEFAULT 2;
  INSERT INTO rpm_fmic_audit_control(id) VALUES(1) ON CONFLICT DO NOTHING;
- CREATE TABLE IF NOT EXISTS rpm_fmic_audit_priority(url text PRIMARY KEY);`).catch(e=>{setup=undefined;throw e});
+ CREATE TABLE IF NOT EXISTS rpm_fmic_audit_priority(url text PRIMARY KEY); ALTER TABLE rpm_fmic_audit_priority ADD COLUMN IF NOT EXISTS weight bigint NOT NULL DEFAULT 0; CREATE INDEX IF NOT EXISTS rpm_fmic_priority_weight_idx ON rpm_fmic_audit_priority(weight DESC,url); CREATE TABLE IF NOT EXISTS rpm_fmic_audit_migrations(version integer PRIMARY KEY);`);
+ const client=await getDbPool().connect();
+ try{await client.query('BEGIN');const claim=await client.query('INSERT INTO rpm_fmic_audit_migrations(version) VALUES(2) ON CONFLICT DO NOTHING RETURNING version');if(claim.rowCount){
+  await client.query("INSERT INTO rpm_fmic_image_audit(url) SELECT DISTINCT image FROM rpm_fmic_catalog CROSS JOIN LATERAL jsonb_array_elements_text(data->'images') AS image ON CONFLICT DO NOTHING");
+  await client.query("UPDATE rpm_fmic_image_audit SET status='pending' WHERE status='ok'");
+  await client.query("INSERT INTO rpm_fmic_audit_priority(url,weight) SELECT img.url,SUM(CASE WHEN img.pos=1 THEN 100000 ELSE 1 END)::bigint FROM rpm_fmic_catalog CROSS JOIN LATERAL jsonb_array_elements_text(data->'images') WITH ORDINALITY img(url,pos) GROUP BY img.url ON CONFLICT(url) DO UPDATE SET weight=EXCLUDED.weight");
+ }await client.query('COMMIT');}catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}finally{client.release()}
+ })().catch(e=>{setup=undefined;throw e});
  await setup;
 }
 export async function seedAuditQueue(){
