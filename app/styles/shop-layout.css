@@ -1,0 +1,4 @@
+.rpm-shop-page{min-height:65vh}
+.rpm-shop-back-categories{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid #4a515d;border-radius:4px;padding:10px 14px;color:#e7eaf0;margin:16px 0 22px;font-size:12px;font-weight:800}
+.rpm-shop-back-categories:hover{border-color:#e72f59;color:#e72f59}
+.rpm-shop-page{min-width:0}

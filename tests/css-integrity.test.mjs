@@ -15,9 +15,7 @@ const styleFiles=[
   "product-cart.css",
   "product-detail-final.css",
   "legacy-home-catalog.css",
-  "legacy-shop-directory.css",
-  "legacy-shop-radial.css",
-  "legacy-shop-inline.css",
+  "shop-layout.css",
   "legacy-home-hero.css",
   "power-guides.css",
   "homepage-v2.css",
@@ -151,3 +149,11 @@ test('Retired homepage editor is not mounted or linked',async()=>{
  for(const selector of ['.rpm-login-page','.rpm-login-card','.rpm-customer-google','.rpm-settings-error'])assert.ok(css.includes(selector));
  for(const route of ['login','account'])assert.ok((await readFile(new URL('../app/'+route+'/page.tsx',import.meta.url),'utf8')).includes("import '../styles/customer-account.css';"));
  });
+
+test('Legacy radial navigation is retired while shop layout remains',async()=>{
+ const css=await readFile(new URL('../app/styles/shop-layout.css',import.meta.url),'utf8');
+ assert.ok(css.includes('.rpm-shop-page{min-height:65vh}'));
+ assert.ok(css.includes('.rpm-shop-page{min-width:0}'));
+ assert.ok(css.includes('.rpm-shop-back-categories:hover'));
+ assert.doesNotMatch(globals,/legacy-shop-(?:directory|radial|inline)\.css/);
+});
