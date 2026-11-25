@@ -4,8 +4,8 @@ export type HomepageDraft={
 };
 export const HOMEPAGE_DRAFT_KEY='rpm-homepage-editor-draft-v1';
 export const DEFAULT_HOMEPAGE_DRAFT:HomepageDraft={
- heroTitle:'BUDUJ\nBEZ OGRANICZEŃ.',
- heroSubtitle:'CZĘŚCI DO TWOJEGO PROJEKTU.',
+ heroTitle:'BUILT TO\nPERFORM.',
+ heroSubtitle:'NO COMPROMISE.',
  heroDescription:'Turbosprężarki, układy wydechowe, intercoolery i komponenty do wymagających projektów.',
  heroImage:'',
  motolabTitle:'MotoLab',

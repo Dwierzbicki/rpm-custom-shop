@@ -1,0 +1,42 @@
+/* Racing District — scoped to home; real catalog routing and shared commerce retained. */
+.rpm-racing-district{--rd-red:#e51d35;--hp-gutter:clamp(16px,2.5vw,42px);background:#0c0d0f}
+.rpm-racing-district .drift-hero.rpm-hp-hero{min-height:clamp(390px,31vw,565px);border-bottom:2px solid var(--rd-red);isolation:isolate}
+.rpm-racing-district .rpm-hp-hero .drift-hero-inner{width:100%;max-width:1600px;padding:clamp(42px,5vw,90px) var(--hp-gutter)}
+.rpm-racing-district .rpm-hp-hero h1{font-size:clamp(48px,5.8vw,96px);font-style:italic;font-weight:950;letter-spacing:-.055em;line-height:.95;max-width:680px;text-wrap:initial}
+.rpm-racing-district .rpm-hp-hero h1 span:last-child{color:var(--rd-red)}
+.rpm-racing-district .rpm-hp-hero h2{color:#ddd;font-size:clamp(20px,2.5vw,36px)}
+.rpm-racing-district .rpm-hp-hero .drift-hero-shade{background:linear-gradient(90deg,#08090bf5 0%,#08090bdd 32%,#08090b44 67%,#08090b12 100%)}
+.rpm-racing-district .eyebrow,.rpm-racing-district .rpm-motolab-kicker{color:#ff5267;letter-spacing:.13em}
+.rpm-racing-district .primary,.rpm-racing-district .outline{border-radius:2px}
+.rpm-racing-district .drift-section{max-width:1600px;padding:clamp(24px,3vw,44px) var(--hp-gutter)}
+.rpm-racing-district .section-heading{margin-bottom:16px}
+.rpm-racing-district .section-heading h2{font-size:clamp(24px,2.5vw,37px);font-weight:950;font-style:italic}
+.rpm-racing-district .section-heading h2::before{content:'///';color:var(--rd-red);margin-right:.45em;font-style:italic}
+.rpm-racing-district .rpm-hp-trust{max-width:1600px;padding:14px var(--hp-gutter);border-bottom:1px solid #32353d}
+.rpm-racing-district .rpm-hp-trust svg{color:var(--rd-red)}
+.rpm-racing-district .rpm-hp-category-grid{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:7px}
+.rpm-district-category{position:relative;display:flex;align-items:flex-end;min-height:138px;padding:12px 8px;border:1px solid #41444c;background:#17191e;color:white;overflow:hidden;cursor:pointer;text-align:left;isolation:isolate;border-radius:0;transition:border-color .18s,transform .18s}
+.rpm-district-category img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;transition:transform .25s}
+.rpm-district-category::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,#08090b44,transparent 30%,#08090bf2 94%);z-index:-1}
+.rpm-district-category:hover{border-color:var(--rd-red);transform:translateY(-3px)}
+.rpm-district-category:hover img{transform:scale(1.06)}
+.rpm-district-number{position:absolute;top:9px;left:9px;font-size:19px;font-weight:950;font-style:italic;text-shadow:0 2px 8px #000}
+.rpm-district-label{display:flex;align-items:flex-end;justify-content:space-between;gap:4px;width:100%;font-size:clamp(11px,.92vw,15px);font-weight:850;line-height:1.15;text-transform:uppercase}
+.rpm-district-label svg{color:#ff4259;flex-shrink:0}
+.rpm-racing-district .rpm-hp-products-layout{grid-template-columns:minmax(0,1fr)}
+.rpm-racing-district .rpm-hp-promo{display:none}
+.rpm-racing-district .rpm-hp-featured .products-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.rpm-racing-district .rpm-motolab{width:calc(100% - 2*var(--hp-gutter));max-width:1516px;margin:12px auto 0;border-radius:0;border-top:2px solid var(--rd-red)}
+.rpm-racing-district .rpm-motolab-content{padding:clamp(24px,3vw,46px)}
+.rpm-racing-district .rpm-motolab h2{font-style:italic;font-size:clamp(44px,5vw,82px)}
+.rpm-district-tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rpm-district-tool-grid>a{display:flex;gap:16px;align-items:flex-start;background:linear-gradient(145deg,#252830,#121418 70%);border:1px solid #3c404a;border-left:3px solid var(--rd-red);padding:24px;color:#fff;text-decoration:none}
+.rpm-district-tool-grid>a:hover{border-color:var(--rd-red)}
+.rpm-district-tool-grid>a>svg{color:#ff435a;flex-shrink:0}
+.rpm-district-tool-grid strong{font-size:clamp(18px,1.6vw,26px);font-weight:950;font-style:italic}
+.rpm-district-tool-grid p{color:#c2c5cb;font-size:14px;line-height:1.5;margin:8px 0 16px}
+.rpm-district-tool-grid span{display:flex;align-items:center;gap:8px;color:#ff5267;font-size:12px;font-weight:850}
+@media(max-width:1400px){.rpm-racing-district .rpm-hp-category-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+@media(max-width:900px){.rpm-racing-district .rpm-hp-category-grid{grid-template-columns:repeat(4,minmax(0,1fr))}.rpm-district-tool-grid{grid-template-columns:1fr}.rpm-racing-district .rpm-hp-featured .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.rpm-racing-district .drift-hero.rpm-hp-hero{min-height:470px}.rpm-racing-district .rpm-hp-hero h1{font-size:clamp(43px,11vw,65px)}.rpm-racing-district .rpm-hp-hero .drift-hero-shade{background:linear-gradient(90deg,#08090bee,#08090b70)}.rpm-racing-district .rpm-hp-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rpm-district-category{min-height:132px}.rpm-district-label{font-size:13px}.rpm-racing-district .section-heading{align-items:flex-start;gap:10px}.rpm-racing-district .section-heading h2{font-size:23px}}
+@media(prefers-reduced-motion:reduce){.rpm-district-category,.rpm-district-category img{transition:none}}

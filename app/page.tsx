@@ -273,6 +273,7 @@ export default function Shop(){
     lang={lang}
     products={products}
     onCategory={(name)=>{setCategory(name);navigate('catalog')}}
+    onOpenCatalogPath={openCatalogPath}
     onSelectGuideEngine={(engineId)=>{setGuideEngine(engineId);navigate('guides')}}
     onOpenGuides={()=>navigate('guides')}
     onOpenGarage={()=>navigate('garage')}
