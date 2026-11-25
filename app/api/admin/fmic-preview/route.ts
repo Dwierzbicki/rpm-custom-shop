@@ -21,13 +21,14 @@ function compareOptions(a:{value:string},b:{value:string}){
 export async function GET(request:Request){
  const params=new URL(request.url).searchParams;
  const path=resolveCategoryPath(params.get('category')??'/sklep');
- if(!path?.length)return NextResponse.json({error:'Wybierz kategorię sklepu'},{status:400});
+ if(!path)return NextResponse.json({error:'Wybierz kategorię sklepu'},{status:400});
  const raw=Number(params.get('page')??1),page=Number.isSafeInteger(raw)?Math.max(1,Math.min(10000,raw)):1,size=24;
  const q=(params.get('q')??'').trim().slice(0,120);
+ if(!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[]});
  const sort=params.get('sort');
  const stock=params.get('stock')==='available'?'available':params.get('stock')==='unavailable'?'unavailable':'all';
  const order=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
- const where="WHERE mapping_status IN ('exact','normalized','manual') AND target_category[1:cardinality($1::text[])]=$1::text[] AND ($2='' OR strpos(lower(name),lower($2))>0 OR strpos(lower(sku),lower($2))>0) AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
+ const where="WHERE mapping_status IN ('exact','normalized','manual') AND (cardinality($1::text[])=0 OR target_category[1:cardinality($1::text[])]=$1::text[]) AND NOT EXISTS (SELECT 1 FROM regexp_split_to_table(lower(trim($2)), '[[:space:]]+') AS token WHERE token<>'' AND strpos(lower(concat_ws(' ',name,sku,data->>'ean',data->>'mpn')),token)=0) AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
  try{
  await setupImageAudit();
  const db=getDbPool();
