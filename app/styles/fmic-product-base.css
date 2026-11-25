@@ -10,7 +10,7 @@
 .fmic-pdp-gallery .detail-photo{height:100%;max-height:440px;width:100%;object-fit:contain}
 .fmic-pdp-gallery .detail-thumbnails{justify-content:flex-start;align-self:stretch}
 .fmic-pdp-gallery .detail-thumbnails button{background:#fff;border:2px solid #343b45;border-radius:7px;overflow:hidden}
-.fmic-pdp-gallery .detail-thumbnails button.selected{border-color:#e3385b}
+.fmic-pdp-gallery .detail-thumbnails button.selected{border-color:var(--rpm-color-accent)}
 .fmic-pdp-gallery .detail-thumbnails img{object-fit:contain}
 .fmic-pdp-placeholder{aspect-ratio:5/4;display:grid;place-items:center;background:#1c222b;border:1px solid #343b45;border-radius:12px;color:#9daab9}
 .fmic-pdp-info h1{font-size:clamp(24px,3vw,38px);line-height:1.17;letter-spacing:-.025em;margin:12px 0 8px;overflow-wrap:anywhere}
