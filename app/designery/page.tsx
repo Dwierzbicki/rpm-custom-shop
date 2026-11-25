@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 
 export const metadata:Metadata={
  title:'Designery CAD | RPM Custom',
- description:'Zaprojektuj części do dolotu w kreatorach RPM Custom. ITB Designer oraz kolektory ssące TIG i CNC.',
+ description:'Projektuj trąbki dolotowe i analizuj stopień sprężania silnika w narzędziach RPM Custom.',
 };
 
 const itbActive=Boolean(process.env.ITB_DESIGNER_ORIGIN);
@@ -28,12 +28,6 @@ export default function DesignersPage(){
       {itbActive
        ? <a href="/itb-designer" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#f97316',borderRadius:10,color:'#111827',fontWeight:800,textDecoration:'none'}}>Otwórz ITB Designer</a>
        : <p style={{marginTop:22,color:'#fb923c',fontWeight:700}}>Integracja z kreatorem w przygotowaniu</p>}
-     </article>
-     <article style={{border:'1px solid #ffffff20',borderRadius:18,padding:26,background:'#151b25'}}>
-      <div style={{fontSize:12,letterSpacing:2,color:'#94a3b8',fontWeight:700}}>INTAKE MANIFOLD DESIGNER</div>
-      <h2 style={{fontSize:25,margin:'14px 0'}}>Kolektory ssące TIG / CNC</h2>
-      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Koncepcyjny model 3D: plenum, runnery, flansze i przepustnice. Dwa widoki technologiczne TIG i CNC, zapis projektu JSON.</p>
-      <a href="/intake-designer" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#f97316',borderRadius:10,color:'#111827',fontWeight:800,textDecoration:'none'}}>Otwórz Intake Designer · MVP</a>
      </article>
      <article style={{border:'1px solid #e4456366',borderRadius:18,padding:26,background:'linear-gradient(135deg,#311a28,#141d2a 80%)'}}>
       <div style={{fontSize:12,letterSpacing:2,color:'#fb7185',fontWeight:700}}>NOWOŚĆ · ENGINE SIMULATION 3D</div>
