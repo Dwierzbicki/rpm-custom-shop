@@ -10,7 +10,7 @@ sharp.cache(false);
 sharp.concurrency(1);
 async function download(url){
  const parsed=new URL(url);
- if(!['https://fmic.pl','https://upload.wikimedia.org','https://www.strongflex.eu'].includes(parsed.origin)||parsed.username||parsed.password)throw Error('Unexpected logo host');
+ if(!['https://fmic.pl','https://upload.wikimedia.org','https://www.strongflex.eu','https://www.garrettmotion.com'].includes(parsed.origin)||parsed.username||parsed.password)throw Error('Unexpected logo host');
  const response=await fetch(parsed,{redirect:'error',signal:AbortSignal.timeout(8000),headers:{'User-Agent':'RPMCustomCatalog/1.0 (product brand identification; https://rpmcustom.pl)'}});
  if(!response.ok||!response.body)throw Error('HTTP '+response.status);
  const reader=response.body.getReader(),parts=[];let size=0;
