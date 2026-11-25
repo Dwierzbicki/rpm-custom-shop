@@ -13,10 +13,12 @@ const categoryAliases:Record<string,string[]>={
  'Intercoolery':['Układ chłodzenia','Intercoolery'],
  'Wastegate':['Układ wydechowy','Wastegate'],
  'Paliwo':['Układ paliwowy'],
- 'Elektronika':['Elektronika']
+ 'Elektronika':['Elektronika'],
+ 'Mocowania głowicy':['Silnik i turbo'],
+ 'Wały korbowe':['Silnik i turbo']
 };
 export function ownCategoryPath(category:string):string[]{
- const alias=categoryAliases[category];if(alias)return alias;
+ const alias=Object.prototype.hasOwnProperty.call(categoryAliases,category)?categoryAliases[category]:undefined;if(alias)return alias;
  const found:string[][]=[];
  function visit(nodes:SupplierCategory[],prefix:string[]){for(const n of nodes){const path=[...prefix,n.name];if(n.name===category)found.push(path);visit(n.children,path)}}
  visit(FMIC_CATEGORY_TREE,[]);
