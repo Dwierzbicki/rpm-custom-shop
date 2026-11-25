@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 import {notFound,redirect} from 'next/navigation';
 import {readProduct} from '../../../lib/read-product';
 import {productPath} from '../../../lib/product-path';
-import ProductPageClient from '../ProductPageClient';
+import ProductPageClient from '../../ProductPageClient';
 export const dynamic='force-dynamic';
 type Props={params:Promise<{slug:string;sku:string}>};
 export async function generateMetadata({params}:Props):Promise<Metadata>{
