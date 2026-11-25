@@ -44,7 +44,7 @@ export default function Shop(){
  const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
  const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({enabled:view==='catalog'&&!fmicPreview,products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t,view==='checkout');
- const {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
+ const {quoteState,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
  const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')})),[products]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({enabled:view==='guides',products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
@@ -132,13 +132,14 @@ export default function Shop(){
  onQuantity={setQty} onAddToCart={()=>addLine('cart')} onAddToGarage={()=>addLine('garage')}
 />}
  {view==='cart'&&<CartView
- cart={cart} products={products} count={count} total={linesTotal(cart)} t={t}
- onBrowseCatalog={()=>navigate('catalog')} onCheckout={()=>navigate('checkout')}
+ cart={cart} products={products} count={count} total={linesTotal(cart)} t={t} quoteState={quoteState}
+ onBrowseCatalog={()=>navigate('catalog')} onCheckout={()=>{if(!cart.some(l=>l.fmicSku))navigate('checkout')}}
  onOpenProduct={openProduct}
  onQuantityChange={changeQuantity}
  onRemove={removeLine}
 />}
- {view==='checkout'&&<CheckoutView
+ {view==='checkout'&&cart.some(l=>l.fmicSku)&&<main className="page narrow"><h1>Zakup online jeszcze niedostępny</h1><button className="primary" onClick={()=>navigate('cart')}>Wróć do koszyka</button></main>}
+ {view==='checkout'&&!cart.some(l=>l.fmicSku)&&<CheckoutView
   t={t} lang={lang}
   cart={cart} products={products} cartTotal={linesTotal(cart)}
   checkoutDone={checkoutDone} receipt={receipt}
