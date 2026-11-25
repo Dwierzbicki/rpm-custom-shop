@@ -2,11 +2,13 @@ import sharp from 'sharp';
 import {createHash} from 'node:crypto';
 import {getDbPool} from './db';
 
+let auditSetup:Promise<unknown>|undefined;
 export async function setupImageAudit(){
- await getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_image_audit (
+ if(!auditSetup)auditSetup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_image_audit (
  url TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'pending',
  checked_at TIMESTAMPTZ, hash TEXT, detail TEXT
- ); CREATE INDEX IF NOT EXISTS rpm_fmic_image_audit_status_idx ON rpm_fmic_image_audit(status,url)`);
+ ); CREATE INDEX IF NOT EXISTS rpm_fmic_image_audit_status_idx ON rpm_fmic_image_audit(status,url)`).catch(e=>{auditSetup=undefined;throw e});
+ await auditSetup;
 }
 export async function inspectImage(url:string){
  const parsed=new URL(url);
