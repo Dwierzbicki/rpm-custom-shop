@@ -9,7 +9,7 @@ export async function nextAuditCandidate(db:Pick<PoolClient,'query'>,candidates:
   if(result.rowCount)return url;
   if(candidates[0]===url)candidates.shift();
  }
- const result=await db.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY COALESCE(p.weight,0) DESC,a.url LIMIT $1",[auditCandidateBatchSize]);
+ const result=await db.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT $1",[auditCandidateBatchSize]);
  candidates.splice(0,candidates.length,...result.rows.map(row=>row.url));
  return candidates[0];
 }
