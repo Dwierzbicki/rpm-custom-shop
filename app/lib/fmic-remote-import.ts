@@ -1,6 +1,7 @@
 import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {join} from 'node:path';
+import {pipeline} from 'node:stream/promises';
 import {getDbPool} from './db';
 import {setupFmicCatalog,stageFmicBatch,type FmicRow} from './fmic-catalog-db';
 
@@ -26,9 +27,12 @@ export async function importFmicRemote(){
   proc.stdin!.on('error',()=>proc.kill());
   const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(10*60*1000)});
   if(!response.ok||!response.body)throw new Error('FMIC feed HTTP '+response.status);
-  const {Readable}=await import('node:stream');
-  const {pipeline}=await import('node:stream/promises');
-  const input=pipeline(Readable.fromWeb(response.body as import('node:stream/web').ReadableStream),proc.stdin!);
+  const reader=response.body.getReader();
+  async function* chunks(){
+   try{for(;;){const {done,value}=await reader.read();if(done)break;yield Buffer.from(value)}}
+   finally{await reader.cancel().catch(()=>{});reader.releaseLock()}
+  }
+  const input=pipeline(chunks(),proc.stdin!);
   input.catch(()=>proc.kill());
   let batch:FmicRow[]=[],count=0;
   for await(const line of createInterface({input:proc.stdout!,crlfDelay:Infinity})){
