@@ -1,6 +1,19 @@
 'use client';
 import {useEffect,useState} from 'react';
 import type {View} from '../../../lib/storefront-config';
+// Measure intrinsic label widths, not the expanded desktop hit areas.
+export function requiresCompactCategories(nav:HTMLElement){
+ if(window.matchMedia('(max-width:1000px), (hover:none), (pointer:coarse)').matches)return true;
+ const required=Array.from(nav.children).reduce((sum,child)=>{
+  const button=child.querySelector<HTMLElement>('.rpm-desktop-root-button');
+  const label=button?.querySelector<HTMLElement>('.rpm-nav-category-label');
+  if(!button||!label)return sum+(child as HTMLElement).offsetWidth;
+  const style=getComputedStyle(button);
+  const px=(value:string)=>parseFloat(value)||0;
+  return sum+Math.ceil(Math.max(px(style.minWidth),label.getBoundingClientRect().width+px(style.paddingLeft)+px(style.paddingRight)+px(style.borderLeftWidth)+px(style.borderRightWidth)));
+ },0);
+ return required>document.documentElement.clientWidth-24;
+}
 export function useStorefrontMenu(view:View){
  const [mobileMenu,setMobileMenu]=useState(false);
  const [activeFmicRoot,setActiveFmicRoot]=useState<number|null>(null);
@@ -12,9 +25,7 @@ export function useStorefrontMenu(view:View){
    frame=requestAnimationFrame(()=>{
     const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
     if(!nav)return;
-    const required=Array.from(nav.children).reduce((sum,child)=>sum+(child as HTMLElement).offsetWidth,0);
-    const available=document.documentElement.clientWidth-24;
-    setCompactCategories(required>available);
+    setCompactCategories(requiresCompactCategories(nav));
    });
   };
   measure();
