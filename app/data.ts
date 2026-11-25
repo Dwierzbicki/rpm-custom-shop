@@ -33,5 +33,5 @@ const groups:[string,string,string,number,string,boolean?][]= [
 ['Regulator ciśnienia paliwa','Demo Parts','Paliwo',449,'Uniwersalne']
 ];
 export const products:Product[]=groups.map((p,i)=>({id:i<4?i+1:i===4?29:i,name:p[0],brand:p[1],category:p[2],price:p[3],engine:p[4],configurable:!!p[5],sku:`RPM-DEMO-${String(i<4?i+1:i===4?29:i).padStart(3,'0')}`,description:p[5]?'Kolektor wykonywany na zamówienie. Wybierz wymagane parametry. Zgodność i termin wymagają potwierdzenia.':'Produkt demonstracyjny do testowania sklepu. Parametry i dostępność wymagają weryfikacji.'}));
-export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number};
+export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number;fmicSku?:string;fmicName?:string;fmicImage?:string|null;fmicAvailable?:boolean};
 export const money=(v:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(v);
