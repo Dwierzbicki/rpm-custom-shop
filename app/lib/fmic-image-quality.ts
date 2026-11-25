@@ -17,7 +17,15 @@ export async function setupImageAudit(){
  VALUES('https://fmic.pl/media/catalog/product/A/u/AudiShortshifterPRO7_03f79d57-be25-4c89-aec7-9c0584448055.jpg','blank',NOW(),'Confirmed Magento placeholder'),
  ('https://fmic.pl/media/catalog/product/D/S/DSC_2933copy.jpg','blank',NOW(),'Confirmed Magento placeholder: Yaris GR')
  ON CONFLICT(url) DO UPDATE SET status='blank',checked_at=NOW(),detail=EXCLUDED.detail
- WHERE rpm_fmic_image_audit.status IN ('pending','review','ok')`).catch(e=>{auditSetup=undefined;throw e});
+ WHERE rpm_fmic_image_audit.status IN ('pending','review','ok');
+ -- Exact URL and previously recorded content hash from the four reported products.
+ UPDATE rpm_fmic_image_audit AS a SET status='watermarked',detail='Potwierdzony znak wodny na środku — zgłoszenie PDP',checked_at=NOW()
+ FROM (VALUES
+ ('https://fmic.pl/media/catalog/product/1/2/122128102.png','2d5f64404bb07ccfce59cebdb07876c907a19da597db159a22f6fa4a6e1aa416'),
+ ('https://fmic.pl/media/catalog/product/1/2/122128103.png','2d5f64404bb07ccfce59cebdb07876c907a19da597db159a22f6fa4a6e1aa416'),
+ ('https://fmic.pl/media/catalog/product/1/2/122135201.png','7f92457763ddb403177c7670eec05d6911cc914c98f7e69ddecf4c575b34c10d'),
+ ('https://fmic.pl/media/catalog/product/1/2/122135206.png','17a2f41841c00f732dac168dc6e15345d25a276ff7d34f18376d41f2d22daf77')
+ ) AS reported(url,hash) WHERE a.url=reported.url AND a.hash=reported.hash AND a.status='pending'`).catch(e=>{auditSetup=undefined;throw e});
  await auditSetup;
 }
 export async function inspectImage(url:string){
