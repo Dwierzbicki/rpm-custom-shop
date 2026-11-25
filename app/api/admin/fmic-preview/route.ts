@@ -38,8 +38,9 @@ export async function GET(request:Request){
  db.query(source+"SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(images) WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2),[...all.args,size,(page-1)*size]),
  ...defs.map((d,i)=>{const f=filtered(i);return db.query(source+'SELECT '+d.key+' AS value,count(*)::int AS count FROM catalog'+f.sql+(f.sql?' AND ':' WHERE ')+d.key+' IS NOT NULL GROUP BY 1 ORDER BY 1',f.args)})
  ]);
+ const categories=q.length>=2?await db.query("SELECT target_category AS path,count(*)::int AS count FROM rpm_fmic_catalog WHERE mapping_status IN ('exact','normalized','manual') AND cardinality(target_category)>0 AND NOT EXISTS (SELECT 1 FROM regexp_split_to_table(lower(trim($1)), '[[:space:]]+') AS token WHERE token<>'' AND strpos(lower(concat_ws(' ',name,sku,data->>'ean',data->>'mpn')),token)=0) AND ($2='all' OR ($2='available' AND available) OR ($2='unavailable' AND NOT available)) AND ($3::numeric IS NULL OR proposed_gross >= $3) AND ($4::numeric IS NULL OR proposed_gross <= $4) GROUP BY target_category",[q,stock,price(min),price(max)]):{rows:[]};
  const facets=defs.map((d,i)=>({key:d.key,label:d.label,options:facetRows[i].rows.sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]);
- return NextResponse.json({items:items.rows,total:count.rows[0].total,page,size,path,facets},{headers:{'Cache-Control':'private, no-store'}});
+ return NextResponse.json({items:items.rows,total:count.rows[0].total,page,size,path,facets,categories:categories.rows},{headers:{'Cache-Control':'private, no-store'}});
 
  }catch(e){console.error('FMIC preview failed',e);return NextResponse.json({error:'Nie udało się pobrać podglądu'},{status:500})}
 }
