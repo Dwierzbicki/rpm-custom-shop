@@ -1,5 +1,4 @@
 import {NextResponse} from 'next/server';
-import {setupImageAudit} from '../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../lib/db';
 import {fmicSearchFacets} from '../../../lib/fmic-facets';
 import {visibleCatalog,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
@@ -21,7 +20,6 @@ export async function GET(request:Request){
  const patterns=searchPatterns(q);
  const where="WHERE "+visibleCatalog+" AND "+listingCategoryMembership('$1',path)+" AND ($2::text IS NOT NULL) AND "+searchConditions(patterns,6)+" AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
  try{
- await setupImageAudit();
  const db=getDbPool();
  const defs=fmicSearchFacets(path);
  const selected=defs.map(d=>(params.get(d.key)??'').slice(0,100));
