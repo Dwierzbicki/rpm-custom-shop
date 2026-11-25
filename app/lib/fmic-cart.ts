@@ -19,9 +19,10 @@ export function mergeFmicQuotes(lines:CartLine[],quotes:FmicQuote[]):CartLine[]{
   return {...l,unitPrice:validPrice?q.unitPrice:l.unitPrice,fmicPreviousPrice:validPrice&&l.unitPrice!==undefined&&l.unitPrice!==q.unitPrice?l.unitPrice:l.fmicPreviousPrice,fmicName:q.name,fmicImage:q.image,fmicAvailable:q.available&&validPrice};
  });
 }
-export async function addFmicToCart(sku:string,qty:number,displayedPrice:number){
+export async function addFmicToCart(sku:string,qty:number,displayedPrice:number,expectedName?:string){
  if(!Number.isSafeInteger(qty)||qty<1||qty>50)throw Error('Wybierz ilość od 1 do 50');
  const [quote]=await quoteFmicCart([sku]);
+ if(quote&&expectedName!==undefined&&quote.name!==expectedName)throw Error('Dane produktu uległy zmianie. Wymagana ponowna weryfikacja.');
  if(!quote||!quote.available)throw Error('Produkt jest obecnie niedostępny.');
  if(!Number.isFinite(quote.unitPrice)||quote.unitPrice<=0)throw Error('Cena wymaga potwierdzenia.');
  if(quote.unitPrice!==displayedPrice)throw Error('Cena produktu uległa zmianie. Odśwież kartę produktu przed dodaniem.');
