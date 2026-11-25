@@ -516,6 +516,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Filtry oleju",
         "children": []
+      },
+      {
+        "name": "Bagnety oleju",
+        "children": []
       }
     ]
   },
@@ -1055,6 +1059,14 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Półosie i przeguby",
         "children": []
+      },
+      {
+        "name": "Mocowania amortyzatorów",
+        "children": []
+      },
+      {
+        "name": "Zwrotnice",
+        "children": []
       }
     ]
   },
@@ -1425,6 +1437,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Akcesoria",
+        "children": []
+      },
+      {
+        "name": "Gaśnice i systemy gaśnicze",
         "children": []
       }
     ]

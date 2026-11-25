@@ -107,3 +107,10 @@ test('Final category additions and explicit classification retain ambiguous SKU 
  assert.equal(mapper.mapFmicCategory('Elektronika > Urządzenia pomiarowe').status,'exact');
  assert.equal(mapper.mapFmicProductCategory('','BMW 3 SERIES 5/83-3/91').status,'unmapped');
 });
+
+test('Reviewed SKU classification is limited to the known supplier record',()=>{
+ const row={"mapping_status":"unmapped","name":"BMW 3 SERIES 5/83-3/91","sku":"W44040","source_category":""};
+ assert.deepEqual(mapper.mapFmicProductCategory(row.source_category,row.name,row.sku).targetPath,['Napęd i zawieszenie','Mocowania amortyzatorów']);
+ assert.equal(mapper.mapFmicProductCategory(row.source_category,row.name,'OTHER').status,'unmapped');
+ assert.equal(mapper.mapFmicProductCategory(row.source_category,'Different product',row.sku).status,'unmapped');
+});

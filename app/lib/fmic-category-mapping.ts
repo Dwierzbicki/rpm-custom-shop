@@ -94,8 +94,936 @@ export function mapFmicCategory(sourcePath:string):FmicCategoryMatch{
 }
 
 /** Infer only unclassified supplier rows from explicit product-type prefixes. */
-export function mapFmicProductCategory(sourcePath:string,name:string):FmicCategoryMatch{
+// Explicit SKU decisions, scoped to the reviewed supplier name and source path.
+const reviewedProducts:Record<string,{name:string;source:string;target:string[]}>={
+  "13256": {
+    "name": "FLEXIPADS 32mm (1\") Quick Lock Soft PUR PSA Interface",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Polerowanie lakieru",
+      "Akcesoria polerskie"
+    ]
+  },
+  "56005": {
+    "name": "FLEXIPADS Double Sided Grip Hand Block soft/medium 70x125mm",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Polerowanie lakieru",
+      "Akcesoria polerskie"
+    ]
+  },
+  "014772SP": {
+    "name": "Mechaniczny system gaśniczy Sparco 4.25l",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Wyposażenie wnętrza i kierowcy",
+      "Gaśnice i systemy gaśnicze"
+    ]
+  },
+  "ACL-4C5749-STD": {
+    "name": "Cam bush set ACL 4C5749-STD for Ford",
+    "source": "",
+    "target": [
+      "Silnik i turbo",
+      "Panewki"
+    ]
+  },
+  "APASPRAY200": {
+    "name": "Klej Kontaktowy w Sprayu ApaSpray 200 Apama 500ml",
+    "source": "",
+    "target": [
+      "Pozostałe",
+      "Akcesoria warsztatowe"
+    ]
+  },
+  "APASPRAY700": {
+    "name": "Mocny Uniwersalny Klej w Sprayu ApaSpray 700 Apama 500ml",
+    "source": "",
+    "target": [
+      "Pozostałe",
+      "Akcesoria warsztatowe"
+    ]
+  },
+  "APASPRAY CLEAN": {
+    "name": "Zmywacz Środek do usuwania Kleju Cytrusowy Spray Apama 500ml",
+    "source": "",
+    "target": [
+      "Pozostałe",
+      "Akcesoria warsztatowe"
+    ]
+  },
+  "APASPRAY UNI": {
+    "name": "Uniwersalny Klej w Sprayu ApaSpray Uni Apama 500ml",
+    "source": "",
+    "target": [
+      "Pozostałe",
+      "Akcesoria warsztatowe"
+    ]
+  },
+  "BA380": {
+    "name": "FLEXIPADS 75mm COTTON Metal High Gloss Finish Ball",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Polerowanie lakieru",
+      "Akcesoria polerskie"
+    ]
+  },
+  "CO-390": {
+    "name": "COLLINITE 390 Pre-wax Auto Polish lekko ścierny cleaner usuwa niewielkie rysy water spoty 473ml",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Przygotowanie lakieru"
+    ]
+  },
+  "CO-415": {
+    "name": "COLLINITE 415 Color Up Prewax Auto Cleaner do oczyszczania lakieru 473ml",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Przygotowanie lakieru"
+    ]
+  },
+  "CO-435": {
+    "name": "COLLINITE 435 Streak Fixer usuwa smugi water spoty plamy 473ml",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Przygotowanie lakieru"
+    ]
+  },
+  "CQPERL-500": {
+    "name": "CAR PRO Perl do pielęgnacji skóry opon plastiku winylu gumy 500ml 0,5l",
+    "source": "",
+    "target": [
+      "Detailing",
+      "Plastiki zewnętrzne i elementy gumowe",
+      "Pielęgnacja"
+    ]
+  },
+  "FTWL_FPRYZM": {
+    "name": "Podkładki pryzmowe regulacja belki FTWL BMW E21 E30 E32 E34 E36 Compact",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Śruby i akcesoria"
+    ]
+  },
+  "GT-EXT2KG": {
+    "name": "Ręczna gaśnica proszkowa GT2i 2kg",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Wyposażenie wnętrza i kierowcy",
+      "Gaśnice i systemy gaśnicze"
+    ]
+  },
+  "GT-T3X6-STRUCT-ALU": {
+    "name": "GT2I Pro Aluminium Structure Only for Foldable Tent 3x6m",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Akcesoria warsztatowe"
+    ]
+  },
+  "HS15541": {
+    "name": "Naklejka Purelux Białe Logo 120 x 18 mm",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Upominki i gadżety"
+    ]
+  },
+  "IOD-158": {
+    "name": "Wiązka TCU-8HP-Y61 IOD Performance Nissan Patrol",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Elektronika",
+      "Wtyczki"
+    ]
+  },
+  "JRSPEC-WSP-100-B": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 100mm Czarny",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-100-N": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 100mm Niebieski",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-100-R": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 100mm Czerwony",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-100-S": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 100mm Srebrny",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-150-B": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 150mm Czarny",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-150-N": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 150mm Niebieski",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-150-R": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 150mm Czerwony",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-150-S": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 150mm Srebrny",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-200-N": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 200mm Niebieski",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-200-R": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 200mm Czerwony",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "JRSPEC-WSP-200-S": {
+    "name": "Wsporniki dyfuzora, splittera, lotki JRspec 200mm Srebrny",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "KCA409": {
+    "name": "SUBARU IMPREZA 9/07-8/10",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "KFI24614": {
+    "name": "KIT STD FIAT DOBLO 2.0L inc DMF+CSC - KFI24614",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Sprzęgło",
+      "Zestawy sprzęgła"
+    ]
+  },
+  "KJE28006": {
+    "name": "Spigot Bush/Bearing - KJE28006",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Sprzęgło",
+      "Clutch bearings"
+    ]
+  },
+  "KSU23512-1A": {
+    "name": "Heavy Duty Organic - KSU23512-1A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Sprzęgło",
+      "Zestawy sprzęgła"
+    ]
+  },
+  "KSU23512-1B": {
+    "name": "Heavy Duty Sprung Ceramic - KSU23512-1B",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Sprzęgło",
+      "Zestawy sprzęgła"
+    ]
+  },
+  "KSU23512-1C": {
+    "name": "Heavy Duty Cushioned Ceramic - KSU23512-1C",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Sprzęgło",
+      "Zestawy sprzęgła"
+    ]
+  },
+  "MG1-FRD006": {
+    "name": "Ford Mustang S550",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-FRD008": {
+    "name": "Focus RS 2016+",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB001": {
+    "name": "Impreza WRX GD 5X100",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB002": {
+    "name": "Impreza WRX GD 5X100",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB004": {
+    "name": "Impreza WRX GD 5X100",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB005": {
+    "name": "SUBARU IMPREZA 2.5T WRX/2.5T WRX",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB006": {
+    "name": "BRZ ZC / FRS ZN / GT-86",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MG1-SUB007": {
+    "name": "Subaru VA WRX/STI",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zawieszenie gwintowane"
+    ]
+  },
+  "MMHE-F80-15": {
+    "name": "Wymiennik ciepła Mishimoto BMW F80 M3/M4 2015-2020",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ chłodzenia",
+      "Chłodnice wody"
+    ]
+  },
+  "MMOC-PF-10": {
+    "name": "Filtr na przewód Mishimoto AN10",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ chłodzenia",
+      "Filtry oleju"
+    ]
+  },
+  "MMOC-PF-6": {
+    "name": "Filtr na przewód Mishimoto AN6",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ chłodzenia",
+      "Filtry oleju"
+    ]
+  },
+  "TS-0205-2065": {
+    "name": "Ford F150 2013-2016 Relocation Adapter Kit",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ dolotowy",
+      "Blow off",
+      "Akcesoria"
+    ]
+  },
+  "TS-0205-3116": {
+    "name": "AN3 Straight Nipple Replacement",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ dolotowy",
+      "Blow off",
+      "Akcesoria"
+    ]
+  },
+  "TS-0223-3011": {
+    "name": "TS-0223-3011",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ dolotowy",
+      "Blow off",
+      "Akcesoria"
+    ]
+  },
+  "TS-0223-3017": {
+    "name": "TS-0223-3017",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ dolotowy",
+      "Blow off",
+      "Akcesoria"
+    ]
+  },
+  "TS-0223-3019": {
+    "name": "TS-0223-3019",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ dolotowy",
+      "Blow off",
+      "Akcesoria"
+    ]
+  },
+  "TS-0550-3050": {
+    "name": "Nypel adapter Turbosmart 1/8 NPT AN3 stal nierdzewna",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ wydechowy",
+      "Wastegate",
+      "Akcesoria"
+    ]
+  },
+  "TS-0550-3051": {
+    "name": "Nypel adapter Turbosmart 1/8 NPT AN4 stal nierdzewna",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ wydechowy",
+      "Wastegate",
+      "Akcesoria"
+    ]
+  },
+  "TS-0550-3053": {
+    "name": "Nypel adapter Turbosmart prosty 1/8 NPT Pushloc 1/4 stal nierdzewna",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ wydechowy",
+      "Wastegate",
+      "Akcesoria"
+    ]
+  },
+  "TS-0550-3054": {
+    "name": "Nypel adapter Turbosmart 90' 1/8 NPT Pushloc 1/4 stal nierdzewna",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ wydechowy",
+      "Wastegate",
+      "Akcesoria"
+    ]
+  },
+  "TS-0550-3055": {
+    "name": "Nypel adapter Turbosmart t-piece 1/8 NPT Pushloc 1/4 stal nierdzewna",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Układ wydechowy",
+      "Wastegate",
+      "Akcesoria"
+    ]
+  },
+  "TS-0600-3005": {
+    "name": "6.3mm x 100mm 1/4\" UNF Clevis\"",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Silnik i turbo",
+      "Turbosprężarki",
+      "Aktuatory"
+    ]
+  },
+  "TS-0600-3006": {
+    "name": "6.3mm x 125mm 1/4\" UNF Clevis\"",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Silnik i turbo",
+      "Turbosprężarki",
+      "Aktuatory"
+    ]
+  },
+  "TS-0600-3007": {
+    "name": "6.3mm x 80mm M6 Clevis",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Silnik i turbo",
+      "Turbosprężarki",
+      "Aktuatory"
+    ]
+  },
+  "TS-0600-3008": {
+    "name": "6.3mm x 100mm M6 Clevis",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Silnik i turbo",
+      "Turbosprężarki",
+      "Aktuatory"
+    ]
+  },
+  "TS-0600-3009": {
+    "name": "6.3mm x 125mm M6 Clevis",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Silnik i turbo",
+      "Turbosprężarki",
+      "Aktuatory"
+    ]
+  },
+  "USA-RAD-17-0011": {
+    "name": "T4E Header Set for Lotus 2ZZ-GE 06+ Radium Engineering",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Układ wydechowy",
+      "Kolektory wydechowe"
+    ]
+  },
+  "VWR190006": {
+    "name": "RacingLine Billet Oil Dipstick for EA855 2.5 TFSI DAZA DAZC DNWA DXHA",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Układ chłodzenia",
+      "Bagnety oleju"
+    ]
+  },
+  "VWR190008": {
+    "name": "RacingLine Billet Oil Dipstick for Audi VW 1.0 TSI 1.4 TSI EA211",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Układ chłodzenia",
+      "Bagnety oleju"
+    ]
+  },
+  "VWR19G701": {
+    "name": "RacingLine Billet Oil Dipstick for 1.8 2.0 TSI EA888.3 2.0 TSI EA888.4",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Układ chłodzenia",
+      "Bagnety oleju"
+    ]
+  },
+  "VWR810000": {
+    "name": "Racingline Rear Wiper Delete for Audi A3 S3 VW Golf Tiguan EA113 EA888",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "VWR810002": {
+    "name": "Racingline Hood Gas Strut for Volkswagen VW Golf MK8",
+    "source": "Pozostałe > Pozostałe",
+    "target": [
+      "Pozostałe",
+      "Części nadwozia"
+    ]
+  },
+  "W44040": {
+    "name": "BMW 3 SERIES 5/83-3/91",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "WF136_100A": {
+    "name": "Rear Lower Link Wisefab WF136_100A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Wahacze regulowane i drążki"
+    ]
+  },
+  "WF136UP_100A": {
+    "name": "Rear Upper Link Wisefab WF136UP_100A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Wahacze regulowane i drążki"
+    ]
+  },
+  "WF140_500RA": {
+    "name": "Front V2 Top Mount Right Wisefab WF140_500RA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "WF360_500A": {
+    "name": "Top Mount Wisefab WF360_500A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "WF366_600A": {
+    "name": "Rear Toelink Mount Wisefab WF366_600A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Wahacze regulowane i drążki"
+    ]
+  },
+  "WF451_100LA": {
+    "name": "Rear Knuckle Left Wisefab WF451_100LA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zwrotnice"
+    ]
+  },
+  "WF451_100RA": {
+    "name": "Rear Knuckle Right Wisefab WF451_100RA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zwrotnice"
+    ]
+  },
+  "WF860_500RA": {
+    "name": "Front Top Mount Right Wisefab WF860_500RA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "WF8611_710LA": {
+    "name": "Rear Knuckle Add-On Left Wisefab WF8611_710LA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zwrotnice"
+    ]
+  },
+  "WF8611_710RA": {
+    "name": "Rear Knuckle Add-On Right Wisefab WF8611_710RA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Zwrotnice"
+    ]
+  },
+  "WFE82_500A": {
+    "name": "Front Top Mount Wisefab WFE82_500A",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Mocowania amortyzatorów"
+    ]
+  },
+  "WINTERS-2943-31": {
+    "name": "Output Flange Corvette-Style 2943-31",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Dyferencjały Winters"
+    ]
+  },
+  "WINTERS-5840": {
+    "name": "Aluminum Housing Center Section 5840",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Dyferencjały Winters"
+    ]
+  },
+  "WINTERS-7398": {
+    "name": "Steel Ball Gear Cover Stud 5/16” Diameter 7398",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Dyferencjały Winters"
+    ]
+  },
+  "Winters-8252BL": {
+    "name": "Billet Gear Cover SR8252B",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Dyferencjały Winters"
+    ]
+  },
+  "WSK-FRD003": {
+    "name": "FORD FOCUS HATCHBACK+SEDAN 1.5+1.6 ECOBOOST/1.5+1.6TDCi",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-FRD004": {
+    "name": "FORD FOCUS HATCHBACK 2.0ST",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-FRD005": {
+    "name": "Mustang GT S197",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-FRD006": {
+    "name": "FORD MUSTANG S550 FASTBACK/CONVERTIBLE GT 5.0 V8",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-FRD007": {
+    "name": "FORD MUSTANG S550 FASTBACK/CONVERTIBLE 2.3/3.7 V6",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-FRD008": {
+    "name": "Focus RS 2016+",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-MAZ001": {
+    "name": "MAZDA MX5 1.8/2.0 + ROADSTER - COUPE",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-MAZ002": {
+    "name": "MIATA ND",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-MIT001": {
+    "name": "MITSUBISHI LANCER SEDAN+SPORTBACK 1.8",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-MIT002": {
+    "name": "MITSUBISHI LANCER EVOLUTION MR",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-NIS001": {
+    "name": "NISSAN 350Z ROADSTER + COUPE",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-OPL001": {
+    "name": "OPEL ASTRA 1.6/1.8/1.7TD",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-OPL002": {
+    "name": "OPEL ASTRA 5DR. 2.0T/1.7CDTi/1.9CDTi (not for IDS)",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-REN001": {
+    "name": "RENAULT CLIO II SPORT 2.0 16V + FACELIFT",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-REN002": {
+    "name": "RENAULT CLIO III HATCHBACK SPORT 2.0 CUP",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-REN003": {
+    "name": "RENAULT CLIO III HATCHBACK SPORT FACELIFT 2.0 CUP",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB001": {
+    "name": "SUBARU IMPREZA 2.0T WRX",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB002": {
+    "name": "SUBARU IMPREZA + STATIONWAGON",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB004": {
+    "name": "SUBARU IMPREZA 2.5 WRX",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB005": {
+    "name": "SUBARU IMPREZA 2.5T WRX/2.5T WRX",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB006": {
+    "name": "BRZ ZC / FRS ZN / GT-86",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB007": {
+    "name": "STI - VA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-SUB008": {
+    "name": "WRX - VA",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN001": {
+    "name": "V/W GOLF V 1.4TSi/2.0FSi/1.6TDi/1.9TDi/2.0SDi",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN002": {
+    "name": "V/W GOLF V 2.0 GTi",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN003": {
+    "name": "V/W GOLF VI 2.0TSi GTi",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN004": {
+    "name": "V/W POLO 1.4TSi Blue GT/1.4TSi GTi/1.8TSi GTi",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN005": {
+    "name": "V/W GOLF VII HATCHBACK GTi/GTD",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  },
+  "WSK-VWN006": {
+    "name": "VW GOLF VII HATCHBACK R",
+    "source": "",
+    "target": [
+      "Napęd i zawieszenie",
+      "Amortyzatory i sprężyny"
+    ]
+  }
+};
+export function mapFmicProductCategory(sourcePath:string,name:string,sku?:string):FmicCategoryMatch{
  const match=mapFmicCategory(sourcePath);
+ const reviewed=sku&&Object.prototype.hasOwnProperty.call(reviewedProducts,sku)?reviewedProducts[sku]:undefined;
+ if(reviewed&&key(reviewed.name)===key(name)&&reviewed.source===sourcePath&&['unmapped','parent_review'].includes(match.status)){
+  const validated=mapFmicCategory(reviewed.target.join(' > '));
+  if(validated.status==='exact')return {...validated,sourcePath,status:'normalized'};
+ }
  if(match.status!=='unmapped'||!['','default category','produkty bez kategorii'].includes(key(sourcePath)))return match;
  const title=key(name);
  let path:string[]|undefined;

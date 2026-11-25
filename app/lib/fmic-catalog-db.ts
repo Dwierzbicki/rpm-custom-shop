@@ -36,7 +36,7 @@ export async function stageFmicBatch(rows:FmicRow[], db:Pick<ReturnType<typeof g
  if(rows.length>1000)throw new Error('Maximum batch size 1000');
  const payload=rows.map(row=>{
   if(!row.sku||!row.name||row.currency!=='PLN'||row.price_kind!=='unknown'||!['in stock','out of stock'].includes(row.availability)||!/^\d+\.\d{2}$/.test(row.source_price)||!/^\d+\.00$/.test(row.proposed_gross))throw new Error('Invalid FMIC row');
-  const match=mapFmicProductCategory(row.category_path,row.name);
+  const match=mapFmicProductCategory(row.category_path,row.name,row.sku);
   return {...row,target_category:match.targetPath,mapping_status:match.status};
  });
  const result=await db.query(`INSERT INTO rpm_fmic_catalog(sku,name,source_price,proposed_gross,available,source_category,target_category,mapping_status,data)
