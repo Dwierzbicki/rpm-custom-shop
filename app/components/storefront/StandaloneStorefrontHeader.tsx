@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import {CART_EVENT} from '../../lib/fmic-cart';
 import StorefrontHeader from './StorefrontHeader';
 import {categoryPath} from '../../category-routing';
 import {requiresCompactCategories} from './hooks/useStorefrontMenu';
@@ -12,8 +13,8 @@ export default function StandaloneStorefrontHeader(){
   let frame=0;
   const measure=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{const nav=root.current?.querySelector<HTMLElement>('.rpm-desktop-categories');if(nav)setCompact(requiresCompactCategories(nav))})};
   const sync=()=>{try{const saved=localStorage.getItem('rpm-language');if(saved==='pl'||saved==='en')setLang(saved);const cart=JSON.parse(localStorage.getItem('rpm-cart')??'[]');setCount(Array.isArray(cart)?cart.reduce((sum,line)=>sum+(Number(line?.qty)||0),0):0)}catch{}};
-  sync();measure();window.addEventListener('resize',measure);window.addEventListener('storage',sync);document.fonts?.ready.then(measure);
-  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure);window.removeEventListener('storage',sync)};
+  sync();measure();window.addEventListener('resize',measure);window.addEventListener('storage',sync);window.addEventListener(CART_EVENT,sync);document.fonts?.ready.then(measure);
+  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure);window.removeEventListener('storage',sync);window.removeEventListener(CART_EVENT,sync)};
  },[]);
  useEffect(()=>{setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null)},[compact]);
  const go=(path:string)=>window.location.assign(path);
