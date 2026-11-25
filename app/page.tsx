@@ -2,12 +2,6 @@
 import ProductCard from './components/storefront/ProductCard';
 import CartLineList from './components/storefront/CartLineList';
 import HomeSections from './components/storefront/HomeSections';
-import CatalogView from './components/storefront/CatalogView';
-import FmicPreview from './components/storefront/FmicPreview';
-import ProductDetailView from './components/storefront/ProductDetailView';
-import CartView from './components/storefront/CartView';
-import CheckoutView from './components/storefront/CheckoutView';
-import PowerGuidesView from './components/storefront/PowerGuidesView';
 import StorefrontHeader from './components/storefront/StorefrontHeader';
 import {useCheckoutSubmission} from './components/storefront/hooks/useCheckoutSubmission';
 import {useStorefrontLanguage} from './components/storefront/hooks/useStorefrontLanguage';
@@ -17,7 +11,7 @@ import {useShopCollections} from './components/storefront/hooks/useShopCollectio
 import {useProductConfiguration} from './components/storefront/hooks/useProductConfiguration';
 import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetails';
 import {useEffect,useState} from 'react';
-import InlineHomepageEditor from './inline-homepage-editor';
+import dynamic from 'next/dynamic';
 import {createPortal} from 'react-dom';
 import {ShoppingCart,Search,Menu,X,UserRound,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft,FileDown,Wind,Droplets,Fuel,Flame,Disc,GitBranch,Gauge,Cpu,Armchair,Sparkles,Boxes} from 'lucide-react';
 import {products as demoProducts,money,Product,CartLine} from './data';
@@ -29,6 +23,17 @@ import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storef
 import {useStorefrontMenu} from './components/storefront/hooks/useStorefrontMenu';
 import {usePowerGuides} from './components/storefront/hooks/usePowerGuides';
 import {useCatalogFiltering} from './components/storefront/hooks/useCatalogFiltering';
+
+// Load secondary storefront views only when the customer navigates to them.
+const ViewLoading=()=> <main className="page" role="status" aria-live="polite">Ładowanie…</main>;
+const CatalogView=dynamic(()=>import('./components/storefront/CatalogView'),{loading:ViewLoading});
+const FmicPreview=dynamic(()=>import('./components/storefront/FmicPreview'),{loading:ViewLoading});
+const ProductDetailView=dynamic(()=>import('./components/storefront/ProductDetailView'),{loading:ViewLoading});
+const CartView=dynamic(()=>import('./components/storefront/CartView'),{loading:ViewLoading});
+const CheckoutView=dynamic(()=>import('./components/storefront/CheckoutView'),{loading:ViewLoading});
+const PowerGuidesView=dynamic(()=>import('./components/storefront/PowerGuidesView'),{loading:ViewLoading});
+const InlineHomepageEditor=dynamic(()=>import('./inline-homepage-editor'));
+
 export default function Shop(){
  const [globalFmicQuery,setGlobalFmicQuery]=useState('');
  const fmicPreview=true;const [fmicPath,setFmicPath]=useState('');
