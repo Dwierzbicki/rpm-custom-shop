@@ -6,7 +6,7 @@ import {readFileSync} from 'node:fs';
 function load(file,deps={}){
  const source=readFileSync(new URL('../app/lib/'+file+'.ts',import.meta.url),'utf8');
  const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- const exports={};vm.runInNewContext(js,{exports,require(name){assert.ok(name in deps,'Unexpected dependency '+name);return deps[name]}});return exports;
+ const exports={};vm.runInNewContext(js,{exports,URL,require(name){assert.ok(name in deps,'Unexpected dependency '+name);return deps[name]}});return exports;
 }
 const config=load('storefront-config');
 const plan=load('motolab-build-plan',{'./storefront-config':config});
@@ -43,3 +43,5 @@ test('dyno publication requires evidence and explicit operator attestation',()=>
  assert.equal(dyno.validDynoBuild({...b,chartUrl:'https://example.org/chart.png',published:true,attested:true}),false);
  assert.equal(dyno.validDynoBuild({...b,chartUrl,published:true,attested:true,parts:[]}),false);
 });
+
+test('stroker is distinct, has a geometry task and no borrowed M54 candidates',()=>{const tasks=plan.buildPlan('m50b30-stroker',1,'drift','recommended','petrol');assert.ok(tasks.some(t=>t.id==='hybrid'));assert.equal(tasks.flatMap(t=>t.candidates??[]).length,0);assert.equal(config.approvedPowerRange('m50b30-stroker'),false);assert.equal(dyno.displacementCc({boreMm:84,strokeMm:89.6}),2979)});
