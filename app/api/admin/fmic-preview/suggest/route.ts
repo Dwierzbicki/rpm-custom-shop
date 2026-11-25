@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../lib/db';
+import {visibleCatalog,categoryExpansion} from '../../../../lib/fmic-category-membership';
 import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {cachedSearch,searchPatterns,searchConditions} from '../../../../lib/fmic-search-performance';
 export const runtime='nodejs';
@@ -18,10 +19,10 @@ export async function GET(request:Request){
  LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url
  WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image
  FROM rpm_fmic_catalog
- WHERE mapping_status IN ('exact','normalized','manual')
+ WHERE ${visibleCatalog}
  AND ${searchConditions(patterns,2)}
- ORDER BY CASE WHEN lower(sku)=lower($1) OR data->>'ean'=$1 OR lower(data->>'mpn')=lower($1) THEN 0 WHEN strpos(lower(name),lower($1))=1 THEN 1 ELSE 2 END,available DESC,sku LIMIT 6`,[q,...patterns]),db.query(`SELECT target_category[1] AS name,count(*)::int AS count FROM rpm_fmic_catalog WHERE mapping_status IN ('exact','normalized','manual') AND cardinality(target_category)>0 AND ${searchConditions(patterns,1)} GROUP BY 1 ORDER BY count DESC,1`,patterns)]);
- return {items:result.rows,categories:groups.rows.slice(0,4),total:groups.rows.reduce((sum,row)=>sum+Number(row.count),0)};
+ ORDER BY CASE WHEN lower(sku)=lower($1) OR data->>'ean'=$1 OR lower(data->>'mpn')=lower($1) THEN 0 WHEN strpos(lower(name),lower($1))=1 THEN 1 ELSE 2 END,available DESC,sku LIMIT 6`,[q,...patterns]),db.query(`SELECT memberships.path[1] AS name,count(DISTINCT sku)::int AS count FROM rpm_fmic_catalog ${categoryExpansion} WHERE ${visibleCatalog} AND cardinality(memberships.path)>0 AND ${searchConditions(patterns,1)} GROUP BY GROUPING SETS ((memberships.path[1]),()) ORDER BY count DESC,1`,patterns)]);
+ return {items:result.rows,categories:groups.rows.filter(row=>row.name!==null).slice(0,4),total:Number(groups.rows.find(row=>row.name===null)?.count??0)};
  });
  return NextResponse.json(payload,{headers});
  }catch(e){console.error('FMIC suggestions failed',e);return NextResponse.json({error:'Nie udało się pobrać podpowiedzi'},{status:500,headers})}

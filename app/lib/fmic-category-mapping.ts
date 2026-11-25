@@ -13,6 +13,7 @@ function key(value:string){
  */
 export function mapFmicCategory(sourcePath:string):FmicCategoryMatch{
  const parts=sourcePath.split('>').map(p=>p.trim()).filter(Boolean);
+ if(parts.length===3&&parts[0]==='Układ dolotowy'&&parts[1]==='Kolanka i rury nierdzewne'&&parts[2]==='Spawane kolanka nierdzewne welding porn')parts[2]='Spawane kolanka nierdzewne';
  const targetPath:string[]=[];
  let nodes=FMIC_CATEGORY_TREE;
  for(const part of parts){
@@ -24,6 +25,6 @@ export function mapFmicCategory(sourcePath:string):FmicCategoryMatch{
  }
  if(!targetPath.length)return {sourcePath,targetPath,url:null,status:'unmapped'};
  const complete=targetPath.length===parts.length;
- const status=complete?(targetPath.every((name,i)=>name===parts[i])?'exact':'normalized'):'parent_review';
+ const status=complete?(targetPath.join(' > ')===sourcePath.split('>').map(p=>p.trim()).filter(Boolean).join(' > ')?'exact':'normalized'):'parent_review';
  return {sourcePath,targetPath,url:categoryPath(targetPath),status};
 }
