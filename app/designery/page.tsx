@@ -1,4 +1,5 @@
 import type {Metadata} from 'next';
+import {ArrowLeft,ArrowRight,Box,Gauge,Wind} from 'lucide-react';
 
 export const metadata:Metadata={
  title:'Designery CAD | RPM Custom',
@@ -9,35 +10,61 @@ const itbActive=Boolean(process.env.ITB_DESIGNER_ORIGIN);
 
 export default function DesignersPage(){
  return (
-  <main style={{minHeight:'100vh',background:'#0c0f14',color:'#f5f5f5',fontFamily:'Arial,sans-serif',padding:'clamp(20px,5vw,60px)'}}>
-   <div style={{maxWidth:1080,margin:'0 auto'}}>
-    <nav style={{display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
-     <a href="/" style={{color:'#fb923c',textDecoration:'none',fontWeight:800,letterSpacing:2,fontSize:21}}>RPM CUSTOM</a>
-     <a href="/" style={{color:'#cbd5e1',fontSize:14}}>← Wróć do sklepu</a>
-    </nav>
-    <header style={{padding:'64px 0 36px'}}>
-     <p style={{color:'#fb923c',fontSize:12,fontWeight:700,letterSpacing:4}}>RPM CUSTOM · MOTOLAB</p>
-     <h1 style={{fontSize:'clamp(32px,5vw,56px)',margin:'12px 0',lineHeight:1.12}}>Projektuj i analizuj swój silnik</h1>
-     <p style={{color:'#a1a1aa',maxWidth:720,lineHeight:1.65}}>Kreatory 3D i narzędzia inżynierskie RPM Custom. Projektuj części, analizuj geometrię silnika i eksperymentuj z konfiguracją w czasie rzeczywistym.</p>
-    </header>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:18}}>
-     <article style={{border:'1px solid #9a341244',borderRadius:18,padding:26,background:'#151b25'}}>
-      <div style={{fontSize:12,letterSpacing:2,color:'#fb923c',fontWeight:700}}>ITB DESIGNER</div>
-      <h2 style={{fontSize:25,margin:'14px 0'}}>Trąbki dolotowe</h2>
-      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Projektuj średnice, kielich, zawiniętą wargę i spiralne prowadnice. Podgląd 3D oraz eksporty do przygotowania produkcji.</p>
-      {itbActive
-       ? <a href="/itb-designer" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#f97316',borderRadius:10,color:'#111827',fontWeight:800,textDecoration:'none'}}>Otwórz ITB Designer</a>
-       : <p style={{marginTop:22,color:'#fb923c',fontWeight:700}}>Integracja z kreatorem w przygotowaniu</p>}
-     </article>
-     <article style={{border:'1px solid #e4456366',borderRadius:18,padding:26,background:'linear-gradient(135deg,#311a28,#141d2a 80%)'}}>
-      <div style={{fontSize:12,letterSpacing:2,color:'#fb7185',fontWeight:700}}>NOWOŚĆ · ENGINE SIMULATION 3D</div>
-      <h2 style={{fontSize:25,margin:'14px 0'}}>CR Calculator 3D</h2>
-      <p style={{color:'#a1a1aa',lineHeight:1.6}}>Animowany przekrój silnika: tłok, korbowód i wał korbowy. Oblicz geometryczny stopień sprężania, zobacz zmianę objętości i dobierz denko tłoka do docelowego CR.</p>
-      <a href="/cr-calculator" style={{display:'inline-block',marginTop:20,padding:'13px 22px',background:'#e93d5e',borderRadius:10,color:'#fff',fontWeight:800,textDecoration:'none'}}>Uruchom CR Calculator 3D →</a>
-     </article>
-    </div>
-    <p style={{marginTop:28,color:'#71717a',fontSize:13}}>Modele CAD wymagają sprawdzenia wymiarów i technologii wykonania przed produkcją. Funkcje płatności i automatycznego udostępniania plików nie są jeszcze uruchomione.</p>
-   </div>
-  </main>
+  <div className="drift-home rpm-designers">
+   <header className="header" style={{justifyContent:'space-between',gap:12}}>
+    <a href="/" className="logo" aria-label="RPM Custom — strona główna"><img src="/rpm-logo.png.png" alt="RPM Custom — Exhaust & Intake Solutions" className="brand-logo"/></a>
+    <a href="/" className="outline" style={{textDecoration:'none',padding:'10px 14px',fontSize:12}}><ArrowLeft size={16}/> Wróć do sklepu</a>
+   </header>
+   <main>
+    <section className="drift-hero" style={{minHeight:'clamp(340px,34vw,480px)',justifyContent:'center'}}>
+     <div className="drift-hero-photo" aria-hidden="true"/>
+     <div className="drift-hero-shade" aria-hidden="true"/>
+     <div className="drift-hero-inner" style={{padding:'clamp(48px,6vw,90px) clamp(20px,4vw,56px)'}}>
+      <span className="eyebrow">RPM CUSTOM / MOTOLAB / ENGINEERING</span>
+      <h1 style={{fontSize:'clamp(42px,6.5vw,88px)',maxWidth:950}}>PROJEKTUJ.<br/><em>ANALIZUJ.</em></h1>
+      <p style={{maxWidth:560,marginBottom:0}}>Twój silnik. Twoje możliwości. Projektuj części i analizuj geometrię silnika w interaktywnych narzędziach 3D RPM Custom.</p>
+     </div>
+    </section>
+    <section className="section drift-section" aria-labelledby="designers-title" style={{paddingBlock:'clamp(32px,5vw,64px)'}}>
+     <div className="section-heading"><div><span className="eyebrow">RPM CUSTOM / DESIGNERS</span><h2 id="designers-title">WYBIERZ NARZĘDZIE</h2></div></div>
+     <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,340px),1fr))',gap:20}}>
+      <article className="product-card" style={{minWidth:0,background:'var(--surface)'}}>
+       <div className="product-art" style={{height:190,background:'radial-gradient(ellipse at 65% 30%,#54202e,#191a20 58%,#101116)'}}>
+        <Wind size={88} strokeWidth={1.2} color="var(--accent)" aria-hidden="true"/>
+        <span className="art-label">01 / INTAKE TECHNOLOGY</span>
+       </div>
+       <div className="product-info" style={{padding:'clamp(18px,2.5vw,30px)',gap:12}}>
+        <span className="eyebrow" style={{marginBottom:0}}>ITB DESIGNER</span>
+        <h3 style={{fontSize:28,margin:0,letterSpacing:'-.03em'}}>Trąbki dolotowe</h3>
+        <p style={{flex:1,marginBottom:12}}>Projektuj średnice, kielich, zawiniętą wargę i spiralne prowadnice. Podgląd 3D oraz eksporty do przygotowania produkcji.</p>
+        {itbActive
+         ? <a href="/itb-designer" className="primary" style={{textDecoration:'none',alignSelf:'flex-start'}}>OTWÓRZ ITB DESIGNER <ArrowRight size={18}/></a>
+         : <p style={{color:'var(--accent)',fontWeight:700,margin:0}}>Integracja z kreatorem w przygotowaniu</p>}
+       </div>
+      </article>
+      <article className="product-card" style={{minWidth:0,background:'var(--surface)'}}>
+       <div className="product-art" style={{height:190,background:'radial-gradient(ellipse at 65% 30%,#54202e,#191a20 58%,#101116)'}}>
+        <Gauge size={88} strokeWidth={1.2} color="var(--accent)" aria-hidden="true"/>
+        <span className="art-label">02 / ENGINE SIMULATION 3D</span>
+       </div>
+       <div className="product-info" style={{padding:'clamp(18px,2.5vw,30px)',gap:12}}>
+        <span className="eyebrow" style={{marginBottom:0}}>ENGINEERING CALCULATOR</span>
+        <h3 style={{fontSize:28,margin:0,letterSpacing:'-.03em'}}>CR Calculator 3D</h3>
+        <p style={{flex:1,marginBottom:12}}>Animowany przekrój silnika: tłok, korbowód i wał korbowy. Oblicz geometryczny stopień sprężania i dobierz denko tłoka do docelowego CR.</p>
+        <a href="/cr-calculator" className="primary" style={{textDecoration:'none',alignSelf:'flex-start'}}>URUCHOM CR CALCULATOR <ArrowRight size={18}/></a>
+       </div>
+      </article>
+     </div>
+     <div style={{display:'flex',alignItems:'flex-start',gap:12,borderTop:'1px solid var(--line)',paddingTop:20,marginTop:28}}>
+      <Box size={20} color="var(--accent)" style={{flexShrink:0}} aria-hidden="true"/>
+      <p style={{fontSize:12,margin:0}}>Modele CAD wymagają sprawdzenia wymiarów i technologii wykonania przed produkcją. Funkcje płatności i automatycznego udostępniania plików nie są jeszcze uruchomione.</p>
+     </div>
+    </section>
+   </main>
+   <footer className="rpm-hp-brandstrip" style={{display:'flex',justifyContent:'center',alignItems:'center',flexWrap:'wrap',gap:24,padding:'24px 20px',borderTop:'1px solid var(--line)'}}>
+    <a href="/"><img src="/rpm-logo.png.png" alt="RPM Custom" style={{width:180,height:'auto',display:'block'}}/></a>
+    <span>PERFORMANCE</span><span>ENGINEERING</span><span>MOTORSPORT</span>
+   </footer>
+  </div>
  );
 }
