@@ -55,3 +55,17 @@
  .fmic-pdp .fmic-pdp-gallery .fmic-pdp-placeholder{width:100%;height:100%;min-height:280px;max-height:520px}
 }
 @media(max-width:800px){.fmic-pdp .rpm-pdp-services{grid-template-columns:1fr}}
+
+/* Product discovery and purchase hierarchy, without implying online checkout is live. */
+.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;text-decoration:none;background:#e4173b;border-color:#e4173b;color:#fff}
+.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry:hover{background:#c91030;border-color:#c91030}
+.fmic-pdp .rpm-pdp-section-nav{display:flex;gap:0;overflow-x:auto;margin:24px 0 0;border:1px solid #363e49;background:#1b2028;border-radius:7px;scrollbar-width:thin}
+.fmic-pdp .rpm-pdp-section-nav>a{flex:1 0 auto;text-align:center;padding:15px 18px;color:#c8ced7;font-size:13px;font-weight:700;text-decoration:none;border-bottom:2px solid transparent}
+.fmic-pdp .rpm-pdp-section-nav>a:hover,.fmic-pdp .rpm-pdp-section-nav>a:focus-visible{color:#fff;border-bottom-color:#f12748;background:#252b35}
+.fmic-pdp [id^="rpm-pdp-"]{scroll-margin-top:155px}
+.fmic-pdp .rpm-pdp-sources{display:grid;gap:8px;padding:0 16px 16px;font-size:12px;color:#b5becb}
+.fmic-pdp .rpm-pdp-sources a{display:flex;align-items:center;gap:6px;width:fit-content;color:#d8dce4;text-decoration:underline;text-underline-offset:3px}
+.fmic-pdp .rpm-pdp-sources a:hover{color:#fff}
+.fmic-pdp .rpm-related-stock{display:flex;align-items:center;gap:6px;font-size:11px;color:#aeb9c9}
+.fmic-pdp .rpm-related-stock .stock-dot{flex-shrink:0}
+@media(max-width:900px){.fmic-pdp .fmic-pdp-grid{grid-template-columns:minmax(0,1fr)}.fmic-pdp .rpm-pdp-section-nav>a{padding:13px 12px}.fmic-pdp [id^="rpm-pdp-"]{scroll-margin-top:110px}}
