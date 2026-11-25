@@ -20,9 +20,11 @@
 .rpm-brand-carousel-window.is-animated{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 1%,#000 99%,transparent)}
 .rpm-brand-carousel-window.is-animated .rpm-brand-carousel-track{animation:rpm-brand-loop 42s linear infinite}
 .rpm-brand-carousel-window:hover .rpm-brand-carousel-track,.rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation-play-state:paused}
-.rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation:none;transform:none}
-.rpm-brand-carousel-window:focus-within{overflow-x:auto;mask-image:none}
-.rpm-brand-carousel-window:focus-within .is-copy{display:none}
+/* A mouse click gives the anchor focus before click is dispatched. Never
+   reset the animated transform or remove the duplicate group at that point. */
+.rpm-brand-carousel-window:has(a:focus-visible) .rpm-brand-carousel-track{animation:none;transform:none}
+.rpm-brand-carousel-window:has(a:focus-visible){overflow-x:auto;mask-image:none}
+.rpm-brand-carousel-window:has(a:focus-visible) .is-copy{display:none}
 @keyframes rpm-brand-loop{to{transform:translateX(-50%)}}
 @media(max-width:700px),(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
  .rpm-brand-carousel-window.is-animated{overflow-x:auto;mask-image:none}
