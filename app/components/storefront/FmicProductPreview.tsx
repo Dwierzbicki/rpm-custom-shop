@@ -28,7 +28,7 @@ export default function FmicProductPreview({sku,onBack,onOpen,initialData}:{sku:
  const splitAt=Math.ceil(remainingFields.length/2);
  const technicalTables=[remainingFields.slice(0,splitAt),remainingFields.slice(splitAt)].filter(group=>group.length>0);
  const longDescription=description.length>900||description.split('\n').length>12;
- const specification=p?[['Kod produktu (SKU)',p.sku],['Producent',p.brand],['Numer producenta',p.mpn],['EAN',p.ean],['Waga wysyłkowa',p.shipping_weight?.replace(/(\d+)\.0+(?=\s|$)/,"$1")]].filter(([,v])=>v):[];
+ const specification=p?[['Kod produktu (SKU)',p.sku],['Producent',p.brand],['EAN',p.ean],['Waga wysyłkowa',p.shipping_weight?.replace(/(\d+)\.0+(?=\s|$)/,"$1")]].filter(([,v])=>v):[];
  const move=(step:number)=>setPhoto(i=>(i+step+images.length)%images.length);
  return <section className={"fmic-pdp"+(hasTechnical?" has-technical":"")}><button className="back fmic-pdp-back" onClick={onBack}>← Wróć do katalogu</button>
  {error?<div role="alert" className="rpm-pdp-load-error"><p>{error}</p><button type="button" className="outline" onClick={()=>setRetry(v=>v+1)}>Spróbuj ponownie</button></div>:!p?<div role="status" aria-label="Ładowanie produktu" className="rpm-pdp-loading"><div className="rpm-pdp-skeleton-title"/><div className="rpm-pdp-skeleton-grid"><div/><div/></div><p>Ładowanie produktu…</p></div>:<>
