@@ -14,9 +14,10 @@ export async function setupImageAudit(){
  ); CREATE INDEX IF NOT EXISTS rpm_fmic_image_audit_status_idx ON rpm_fmic_image_audit(status,url);
  -- Confirmed Magento placeholder from storefront inspection; shared by 27 SKUs.
  INSERT INTO rpm_fmic_image_audit(url,status,checked_at,detail)
- VALUES('https://fmic.pl/media/catalog/product/A/u/AudiShortshifterPRO7_03f79d57-be25-4c89-aec7-9c0584448055.jpg','blank',NOW(),'Confirmed Magento placeholder')
+ VALUES('https://fmic.pl/media/catalog/product/A/u/AudiShortshifterPRO7_03f79d57-be25-4c89-aec7-9c0584448055.jpg','blank',NOW(),'Confirmed Magento placeholder'),
+ ('https://fmic.pl/media/catalog/product/D/S/DSC_2933copy.jpg','blank',NOW(),'Confirmed Magento placeholder: Yaris GR')
  ON CONFLICT(url) DO UPDATE SET status='blank',checked_at=NOW(),detail=EXCLUDED.detail
- WHERE rpm_fmic_image_audit.status IN ('pending','review')`).catch(e=>{auditSetup=undefined;throw e});
+ WHERE rpm_fmic_image_audit.status IN ('pending','review','ok')`).catch(e=>{auditSetup=undefined;throw e});
  await auditSetup;
 }
 export async function inspectImage(url:string){
