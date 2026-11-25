@@ -65,9 +65,9 @@ const rules:Rule[]=[
 ];
 const volume="CASE WHEN name ~* '\\m[0-9]+(?:[.,][0-9]+)?[ ]*ml\\M' THEN replace(substring(name from '(?i)\\m([0-9]+(?:[.,][0-9]+)?)[ ]*ml\\M'),',','.') WHEN name ~* '\\m[0-9]+(?:[.,][0-9]+)?[ ]*l\\M' THEN (replace(substring(name from '(?i)\\m([0-9]+(?:[.,][0-9]+)?)[ ]*l\\M'),',','.')::numeric*1000)::text END";
 // Cheap literal guard skips expensive regex when the brand is absent; original word-boundary and precedence checks remain.
-const brand="CASE WHEN NULLIF(trim(data->>'brand'),'') IS NOT NULL THEN trim(data->>'brand') "+["FMIC.Pro","FMIC.EU","HEL","Menzerna","Fresso","Manley","Athena","ACL","Wagner Tuning","Ramair","PRORAM","Radium Engineering","DeatschWerks","EBC Brakes","Coolerworx","Wisefab","Supertech","Nitrous Express","Red Line","Mishimoto","IRP","AEM","XForce","Pulsar","Garrett","JRspec","TurboSystems","BorgWarner","Bosch","ECUMaster","Turbosmart","Wiseco","Mahle","Recaro","Brembo","ARP"].map(b=>"WHEN CASE WHEN strpos(lower(name),lower('"+b+"'))>0 THEN name ~* '\\m"+b.replace(/[.]/g,"[.]")+"\\M' ELSE false END THEN '"+b+"' ").join("")+"END";
+export const fmicProducerExpression="CASE WHEN NULLIF(trim(data->>'brand'),'') IS NOT NULL THEN trim(data->>'brand') "+["FMIC.Pro","FMIC.EU","HEL","Menzerna","Fresso","Manley","Athena","ACL","Wagner Tuning","Ramair","PRORAM","Radium Engineering","DeatschWerks","EBC Brakes","Coolerworx","Wisefab","Supertech","Nitrous Express","Red Line","Mishimoto","IRP","AEM","XForce","Pulsar","Garrett","JRspec","TurboSystems","BorgWarner","Bosch","ECUMaster","Turbosmart","Wiseco","Mahle","Recaro","Brembo","JE Pistons","Cometic","Wilwood","TEIN","ZRP","CANchecked","Penrite","Elring","IOD Performance","Nuke Performance","King Racing","RTMG Performance","Metal Guard","ARP"].map(b=>"WHEN CASE WHEN strpos(lower(name),lower('"+b+"'))>0 THEN name ~* '\\m"+b.replace(/[.]/g,"[.]")+"\\M' ELSE false END THEN '"+b+"' ").join("")+"END";
 export function fmicSearchFacets(path:string[]):Facet[]{
- const defs:Facet[]=[{key:'producer',label:'Producent',expression:brand}];
+ const defs:Facet[]=[{key:'producer',label:'Producent',expression:fmicProducerExpression}];
  // Technical filters only for selected categories. Broad searches stay cheap.
  if(path.length>=2){
  for(const {categories,facet} of rules){
