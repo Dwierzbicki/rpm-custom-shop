@@ -40,7 +40,7 @@ export default function CategoryNavigation({
  const selected=activeFmicSub===null?undefined:root.children[activeFmicSub];
  return <div key={root.name} className={'rpm-desktop-root'+(isOpen?' active':'')}
  onMouseEnter={()=>{if(!isOpen)openDesktop(i)}}
- onMouseLeave={closeDesktop}
+ onMouseLeave={e=>{if(!e.currentTarget.querySelector(".rpm-mega-panel")?.contains(document.activeElement))closeDesktop()}}
  onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))closeDesktop()}}
  onKeyDown={e=>{if(e.key==='Escape'&&isOpen){e.preventDefault();e.currentTarget.querySelector<HTMLButtonElement>('.rpm-desktop-root-button')?.focus();closeDesktop()}}}>
  <button type="button" className="rpm-desktop-root-button" title={root.name}
@@ -53,9 +53,9 @@ export default function CategoryNavigation({
  <div className="rpm-mega-body">
  <div className="rpm-mega-groups" aria-label="Podkategorie">
  <span className="rpm-mega-caption">PODKATEGORIE</span>
- {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-mega-group'+(activeFmicSub===j?' is-selected':'')} onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)} onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span><ChevronRight size={16} aria-hidden="true"/></button>)}
+ {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-mega-group'+(activeFmicSub===j?' is-selected':'')} onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)} onKeyDown={e=>{if(e.key==='ArrowRight'){e.preventDefault();e.currentTarget.closest('.rpm-mega-body')?.querySelector<HTMLButtonElement>('.rpm-mega-detail button')?.focus()}}} onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span><ChevronRight size={16} aria-hidden="true"/></button>)}
  </div>
- <div className="rpm-mega-detail" key={selected?.name??root.name}>
+ <div className="rpm-mega-detail" key={selected?.name??root.name} onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();e.currentTarget.closest('.rpm-mega-body')?.querySelector<HTMLButtonElement>('.rpm-mega-group.is-selected')?.focus()}}}>
  {selected?<><div className="rpm-mega-detail-head"><strong>{selected.name}</strong><button type="button" onClick={()=>navigate([root.name,selected.name])}>Zobacz wszystkie <ArrowRight size={15}/></button></div>
  {selected.children.length>0?<div className="rpm-mega-leaves">{selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}><span>{leaf.name}</span><ChevronRight size={14} aria-hidden="true"/></button>)}</div>:<p className="rpm-mega-note">Przejdź do kategorii, aby zobaczyć dostępne produkty.</p>}</>:<p className="rpm-mega-note">Wybierz podkategorię lub zobacz cały dział.</p>}
  </div>
