@@ -131,3 +131,16 @@
  .rpm-header-v2 .rpm-mega-feature>.rpm-nav-pictogram{width:54px;height:54px;flex-basis:54px}
  .rpm-header-v2 .rpm-mega-feature{gap:8px;padding:14px}
 }
+
+/* Text-only desktop category strip; preserve mega menu and mobile drawer. */
+.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button{
+ align-items:center;justify-content:center;text-align:center;gap:0;
+ padding-block:9px!important;
+}
+.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-pictogram,
+.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-chevron{
+ display:none;
+}
+.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-category-label{
+ text-align:center;
+}
