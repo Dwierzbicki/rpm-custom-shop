@@ -1,22 +1,22 @@
 /* Performance storefront refinement: contrast, iconography and real local actions. */
 .fmic-pdp .rpm-pdp-highlights>div{background:#222833;border-color:#394451;grid-template-columns:32px minmax(0,1fr);gap:4px 10px;align-items:center}
-.fmic-pdp .rpm-pdp-highlights>div>svg{grid-row:1/3;color:#f05289}
+.fmic-pdp .rpm-pdp-highlights>div>svg{grid-row:1/3;color:var(--rpm-color-accent)}
 .fmic-pdp .rpm-pdp-highlights>div>span,.fmic-pdp .rpm-pdp-highlights>div>strong{grid-column:2}
 .fmic-pdp .rpm-pdp-brand{font-size:15px;font-weight:800;letter-spacing:.04em;background:#20252e;padding:8px 14px}
 .fmic-pdp .fmic-pdp-buy{background:linear-gradient(145deg,#252c36,#1b2029);border-color:#414a58}
 .fmic-pdp .fmic-pdp-buy .price-large{font-weight:850;letter-spacing:-.035em}
-.fmic-pdp .fmic-pdp-buy .buy-row .primary{background:#db3b75;color:white;border-color:#db3b75}
+.fmic-pdp .fmic-pdp-buy .buy-row .primary{background:var(--rpm-color-accent);color:white;border-color:var(--rpm-color-accent)}
 .fmic-pdp .rpm-pdp-actions{display:flex;flex-wrap:wrap;gap:8px}
 .fmic-pdp .rpm-pdp-actions button{display:flex;align-items:center;justify-content:center;gap:7px;flex:1 1 130px;min-height:36px;padding:8px;font-size:12px}
-.fmic-pdp .rpm-pdp-actions button[aria-pressed=true]{color:#ff83ae;border-color:#e4578a;background:#362435}
+.fmic-pdp .rpm-pdp-actions button[aria-pressed=true]{color:var(--rpm-color-accent-hover);border-color:var(--rpm-color-accent);background:#35222c}
 .fmic-pdp .rpm-pdp-action-error{font-size:12px;color:#ff9eb1;margin:0}
 .fmic-pdp .rpm-pdp-services{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}
 .fmic-pdp .rpm-pdp-services>a,.fmic-pdp .rpm-pdp-services>div{display:flex;align-items:center;gap:12px;padding:15px;border:1px solid #343d49;border-radius:9px;background:#1c222b;color:#edf0f5;text-decoration:none;min-width:0}
-.fmic-pdp .rpm-pdp-services svg{flex:none;color:#f05289}
+.fmic-pdp .rpm-pdp-services svg{flex:none;color:var(--rpm-color-accent)}
 .fmic-pdp .rpm-pdp-services>div:first-child>svg{color:#80dca8}
 .fmic-pdp .rpm-pdp-services strong,.fmic-pdp .rpm-pdp-services small{display:block;line-height:1.4}
 .fmic-pdp .rpm-pdp-services strong{font-size:14px}.fmic-pdp .rpm-pdp-services small{color:#aeb9c9;font-size:12px;margin-top:4px}
-.fmic-pdp .rpm-pdp-services>a:hover{border-color:#f05289}
+.fmic-pdp .rpm-pdp-services>a:hover{border-color:var(--rpm-color-accent)}
 .fmic-pdp .rpm-pdp-compare-dialog{width:min(1100px,calc(100vw - 32px));height:fit-content;max-height:calc(100dvh - 32px);margin:auto;padding:20px;border:1px solid #495362;border-radius:12px;background:#202630;color:#edf0f5;overflow:auto}
 .fmic-pdp .rpm-pdp-compare-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
 .fmic-pdp .rpm-pdp-compare-head h2{margin:0;font-size:20px}
@@ -43,7 +43,7 @@
 .fmic-pdp .rpm-pdp-buy-spec dl.is-odd>div:last-child{grid-column:1/-1}
 .fmic-pdp .rpm-pdp-services{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:16px}
 .fmic-pdp .rpm-pdp-services>a,.fmic-pdp .rpm-pdp-services>div{background:#20252e;border-color:#363e49}
-.fmic-pdp .rpm-pdp-services>div:first-child>svg{color:#f05289}
+.fmic-pdp .rpm-pdp-services>div:first-child>svg{color:var(--rpm-color-accent)}
 @media(min-width:901px){
  .fmic-pdp .fmic-pdp-grid{align-items:stretch}
  .fmic-pdp .fmic-pdp-gallery{display:flex;min-height:0}
@@ -57,8 +57,8 @@
 @media(max-width:800px){.fmic-pdp .rpm-pdp-services{grid-template-columns:1fr}}
 
 /* Product discovery and purchase hierarchy, without implying online checkout is live. */
-.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;text-decoration:none;background:#e4173b;border-color:#e4173b;color:#fff}
-.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry:hover{background:#c91030;border-color:#c91030}
+.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;text-decoration:none;background:var(--rpm-color-accent);border-color:var(--rpm-color-accent);color:#fff}
+.fmic-pdp .fmic-pdp-buy .buy-row .rpm-pdp-inquiry:hover{background:var(--rpm-color-accent-hover);border-color:var(--rpm-color-accent-hover)}
 .fmic-pdp .rpm-pdp-section-nav{display:flex;gap:0;overflow-x:auto;margin:24px 0 0;border:1px solid #363e49;background:#1b2028;border-radius:7px;scrollbar-width:thin}
 .fmic-pdp .rpm-pdp-section-nav>a{flex:1 0 auto;text-align:center;padding:15px 18px;color:#c8ced7;font-size:13px;font-weight:700;text-decoration:none;border-bottom:2px solid transparent}
 .fmic-pdp .rpm-pdp-section-nav>a:hover,.fmic-pdp .rpm-pdp-section-nav>a:focus-visible{color:#fff;border-bottom-color:#f12748;background:#252b35}
@@ -71,13 +71,13 @@
 @media(max-width:900px){.fmic-pdp .fmic-pdp-grid{grid-template-columns:minmax(0,1fr)}.fmic-pdp .rpm-pdp-section-nav>a{padding:13px 12px}.fmic-pdp [id^="rpm-pdp-"]{scroll-margin-top:110px}}
 
 .fmic-pdp .rpm-pdp-brand{text-decoration:none}
-.fmic-pdp .rpm-pdp-brand:hover{color:#f05289}
+.fmic-pdp .rpm-pdp-brand:hover{color:var(--rpm-color-accent)}
 .fmic-pdp .rpm-pdp-purchase{display:flex;gap:10px;align-items:stretch}
 .fmic-pdp .rpm-pdp-quantity{display:flex;align-items:center;border:1px solid #495362;border-radius:7px;background:#171c24;flex-shrink:0;overflow:hidden}
 .fmic-pdp .rpm-pdp-quantity button{display:grid;place-items:center;width:40px;height:48px;border:0;background:transparent;color:inherit;cursor:pointer}
 .fmic-pdp .rpm-pdp-quantity button:disabled{opacity:.35;cursor:not-allowed}
 .fmic-pdp .rpm-pdp-quantity output{min-width:26px;text-align:center;font-weight:700}
-.fmic-pdp .rpm-pdp-add{flex:1;justify-content:center;display:flex;gap:8px;align-items:center;min-height:50px;background:#e4173b;border-color:#e4173b;color:#fff}
+.fmic-pdp .rpm-pdp-add{flex:1;justify-content:center;display:flex;gap:8px;align-items:center;min-height:50px;background:var(--rpm-color-accent);border-color:var(--rpm-color-accent);color:#fff}
 .fmic-pdp .rpm-pdp-add:disabled{opacity:.55;cursor:not-allowed}
 .fmic-pdp .rpm-pdp-added{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#8dd9ae;font-size:13px}
 .fmic-pdp .rpm-pdp-added a{display:flex;align-items:center;gap:4px;color:inherit;font-weight:700}
