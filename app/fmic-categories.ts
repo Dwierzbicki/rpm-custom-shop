@@ -512,6 +512,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Obudowy filtra oleju",
         "children": []
+      },
+      {
+        "name": "Filtry oleju",
+        "children": []
       }
     ]
   },
@@ -930,6 +934,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Pozostałe",
         "children": []
+      },
+      {
+        "name": "Czujniki zużycia klocków",
+        "children": []
       }
     ]
   },
@@ -1043,6 +1051,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
             "children": []
           }
         ]
+      },
+      {
+        "name": "Półosie i przeguby",
+        "children": []
       }
     ]
   },
@@ -1330,6 +1342,14 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Alternatory",
+        "children": []
+      },
+      {
+        "name": "Zestawy AFR",
+        "children": []
+      },
+      {
+        "name": "Urządzenia pomiarowe",
         "children": []
       }
     ]

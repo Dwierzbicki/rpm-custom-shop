@@ -100,3 +100,10 @@ test('Second classification pass distinguishes turbo components and explicit pro
  for(const [name,path] of [["Blow off BOV Turbosmart TS-0265-1042 eBG50 Electronic BoostGate Black",["Układ wydechowy","Wastegate"]],["Turbine Housing Turbosmart 62mm T3",["Silnik i turbo","Turbosprężarki","Muszle wydechowe"]],["Koło zamachowe Xtreme Mazda",["Napęd i zawieszenie","Sprzęgło","Koła zamachowe"]],["Rear Suspension Arm 5 Wisefab",["Napęd i zawieszenie","Wahacze regulowane i drążki"]],["Pasek rozrządu GReddy Toyota 2JZ",["Silnik i turbo","Rozrząd","Paski rozrządu"]]])assert.deepEqual(mapper.mapFmicProductCategory('',name).targetPath,path);
  assert.equal(mapper.mapFmicProductCategory('','TS-0223-3011').status,'unmapped');
 });
+
+test('Final category additions and explicit classification retain ambiguous SKU review',()=>{
+ for(const [name,path] of [["Filtr oleju GReddy OX-03",["Układ chłodzenia","Filtry oleju"]],["Outer CV Joint Assembly for BMW E46 Wisefab",["Napęd i zawieszenie","Półosie i przeguby"]],["COLLINITE 845 Insulator Wax trwały wosk",["Detailing","Zabezpieczenie lakieru","Woski i sealanty"]]])assert.deepEqual(mapper.mapFmicProductCategory('',name).targetPath,path);
+ assert.equal(mapper.mapFmicCategory('Elektronika > Zestawy AFR').status,'exact');
+ assert.equal(mapper.mapFmicCategory('Elektronika > Urządzenia pomiarowe').status,'exact');
+ assert.equal(mapper.mapFmicProductCategory('','BMW 3 SERIES 5/83-3/91').status,'unmapped');
+});
