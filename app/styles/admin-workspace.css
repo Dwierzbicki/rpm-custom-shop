@@ -1,0 +1,28 @@
+/* Full-screen back office. The public storefront and admin login are unaffected. */
+html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
+.rpm-admin-shell{position:fixed;inset:0;height:100dvh;min-height:0;overflow:hidden}
+.rpm-admin-shell .rpm-admin-nav{height:100%;min-height:0;box-sizing:border-box}
+.rpm-admin-shell .rpm-admin-nav nav{overflow-y:auto;min-height:0;overscroll-behavior:contain}
+.rpm-admin-shell .rpm-admin-nav-bottom{flex-shrink:0}
+.rpm-admin-shell .rpm-admin-main{display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.rpm-admin-shell .rpm-admin-mobile-bar{flex-shrink:0}
+.rpm-admin-workspace{flex:1;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain}
+.rpm-admin-workspace>.admin-page{width:100%;max-width:none;min-width:0;min-height:100%;box-sizing:border-box;padding-bottom:24px}
+.rpm-admin-workspace>.fmic-workspace{height:100%;min-height:0;display:flex;flex-direction:column;padding:18px 24px;overflow:hidden}
+.fmic-workspace>.admin-top{flex-shrink:0;margin-bottom:12px}
+.fmic-workspace>.admin-top h1{font-size:clamp(24px,3vw,36px);margin:3px 0}
+.fmic-workspace>.fmic-center{flex:1;min-height:0;max-width:none;width:100%;box-sizing:border-box;overflow:hidden;gap:8px;padding:16px}
+.fmic-center>.fc-kpis{flex-shrink:0;margin:4px 0!important}
+.fmic-center>.fc-tabs{flex-shrink:0;margin:4px 0!important}
+.fmic-center>.fc-note,.fmic-center>p{margin:2px 0;flex-shrink:0}
+.fmic-center .fc-kpi{padding:9px 12px}
+.fmic-center>[role=tabpanel]{flex:1;min-height:0;display:flex;flex-direction:column;overflow:auto;overscroll-behavior:contain}
+.fmic-center>[role=tabpanel]>h2,.fmic-center .fc-toolbar,.fmic-center .fc-pager{flex-shrink:0}
+.fmic-center .fc-toolbar,.fmic-center .fc-pager{margin:8px 0}
+.fmic-center .fc-table-wrap{flex:1;min-height:80px;max-height:none;overflow:auto;overscroll-behavior:contain}
+@media(max-width:760px),(max-height:650px){
+ .rpm-admin-workspace>.fmic-workspace{height:auto;min-height:100%;overflow:visible;padding:12px}
+ .fmic-workspace>.fmic-center{overflow:visible}
+ .fmic-center>[role=tabpanel]{overflow:visible}
+ .fmic-center .fc-table-wrap{max-height:55dvh;flex:auto}
+}
