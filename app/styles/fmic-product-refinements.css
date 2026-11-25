@@ -69,3 +69,16 @@
 .fmic-pdp .rpm-related-stock{display:flex;align-items:center;gap:6px;font-size:11px;color:#aeb9c9}
 .fmic-pdp .rpm-related-stock .stock-dot{flex-shrink:0}
 @media(max-width:900px){.fmic-pdp .fmic-pdp-grid{grid-template-columns:minmax(0,1fr)}.fmic-pdp .rpm-pdp-section-nav>a{padding:13px 12px}.fmic-pdp [id^="rpm-pdp-"]{scroll-margin-top:110px}}
+
+.fmic-pdp .rpm-pdp-brand{text-decoration:none}
+.fmic-pdp .rpm-pdp-brand:hover{color:#f05289}
+.fmic-pdp .rpm-pdp-purchase{display:flex;gap:10px;align-items:stretch}
+.fmic-pdp .rpm-pdp-quantity{display:flex;align-items:center;border:1px solid #495362;border-radius:7px;background:#171c24;flex-shrink:0;overflow:hidden}
+.fmic-pdp .rpm-pdp-quantity button{display:grid;place-items:center;width:40px;height:48px;border:0;background:transparent;color:inherit;cursor:pointer}
+.fmic-pdp .rpm-pdp-quantity button:disabled{opacity:.35;cursor:not-allowed}
+.fmic-pdp .rpm-pdp-quantity output{min-width:26px;text-align:center;font-weight:700}
+.fmic-pdp .rpm-pdp-add{flex:1;justify-content:center;display:flex;gap:8px;align-items:center;min-height:50px;background:#e4173b;border-color:#e4173b;color:#fff}
+.fmic-pdp .rpm-pdp-add:disabled{opacity:.55;cursor:not-allowed}
+.fmic-pdp .rpm-pdp-added{display:flex;flex-wrap:wrap;align-items:center;gap:8px;color:#8dd9ae;font-size:13px}
+.fmic-pdp .rpm-pdp-added a{display:flex;align-items:center;gap:4px;color:inherit;font-weight:700}
+@media(max-width:420px){.fmic-pdp .rpm-pdp-purchase{flex-wrap:wrap}.fmic-pdp .rpm-pdp-add{flex-basis:180px}}
