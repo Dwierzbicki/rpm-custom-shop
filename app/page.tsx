@@ -14,6 +14,7 @@ import dynamic from 'next/dynamic';
 import {ShoppingCart,X,ChevronRight,Warehouse,Check,ChevronLeft} from 'lucide-react';
 import {products as legacyProducts,money,type Product,type CartLine} from './data';
 import type {ShopSubcategory} from './shop-departments';
+import {ownProductHref} from './lib/own-catalog-listing';
 import {categoryPath} from './category-routing';
 import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storefront-navigation';
 import {useStorefrontMenu} from './components/storefront/hooks/useStorefrontMenu';
@@ -46,7 +47,7 @@ export default function Shop(){
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t,view==='checkout');
  const {quoteState,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
  useEffect(()=>{if(view==='product'){const current=products.find(p=>p.id===selected.id);if(current&&current!==selected)setSelected(current)}},[products,view,selected,setSelected]);
- const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')})),[products]);
+ const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.category,...Object.values(p.attributes??{})].join(' ')})),[products]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({enabled:view==='guides',products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
  const resetSearch=()=>{setQuery('');setGlobalFmicQuery('')};
@@ -61,7 +62,7 @@ export default function Shop(){
  const {checkoutDone,receipt,orderBusy,orderError,handleCheckoutSubmit,resetCheckout}=useCheckoutSubmission({cart,lang,phonePrefix,shippingMethod,paymentMethod,shippingSettingsReady,clearCart:()=>setCart([]),t});
  return <>{lightbox&&selected.images?.length&&<div className="rpm-lightbox" role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia produktu" onClick={()=>setLightbox(false)}><button className="lightbox-close" onClick={()=>setLightbox(false)} aria-label="Zamknij"><X size={25}/></button><img src={selected.images[photoIndex]??selected.images[0]} alt={selected.name} onClick={e=>e.stopPropagation()}/>{selected.images.length>1&&<div className="lightbox-nav" onClick={e=>e.stopPropagation()}><button onClick={()=>setPhotoIndex(i=>(i-1+selected.images!.length)%selected.images!.length)} aria-label="Poprzednie"><ChevronLeft/></button><span>{photoIndex+1} / {selected.images.length}</span><button onClick={()=>setPhotoIndex(i=>(i+1)%selected.images!.length)} aria-label="Następne"><ChevronRight/></button></div>}</div>}<StorefrontHeader
  compactCategories={compactCategories} lang={lang} query={query} count={count}
- fmicPreview={fmicPreview} ownSuggestions={ownSuggestions} onOwnSuggestion={id=>{const p=products.find(p=>String(p.id)===id);if(p)openProduct(p)}}
+ fmicPreview={fmicPreview} ownSuggestions={ownSuggestions} onOwnSuggestion={id=>{const p=products.find(p=>String(p.id)===id);if(p)window.location.assign(ownProductHref(p.id))}}
  onQuery={setQuery} onClearSearch={()=>{resetSearch();if(view==='catalog'){const url=new URL(window.location.href);url.searchParams.delete('q');url.searchParams.delete('sku');window.history.pushState({},'',url.pathname+url.search)}}} onHome={()=>navigate('home')}
  onSearchSubmit={()=>{setCategory('Wszystkie');setShopSubcategory(null);setEngineFilter('Wszystkie');setTechnicalFilters({});const term=query.trim();if(fmicPreview){setGlobalFmicQuery(term);setFmicPath('/sklep');setView('catalog');setMobileMenu(false);setFmicMenuOpen(false);window.history.pushState({},'','/sklep?'+new URLSearchParams({q:term}));window.scrollTo({top:0});}else{navigate('catalog')}}}
  onLanguageChange={changeLang} onGarage={()=>navigate('garage')} onCart={()=>navigate('cart')}
@@ -124,7 +125,7 @@ export default function Shop(){
  {view==='product'&&products.some(p=>p.id===selected.id)&&<ProductDetailView
  selected={selected} lang={lang} t={t}
  photoIndex={photoIndex} onPhotoIndex={setPhotoIndex} onZoom={()=>setLightbox(true)}
- onBack={()=>navigate('catalog')}
+ onBack={()=>{try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&previous.pathname.startsWith('/sklep')){window.location.assign(previous.pathname+previous.search);return}}catch{}navigate('catalog')}}
  usesCustom={usesCustom} customGroups={customGroups} chosenOptions={chosenOptions}
  automaticWg={automaticWg} customExtra={customExtra} selectedPrice={selectedPrice}
  unitPrice={unitPrice} totalPrice={totalPrice} qty={qty} canAdd={canAdd}
