@@ -12,7 +12,7 @@ import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetai
 import {useEffect,useMemo,useState} from 'react';
 import dynamic from 'next/dynamic';
 import {ShoppingCart,X,ChevronRight,Warehouse,Check,ChevronLeft} from 'lucide-react';
-import {products as demoProducts,money,type Product,type CartLine} from './data';
+import {products as legacyProducts,money,type Product,type CartLine} from './data';
 import type {ShopSubcategory} from './shop-departments';
 import {categoryPath} from './category-routing';
 import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storefront-navigation';
@@ -33,18 +33,19 @@ export default function Shop(){
  const [globalFmicQuery,setGlobalFmicQuery]=useState('');
  const fmicPreview=true;const [fmicPath,setFmicPath]=useState('');
  useEffect(()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'');const sync=()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'')};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
- const [products,setProducts]=useState<Product[]>(demoProducts);
+ const [products,setProducts]=useState<Product[]>([]);
  const [shopSubcategory,setShopSubcategory]=useState<ShopSubcategory|null>(null);
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
  useEffect(()=>{fetch('/api/catalog',{cache:'no-store'}).then(async response=>{if(response.ok){const data=await response.json();if(Array.isArray(data.products))setProducts(data.products)}}).catch(()=>{})},[]);
  const {lang,t,changeLang}=useStorefrontLanguage();
- const {selected,setSelected,chosenOptions,setChosenOptions,photoIndex,setPhotoIndex,lightbox,setLightbox,engine,setEngine,flange,setFlange,wg,setWg,egt,setEgt,qty,setQty,customGroups,automaticWg,usesCustom,customExtra,selectedPrice,unitPrice,totalPrice,canAdd,resetProduct,buildLine}=useProductConfiguration(products[0]);
+ const {selected,setSelected,chosenOptions,setChosenOptions,photoIndex,setPhotoIndex,lightbox,setLightbox,engine,setEngine,flange,setFlange,wg,setWg,egt,setEgt,qty,setQty,customGroups,automaticWg,usesCustom,customExtra,selectedPrice,unitPrice,totalPrice,canAdd,resetProduct,buildLine}=useProductConfiguration(legacyProducts[0]);
 
  const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[toast,setToast]=useState('');
  const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
  const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({enabled:view==='catalog'&&!fmicPreview,products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t,view==='checkout');
  const {quoteState,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
+ useEffect(()=>{if(view==='product'){const current=products.find(p=>p.id===selected.id);if(current&&current!==selected)setSelected(current)}},[products,view,selected,setSelected]);
  const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')})),[products]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({enabled:view==='guides',products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
@@ -119,7 +120,8 @@ export default function Shop(){
  onResetFilters={()=>{setTechnicalFilters({});setShopSubcategory(null);setQuery('');setCategory('Wszystkie');setEngineFilter('Wszystkie');setSort('featured')}}
  onSort={setSort} onOpenProduct={openProduct}
  />}
- {view==='product'&&<ProductDetailView
+ {view==='product'&&!products.some(p=>p.id===selected.id)&&<main className="page narrow"><p>Produkt nie jest dostępny w aktualnym katalogu.</p><button className="primary" onClick={()=>navigate('catalog')}>Przejdź do sklepu</button></main>}
+ {view==='product'&&products.some(p=>p.id===selected.id)&&<ProductDetailView
  selected={selected} lang={lang} t={t}
  photoIndex={photoIndex} onPhotoIndex={setPhotoIndex} onZoom={()=>setLightbox(true)}
  onBack={()=>navigate('catalog')}
