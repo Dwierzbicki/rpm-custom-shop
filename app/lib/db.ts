@@ -1,3 +1,4 @@
+import {fmicWorkerPoolSize} from './fmic-worker-mode';
 import {Pool} from 'pg';
 
 /**
@@ -13,7 +14,7 @@ export function getDbPool():Pool {
  if(!runtime.rpmDbPool){
   runtime.rpmDbPool=new Pool({
    connectionString,
-   max:10,
+   max:fmicWorkerPoolSize(),
    ssl:process.env.DATABASE_SSL==='require'?{rejectUnauthorized:true}:undefined,
   });
  }

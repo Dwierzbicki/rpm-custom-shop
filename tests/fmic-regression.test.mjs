@@ -214,3 +214,13 @@ test('Audit batches URL selection but rechecks queued candidates before each dow
  assert.equal(auditSupplierBlocked(null),false);
  assert.equal(auditSupplierBlocked('HTTP 404'),false);
 });
+
+const workerMode=await load('app/lib/fmic-worker-mode.ts');
+test('Standalone worker mode prevents background loops in the external-mode storefront',()=>{
+ assert.equal(workerMode.canRunFmicWorker({}),true);
+ assert.equal(workerMode.canRunFmicWorker({FMIC_WORKER_MODE:'external'}),false);
+ assert.equal(workerMode.canRunFmicWorker({FMIC_WORKER_MODE:'external',FMIC_WORKER_PROCESS:'1'}),true);
+ assert.equal(workerMode.canRunFmicWorker({FMIC_WORKER_PROCESS:'1'}),false);
+ assert.equal(workerMode.fmicWorkerPoolSize({FMIC_WORKER_MODE:'external',FMIC_WORKER_PROCESS:'1'}),4);
+ assert.equal(workerMode.fmicWorkerPoolSize({FMIC_WORKER_MODE:'external'}),10);
+});

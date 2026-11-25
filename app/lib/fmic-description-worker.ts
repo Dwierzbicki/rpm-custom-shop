@@ -1,3 +1,4 @@
+import {canRunFmicWorker} from './fmic-worker-mode';
 import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
 import {setupEnrichment,inspectProduct} from './fmic-enrichment';
@@ -28,12 +29,13 @@ export async function assignDraft(sku:string){
  ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku,JSON.stringify(technical)]);
  return !!result.rowCount;
 }
-const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean};
+const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean;rpmDescriptionStop?:boolean;rpmDescriptionTask?:Promise<void>};
 export function startDescriptionWorker(){
- if(g.rpmDescriptionLoop||process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return;
+ if(g.rpmDescriptionLoop||!canRunFmicWorker()||process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return;
  g.rpmDescriptionLoop=true;
- void (async()=>{
- for(;;){
+ g.rpmDescriptionStop=false;
+ g.rpmDescriptionTask=(async()=>{
+ while(!g.rpmDescriptionStop){
  let client:import('pg').PoolClient|undefined,locked=false;
  try{
  await setupDescriptionQueue();const db=getDbPool();
@@ -70,7 +72,9 @@ export function startDescriptionWorker(){
  }
  }catch(e){console.error('FMIC description worker',e)}
  finally{if(client){if(locked)await client.query('SELECT pg_advisory_unlock(27391,3)').catch(()=>{});client.release()}}
- await new Promise(r=>setTimeout(r,5000));
+ if(!g.rpmDescriptionStop)await new Promise(r=>setTimeout(r,5000));
  }
- })().catch(e=>{g.rpmDescriptionLoop=false;console.error('FMIC description loop stopped',e)});
+ })().catch(e=>{console.error('FMIC description loop stopped',e)}).finally(()=>{g.rpmDescriptionLoop=false;g.rpmDescriptionTask=undefined});
 }
+export async function stopDescriptionWorker(){g.rpmDescriptionStop=true;await g.rpmDescriptionTask}
+

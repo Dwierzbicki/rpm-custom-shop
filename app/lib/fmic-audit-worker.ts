@@ -1,3 +1,4 @@
+import {canRunFmicWorker} from './fmic-worker-mode';
 import {getDbPool} from './db';
 import {nextAuditCandidate,auditSupplierBlocked} from './fmic-audit-selection';
 import {setupImageAudit,inspectImage} from './fmic-image-quality';
@@ -21,15 +22,16 @@ export async function seedAuditQueue(){
  resetAuditCandidates();
  return result.rowCount??0;
 }
-const runtime=globalThis as typeof globalThis & {rpmAuditLoop?:boolean;rpmAuditCandidates?:string[]};
+const runtime=globalThis as typeof globalThis & {rpmAuditLoop?:boolean;rpmAuditCandidates?:string[];rpmAuditStop?:boolean;rpmAuditTask?:Promise<void>};
 const candidates=runtime.rpmAuditCandidates??=[];
 export function resetAuditCandidates(){candidates.length=0}
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
 export function startAuditWorker(){
- if(runtime.rpmAuditLoop)return;
+ if(runtime.rpmAuditLoop||!canRunFmicWorker())return;
  runtime.rpmAuditLoop=true;
- void (async()=>{
- for(;;){
+ runtime.rpmAuditStop=false;
+ runtime.rpmAuditTask=(async()=>{
+ while(!runtime.rpmAuditStop){
  let client:import('pg').PoolClient|undefined;
  let locked=false,delay=5000;
  try{
@@ -63,7 +65,9 @@ export function startAuditWorker(){
  }
  }catch(e){console.error('FMIC audit worker',e);delay=30000;await getDbPool().query('UPDATE rpm_fmic_audit_control SET last_error=$1 WHERE id=1',[String(e).slice(0,300)]).catch(()=>{})}
  finally{if(client){if(locked)await client.query('SELECT pg_advisory_unlock(27391,2)').catch(()=>{});client.release()}}
- await sleep(delay);
+ if(!runtime.rpmAuditStop)await sleep(delay);
  }
- })().catch(e=>{runtime.rpmAuditLoop=false;console.error('FMIC audit loop stopped',e)});
+ })().catch(e=>{console.error('FMIC audit loop stopped',e)}).finally(()=>{runtime.rpmAuditLoop=false;runtime.rpmAuditTask=undefined});
 }
+export async function stopAuditWorker(){runtime.rpmAuditStop=true;await runtime.rpmAuditTask}
+
