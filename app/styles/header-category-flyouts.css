@@ -1,0 +1,125 @@
+/* FMIC-inspired navigation: horizontal departments, vertical hover flyouts. */
+.rpm-header-v2 .rpm-desktop-categories{display:flex;align-items:stretch;justify-content:center;position:relative;z-index:80;width:100%;min-height:51px;background:#1b1d22;border-top:1px solid #303139}
+.rpm-header-v2 .rpm-desktop-root{position:relative;display:flex;align-items:stretch;min-width:0}
+.rpm-header-v2 .rpm-desktop-root-button{border:0;background:transparent;color:#f5f5f6;font-size:clamp(10px,.72vw,13px);font-weight:750;white-space:nowrap;padding:13px clamp(6px,.72vw,15px);cursor:pointer}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button,.rpm-header-v2 .rpm-desktop-root-button:hover{background:#292c33;color:#ff3857}
+.rpm-header-v2 .rpm-desktop-level2{position:absolute;left:0;top:100%;width:260px;max-height:calc(100dvh - 170px);overflow:visible;background:#191b21;border:1px solid #3b3d46;box-shadow:0 15px 35px #0009;z-index:120;padding:7px 0}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level2{left:auto;right:0}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-sub>button,.rpm-header-v2 .rpm-desktop-level3>button{display:flex;width:100%;align-items:center;justify-content:space-between;gap:10px;text-align:left;border:0;background:transparent;color:#eee;font-size:12px;line-height:1.35;padding:13px 17px;cursor:pointer}
+.rpm-header-v2 .rpm-desktop-sub:hover>button,.rpm-header-v2 .rpm-desktop-level3>button:hover{background:#353840;color:#fff}
+.rpm-header-v2 .rpm-desktop-level3{position:absolute;left:100%;top:-8px;width:245px;max-height:70dvh;overflow-y:auto;background:#22242b;border:1px solid #3b3d46;box-shadow:10px 15px 30px #0008;padding:7px 0;z-index:121}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto;right:100%}
+.rpm-header-v2 .rpm-desktop-motolab{background:#da1232;border:0;color:#fff;font-size:12px;font-weight:850;padding:12px 20px;display:flex;align-items:center;gap:8px;cursor:pointer;white-space:nowrap}
+.rpm-header-v2 .rpm-desktop-motolab:hover{background:#f02a48}
+.rpm-header-v2 .rpm-clean-nav{display:none!important}
+@media(max-width:1499px){.rpm-header-v2 .rpm-desktop-categories{display:none!important}.rpm-header-v2 .rpm-clean-nav{display:flex!important}}
+
+/* Responsive FMIC-inspired hierarchy: single-row desktop, accordion mobile/tablet */
+@media(min-width:1800px){
+.rpm-header-v2 .rpm-desktop-categories{display:flex!important;flex-wrap:nowrap!important;justify-content:center!important}
+.rpm-header-v2 .rpm-clean-nav{display:none!important}
+}
+@media(max-width:1799px){
+.rpm-header-v2 .rpm-desktop-categories{display:none!important}
+.rpm-header-v2 .rpm-clean-nav{display:flex!important}
+}
+.rpm-header-v2 .rpm-category-drawer{width:min(470px,94vw)!important;background:#16181e!important}
+.rpm-header-v2 .rpm-drawer-head{min-height:65px;box-sizing:border-box;background:#1b1d24;padding:14px 18px!important}
+.rpm-header-v2 .rpm-drawer-head strong{font-size:19px!important;letter-spacing:0!important}
+.rpm-header-v2 .rpm-drawer-scroll{padding:0 0 30px!important}
+.rpm-header-v2 .rpm-drawer-root{border-bottom:1px solid #34363e!important}
+.rpm-header-v2 .rpm-drawer-root-line{min-height:55px!important;background:#1e2027}
+.rpm-header-v2 .rpm-drawer-root.is-active>.rpm-drawer-root-line{background:#a90f2b!important}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child{font-size:14px!important;font-weight:700!important;padding:16px 20px!important}
+.rpm-header-v2 .rpm-drawer-root.is-active>.rpm-drawer-root-line>button{color:#fff!important}
+.rpm-header-v2 .rpm-drawer-expand{flex-basis:54px!important;border-left:1px solid #3b3d45!important}
+.rpm-header-v2 .rpm-drawer-subs{padding:0!important;background:#2a2c34!important}
+.rpm-header-v2 .rpm-drawer-sub{border-bottom:1px solid #42444d}
+.rpm-header-v2 .rpm-drawer-sub-line{min-height:49px!important}
+.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{font-size:13px!important;font-weight:550!important;padding:14px 22px 14px 28px!important}
+.rpm-header-v2 .rpm-drawer-sub.is-active>.rpm-drawer-sub-line{background:#383b45}
+.rpm-header-v2 .rpm-drawer-leaves{padding:0!important;background:#343640!important}
+.rpm-header-v2 .rpm-drawer-leaves>button{padding:14px 20px 14px 45px!important;border-bottom:1px solid #484a53!important;font-size:13px!important}
+.rpm-header-v2 .rpm-desktop-level2{max-height:calc(100dvh - 170px);overflow-y:auto;overflow-x:visible}
+.rpm-header-v2 .rpm-desktop-level3{max-height:min(70dvh,640px)}
+@media(max-width:600px){
+.rpm-header-v2 .rpm-category-drawer{width:min(470px,96vw)!important}
+.rpm-header-v2 .rpm-clean-nav{min-height:50px}
+}
+
+/* RPM Custom 2026 navigation polish: clearer visual hierarchy, compact density */
+.rpm-header-v2 .rpm-clean-nav{background:#121419!important;border-top:1px solid #272b33;min-height:58px}
+.rpm-header-v2 .rpm-clean-categories-button{border-radius:7px!important;margin:8px 0;background:#242831!important;border:1px solid #3a404b!important;padding:10px 17px!important;transition:background .18s,border-color .18s}
+.rpm-header-v2 .rpm-clean-categories-button:hover{background:#303541!important;border-color:#ed3654!important}
+.rpm-header-v2 .rpm-clean-motolab{transform:none!important;border-radius:6px!important;margin:8px 0;box-shadow:0 4px 16px #e3183630}
+.rpm-header-v2 .rpm-category-drawer{background:#111419!important;box-shadow:16px 0 70px #000b!important}
+.rpm-header-v2 .rpm-drawer-head{min-height:84px!important;background:linear-gradient(125deg,#23262e,#16181e)!important;border-bottom:1px solid #363b45!important;padding:17px 22px!important}
+.rpm-header-v2 .rpm-drawer-heading{display:flex;flex-direction:column;gap:5px}
+.rpm-header-v2 .rpm-drawer-eyebrow{color:#ff4864;font-size:10px;font-weight:850;letter-spacing:.14em}
+.rpm-header-v2 .rpm-drawer-head strong{font-size:19px!important;font-weight:850;letter-spacing:-.02em!important}
+.rpm-header-v2 .rpm-drawer-head>button{display:grid;place-items:center;width:38px;height:38px;border:1px solid #424650!important;border-radius:8px;background:#292c35!important;transition:background .15s}
+.rpm-header-v2 .rpm-drawer-head>button:hover{background:#a90f2b!important}
+.rpm-header-v2 .rpm-drawer-hint{padding:12px 22px;background:#171a20;color:#aeb5c1;font-size:12px;line-height:1.4;border-bottom:1px solid #30343d}
+.rpm-header-v2 .rpm-drawer-root-line{background:#171b22!important;min-height:58px!important}
+.rpm-header-v2 .rpm-drawer-root.is-active>.rpm-drawer-root-line{background:#8e1530!important;box-shadow:inset 4px 0 0 #ff4864}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child{font-size:14px!important;letter-spacing:.005em;line-height:1.4}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child:hover{background:#272d38}
+.rpm-header-v2 .rpm-drawer-root.is-active>.rpm-drawer-root-line>button:first-child:hover{background:#9e1c39}
+.rpm-header-v2 .rpm-drawer-expand{display:grid;place-items:center;background:#ffffff06!important;border-left:1px solid #383e48!important;transition:background .15s}
+.rpm-header-v2 .rpm-drawer-expand:hover{background:#ffffff16!important}
+.rpm-header-v2 .rpm-drawer-expand svg{transition:transform .2s ease}
+.rpm-header-v2 .rpm-drawer-subs{background:#22262f!important}
+.rpm-header-v2 .rpm-drawer-sub{border-color:#383e49!important}
+.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{color:#e3e7ee!important;font-size:13px!important;line-height:1.45}
+.rpm-header-v2 .rpm-drawer-sub.is-active>.rpm-drawer-sub-line{background:#333945!important;box-shadow:inset 3px 0 0 #e63855}
+.rpm-header-v2 .rpm-drawer-leaves{background:#1c212a!important}
+.rpm-header-v2 .rpm-drawer-leaves>button{color:#c8ced9!important;border-color:#333944!important;line-height:1.5;padding-top:12px!important;padding-bottom:12px!important}
+.rpm-header-v2 .rpm-drawer-leaves>button:hover{background:#303745!important;color:white!important}
+.rpm-header-v2 .rpm-desktop-categories{background:#15181e!important;border-bottom:1px solid #343942}
+.rpm-header-v2 .rpm-desktop-root-button{transition:background .16s,color .16s}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button{box-shadow:inset 0 -3px 0 #f12b4c}
+.rpm-header-v2 .rpm-desktop-level2,.rpm-header-v2 .rpm-desktop-level3{border-radius:0 0 9px 9px;box-shadow:0 22px 55px #0009}
+.rpm-header-v2 .rpm-desktop-sub>button,.rpm-header-v2 .rpm-desktop-level3>button{font-size:13px!important;padding:12px 16px!important;line-height:1.45}
+.rpm-header-v2 .rpm-desktop-sub>button:hover,.rpm-header-v2 .rpm-desktop-level3>button:hover{background:#353c48!important}
+.rpm-header-v2 .rpm-desktop-motolab{margin:6px 0;border-radius:6px}
+.rpm-header-v2 button:focus-visible{outline:2px solid #ff4a68!important;outline-offset:-2px}
+@media(max-width:600px){.rpm-header-v2 .rpm-clean-nav{min-height:56px}.rpm-header-v2 .rpm-clean-categories-button{padding:9px 12px!important}.rpm-header-v2 .rpm-clean-motolab{padding:9px 15px!important}}
+@media(prefers-reduced-motion:reduce){.rpm-header-v2 .rpm-category-drawer,.rpm-header-v2 .rpm-drawer-expand svg{transition:none!important}}
+
+/* Desktop flyouts: keep nested submenu alongside the parent, never clipped by scrolling. */
+@media(min-width:1800px){
+.rpm-header-v2 .rpm-desktop-level2{overflow:visible!important;max-height:none!important;min-height:0}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-level3{position:absolute!important;top:0!important;left:calc(100% - 1px)!important;right:auto!important;max-height:min(70dvh,650px)!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:400!important}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% - 1px)!important}
+}
+
+/* Header navigation readability: consistent separation between labels and list rows. */
+.rpm-header-v2 .rpm-desktop-root:not(:first-child)::before{content:"";position:absolute;left:0;top:15px;bottom:15px;width:1px;background:#343943;pointer-events:none}
+.rpm-header-v2 .rpm-desktop-root-button{letter-spacing:.015em!important;line-height:1.35!important;padding-inline:clamp(10px,.85vw,18px)!important}
+.rpm-header-v2 .rpm-desktop-root.active>.rpm-desktop-root-button{background:#2b3039!important}
+.rpm-header-v2 .rpm-desktop-level2,.rpm-header-v2 .rpm-desktop-level3{background:#191c23!important;border:1px solid #3b414c!important;padding:6px!important}
+.rpm-header-v2 .rpm-desktop-sub+.rpm-desktop-sub{border-top:1px solid #343a45}
+.rpm-header-v2 .rpm-desktop-sub>button{min-height:44px!important;gap:14px!important;padding:11px 13px!important;border-radius:4px!important;font-weight:600!important;letter-spacing:.005em}
+.rpm-header-v2 .rpm-desktop-sub>button svg{flex-shrink:0;color:#9ba5b4}
+.rpm-header-v2 .rpm-desktop-sub:hover>button{background:#343b47!important;color:#fff!important}
+.rpm-header-v2 .rpm-desktop-level3>button{min-height:43px!important;padding:11px 13px!important;border-radius:4px!important;font-weight:500!important;letter-spacing:.005em}
+.rpm-header-v2 .rpm-desktop-level3>button+button{border-top:1px solid #363c47!important}
+.rpm-header-v2 .rpm-desktop-level3>button:hover{background:#343b47!important;color:#fff!important}
+.rpm-header-v2 .rpm-drawer-root+.rpm-drawer-root{border-top:1px solid #3b414c!important}
+.rpm-header-v2 .rpm-drawer-root-line>button:first-child{letter-spacing:.01em!important}
+.rpm-header-v2 .rpm-drawer-sub+.rpm-drawer-sub{border-top:1px solid #454b55!important}
+.rpm-header-v2 .rpm-drawer-sub-line>button:first-child{line-height:1.55!important}
+.rpm-header-v2 .rpm-drawer-leaves>button+button{border-top:1px solid #414955!important}
+
+/* Keep third-level flyout outside the first menu's frame (including 6px padding). */
+@media(min-width:1800px){
+.rpm-header-v2 .rpm-desktop-level2{overflow:visible!important}
+.rpm-header-v2 .rpm-desktop-sub{position:relative}
+.rpm-header-v2 .rpm-desktop-level3{left:calc(100% + 7px)!important;right:auto!important;top:-7px!important}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-level3{left:auto!important;right:calc(100% + 7px)!important}
+.rpm-header-v2 .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{content:"";position:absolute;top:0;right:-9px;width:10px;height:100%;pointer-events:auto}
+.rpm-header-v2 .rpm-desktop-root:nth-last-of-type(-n+4) .rpm-desktop-sub:has(>.rpm-desktop-level3)::after{right:auto;left:-9px}
+}
+
