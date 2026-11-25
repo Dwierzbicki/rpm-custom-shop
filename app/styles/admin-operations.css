@@ -6,7 +6,7 @@
 .rpm-option-group-admin label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#bec2cc}
 .rpm-option-group-admin input{width:100%;min-width:0}
 .rpm-option-group-admin .rpm-required{flex-direction:row;align-items:center;gap:8px}
-.rpm-required input{width:auto;accent-color:#e3385b}
+.rpm-required input{width:auto;accent-color:var(--rpm-color-accent)}
 .rpm-option-admin-row{display:grid;grid-template-columns:minmax(0,2fr) minmax(95px,1fr) auto;align-items:end;gap:10px}
 .rpm-option-admin-row .reset{padding:10px}
 .rpm-options-admin .muted{font-size:12px}
@@ -39,16 +39,16 @@
 
 
 /* Unified RPM Custom admin navigation */
-.rpm-admin-shell{display:flex;min-height:100vh;background:#0e1116;color:#e8edf3}
+.rpm-admin-shell{display:flex;min-height:100vh;background:var(--rpm-color-background);color:#e8edf3}
 .rpm-admin-nav{position:sticky;top:0;flex:0 0 250px;width:250px;height:100vh;background:#12171e;border-right:1px solid #2d3540;display:flex;flex-direction:column;padding:24px 14px;z-index:150}
 .rpm-admin-brand{padding:7px 12px 28px;border-bottom:1px solid #2d3540;margin-bottom:25px;position:relative}
-.rpm-admin-brand strong{font-size:22px;letter-spacing:1px;color:#fff}.rpm-admin-brand strong span{color:#e53d5c}
+.rpm-admin-brand strong{font-size:22px;letter-spacing:1px;color:#fff}.rpm-admin-brand strong span{color:var(--rpm-color-accent)}
 .rpm-admin-brand small{display:block;color:#8e9baa;font-size:10px;letter-spacing:2px;margin-top:8px}
 .rpm-admin-nav-label{font-size:10px;letter-spacing:1.5px;color:#7f8b9a;padding:0 12px 13px}
 .rpm-admin-nav nav{display:flex;flex-direction:column;gap:6px}
 .rpm-admin-nav-item{display:flex;align-items:center;gap:13px;padding:14px 12px;border-radius:9px;color:#b6c0cd;text-decoration:none;font-size:13px;font-weight:600}
 .rpm-admin-nav-item:hover,.rpm-admin-nav-item.active{background:#262c38;color:#fff}
-.rpm-admin-nav-item.active{box-shadow:inset 3px 0 #e53d5c}
+.rpm-admin-nav-item.active{box-shadow:inset 3px 0 var(--rpm-color-accent)}
 .rpm-admin-nav-bottom{margin-top:auto;border-top:1px solid #2d3540;padding-top:14px}
 .rpm-admin-nav-bottom small{display:block;padding:12px;color:#718092;font-size:10px}
 .rpm-admin-main{flex:1;min-width:0}
@@ -60,7 +60,7 @@
 .rpm-admin-category-list small{opacity:.7}
 .rpm-admin-overview-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:24px 0}
 .rpm-overview-stat{display:flex;flex-direction:column;align-items:flex-start;gap:12px;background:#181e26;border:1px solid #333d49;border-radius:13px;padding:25px}
-.rpm-overview-stat>svg{color:#e53d5c}.rpm-overview-stat>span{color:#aab5c4}.rpm-overview-stat>strong{font-size:36px;color:#fff}
+.rpm-overview-stat>svg{color:var(--rpm-color-accent)}.rpm-overview-stat>span{color:#aab5c4}.rpm-overview-stat>strong{font-size:36px;color:#fff}
 .rpm-overview-stat a,.rpm-overview-section-head a{display:inline-flex;align-items:center;gap:7px;color:#e9a1ae;text-decoration:none;font-size:13px}
 .rpm-overview-section{background:#181e26;border:1px solid #333d49;border-radius:13px;padding:22px;margin-bottom:20px}
 .rpm-overview-section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
@@ -80,7 +80,7 @@
 .rpm-stat-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:18px}
 .rpm-stat-chart{height:220px;display:flex;gap:5px;align-items:flex-end;padding:18px 4px 5px;border-bottom:1px solid #46505e;margin-bottom:18px}
 .rpm-stat-bar-col{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px}
-.rpm-stat-bar{width:100%;max-width:34px;background:linear-gradient(180deg,#ed5572,#912b43);border-radius:4px 4px 0 0;min-height:2px}
+.rpm-stat-bar{width:100%;max-width:34px;background:linear-gradient(180deg,var(--rpm-color-accent-hover),#912b43);border-radius:4px 4px 0 0;min-height:2px}
 .rpm-stat-bar-col small{height:14px;font-size:9px;color:#a5afbd;white-space:nowrap}
 .rpm-stat-top{display:flex;justify-content:space-between;gap:14px;padding:15px 0;border-top:1px solid #343d49;align-items:center}
 .rpm-stat-top span{min-width:0}.rpm-stat-top strong,.rpm-stat-top small{display:block}.rpm-stat-top strong{font-size:13px}.rpm-stat-top small{color:#9aa8b7;margin-top:5px}.rpm-stat-top b{white-space:nowrap}
