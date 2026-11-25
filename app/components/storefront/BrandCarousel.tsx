@@ -1,16 +1,14 @@
 'use client';
 
 import {useState} from 'react';
-import brands from './brand-assets.json';
-import generated from './brand-display.generated.json';
+import {brandAssets as brands,brandLogoSrc} from './brand-library';
 import './brand-carousel.css';
 
-const logos:Record<string,string>=generated;
 
 function BrandLogo({brand}:{brand:(typeof brands)[number]}){
  const [loaded,setLoaded]=useState(false);
  const [failed,setFailed]=useState(false);
- const src=logos[brand.slug];
+ const src=brandLogoSrc(brand);
  return <span className={'rpm-brand-mark rpm-brand-'+brand.slug}>
   {src&&!failed&&<img src={src} alt="" aria-hidden="true" width={140} height={55} decoding="async" className={loaded?'is-ready':''} onLoad={()=>setLoaded(true)} onError={()=>setFailed(true)} ref={node=>{if(node?.complete&&node.naturalWidth>0)setLoaded(true)}}/>}
   {(!src||failed||!loaded)&&<span className="rpm-brand-name">{brand.name}</span>}
