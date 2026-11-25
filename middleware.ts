@@ -1,4 +1,5 @@
 import {NextRequest,NextResponse} from 'next/server';
+import {authorizedBasic,isRoadAssistance,isAdminPath} from './app/lib/site-lock';
 const COOKIE='rpm_admin_session';
 async function sign(value:string,secret:string){
  const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
@@ -8,6 +9,14 @@ async function sign(value:string,secret:string){
 export async function middleware(request:NextRequest){
  const path=request.nextUrl.pathname;
  const username=process.env.ADMIN_USERNAME,password=process.env.ADMIN_PASSWORD;
+ if(process.env.SITE_LOCK_ENABLED==='1'&&!isRoadAssistance(path)){
+  const gateUser=process.env.SITE_LOCK_USERNAME??username,gatePassword=process.env.SITE_LOCK_PASSWORD??password;
+  const headers={'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow'};
+  if(!gateUser||!gatePassword)return new NextResponse('Site access not configured',{status:503,headers});
+  if(!(await authorizedBasic(request.headers.get('authorization'),gateUser,gatePassword)))return new NextResponse('RPM Custom — dostęp testowy',{status:401,headers:{...headers,'WWW-Authenticate':'Basic realm="RPM Custom testing", charset="UTF-8"'}});
+  if(!isAdminPath(path)){const response=NextResponse.next();for(const [k,v] of Object.entries(headers))response.headers.set(k,v);return response;}
+ }
+ if(!isAdminPath(path))return NextResponse.next();
  const secret=process.env.ADMIN_SESSION_SECRET;
  if(!username||!password||!secret||secret.length<32)return new NextResponse('Admin unavailable: configure ADMIN_USERNAME, ADMIN_PASSWORD and ADMIN_SESSION_SECRET (32+ characters).',{status:503});
  const token=request.cookies.get(COOKIE)?.value??'';
@@ -32,4 +41,4 @@ export async function middleware(request:NextRequest){
  }
  return NextResponse.next();
 }
-export const config={matcher:['/admin/:path*','/api/admin/:path*']};
+export const config={matcher:['/:path*']};
