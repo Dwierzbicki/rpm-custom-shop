@@ -1,3 +1,4 @@
+import {imageOrderSql} from '../../../../lib/fmic-image-ranking';
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../lib/db';
 import {visibleCatalog,categoryExpansion} from '../../../../lib/fmic-category-membership';
@@ -15,7 +16,7 @@ export async function GET(request:Request){
  const [result,groups]=await Promise.all([db.query(`SELECT sku,name,proposed_gross,available,
  (SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos)
  LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url
- WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image
+ WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY ${imageOrderSql} LIMIT 1) AS image
  FROM rpm_fmic_catalog
  WHERE ${visibleCatalog}
  AND ${searchConditions(patterns,2)}
