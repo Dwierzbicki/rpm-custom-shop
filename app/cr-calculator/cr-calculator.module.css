@@ -1,26 +1,26 @@
-.page{min-height:100vh;background:#080b11;color:#f5f8fc;font-family:Arial,Helvetica,sans-serif;isolation:isolate}
+.page{min-height:100vh;background:var(--rpm-color-background);color:var(--rpm-color-text);font-family:Arial,Helvetica,sans-serif;isolation:isolate}
 .page *{box-sizing:border-box}
 .page a{color:inherit;text-decoration:none}
 .page button,.page input{font:inherit}
 .page button{transition:background .18s,border-color .18s,transform .18s,color .18s;cursor:pointer}
-.topbar{height:75px;border-bottom:1px solid #29313e;background:#0b1018;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,68px);gap:22px}
+.topbar{height:75px;border-bottom:1px solid var(--rpm-color-panel-border);background:var(--rpm-color-surface);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(18px,4vw,68px);gap:22px}
 .logo{font-size:23px;font-weight:1000;line-height:1;letter-spacing:-1.1px;white-space:nowrap}
-.logo span{color:#ed3555}.logo small{display:block;font-size:9px;font-weight:800;letter-spacing:2.2px;color:#75869d;margin-top:7px}
+.logo span{color:var(--rpm-color-accent)}.logo small{display:block;font-size:9px;font-weight:800;letter-spacing:2.2px;color:#75869d;margin-top:7px}
 .nav{display:flex;align-items:center;gap:26px;font-size:12px;font-weight:750;color:#aeb9ca;white-space:nowrap}
-.nav a:hover{color:#ff6381}
+.nav a:hover{color:var(--rpm-color-accent-hover)}
 .container{width:min(1580px,calc(100% - 56px));margin:auto}
 .hero{padding:35px 0 27px}
-.kicker{display:flex;align-items:center;gap:9px;color:#ed5271;font-size:10px;font-weight:900;letter-spacing:2.3px}
+.kicker{display:flex;align-items:center;gap:9px;color:var(--rpm-color-accent);font-size:10px;font-weight:900;letter-spacing:2.3px}
 .liveDot,.pulse{height:8px;width:8px;display:inline-block;border-radius:50%;background:#ff4b6f;box-shadow:0 0 13px #ff315acc}
 .heroTitle{display:flex;align-items:flex-end;justify-content:space-between;gap:35px}
 .hero h1{font-size:clamp(44px,5.3vw,78px);line-height:.96;margin:15px 0 16px;letter-spacing:-.07em;font-weight:950}
-.hero h1 em{font-style:normal;color:#f1f3f7}.hero h1 span{color:#ef3557}
-.hero p{max-width:740px;margin:0;color:#9faec0;font-size:14px;line-height:1.7}
+.hero h1 em{font-style:normal;color:#f1f3f7}.hero h1 span{color:var(--rpm-color-accent)}
+.hero p{max-width:740px;margin:0;color:var(--rpm-color-muted);font-size:14px;line-height:1.7}
 .heroStamp{font-size:24px;line-height:1.05;font-weight:950;text-align:right;letter-spacing:.18em;color:#344358;border:1px solid #253044;padding:15px 18px;transform:skew(-5deg)}
 .heroStamp span{display:block;color:#e94662;letter-spacing:.18em;font-size:9px;margin-top:9px}
 .dashboard{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(350px,.82fr);gap:19px;align-items:start}
 .stageColumn{position:sticky;top:14px;min-width:0}
-.stage{height:clamp(430px,55vw,670px);max-height:calc(100svh - 195px);min-height:390px;position:relative;overflow:hidden;border:1px solid #344255;border-radius:16px 16px 0 0;background:radial-gradient(ellipse at 45% 38%,#243246,#0c1420 55%,#080b11 90%)}
+.stage{height:clamp(430px,55vw,670px);max-height:calc(100svh - 195px);min-height:390px;position:relative;overflow:hidden;border:1px solid var(--rpm-color-panel-border);border-radius:16px 16px 0 0;background:radial-gradient(ellipse at 45% 38%,#243246,#0c1420 55%,var(--rpm-color-background) 90%)}
 .stage::after{content:"";pointer-events:none;position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 85px #05070b8c;z-index:1}
 .canvasWrap{position:absolute;inset:0;touch-action:pan-y}
 .canvasWrap canvas{touch-action:none}
@@ -32,17 +32,17 @@
 .hudMetric small{display:block;color:#849cb9;font-size:9px;letter-spacing:.14em;font-weight:850;white-space:nowrap;margin-bottom:7px}
 .hudMetric strong{font-size:clamp(17px,2.2vw,29px);font-weight:900;letter-spacing:-.05em;white-space:nowrap;font-variant-numeric:tabular-nums}
 .hudMetric strong span{font-size:.45em;color:#b7c5d6;font-weight:700}
-.cameraBar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;background:#101824;border:1px solid #344255;border-top:0;border-radius:0 0 12px 12px}
+.cameraBar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 15px;background:#101824;border:1px solid var(--rpm-color-panel-border);border-top:0;border-radius:0 0 12px 12px}
 .cameraViews{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .cameraViews button{border:1px solid #2d3b4f;background:#141e2c;color:#8fa3bb;border-radius:5px;padding:8px 11px;font-size:10px;font-weight:800;letter-spacing:.02em}
 .cameraViews .cameraActive,.cameraViews button:hover{border-color:#fd4b68;color:#fff;background:#82263a}
 .cameraHelp{font-size:10px;color:#7e91a8;white-space:nowrap}
 .player{display:flex;align-items:center;gap:10px;padding:13px 16px;margin-top:12px;border:1px solid #2a394a;border-radius:12px;background:linear-gradient(100deg,#151e2a,#10151e)}
 .player svg,.saveButton svg{width:16px;height:16px;flex-shrink:0}
-.playButton{display:flex;align-items:center;justify-content:center;gap:8px;min-width:108px;height:42px;padding:0 12px;border-radius:7px;border:1px solid #e43d5a;background:#e43d5a;color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em}
-.playButton:hover{background:#f05a76}
+.playButton{display:flex;align-items:center;justify-content:center;gap:8px;min-width:108px;height:42px;padding:0 12px;border-radius:7px;border:1px solid var(--rpm-color-accent);background:var(--rpm-color-accent);color:#fff;font-size:11px;font-weight:900;letter-spacing:.07em}
+.playButton:hover{background:var(--rpm-color-accent-hover)}
 .iconButton{display:flex;align-items:center;justify-content:center;width:40px;height:42px;border-radius:7px;border:1px solid #37465a;background:#1b2735;color:#c6d5e7}
-.iconButton:hover{border-color:#e43d5a}
+.iconButton:hover{border-color:var(--rpm-color-accent)}
 .speedControl{flex:1;min-width:105px;padding:0 6px}
 .speedControl>div,.manualLabel{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .speedControl span,.manualLabel span{font-size:9px;letter-spacing:.1em;color:#8799ac;font-weight:850}
@@ -258,3 +258,5 @@
  .referencePicker button{min-height:39px;padding:7px 4px;font-size:9px;line-height:1.3}
  .cameraExternal{font-size:10px}
 }
+
+.hero{padding:18px 0 24px}.hero h1{font-size:clamp(36px,4vw,58px)}.heroStamp{display:none}.page .container{padding-top:10px}
