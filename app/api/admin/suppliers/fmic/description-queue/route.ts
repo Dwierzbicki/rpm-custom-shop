@@ -11,9 +11,9 @@ export async function POST(request:Request){
  try{
  const origin=request.headers.get('origin'),host=request.headers.get('host');
  if(!origin||!host||new URL(origin).host!==host)return NextResponse.json({error:'Niedozwolone pochodzenie'},{status:403,headers});
- const {action,sku}=await request.json();await setupDescriptionQueue();const db=getDbPool();
+ let payload;try{payload=await request.json()}catch{return NextResponse.json({error:'Nieprawidłowe lub puste żądanie JSON'},{status:400,headers})}const {action,sku}=payload??{};await setupDescriptionQueue();const db=getDbPool();
  if(action==='assign'){if(typeof sku!=='string'||!sku.trim()||sku.length>120)return NextResponse.json({error:'Nieprawidłowe SKU'},{status:400,headers});const assigned=await assignDraft(sku);return NextResponse.json({assigned},{headers})}
- if(action==='start'){if(process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return NextResponse.json({error:'Wymagane potwierdzenie zasad FMIC i konfiguracja FMIC_ENRICHMENT_ALLOWED=1'},{status:403,headers});await seedDescriptionQueue();await db.query('UPDATE rpm_fmic_description_control SET enabled=true,last_error=NULL WHERE id=1');startDescriptionWorker()}
+ if(action==='start'){if(process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return NextResponse.json({error:'Wymagane potwierdzenie zasad FMIC i konfiguracja FMIC_ENRICHMENT_ALLOWED=1'},{status:403,headers});const state=(await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1')).rows[0];if(!state?.enabled){await seedDescriptionQueue();await db.query('UPDATE rpm_fmic_description_control SET enabled=true,last_error=NULL WHERE id=1');}startDescriptionWorker()}
  else if(action==='pause')await db.query('UPDATE rpm_fmic_description_control SET enabled=false WHERE id=1');
  else if(action==='seed')await seedDescriptionQueue();
  else if(action==='retry')await db.query("UPDATE rpm_fmic_description_queue SET status='pending',detail=NULL WHERE status='review'");

@@ -3,14 +3,13 @@ import {getDbPool} from './db';
 import {setupEnrichment,inspectProduct} from './fmic-enrichment';
 let setup:Promise<unknown>|undefined;
 export async function setupDescriptionQueue(){
- await setupEnrichment();
- if(!setup)setup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_description_queue (
+ if(!setup)setup=(async()=>{await setupEnrichment();return getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_description_queue (
  sku text PRIMARY KEY REFERENCES rpm_fmic_catalog(sku) ON DELETE CASCADE,
  status text NOT NULL DEFAULT 'pending', detail text, updated_at timestamptz NOT NULL DEFAULT NOW()
  ); CREATE INDEX IF NOT EXISTS rpm_fmic_description_queue_status_idx ON rpm_fmic_description_queue(status,sku);
  CREATE TABLE IF NOT EXISTS rpm_fmic_description_control (
  id integer PRIMARY KEY CHECK(id=1), enabled boolean NOT NULL DEFAULT false, heartbeat timestamptz, last_error text, next_request_at timestamptz
- ); INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;`).catch(e=>{setup=undefined;throw e});
+ ); INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;`)})().catch(e=>{setup=undefined;throw e});
  await setup;
 }
 export async function seedDescriptionQueue(){
