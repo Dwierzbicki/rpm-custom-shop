@@ -17,6 +17,9 @@ MAX_BYTES = 512 * 1024 * 1024
 
 @contextmanager
 def source(path):
+    if path == '-':
+        yield sys.stdin.buffer
+        return
     if zipfile.is_zipfile(path):
         with zipfile.ZipFile(path) as archive:
             entries = [x for x in archive.infolist() if not x.is_dir() and x.filename.lower().endswith(".xml")]
