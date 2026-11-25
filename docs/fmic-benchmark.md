@@ -1,0 +1,5 @@
+# FMIC API benchmark
+Run from Render Shell after deployment: npm run fmic:benchmark
+Uses existing site-gate credentials from process environment; no secrets printed, no changes to access controls. Origin defaults to https://rpmcustom.pl, optionally FMIC_BENCH_ORIGIN=https://rpm-custom-shop.onrender.com. Performs one login and 22 serial GET requests only. No supplier requests, no database modifications, no parallel load.
+First request is not guaranteed cold. Immediate repeat illustrates caching but may expire if the request is slow. Durations cover HTTP and response body, not browser rendering. Do not treat as p95/p99 or concurrent load test. Script fails on invalid responses. Keep site lock enabled. Do not paste credentials into reports.
+Initial SQL sample on 2026-11-25: exact SKU 0.93 ms; 24-item root page including image selection 12.952 ms; E46 count 29.044 ms; BMW count 60.679 ms; E46 category tree 7.766 ms; Hamulce i koła count 325.978 ms; producer facet 2276.081 ms. These are one-off EXPLAIN ANALYZE results, not end-to-end timings. Prioritize producer aggregation on large categories; preserve exact filter counts.

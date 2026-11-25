@@ -11,7 +11,8 @@
     "fmic:sku-search": "node scripts/fmic-search.mjs",
     "prebuild": "node scripts/optimize-storefront-images.mjs",
     "predev": "node scripts/optimize-storefront-images.mjs",
-    "fmic:worker": "node scripts/fmic-worker.cjs"
+    "fmic:worker": "node scripts/fmic-worker.cjs",
+    "fmic:benchmark": "node scripts/fmic-benchmark.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
