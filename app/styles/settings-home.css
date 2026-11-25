@@ -1,8 +1,8 @@
 /* Admin settings hub */
 .rpm-admin-settings-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
 .rpm-admin-settings-hub-link{display:flex;align-items:center;gap:14px;padding:18px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:rgba(255,255,255,.025);color:#f5f2f5;text-decoration:none;min-width:0;transition:border-color .2s,background .2s}
-.rpm-admin-settings-hub-link>svg:first-child{flex-shrink:0;color:#e72f59}
-.rpm-admin-settings-hub-link>svg:last-child{flex-shrink:0;margin-left:auto;color:#e72f59}
+.rpm-admin-settings-hub-link>svg:first-child{flex-shrink:0;color:var(--rpm-color-accent)}
+.rpm-admin-settings-hub-link>svg:last-child{flex-shrink:0;margin-left:auto;color:var(--rpm-color-accent)}
 .rpm-admin-settings-hub-link span{display:flex;flex-direction:column;gap:5px;min-width:0}
 .rpm-admin-settings-hub-link strong{font-size:15px;font-weight:700}
 .rpm-admin-settings-hub-link small{color:#aaa4af;font-size:12px;line-height:1.5}
