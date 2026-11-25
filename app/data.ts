@@ -7,7 +7,7 @@ export const products:Product[]=[
  {id:2,name:'Kolektor turbo BMW E46 M54',brand:'RPM Custom',category:'Kolektory',price:3099,engine:'BMW M54',configurable:true,sku:'RPM-DEMO-002',description:'Kolektor wykonywany na zamówienie. Wybierz wymagane parametry. Zgodność i termin wymagają potwierdzenia.'}
 ];
 // Preserve former product IDs for historical orders and saved links.
-export const RETIRED_DEMO_MAX_ID=29;
-export const isRetiredDemoProductId=(id:number)=>Number.isInteger(id)&&id>=3&&id<=RETIRED_DEMO_MAX_ID;
+export const RETIRED_DEMO_MAX_ID=30;
+export const isRetiredDemoProductId=(id:number)=>Number.isInteger(id)&&id>=1&&id<=RETIRED_DEMO_MAX_ID;
 export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number;fmicSku?:string;fmicName?:string;fmicImage?:string|null;fmicAvailable?:boolean};
 export const money=(v:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(v);
