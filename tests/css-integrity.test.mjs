@@ -10,13 +10,10 @@ import {readFile} from 'node:fs/promises';
 const styleFiles=[
   "base.css",
   "brand.css",
-  "admin-foundation.css",
   "product-gallery.css",
-  "admin-operations.css",
+  "storefront-toast.css",
   "product-cart.css",
-  "admin-chart.css",
   "checkout-primary.css",
-  "admin-settings-security.css",
   "checkout-details.css",
   "product-detail-final.css",
   "legacy-home-catalog.css",
@@ -25,7 +22,6 @@ const styleFiles=[
   "legacy-shop-inline.css",
   "legacy-home-hero.css",
   "power-guides.css",
-  "settings-home.css",
   "homepage-v2.css",
   "header-navigation-legacy.css",
   "header-category-cascade.css",
@@ -104,7 +100,7 @@ test('critical storefront sections retain their CSS selectors',()=>{
  for(const selector of [
   '.rpm-header-v2','.rpm-desktop-root','.rpm-category-drawer',
   '.rpm-guide-page','.rpm-hp-hero','.rpm-products-modern',
-  '.rpm-checkout-page','.rpm-cart-layout','.admin-page','scrollbar-gutter:stable'
+  '.rpm-checkout-page','.rpm-cart-layout','.rpm-toast-overlay','scrollbar-gutter:stable'
  ])assert.ok(css.includes(selector),'missing CSS selector '+selector);
 });
 
@@ -130,4 +126,16 @@ for(const {entry,component,files} of componentStyles){
 test('Admin Power Guides retains its local styles',async()=>{
  const source=await readFile(new URL('../app/admin/settings/power-guides/page.tsx',import.meta.url),'utf8');
  assert.ok(source.includes("import '../../../styles/power-guides-detail.css';"));
+});
+
+test('Admin-only styles retain ordered imports and critical selectors',async()=>{
+ const names=["admin-foundation.css","admin-operations.css","admin-chart.css","admin-settings-security.css","settings-home.css"];
+ const entry=await readFile(new URL('../app/styles/admin-local.css',import.meta.url),'utf8');
+ assert.equal(entry.trim(),names.map(name=>`@import './${name}';`).join('\n'));
+ const parts=await Promise.all(names.map(name=>readFile(new URL('../app/styles/'+name,import.meta.url),'utf8')));
+ for(const part of parts)assert.ok(rootRules(part).length>0);
+ assert.ok(parts.join('').includes('.admin-page'));
+ assert.ok(!parts.join('').includes('.rpm-toast-overlay'));
+ const layout=await readFile(new URL('../app/admin/layout.tsx',import.meta.url),'utf8');
+ assert.ok(layout.includes("import '../styles/admin-local.css';"));
 });

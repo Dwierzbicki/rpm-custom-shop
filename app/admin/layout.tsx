@@ -1,4 +1,5 @@
 'use client';
+import '../styles/admin-local.css';
 import '../styles/admin-workspace.css';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';

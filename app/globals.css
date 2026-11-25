@@ -1,12 +1,9 @@
 @import './styles/base.css';
 @import './styles/brand.css';
-@import './styles/admin-foundation.css';
 @import './styles/product-gallery.css';
-@import './styles/admin-operations.css';
+@import './styles/storefront-toast.css';
 @import './styles/product-cart.css';
-@import './styles/admin-chart.css';
 @import './styles/checkout-primary.css';
-@import './styles/admin-settings-security.css';
 @import './styles/checkout-details.css';
 @import './styles/product-detail-final.css';
 @import './styles/legacy-home-catalog.css';
@@ -15,7 +12,6 @@
 @import './styles/legacy-shop-inline.css';
 @import './styles/legacy-home-hero.css';
 @import './styles/power-guides.css';
-@import './styles/settings-home.css';
 @import './styles/homepage-v2.css';
 @import './styles/header-navigation-legacy.css';
 @import './styles/header-category-cascade.css';
