@@ -3,6 +3,7 @@ import ProductCard from './components/storefront/ProductCard';
 import CartLineList from './components/storefront/CartLineList';
 import HomeSections from './components/storefront/HomeSections';
 import CatalogView from './components/storefront/CatalogView';
+import FmicPreview from './components/storefront/FmicPreview';
 import ProductDetailView from './components/storefront/ProductDetailView';
 import CartView from './components/storefront/CartView';
 import CheckoutView from './components/storefront/CheckoutView';
@@ -29,6 +30,8 @@ import {categoryPath,resolveCategoryPath} from './category-routing';
 import {GuidePart,guidePrice} from './lib/power-guides';
 import {buildCatalogFilters,matchesCatalogAttributes} from './lib/catalog-filters';
 export default function Shop(){
+ const [fmicPreview,setFmicPreview]=useState(false),[fmicPath,setFmicPath]=useState('');
+ useEffect(()=>{setFmicPreview(new URLSearchParams(window.location.search).get('fmicPreview')==='1');setFmicPath(window.location.pathname);const sync=()=>setFmicPath(window.location.pathname);window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
  const [homepageDraft,setHomepageDraft]=useState<HomepageDraft>(DEFAULT_HOMEPAGE_DRAFT);
  const [inlineEditRequested,setInlineEditRequested]=useState(false);
  const updateHomepageDraft=useCallback((next:HomepageDraft)=>setHomepageDraft(next),[]);
@@ -194,8 +197,8 @@ export default function Shop(){
  useEffect(()=>{if(storageReady)sessionStorage.setItem('rpm-shop-view',view)},[view,storageReady]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const resetGuide=()=>{setGuideEngine('');setGuideVersion('');setGuideRange(-1);setGuideUsage('');setGuideTier('');setGuideOpenCategories([]);setGuideCartSelection([]);setGuideConfigOpen(false);setGuideConfigValues({});setGuideConfigError('');try{localStorage.removeItem('rpm-power-guide-form-v1');for(let i=localStorage.length-1;i>=0;i--){const key=localStorage.key(i);if(key?.startsWith('rpm-power-guide-selection-v1:'))localStorage.removeItem(key)}}catch{}};
- const navigate=(v:View)=>{if(view==='guides'&&v!=='guides')resetGuide();setView(v);setMobileMenu(false);setFmicMenuOpen(false);if(typeof window!=='undefined'){const path=v==='home'?'/':v==='catalog'?'/sklep':v==='guides'?'/power-guides':v==='cart'?'/koszyk':v==='garage'?'/garage':null;if(path&&window.location.pathname!==path)window.history.pushState({},'',path)}window.scrollTo({top:0,behavior:'smooth'})};
- const openCatalogPath=(names:string[])=>{setShopSubcategory(null);setEngineFilter('Wszystkie');setSort('featured');setShopLanding(false);setCategory('Wszystkie');setQuery(names.length?names[names.length-1]:'');setView('catalog');setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null);setFmicMenuOpen(false);const path=categoryPath(names);if(window.location.pathname!==path)window.history.pushState({},'',path);window.scrollTo({top:0,behavior:'smooth'})};
+ const navigate=(v:View)=>{if(view==='guides'&&v!=='guides')resetGuide();setView(v);setMobileMenu(false);setFmicMenuOpen(false);if(typeof window!=='undefined'){const path=v==='home'?'/':v==='catalog'?'/sklep':v==='guides'?'/power-guides':v==='cart'?'/koszyk':v==='garage'?'/garage':null;if(path){setFmicPath(path);if(window.location.pathname!==path)window.history.pushState({},'',path+(fmicPreview?'?fmicPreview=1':''))}}window.scrollTo({top:0,behavior:'smooth'})};
+ const openCatalogPath=(names:string[])=>{setShopSubcategory(null);setEngineFilter('Wszystkie');setSort('featured');setShopLanding(false);setCategory('Wszystkie');setQuery(names.length?names[names.length-1]:'');setView('catalog');setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null);setFmicMenuOpen(false);const path=categoryPath(names);setFmicPath(path);if(window.location.pathname!==path)window.history.pushState({},'',path+(fmicPreview?'?fmicPreview=1':''));window.scrollTo({top:0,behavior:'smooth'})};
  useEffect(()=>{const sync=()=>{const names=resolveCategoryPath(window.location.pathname);if(names!==null){setCategory('Wszystkie');setQuery(names.at(-1)??'');setShopSubcategory(null);setView('catalog')}else if(window.location.pathname==='/power-guides')setView('guides');else if(window.location.pathname==='/koszyk')setView('cart');else if(window.location.pathname==='/garage')setView('garage');else if(window.location.pathname==='/')setView('home')};sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
  useEffect(()=>{if(new URLSearchParams(window.location.search).get('power-guides')==='1')setView('guides')},[]);
  useEffect(()=>{const id=Number(new URLSearchParams(window.location.search).get('product'));if(!Number.isSafeInteger(id)||id<=0)return;const found=products.find(p=>p.id===id);if(found){setSelected(found);setChosenOptions({});setPhotoIndex(0);setView('product');}},[products]);
@@ -294,7 +297,8 @@ export default function Shop(){
  guideDataError={guideDataError} exportGuidePdf={exportGuidePdf}
  onBackHome={()=>navigate('home')} onOpenProduct={openProduct}
 />}
- {view==='catalog'&&<CatalogView
+ {view==='catalog'&&fmicPreview&&<main className="page rpm-shop-page"><FmicPreview pathname={fmicPath} lang={lang} sort={sort}/></main>}
+ {view==='catalog'&&!fmicPreview&&<CatalogView
  lang={lang} translate={t} shopSubcategory={shopSubcategory}
  mobileFiltersOpen={mobileFiltersOpen} query={query} category={category}
  engineFilter={engineFilter} technicalFilters={technicalFilters} sort={sort}
