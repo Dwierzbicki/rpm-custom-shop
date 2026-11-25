@@ -4,6 +4,7 @@ import type {Product} from '../../data';
 import {POWER_ENGINES} from '../../lib/storefront-config';
 import ProductCard from './ProductCard';
 import CommunitySection from './CommunitySection';
+import BrandCarousel from './BrandCarousel';
 
 type Props={
  lang:'pl'|'en';
@@ -27,6 +28,7 @@ export default function HomeSections({
  return (
 <main className="drift-home rpm-hp-v2">
  <section className="drift-hero rpm-hp-hero"><link rel="preload" as="image" href="/optimized/hero.webp" fetchPriority="high"/><div className="drift-hero-photo"/><div className="drift-hero-shade"/><div className="drift-hero-inner"><span className="eyebrow">RPM CUSTOM / PERFORMANCE PARTS</span><h1>{lang==='en'?<>BUILD<br/>WITHOUT LIMITS.</>:'BUDUJ\nBEZ OGRANICZEŃ.'.split('\n').map((line,i)=><span key={i}>{i>0&&<br/>}{line}</span>)}</h1><h2>{lang==='en'?<>PARTS FOR <em>YOUR PROJECT.</em></>:"CZĘŚCI DO TWOJEGO PROJEKTU."}</h2><p>{lang==='en'?'Turbochargers, exhaust systems, intercoolers and parts for demanding builds.':"Turbosprężarki, układy wydechowe, intercoolery i komponenty do wymagających projektów."}</p><div className="hero-buttons"><button className="primary" onClick={()=>{onCategory('Wszystkie')}}>{lang==='en'?'BROWSE PRODUCTS':'ZOBACZ PRODUKTY'} <ArrowRight size={18}/></button><button className="outline" onClick={()=>document.getElementById('rpm-custom-home')?.scrollIntoView({behavior:'smooth'})}>RPM CUSTOM <ArrowRight size={16}/></button></div></div></section>
+ <BrandCarousel lang={lang}/>
  <section id="rpm-motolab" className="rpm-motolab" aria-labelledby="motolab-title">
   <div className="rpm-motolab-glow" aria-hidden="true"/>
   <div className="rpm-motolab-content">
