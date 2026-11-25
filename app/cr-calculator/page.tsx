@@ -1,4 +1,5 @@
 "use client";
+import MotoLabNavigation from '../components/storefront/MotoLabNavigation';
 import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -170,6 +171,7 @@ export default function CrCalculatorPage() {
     <StandaloneStorefrontHeader/>
 
     <div className={styles.container}>
+      <MotoLabNavigation active="cr"/>
       <section className={styles.hero}>
         <div className={styles.kicker}><span className={styles.liveDot} /> MOTOLAB / ENGINE SIMULATION / 001</div>
         <div className={styles.heroTitle}>
