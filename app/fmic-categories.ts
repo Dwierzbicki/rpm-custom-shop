@@ -520,6 +520,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Bagnety oleju",
         "children": []
+      },
+      {
+        "name": "Adaptery układu smarowania",
+        "children": []
       }
     ]
   },
@@ -877,6 +881,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       {
         "name": "Pozostałe",
         "children": []
+      },
+      {
+        "name": "Elektroniczne systemy wydechowe",
+        "children": []
       }
     ]
   },
@@ -1066,6 +1074,14 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Zwrotnice",
+        "children": []
+      },
+      {
+        "name": "Elementy układu kierowniczego",
+        "children": []
+      },
+      {
+        "name": "Części skrzyni biegów",
         "children": []
       }
     ]
@@ -1784,6 +1800,10 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Podłoga modułowa",
+        "children": []
+      },
+      {
+        "name": "Złączki i uszczelnienia",
         "children": []
       }
     ]
