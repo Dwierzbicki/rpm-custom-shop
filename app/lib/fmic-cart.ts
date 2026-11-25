@@ -38,3 +38,29 @@ export async function addFmicToCart(sku:string,qty:number,displayedPrice:number,
  window.dispatchEvent(new Event(CART_EVENT));
  return line;
 }
+
+/** Same cart, distinct source identity: manual offers never enter FMIC procurement. */
+export async function addManualToCart(sku:string,id:number,qty:number,displayedPrice:number,chosenOptions:Record<string,string>){
+ if(!Number.isSafeInteger(qty)||qty<1||qty>50)throw Error('Wybierz ilość od 1 do 50');
+ const response=await fetch('/api/catalog',{cache:'no-store'});
+ if(!response.ok)throw Error('Nie udało się sprawdzić produktu.');
+ const data=await response.json();
+ const p=(Array.isArray(data.products)?data.products:[]).find((p:import('./catalog-db').CatalogItem)=>p.id===id&&p.sku===sku) as import('./catalog-db').CatalogItem|undefined;
+ if(!p||p.visible===false||p.stockStatus==='unavailable')throw Error('Produkt jest obecnie niedostępny.');
+ const groups=(p.optionGroups??[]).filter(g=>g.id!=='rpm-wastegate');
+ if(p.configurable&&!groups.length)throw Error('Konfiguracja produktu wymaga potwierdzenia.');
+ if(Object.entries(chosenOptions).some(([key,value])=>!groups.some(g=>g.id===key&&g.options.some(o=>o.id===value))))throw Error('Opcje produktu uległy zmianie.');
+ const {configuredCartLine}=await import('./product-configuration');
+ const line=configuredCartLine(p,{chosenOptions,qty,engine:'',flange:'',wg:'',egt:false});
+ if(!line)throw Error('Wybierz wymagane opcje produktu.');
+ if(line.unitPrice!==displayedPrice)throw Error('Cena produktu uległa zmianie. Odśwież kartę produktu.');
+ const raw:unknown=JSON.parse(localStorage.getItem('rpm-cart')??'[]');
+ if(!Array.isArray(raw))throw Error('Nie udało się odczytać koszyka.');
+ const lines=(raw as CartLine[]).filter(l=>l&&(l.fmicSku||!isRetiredDemoProductId(l.productId)));
+ const current=lines.find(l=>l.key===line.key);
+ if((current?.qty??0)+qty>50)throw Error('Maksymalnie 50 sztuk na pozycję.');
+ if(!current&&lines.length>=30)throw Error('Koszyk może zawierać maksymalnie 30 pozycji.');
+ const next=current?lines.map(l=>l.key===line.key?{...line,qty:l.qty+qty}:l):[...lines,line];
+ localStorage.setItem('rpm-cart',JSON.stringify(next));window.dispatchEvent(new Event(CART_EVENT));
+ return line;
+}
