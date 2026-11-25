@@ -61,3 +61,15 @@ test('product cards share facet values and preserve explicitly published specifi
  const pistons=mergeTechnicalFields({intro:'',warranty:'',fields:[]},[{key:'piston_bore',label:'Średnica tłoka (mm)',value:'84.25'},{key:'compression',label:'Stopień sprężania',value:'9'}]);
  assert.deepEqual(splitTechnicalFields(pistons.fields,['Kute tłoki']).highlights.map(f=>f.value),['84.25 mm','9:1']);
 });
+
+const categorySql=await load('app/lib/fmic-category-membership.ts');
+const categoryIndexes=await import('../scripts/fmic-category-indexes.mjs');
+test('Category index expressions match storefront SQL and preserve ordered prefix checks',()=>{
+ for(const key of ['visibleCatalog','primaryCategory','alternateCategory'])assert.equal(categoryIndexes[key],categorySql[key]);
+ const sql=categorySql.categoryMembership('$1');
+ assert.ok(sql.includes('cardinality($1::text[])=0'));
+ for(const expr of [categorySql.primaryCategory,categorySql.alternateCategory]){
+  assert.ok(sql.includes('('+expr+') @> $1::text[]'));
+  assert.ok(sql.includes('('+expr+')[1:cardinality($1::text[])]=$1::text[]'));
+ }
+});
