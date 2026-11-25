@@ -16,7 +16,7 @@ function BrandLogo({brand}:{brand:(typeof brands)[number]}){
 }
 
 export default function BrandCarousel({lang}:{lang:'pl'|'en'}){
- const visible=brands.filter(brand=>Boolean(logos[brand.slug]));
+ const visible=brands.filter(brand=>Boolean(brandLogoSrc(brand)));
  // On builds with a temporary supplier outage, retain a useful text-based brand rail.
  const entries=visible.length>=9?visible:brands;
  const animated=entries.length>=9;
