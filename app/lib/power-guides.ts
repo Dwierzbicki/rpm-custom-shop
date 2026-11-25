@@ -1,3 +1,4 @@
+import {powerRangesFor} from './storefront-config';
 export type GuidePart={id:string;engineVersion:string;rangeIndex:number;usage:'street'|'drift'|'track';tier:'budget'|'recommended'|'premium';category:string;name:string;reason:string;fmicPrice:number|null;manualPrice:number|null;fmicUrl:string;productId:number|null;enabled:boolean};
 export type GuideSettings={discountPercent:number;parts:GuidePart[]};
 export const DEFAULT_GUIDE_SETTINGS:GuideSettings={discountPercent:5,parts:[]};
@@ -10,7 +11,7 @@ export function validGuideSettings(x:unknown):x is GuideSettings{
  return v.parts.every((raw:unknown)=>{if(!raw||typeof raw!=='object')return false;const p=raw as Record<string,unknown>;
  if(typeof p.id!=='string'||!/^[-a-zA-Z0-9_]{1,80}$/.test(p.id)||ids.has(p.id))return false;ids.add(p.id);
  return typeof p.engineVersion==='string'&&/^(m50b20|m50b25|m52b20|m52b25|m52b28|m54b22|m54b25|m54b30|2jz-ge|2jz-gte)$/.test(p.engineVersion)
- &&Number.isInteger(p.rangeIndex)&&Number(p.rangeIndex)>=0&&Number(p.rangeIndex)<=3
+ &&Number.isInteger(p.rangeIndex)&&Number(p.rangeIndex)>=0&&Number(p.rangeIndex)<powerRangesFor(String(p.engineVersion)).length
  &&['street','drift','track'].includes(String(p.usage))&&['budget','recommended','premium'].includes(String(p.tier))
  &&typeof p.category==='string'&&p.category.length<=80&&typeof p.name==='string'&&p.name.trim().length>0&&p.name.length<=180
  &&typeof p.reason==='string'&&p.reason.length<=1000
