@@ -1,0 +1,19 @@
+.rpm-hp-v2 .rpm-community{display:grid;grid-template-columns:1.1fr 1fr;max-width:1420px;margin:32px auto;min-height:350px;border:1px solid #39414d;border-radius:14px;overflow:hidden;background:#181d25;color:#edf0f5}
+.rpm-community-copy{padding:clamp(24px,4vw,56px);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:15px}
+.rpm-community-copy h2{font-size:clamp(26px,3.4vw,47px);line-height:1.05;letter-spacing:-.04em;margin:0;color:#fff}
+.rpm-community-copy h2 em{display:block;color:#f05289;font-style:normal;margin-top:5px}
+.rpm-community-copy p{font-size:15px;line-height:1.65;color:#b8c2cf;margin:0;max-width:520px}
+.rpm-community-benefits{display:flex;flex-wrap:wrap;gap:12px 20px;margin:4px 0}
+.rpm-community-benefits span{display:flex;align-items:center;gap:8px;font-size:13px;color:#d9dfe7}
+.rpm-community-benefits svg{color:#f05289;flex:none}
+.rpm-community-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:#d83d73;color:#fff;border-radius:7px;font-size:13px;font-weight:800;text-decoration:none;line-height:1.3}
+.rpm-community-cta:hover{background:#ed4e86;color:#fff}
+.rpm-community-visual{position:relative;min-height:320px;display:grid;place-items:center;background:radial-gradient(ellipse at 75% 30%,#4a243e,transparent 65%),repeating-linear-gradient(135deg,#1b2029 0 2px,#202630 2px 16px);overflow:hidden}
+.rpm-community-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rpm-community-art{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px;text-align:center}
+.rpm-community-art img{width:160px;height:auto;object-fit:contain}
+.rpm-community-art>svg{color:#f05289;stroke-width:1.2}
+.rpm-community-art strong{font-size:clamp(24px,4vw,56px);letter-spacing:-.04em;font-weight:900;line-height:1}
+.rpm-community-art span{font-size:11px;letter-spacing:.2em;color:#b8c2cf}
+.rpm-community-tag{position:absolute;bottom:16px;right:16px;display:flex;gap:8px;align-items:center;background:#13171ee8;padding:9px 12px;border-radius:6px;font-size:11px;letter-spacing:.08em;color:white}
+@media(max-width:800px){.rpm-hp-v2 .rpm-community{grid-template-columns:1fr;margin:24px 16px}.rpm-community-visual{min-height:240px}.rpm-community-copy{padding:24px}.rpm-community-cta{width:100%;box-sizing:border-box}}

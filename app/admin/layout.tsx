@@ -3,8 +3,8 @@ import '../styles/admin-workspace.css';
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {useState} from 'react';
-import {LayoutDashboard,Package,ShoppingBag,Mail,Menu,X,ExternalLink,Settings,LogOut,Wrench,Truck,PanelsTopLeft,Monitor,FileText} from 'lucide-react';
-const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty sklepu',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag},{href:'/admin/suppliers',label:'Dostawcy / oferty',icon:Truck},{href:'/admin/suppliers/fmic',label:'Katalog FMIC',icon:Package},{href:'/admin/product-descriptions',label:'Przypisanie opisu do produktu',icon:FileText},{href:'/admin/b2b-monitor',label:'Automatyzacja B2B',icon:Monitor},{href:'/admin/settings/power-guides',label:'POWER GUIDES',icon:Wrench},{href:'/admin/emails',label:'E-maile',icon:Mail},{href:'/admin/settings',label:'Ustawienia',icon:Settings},{href:'/admin/editor',label:'Edytor strony HP',icon:PanelsTopLeft}];
+import {LayoutDashboard,Package,ShoppingBag,Mail,Menu,X,ExternalLink,Settings,LogOut,Wrench,Truck,PanelsTopLeft,Monitor,FileText,Users} from 'lucide-react';
+const links=[{href:'/admin/overview',label:'Pulpit',icon:LayoutDashboard},{href:'/admin',label:'Produkty sklepu',icon:Package},{href:'/admin/orders',label:'Zamówienia',icon:ShoppingBag},{href:'/admin/suppliers',label:'Dostawcy / oferty',icon:Truck},{href:'/admin/suppliers/fmic',label:'Katalog FMIC',icon:Package},{href:'/admin/product-descriptions',label:'Przypisanie opisu do produktu',icon:FileText},{href:'/admin/b2b-monitor',label:'Automatyzacja B2B',icon:Monitor},{href:'/admin/settings/power-guides',label:'POWER GUIDES',icon:Wrench},{href:'/admin/emails',label:'E-maile',icon:Mail},{href:'/admin/settings',label:'Ustawienia',icon:Settings},{href:'/admin/editor',label:'Edytor strony HP',icon:PanelsTopLeft},{href:'/admin/community',label:'RPM Community',icon:Users}];
 export default function AdminLayout({children}:{children:React.ReactNode}){
  const path=usePathname();
  const [open,setOpen]=useState(false);
