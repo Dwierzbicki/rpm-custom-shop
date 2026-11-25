@@ -12,9 +12,11 @@ export default function FmicProductPreview({sku,onBack,onOpen}:{sku:string;onBac
  const [data,setData]=useState<Detail|null>(null),[error,setError]=useState(''),[photo,setPhoto]=useState(0);
  const zoom=useRef<HTMLDialogElement>(null);
  const [expanded,setExpanded]=useState(false);
+ const [retry,setRetry]=useState(0);
  useEffect(()=>{const ctrl=new AbortController();setData(null);setError('');setPhoto(0);setExpanded(false);zoom.current?.close();
- fetch('/api/catalog/fmic/product?'+new URLSearchParams({sku}),{cache:'no-store',signal:ctrl.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':r.status===404?'Nie znaleziono produktu.':'Błąd pobierania produktu.');return r.json()}).then(d=>{if(!ctrl.signal.aborted)setData(d)}).catch(e=>{if(!ctrl.signal.aborted)setError(e.message)});
- return()=>ctrl.abort()},[sku]);
+ const timer=setTimeout(()=>{ctrl.abort();setError('Przekroczono czas ładowania produktu. Spróbuj ponownie.')},20000);
+ fetch('/api/catalog/fmic/product?'+new URLSearchParams({sku}),{cache:'no-store',signal:ctrl.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':r.status===404?'Nie znaleziono produktu.':'Błąd pobierania produktu.');return r.json()}).then(d=>{if(!ctrl.signal.aborted)setData(d)}).catch(e=>{if(!ctrl.signal.aborted)setError(e.message)}).finally(()=>clearTimeout(timer));
+ return()=>{clearTimeout(timer);ctrl.abort()}},[sku,retry]);
  const p=data?.product;
  const images=(Array.isArray(p?.images)?p.images:[]).filter(u=>typeof u==='string'&&u.startsWith('https://'));
  const technical=p?.technical;
@@ -26,7 +28,7 @@ export default function FmicProductPreview({sku,onBack,onOpen}:{sku:string;onBac
  const specification=p?[['Kod produktu (SKU)',p.sku],['Producent',p.brand],['Numer producenta',p.mpn],['EAN',p.ean],['Waga wysyłkowa',p.shipping_weight]].filter(([,v])=>v):[];
  const move=(step:number)=>setPhoto(i=>(i+step+images.length)%images.length);
  return <section className={"fmic-pdp"+(hasTechnical?" has-technical":"")}><button className="back fmic-pdp-back" onClick={onBack}>← Wróć do katalogu</button>
- {error?<p role="alert">{error}</p>:!p?<p role="status">Ładowanie produktu…</p>:<>
+ {error?<div role="alert" className="rpm-pdp-load-error"><p>{error}</p><button type="button" className="outline" onClick={()=>setRetry(v=>v+1)}>Spróbuj ponownie</button></div>:!p?<div role="status" aria-label="Ładowanie produktu" className="rpm-pdp-loading"><div className="rpm-pdp-skeleton-title"/><div className="rpm-pdp-skeleton-grid"><div/><div/></div><p>Ładowanie produktu…</p></div>:<>
  <nav aria-label="Ścieżka kategorii" className="fmic-pdp-crumbs"><a href="/sklep">Sklep</a>{p.target_category.map((name,i)=><span key={i}> / <a href={categoryPath(p.target_category.slice(0,i+1))}>{name}</a></span>)}</nav>
  <header className="rpm-pdp-title"><div className="rpm-pdp-brandline"><span className="eyebrow">RPM CUSTOM / MOTO LAB</span>{p.brand&&<span className="rpm-pdp-brand">{p.brand}</span>}</div><h1>{p.name}</h1><div className="rpm-product-sku"><span>Kod produktu (SKU)</span><strong>{p.sku}</strong></div></header>
  <div className="fmic-pdp-grid"><div className="fmic-pdp-gallery">{images.length?<div className="detail-gallery"><div className="detail-main-photo"><ProductImage className="detail-photo" src={images[photo]??images[0]} alt={p.name}/><button className="photo-zoom" aria-label="Powiększ zdjęcie" onClick={()=>zoom.current?.showModal()}><ZoomIn size={20}/></button>{images.length>1&&<><button className="photo-prev" aria-label="Poprzednie zdjęcie" onClick={()=>move(-1)}><ChevronLeft/></button><button className="photo-next" aria-label="Następne zdjęcie" onClick={()=>move(1)}><ChevronRight/></button></>}</div><div className="detail-thumbnails">{images.map((url,i)=><button key={url} className={i===photo?'selected':''} aria-pressed={i===photo} aria-label={'Zdjęcie '+(i+1)} onClick={()=>setPhoto(i)}><img src={url} alt="" loading="lazy" referrerPolicy="no-referrer"/></button>)}</div><small>{photo+1} / {images.length}</small></div>:<div className="fmic-pdp-placeholder"><ProductImage alt={p.name}/></div>}</div>

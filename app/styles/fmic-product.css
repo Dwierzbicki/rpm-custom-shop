@@ -128,3 +128,5 @@
  .fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+3),.fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+4){background:#171c24}
 }
 @media(max-width:900px){.fmic-pdp .rpm-pdp-highlights>div{padding:10px 12px}.fmic-pdp .rpm-pdp-highlights strong{font-size:17px}.fmic-pdp .rpm-pdp-tech-panel dl{display:block}}
+
+.fmic-pdp .rpm-pdp-loading{padding:16px 0}.rpm-pdp-skeleton-title{height:38px;width:min(70%,800px);border-radius:7px;background:#292f38;margin-bottom:20px}.rpm-pdp-skeleton-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}.rpm-pdp-skeleton-grid>div{height:clamp(250px,37vh,380px);background:linear-gradient(110deg,#202630 25%,#303844 50%,#202630 75%);background-size:200% 100%;border-radius:10px;animation:rpm-pdp-loading 1.6s linear infinite}.rpm-pdp-loading p{margin:12px 0}.rpm-pdp-load-error{padding:24px;border:1px solid #414a58;border-radius:10px;margin:16px 0}@keyframes rpm-pdp-loading{to{background-position:-200% 0}}@media(max-width:800px){.rpm-pdp-skeleton-grid{grid-template-columns:1fr}.rpm-pdp-skeleton-grid>div:last-child{height:160px}}@media(prefers-reduced-motion:reduce){.rpm-pdp-skeleton-grid>div{animation:none}}

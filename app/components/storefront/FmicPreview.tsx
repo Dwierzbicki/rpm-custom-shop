@@ -42,12 +42,12 @@ export default function FmicPreview({pathname,lang,sort,globalQuery='',onCategor
  useEffect(()=>{setPage(1);setQ(globalQuery);setSearch(globalQuery);setSelected({});setFacets([]);setCategories([]);setStock('all');setMin('');setMax('');setPrice({min:'',max:''})},[globalQuery]);
  function selectCategory(e:MouseEvent<HTMLAnchorElement>,next:string){if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;e.preventDefault();if(next===pathname)return;setPage(1);setSelected({});setFacets([]);setData(null);setBusy(true);onCategorySelect(next,search)}
  useEffect(()=>{
- if(!resolveCategoryPath(pathname))return;
+ if(sku||new URLSearchParams(window.location.search).has('sku')||!resolveCategoryPath(pathname))return;
  const controller=new AbortController();setBusy(true);setError('');setData(null);
  const params=new URLSearchParams({category:pathname,page:String(page),q:search,sort:order,stock,...selected,...price});
  fetch('/api/catalog/fmic?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted){setData(d);setFacets(d.facets??[]);setCategories(d.categories??[])}}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
  return()=>controller.abort();
- },[pathname,page,search,order,stock,selected,price]);
+ },[pathname,page,search,order,stock,selected,price,sku]);
  if(sku&&path)return <FmicProductPreview key={sku} sku={sku} onBack={closeProduct} onOpen={openProduct}/>;
  if(!path)return <p>Wybierz kategorię z menu, aby zobaczyć produkty FMIC.</p>;
  const pages=Math.max(1,Math.ceil((data?.total??0)/(data?.size??24)));

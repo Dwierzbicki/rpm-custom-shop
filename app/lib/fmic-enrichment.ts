@@ -3,11 +3,10 @@ import {setupFmicCatalog} from './fmic-catalog-db';
 
 let setup:Promise<unknown>|undefined;
 export async function setupEnrichment(){
- await setupFmicCatalog();
- if(!setup)setup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_enrichment (
+ if(!setup)setup=(async()=>{await setupFmicCatalog();return getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_enrichment (
  sku text PRIMARY KEY REFERENCES rpm_fmic_catalog(sku) ON DELETE CASCADE,
  source_url text NOT NULL, data jsonb NOT NULL, fetched_at timestamptz NOT NULL DEFAULT NOW()
- ); CREATE TABLE IF NOT EXISTS rpm_fmic_product_descriptions (sku text PRIMARY KEY REFERENCES rpm_fmic_catalog(sku) ON DELETE CASCADE, description text NOT NULL DEFAULT '', brand text NOT NULL DEFAULT '', published boolean NOT NULL DEFAULT false, updated_at timestamptz NOT NULL DEFAULT NOW()); ALTER TABLE rpm_fmic_product_descriptions ADD COLUMN IF NOT EXISTS technical jsonb;`).catch(e=>{setup=undefined;throw e});
+ ); CREATE TABLE IF NOT EXISTS rpm_fmic_product_descriptions (sku text PRIMARY KEY REFERENCES rpm_fmic_catalog(sku) ON DELETE CASCADE, description text NOT NULL DEFAULT '', brand text NOT NULL DEFAULT '', published boolean NOT NULL DEFAULT false, updated_at timestamptz NOT NULL DEFAULT NOW()); ALTER TABLE rpm_fmic_product_descriptions ADD COLUMN IF NOT EXISTS technical jsonb;`)})().catch(e=>{setup=undefined;throw e});
  await setup;
 }
 type Obj=Record<string,unknown>;
