@@ -6,17 +6,17 @@ import {ChevronLeft,ChevronRight,ShoppingCart,ZoomIn,X,FileText,ListChecks,Chevr
 import '../../styles/fmic-product.css';
 import {categoryPath} from '../../category-routing';
 export type FmicItem={sku:string;name:string;proposed_gross:string;available:boolean;image:string|null};
-type Detail={product:Omit<FmicItem,'image'>&{images:string[];target_category:string[];ean:string;mpn:string;brand:string;shipping_weight:string;description?:string;technical?:ProductTechnical};related:FmicItem[]};
+export type Detail={product:Omit<FmicItem,'image'>&{images:string[];target_category:string[];ean:string;mpn:string;brand:string;shipping_weight:string;description?:string;technical?:ProductTechnical};related:FmicItem[]};
 export const fmicMoney=(p:string)=>Number(p).toLocaleString('pl-PL',{style:'currency',currency:'PLN'});
-export default function FmicProductPreview({sku,onBack,onOpen}:{sku:string;onBack:()=>void;onOpen:(sku:string)=>void}){
- const [data,setData]=useState<Detail|null>(null),[error,setError]=useState(''),[photo,setPhoto]=useState(0);
+export default function FmicProductPreview({sku,onBack,onOpen,initialData}:{sku:string;onBack:()=>void;onOpen:(sku:string,name?:string)=>void;initialData?:Detail}){
+ const [data,setData]=useState<Detail|null>(initialData??null),[error,setError]=useState(''),[photo,setPhoto]=useState(0);
  const zoom=useRef<HTMLDialogElement>(null);
  const [expanded,setExpanded]=useState(false);
  const [retry,setRetry]=useState(0);
- useEffect(()=>{const ctrl=new AbortController();setData(null);setError('');setPhoto(0);setExpanded(false);zoom.current?.close();
+ useEffect(()=>{if(initialData?.product.sku===sku&&retry===0){setData(initialData);return}const ctrl=new AbortController();setData(null);setError('');setPhoto(0);setExpanded(false);zoom.current?.close();
  const timer=setTimeout(()=>{ctrl.abort();setError('Przekroczono czas ładowania produktu. Spróbuj ponownie.')},20000);
  fetch('/api/catalog/fmic/product?'+new URLSearchParams({sku}),{cache:'no-store',signal:ctrl.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':r.status===404?'Nie znaleziono produktu.':'Błąd pobierania produktu.');return r.json()}).then(d=>{if(!ctrl.signal.aborted)setData(d)}).catch(e=>{if(!ctrl.signal.aborted)setError(e.message)}).finally(()=>clearTimeout(timer));
- return()=>{clearTimeout(timer);ctrl.abort()}},[sku,retry]);
+ return()=>{clearTimeout(timer);ctrl.abort()}},[sku,retry,initialData]);
  const p=data?.product;
  const images=(Array.isArray(p?.images)?p.images:[]).filter(u=>typeof u==='string'&&u.startsWith('https://'));
  const technical=p?.technical;
@@ -41,7 +41,7 @@ export default function FmicProductPreview({sku,onBack,onOpen}:{sku:string;onBac
  {description&&<section className="fmic-pdp-spec rpm-pdp-description" aria-labelledby="rpm-pdp-description-title"><div className="rpm-pdp-section-head"><FileText size={21}/><h2 id="rpm-pdp-description-title">Opis produktu</h2></div><div id="rpm-pdp-description-content" className={'rpm-pdp-copy '+(longDescription&&!expanded?'is-collapsed':'')}>{description.split(/\n{2,}/).map((part,i)=><p key={i}>{part}</p>)}</div>{longDescription&&<button className="rpm-pdp-expand outline" type="button" aria-expanded={expanded} aria-controls="rpm-pdp-description-content" onClick={()=>setExpanded(v=>!v)}>{expanded?'Zwiń opis':'Rozwiń pełny opis'} <ChevronDown size={16} className={expanded?'is-expanded':''}/></button>}</section>}
  <section className="fmic-pdp-spec rpm-pdp-specification" aria-labelledby="rpm-pdp-spec-title"><div className="rpm-pdp-section-head"><ListChecks size={21}/><h2 id="rpm-pdp-spec-title">Dane produktu</h2></div><dl>{specification.map(([label,value])=><div key={label} className="fmic-pdp-spec-row"><dt>{label}</dt><dd>{value}</dd></div>)}</dl></section>
  </div>
- {!!data?.related.length&&<><h2 className="fmic-pdp-related-title">Powiązane produkty</h2><div className="fmic-pdp-related">{data.related.map(item=><article key={item.sku} className="fmic-pdp-related-card"><div className="rpm-related-media"><ProductImage src={item.image} alt={item.name}/></div><div className="fmic-pdp-related-info"><strong>{item.name}</strong><small>{item.sku}</small><strong>{fmicMoney(item.proposed_gross)}</strong><button className="outline" onClick={()=>onOpen(item.sku)}>Zobacz produkt</button></div></article>)}</div></>}
+ {!!data?.related.length&&<><h2 className="fmic-pdp-related-title">Powiązane produkty</h2><div className="fmic-pdp-related">{data.related.map(item=><article key={item.sku} className="fmic-pdp-related-card"><div className="rpm-related-media"><ProductImage src={item.image} alt={item.name}/></div><div className="fmic-pdp-related-info"><strong>{item.name}</strong><small>{item.sku}</small><strong>{fmicMoney(item.proposed_gross)}</strong><button className="outline" onClick={()=>onOpen(item.sku,item.name)}>Zobacz produkt</button></div></article>)}</div></>}
  <dialog ref={zoom} className="rpm-fmic-lightbox" aria-label="Galeria produktu"><div className="rpm-fmic-lightbox-inner"><div className="rpm-fmic-lightbox-head"><span>Zdjęcie produktu</span><button type="button" className="outline" onClick={()=>zoom.current?.close()} aria-label="Zamknij powiększenie"><X size={20}/></button></div>{images.length>0&&<div className="rpm-fmic-lightbox-media"><img src={images[photo]??images[0]} alt={p.name} referrerPolicy="no-referrer"/></div>}{images.length>1&&<div className="rpm-fmic-lightbox-nav"><button type="button" className="outline" onClick={()=>move(-1)}><ChevronLeft size={17}/> Poprzednie</button><span>{photo+1} / {images.length}</span><button type="button" className="outline" onClick={()=>move(1)}>Następne <ChevronRight size={17}/></button></div>}</div></dialog>
  </>}</section>
 }
