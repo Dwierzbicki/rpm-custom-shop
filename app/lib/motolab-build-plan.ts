@@ -54,7 +54,11 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
  const tasks=buildPlan(version,range,usage,tier,fuel);
  if(!tasks.length)return [];
  const assigned=new Set(tasks.flatMap(t=>t.candidates??[]));
- const slot=(id:string,pl:string,en:string,qty:number|null,conditional=false,candidate?:string):PartsSlot=>({id,label:[pl,en],qty,conditional,candidate:candidate&&assigned.has(candidate)?candidate:undefined});
+ // Curated candidate pools, not verified complete builds. Reuse only explicit
+ // engine applications or universal products with fitment still to confirm.
+ const pilot=range===1&&['m54b30','2jz-ge','2jz-gte'].includes(version);
+ const pool:Record<string,string>=pilot?{turbo:'turbo',intercooler:'intercooler',pump:'pump',ecu:'ecu',...(version==='m54b30'?{injectors:'injectors',rods:'rods',pistons:'pistons'}:version==='2jz-ge'?{injectors:'geInjectors',manifold:'geManifold'}:{rods:'gteRods',pistons:'gtePistons',manifold:'gteManifold'}),wastegate:'wastegate45'}:{};
+ const slot=(id:string,pl:string,en:string,qty:number|null,conditional=false,candidate?:string):PartsSlot=>({id,label:[pl,en],qty,conditional,candidate:pool[id]??(candidate&&assigned.has(candidate)?candidate:undefined)});
  return [
  slot('turbo','Turbosprężarka','Turbocharger',1,version==='2jz-gte','turbo'),
  slot('manifold','Kolektor turbo','Turbo manifold',1,version==='2jz-gte'),
@@ -88,6 +92,15 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
 
 /** Catalog candidates, never a blanket compatibility certificate. */
 export const alternatives:Record<string,BuildCandidate>={
+ turboVband:{sku:'102130140',expectedName:'Turbosprężarka Pulsar PSR 3076 Gen2 750HP 1.01 2,5" V-Band Wlot 3" V-Band Wylot Łożyska kulkowe',note:['Katalog: A/R 1.01, wlot V-Band 2,5 cala. Nie jest zamiennikiem montażowym wersji T4; reakcja i mapa do potwierdzenia.','Catalogue: A/R 1.01, 2.5-inch V-band inlet. Not a direct replacement for T4; response and map require confirmation.']},
+ geInjectors:{sku:'USA-DW-22S-03-1000-6',expectedName:'DeatschWerks zestaw 6 wtryskiwaczy paliwa 1000cc/min, Lexus IS300 2JZ-GE 01-05',note:['Zastosowanie katalogowe: Lexus IS300 2001–2005 2JZ-GE, komplet sześciu. Nie oznacza zgodności z każdą wersją GE; sprawdź listwę i dane kalibracyjne.','Catalogue application: 2001–2005 Lexus IS300 2JZ-GE, set of six. Confirm exact GE variant, fuel rail and calibration.']},
+ geManifold:{sku:'FMICPRO-MAN-2',expectedName:'Kolektor wydechowy FMIC.Pro Toyota 2JZ GE T4 Twin scroll stal nierdzewna 321',note:['Katalog: 2JZ-GE, T4 Twin Scroll, stal 321. Układ wastegate i miejsce montażu do potwierdzenia.','Catalogue: 2JZ-GE, T4 twin-scroll, 321 stainless. Confirm wastegate arrangement and packaging.']},
+ gteManifold:{sku:'FMICPRO-MAN-4',expectedName:'Kolektor wydechowy FMIC.Pro Toyota 2JZ GTE T4 Twin scroll stal nierdzewna 321',note:['Katalog: 2JZ-GTE, T4 Twin Scroll, stal 321. Układ wastegate i miejsce montażu do potwierdzenia.','Catalogue: 2JZ-GTE, T4 twin-scroll, 321 stainless. Confirm wastegate arrangement and packaging.']},
+ gteRods:{sku:'ZRP-R-TOY-006-H',expectedName:'Kute korbowody ZRP Toyota Supra 2JZ HD Series H-Beam R-TOY-006-H',note:['Katalog: seria HD 2JZ. Długość, sworzeń, stopa, komplet i nośność do potwierdzenia.','Catalogue: 2JZ HD series. Confirm length, pin, big end, set quantity and load rating.']},
+ gteRodsFmic:{sku:'FP-TOY-2JZ-I+A',expectedName:'Kute korbowody FMIC.Pro Toyota 2JZ-GTE I-BEAM Korbowody + śruby ARP',note:['Katalog: 2JZ-GTE, I-beam, śruby ARP. Wymiary i nośność do potwierdzenia.','Catalogue: 2JZ-GTE, I-beam, ARP bolts. Confirm dimensions and load rating.']},
+ gtePistons:{sku:'MAN-609000C-6',expectedName:'Kute tłoki Manley, Toyota Supra Turbo 93-98 - 2JZGTE 3.0L / STD, 86.0mm bore, CR 8.5, Dish -10cc',note:['Katalog: 2JZ-GTE, 86 mm, nominalne CR 8,5. Dobór zależy od rzeczywistej geometrii i pomiaru bloku.','Catalogue: 2JZ-GTE, 86 mm, nominal 8.5 CR. Fitment depends on actual geometry and bore measurement.']},
+ gtePistonsWiseco:{sku:'USA-WIS-K550M86AP',expectedName:'Kute tłoki silnika Wiseco K550M86AP 6 cyl, Toyota Supra 2JZGTE 3.0l 24V 93-98 Bore 3.386 (86.00mm) Size STD CR 8.3:1',note:['Katalog: 86 mm, nominalne CR 8,3. Nie zakładaj identycznego CR po zamianie.','Catalogue: 86 mm, nominal 8.3 CR. Do not assume identical CR after substitution.']},
+ wastegate45:{sku:'TS-0553-1012',expectedName:'Zawór wastegate Turbosmart TS-0553-1012 WG45 GenV Hypergate 45 14psi',note:['Katalog: 45 mm, 14 psi. Średnica, sprężyna, mocowania i liczba zaworów zależą od projektu; jedna sztuka nie oznacza kompletnego układu.','Catalogue: 45 mm, 14 psi. Diameter, spring, mounts and valve count depend on the build; one item is not a complete system.']},
  rodsFmic:{sku:'FP-BMW-M50-H-A',expectedName:'Kute korbowody Fmic.Pro BMW M20B25 M50B25 M52B25 M50B28 M52B28 M54B30 M52B32 + śruby ARP',note:['FMIC wymienia M54B30. Wymiary, typ śrub i wytrzymałość do potwierdzenia.','FMIC lists M54B30. Dimensions, bolt type and strength require confirmation.']},
  intercoolerJr:{sku:'IC60030076-JRSPEC',expectedName:'Intercooler JRspec 600x300x76mm',note:['Wymiary nominalne 600×300×76 mm. Wydajność cieplna, króćce i spadek ciśnienia niepotwierdzone.','Nominal dimensions 600×300×76 mm. Thermal performance, connections and pressure drop unconfirmed.']},
  intercoolerPsr:{sku:'234300005',expectedName:'PSR Pulsar Uniwersalny Wydajny Intercooler 600x300x76mm 76mm Wlot & Wylot',note:['Wymiary nominalne i króćce 76 mm według katalogu; wydajność cieplna do potwierdzenia.','Nominal dimensions and 76 mm ports per catalogue; thermal performance requires confirmation.']},
@@ -95,12 +108,27 @@ export const alternatives:Record<string,BuildCandidate>={
  injectors1500:{sku:'USA-DW-16M-30-1500-6',expectedName:'Zestaw wtryskiwaczy DeatschWerks 1500cc Porsche 911/996 H6 01-05 2001-05 BMW E46 M52 1998-2000 E46 3.2L M54/S54 2001-06 E90-E93 N52 2007-13 BMW 328ci',note:['Katalog: 1500 cc/min, zestaw dedykowany m.in. M54/S54. Zweryfikuj liczbę, ciśnienie referencyjne, geometrię i dane kalibracyjne. Większy przepływ nie oznacza lepszego doboru.','Catalogue: 1500 cc/min, application includes M54/S54. Confirm quantity, reference pressure, geometry and calibration. Higher flow is not inherently better.']}
 };
 export const allCandidates:Record<string,BuildCandidate>={...candidates,...alternatives};
-const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500']};
+const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco']};
 export function partOptions(slot:PartsSlot):string[]{
- return slot.candidate?[slot.candidate,...(optionKeys[slot.id]??[])]:[];
+ return slot.candidate?[slot.candidate,...(optionKeys[slot.candidate]??[])]:[];
 }
 export function selectedPart(slot:PartsSlot,selection:Record<string,string>):string|undefined{
  const options=partOptions(slot),choice=selection[slot.id];
  if(choice==='own')return undefined;
  return options.includes(choice)?choice:options[0];
+}
+
+export type BuildIssue={id:string;slots:string[];level:'conflict'|'review';message:[string,string]};
+export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel):BuildIssue[]{
+ const get=(id:string)=>{const s=slots.find(x=>x.id===id);return s?selectedPart(s,selection):undefined};
+ const issues:BuildIssue[]=[];
+ const turbo=get('turbo'),manifold=get('manifold');
+ if(turbo==='turboVband'&&(manifold==='geManifold'||manifold==='gteManifold'))issues.push({id:'flange',slots:['turbo','manifold'],level:'conflict',message:['Turbo V-Band nie pasuje bezpośrednio do kolektora T4 Twin Scroll. Zmień turbo lub dobierz inny kolektor.','V-band turbo does not directly fit a T4 twin-scroll manifold. Change the turbo or select a different manifold.']});
+ else if(turbo&&manifold)issues.push({id:'flange-review',slots:['turbo','manifold'],level:'review',message:['Katalogowo oba elementy mają T4 Twin Scroll; rzeczywiste mocowanie i układ wastegate wymagają potwierdzenia.','Both are catalogued as T4 twin-scroll; actual mount and wastegate layout still require confirmation.']});
+ const demand=estimateFuel(version,range,fuel),injector=get('injectors');
+ const flow=injector==='injectors'?1200:injector==='injectors1500'?1500:injector==='geInjectors'?1000:undefined;
+ if(flow&&demand&&flow<demand.injectorCc)issues.push({id:'injector-flow',slots:['injectors'],level:'conflict',message:['Nominalny przepływ wtryskiwacza jest niższy od szacowanego zapotrzebowania przy założeniach MotoLab. Dobierz wydajniejszy wariant.','Nominal injector flow is below estimated demand under MotoLab assumptions. Choose a higher-flow option.']});
+ else if(flow)issues.push({id:'injector-review',slots:['injectors'],level:'review',message:['Przepływ katalogowy to nie potwierdzenie wydajności przy wybranym paliwie i ciśnieniu; sprawdź również geometrię i kalibrację.','Catalogue flow is not proof of performance with the selected fuel and pressure; geometry and calibration also require confirmation.']});
+ if(get('pump'))issues.push({id:'pump-review',slots:['pump'],level:'review',message:['Brak potwierdzonej krzywej wydajności pompy przy ciśnieniu roboczym.','Pump flow curve at operating pressure is not confirmed.']});
+ return issues;
 }
