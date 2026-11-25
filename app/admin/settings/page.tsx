@@ -3,6 +3,7 @@ import {Truck,CreditCard,Building2,Wrench,Package,Percent,PlugZap,ShieldCheck,Ma
 
 const groups=[
  {title:'Sprzedaż i obsługa',description:'Ustawienia działających funkcji sklepu.',items:[
+  {href:'/admin/settings/fmic-commercial',title:'FMIC — ceny i dostawa',desc:'Podstawa ceny, narzut i symulacja kosztów dostawy',icon:Percent},
   {href:'/admin/settings/shipping',title:'Dostawa i odbiór',desc:'Kurier, darmowa dostawa i odbiór osobisty',icon:Truck},
   {href:'/admin/settings/payments',title:'Płatności',desc:'Przelew i płatność przy odbiorze',icon:CreditCard},
   {href:'/admin/settings/company',title:'Dane firmy',desc:'Dane kontaktowe, NIP i adres',icon:Building2},
