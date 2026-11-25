@@ -1,6 +1,9 @@
 import sharp from 'sharp';
 import {createHash} from 'node:crypto';
 import {getDbPool} from './db';
+// Keep native libvips allocations bounded on the 512 MiB storefront instance.
+sharp.cache(false);
+sharp.concurrency(1);
 
 let auditSetup:Promise<unknown>|undefined;
 export async function setupImageAudit(){
@@ -24,7 +27,7 @@ export async function inspectImage(url:string){
  const bytes=Buffer.concat(parts);
  const hash=createHash('sha256').update(bytes).digest('hex');
  let pixels:Buffer;
- try{pixels=await sharp(bytes,{limitInputPixels:25000000,failOn:'error'}).flatten({background:'#ffffff'}).resize(96,96,{fit:'fill'}).toColourspace('srgb').removeAlpha().raw().toBuffer()}
+ try{pixels=await sharp(bytes,{limitInputPixels:8000000,failOn:'error'}).flatten({background:'#ffffff'}).resize(96,96,{fit:'fill'}).toColourspace('srgb').removeAlpha().raw().toBuffer()}
  catch{return {status:'review',hash,detail:'Nie udało się zdekodować obrazu'};}
  // Only near-uniform white at every sampled pixel is hidden automatically.
  const blank=pixels.length===96*96*3&&pixels.every(v=>v>=250);

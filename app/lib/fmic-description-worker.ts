@@ -38,7 +38,7 @@ export function startDescriptionWorker(){
  try{
  await setupDescriptionQueue();const db=getDbPool();
  const control=await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (next_request_at IS NULL OR next_request_at<=NOW())');
- if(control.rows[0]?.enabled){
+ if(control.rows[0]?.enabled&&process.memoryUsage().rss<320*1024*1024){
  client=await db.connect();
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,3) AS acquired');locked=lock.rows[0].acquired;
  if(locked){

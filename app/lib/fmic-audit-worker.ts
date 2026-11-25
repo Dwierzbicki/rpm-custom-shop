@@ -32,7 +32,7 @@ export function startAuditWorker(){
  await setupAuditWorker();
  const db=getDbPool();
  const control=await db.query('SELECT enabled FROM rpm_fmic_audit_control WHERE id=1');
- if(control.rows[0]?.enabled){
+ if(control.rows[0]?.enabled&&process.memoryUsage().rss<320*1024*1024){
  client=await db.connect();
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,2) AS acquired');
  locked=lock.rows[0].acquired;
@@ -40,7 +40,7 @@ export function startAuditWorker(){
  const state=await client.query('SELECT enabled,intensity FROM rpm_fmic_audit_control WHERE id=1');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_audit_control SET heartbeat=NOW() WHERE id=1');
- const pending=await client.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT $1",[Math.max(1,Math.min(4,Number(state.rows[0].intensity)||2))]);
+ const pending=await client.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT $1",[1]);
  if(pending.rows.length){
  const outcomes=await Promise.all(pending.rows.map(async ({url})=>({url,...await inspectImage(url)})));
  await client.query('BEGIN');
@@ -49,7 +49,7 @@ export function startAuditWorker(){
  await client.query('UPDATE rpm_fmic_audit_control SET processed=processed+$1,heartbeat=NOW(),last_error=NULL WHERE id=1',[outcomes.filter(x=>x.detail!=='HTTP 429'&&x.detail!=='HTTP 503').length]);
  await client.query('COMMIT');
  }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}
- delay=outcomes.some(x=>x.detail==='HTTP 429'||x.detail==='HTTP 503')?30000:1000;
+ delay=outcomes.some(x=>x.detail==='HTTP 429'||x.detail==='HTTP 503')?30000:5000;
  }
  }
  }
