@@ -1,10 +1,10 @@
 .rpm-settings-error{color:#ff8d9d}
-.rpm-login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:#0c121c}
-.rpm-login-card{width:min(100%,440px);background:#17202d;border:1px solid #364357;border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:18px;color:#e7edf6}
+.rpm-login-page{min-height:100vh;display:grid;place-items:center;padding:24px;background:var(--rpm-color-background)}
+.rpm-login-card{width:min(100%,440px);background:var(--rpm-color-panel);border:1px solid var(--rpm-color-panel-border);border-radius:16px;padding:36px;display:flex;flex-direction:column;gap:18px;color:#e7edf6}
 .rpm-login-card h1{font-size:28px;line-height:1.2;margin:0;color:#fff}
 .rpm-login-card p{margin:0;color:#aebcd0}
 .rpm-login-card label{display:flex;flex-direction:column;gap:8px;font-weight:600}
-.rpm-login-card input{width:100%;border-radius:8px;background:#0e1520;border:1px solid #46546a;color:#fff;padding:13px}
+.rpm-login-card input{width:100%;border-radius:8px;background:var(--rpm-color-surface);border:1px solid var(--rpm-color-border-strong);color:#fff;padding:13px}
 .rpm-login-card .primary{justify-content:center}
 .rpm-customer-google{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;margin:18px 0;padding:14px 18px;border-radius:8px}
 .rpm-login-note{font-size:12px;opacity:.75;line-height:1.5}
