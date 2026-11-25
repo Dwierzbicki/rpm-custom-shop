@@ -13,4 +13,4 @@ export function buildSearchTree(rows:CategoryCount[]):CategoryNode[]{
  function sort(nodes:CategoryNode[]){nodes.sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name,'pl'));nodes.forEach(n=>sort(n.children));return nodes}
  return sort(roots)
 }
-export function searchCategoryHref(path:string,query:string){return path+'?'+new URLSearchParams({fmicPreview:'1',q:query.trim()})}
+export function searchCategoryHref(path:string,query:string){return path+'?'+new URLSearchParams({q:query.trim()})}
