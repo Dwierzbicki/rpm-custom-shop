@@ -19,7 +19,7 @@ export async function GET(request:Request){
  const raw=Number(params.get('page')??1),page=Number.isSafeInteger(raw)?Math.max(1,Math.min(10000,raw)):1,size=24;
  const q=(params.get('q')??'').trim().slice(0,120);
  const includeManual=new URL(request.url).pathname==='/api/catalog/fmic';
- if(!includeManual&&!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[]});
+ if(!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[],includesManual:includeManual});
  const sort=params.get('sort');
  const stock=params.get('stock')==='available'?'available':params.get('stock')==='unavailable'?'unavailable':'all';
  const supplierOrder=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
@@ -46,12 +46,25 @@ export async function GET(request:Request){
   if((lower!==null&&p.price<lower)||(upper!==null&&p.price>upper))return [];
   const numeric=(value?:string)=>{const m=value?.trim().match(/^([0-9]+(?:[.,][0-9]+)?)(?:\s*mm)?$/i);return m?String(Number(m[1].replace(',','.'))):null};
   const profile=p.attributes?.['Profil']?.trim().toUpperCase();
-  const facetValues={rod_length:numeric(p.attributes?.['Długość między osiami']??p.attributes?.['Długość korbowodu (mm)']),rod_type:profile&&['H','I','X'].includes(profile)?profile+'-Beam':null};
+  const facetValues:Record<string,string|null>={};
+  for(const def of defs){
+   if(def.key==='producer')continue;
+   const raw=p.attributes?.[def.key]??p.attributes?.[def.label];
+   if(!raw?.trim())continue;
+   const unit=def.label.match(/\((mm|cm|ml|cc\/min|l\/h|PSI)\)/i)?.[1];
+   if(unit){const m=raw.trim().match(/^([0-9]+(?:[.,][0-9]+)?)(?:\s*[a-zA-Z/]+)?$/);facetValues[def.key]=m?String(Number(m[1].replace(',','.'))):raw.trim()}
+   else if(def.key==='compression')facetValues[def.key]=raw.trim().replace(/\s*:\s*1$/,'').replace(',','.');
+   else facetValues[def.key]=raw.trim();
+  }
+  if(target_category.includes('Kute korbowody')){
+   facetValues.rod_length=numeric(p.attributes?.['Długość między osiami']??p.attributes?.['Długość korbowodu (mm)']??p.attributes?.rod_length)??facetValues.rod_length??null;
+   facetValues.rod_type=profile&&['H','I','X'].includes(profile)?profile+'-Beam':facetValues.rod_type??null;
+  }
   return [{sku:p.sku,name:p.name,proposed_gross:p.price,available,manual_id:p.id,manual_stock_status:p.stockStatus,target_category,data:{brand:p.brand,images:p.images??[],facetValues},mapping_status:'manual'}];
  }):[];
  const manualRows=manualGlobal.filter(p=>path.every((name,i)=>p.target_category[i]===name));
  const mixed=manualRows.length>0;
- const order=sort==='priceAsc'||sort==='priceDesc'?supplierOrder:mixed?'available DESC, manual_id DESC NULLS LAST, sku ASC':supplierOrder;
+ const order=supplierOrder;
  const manualParameter=6+patterns.length;
  const values:unknown[]=[...base,lower,upper,...patterns,...(mixed?[JSON.stringify(manualRows)]:[])];
  const manualCte=mixed?'manual_rows AS MATERIALIZED (SELECT * FROM jsonb_to_recordset($'+manualParameter+'::jsonb) AS m(sku text,name text,proposed_gross numeric,available boolean,manual_id integer,manual_stock_status text,target_category text[],data jsonb,mapping_status text)), ':'';
@@ -59,7 +72,7 @@ export async function GET(request:Request){
  const manualSelect=(columns:string)=>mixed?' UNION ALL SELECT '+columns+(manualFacets?','+manualFacets:'')+' FROM manual_rows':'';
  const manualId=mixed?',NULL::integer AS manual_id':'';
  const facetColumns=defs.map(d=>d.expression+' AS '+d.key).join(',');
- const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)"+(!path.length&&q.length<2?' AND FALSE':'');
+ const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)";
  const source="WITH "+manualCte+"catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+from+manualSelect("sku,name,proposed_gross,available,data->'images' AS images")+") ";
  const facetSource="WITH "+manualCte+"catalog AS MATERIALIZED (SELECT "+facetColumns+from+(mixed?' UNION ALL SELECT '+manualFacets+' FROM manual_rows':'')+") ";
  const itemSource="WITH "+manualCte+"catalog AS (SELECT sku,proposed_gross,available"+manualId+(facetColumns?','+facetColumns:'')+from+manualSelect("sku,proposed_gross,available,manual_id")+") ";
