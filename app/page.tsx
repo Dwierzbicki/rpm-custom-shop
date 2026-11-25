@@ -120,7 +120,7 @@ export default function Shop(){
  onResetFilters={()=>{setTechnicalFilters({});setShopSubcategory(null);setQuery('');setCategory('Wszystkie');setEngineFilter('Wszystkie');setSort('featured')}}
  onSort={setSort} onOpenProduct={openProduct}
  />}
- {view==='product'&&!products.some(p=>p.id===selected.id)&&<main className="page narrow"><p>Produkt nie jest dostępny w aktualnym katalogu.</p><button className="primary" onClick={()=>navigate('catalog')}>Przejdź do sklepu</button></main>}
+ {view==='product'&&!products.some(p=>p.id===selected.id)&&<main className="page narrow"><p>{t('Produkt nie jest dostępny w aktualnym katalogu.')}</p><button className="primary" onClick={()=>navigate('catalog')}>Przejdź do sklepu</button></main>}
  {view==='product'&&products.some(p=>p.id===selected.id)&&<ProductDetailView
  selected={selected} lang={lang} t={t}
  photoIndex={photoIndex} onPhotoIndex={setPhotoIndex} onZoom={()=>setLightbox(true)}
@@ -140,7 +140,7 @@ export default function Shop(){
  onQuantityChange={changeQuantity}
  onRemove={removeLine}
 />}
- {view==='checkout'&&cart.some(l=>l.fmicSku)&&<main className="page narrow"><h1>Zakup online jeszcze niedostępny</h1><button className="primary" onClick={()=>navigate('cart')}>Wróć do koszyka</button></main>}
+ {view==='checkout'&&cart.some(l=>l.fmicSku)&&<main className="page narrow"><h1>{t('Zakup online jeszcze niedostępny')}</h1><button className="primary" onClick={()=>navigate('cart')}>{t('Wróć do koszyka')}</button></main>}
  {view==='checkout'&&!cart.some(l=>l.fmicSku)&&<CheckoutView
   t={t} lang={lang}
   cart={cart} products={products} cartTotal={linesTotal(cart)}
