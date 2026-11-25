@@ -57,3 +57,16 @@ test('parts list includes unresolved slots but no workshop tasks',()=>{
  assert.ok(stroker.some(s=>s.id==='crank'));assert.equal(stroker.filter(s=>s.candidate).length,0);
  assert.equal(plan.buildParts('m54b30',4,'drift','recommended','petrol').length,0);
 });
+
+test('alternative selection is scoped to slot and engine; choosing own part removes it from purchase selection',()=>{
+ const slots=plan.buildParts('m54b30',1,'drift','recommended','petrol'),ic=slots.find(s=>s.id==='intercooler'),inj=slots.find(s=>s.id==='injectors');
+ assert.equal(plan.partOptions(ic).length,4);
+ assert.equal(plan.selectedPart(ic,{}),'intercooler');
+ assert.equal(plan.selectedPart(ic,{intercooler:'intercoolerJr'}),'intercoolerJr');
+ assert.equal(plan.selectedPart(ic,{intercooler:'injectors1500'}),'intercooler');
+ assert.equal(plan.selectedPart(ic,{intercooler:'own'}),undefined);
+ assert.equal(plan.partOptions(inj).length,2);
+ assert.equal(plan.selectedPart(inj,{injectors:'injectors1500'}),'injectors1500');
+ for(const s of plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol'))assert.equal(plan.partOptions(s).length,0);
+ assert.equal(plan.alternatives.injectors1500.verification,undefined);
+});
