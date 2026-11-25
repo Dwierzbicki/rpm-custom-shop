@@ -104,3 +104,27 @@
 .fmic-pdp .rpm-fmic-lightbox-media{width:100%;height:min(760px,calc(100dvh - 208px));min-height:0;flex:none}
 .fmic-pdp .rpm-fmic-lightbox-media img{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;object-position:center}
 @media(max-width:600px){.fmic-pdp .rpm-fmic-lightbox{width:calc(100vw - 20px)}.fmic-pdp .rpm-fmic-lightbox-media{height:min(100vw,calc(100dvh - 160px))}}
+
+/* Two-column product hero, full-width specifications, no empty third column. */
+.fmic-pdp .rpm-pdp-title{margin:0 0 18px}
+.fmic-pdp .rpm-pdp-title h1{font-size:clamp(23px,2.1vw,32px);line-height:1.22;margin:8px 0 10px;letter-spacing:-.025em;overflow-wrap:anywhere}
+.fmic-pdp .rpm-pdp-title .rpm-product-sku{margin:0}
+.fmic-pdp .rpm-pdp-highlights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.fmic-pdp .rpm-pdp-highlights>div{background:#232933;border:1px solid #394451;border-radius:8px;padding:13px 16px;display:grid;gap:5px;min-width:0}
+.fmic-pdp .rpm-pdp-highlights span{font-size:12px;color:#aeb9c9}
+.fmic-pdp .rpm-pdp-highlights strong{font-size:20px;line-height:1.3;overflow-wrap:anywhere}
+.fmic-pdp .rpm-pdp-tech-panel{margin-top:22px}
+.fmic-pdp .rpm-pdp-tech-panel dl>div{padding:11px 16px;min-width:0;border-bottom:1px solid #343d49}
+.fmic-pdp .rpm-pdp-tech-panel .rpm-pdp-warranty{display:flex;align-items:center;gap:12px;margin:14px;padding:14px 16px;border:1px solid #426b57;border-left:3px solid #62c997;background:#223b32;border-radius:7px;color:#b9f3d1}
+.fmic-pdp .rpm-pdp-warranty svg{flex:none;color:#80dca8}
+.fmic-pdp .rpm-pdp-warranty p{color:#d0e5d9}
+@media(min-width:901px){
+ .fmic-pdp.has-technical .fmic-pdp-grid,.fmic-pdp .fmic-pdp-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
+ .fmic-pdp .fmic-pdp-gallery .detail-main-photo{height:clamp(280px,37vh,380px);aspect-ratio:auto;padding:20px}
+ .fmic-pdp .fmic-pdp-placeholder{height:clamp(280px,37vh,380px)}
+ .fmic-pdp .rpm-pdp-tech-panel dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(odd){border-right:1px solid #343d49}
+ .fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+1),.fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+2){background:#202630}
+ .fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+3),.fmic-pdp .rpm-pdp-tech-panel dl>div:nth-child(4n+4){background:#171c24}
+}
+@media(max-width:900px){.fmic-pdp .rpm-pdp-highlights>div{padding:10px 12px}.fmic-pdp .rpm-pdp-highlights strong{font-size:17px}.fmic-pdp .rpm-pdp-tech-panel dl{display:block}}
