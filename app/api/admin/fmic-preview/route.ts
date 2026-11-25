@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server';
+import {brandSearchNames} from '../../../lib/brand-search';
 import {getDbPool} from '../../../lib/db';
 import {fmicSearchFacets} from '../../../lib/fmic-facets';
 import {visibleCatalog,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
@@ -20,8 +21,9 @@ export async function GET(request:Request){
  const patterns=searchPatterns(q);
  // Exact supplier brand metadata can identify products without the brand in the title.
  // Keep ordinary keyword searches unchanged.
- const strongflex=q.toLowerCase()==='strongflex';
- const conditions=(start:number)=>strongflex?"("+searchConditions(patterns,start)+" OR sku IN (SELECT e.sku FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog exact ON exact.sku=e.sku WHERE lower(trim(e.data->>'brand'))='strongflex' AND e.source_url=exact.data->>'url' AND e.data->>'sku'=exact.sku AND e.data->>'name'=exact.name))":searchConditions(patterns,start);
+ const brandNames=brandSearchNames(q);
+ const brandSql=brandNames.map(n=>"'"+n.replace(/'/g,"''")+"'").join(',');
+ const conditions=(start:number)=>brandNames.length?"("+searchConditions(patterns,start)+" OR sku IN (SELECT e.sku FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog exact ON exact.sku=e.sku WHERE lower(trim(e.data->>'brand')) IN ("+brandSql+") AND e.source_url=exact.data->>'url' AND e.data->>'sku'=exact.sku AND e.data->>'name'=exact.name))":searchConditions(patterns,start);
  const where="WHERE "+visibleCatalog+" AND "+listingCategoryMembership('$1',path)+" AND ($2::text IS NOT NULL) AND "+conditions(6)+" AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
  try{
  const db=getDbPool();
