@@ -10,7 +10,7 @@ export default function StandaloneStorefrontHeader(){
  const [mobileMenu,setMobileMenu]=useState(false),[activeFmicRoot,setActiveFmicRoot]=useState<number|null>(null),[activeFmicSub,setActiveFmicSub]=useState<number|null>(null);
  useEffect(()=>{
   let frame=0;
-  const measure=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{const nav=root.current?.querySelector('.rpm-desktop-categories');if(nav)setCompact(requiresCompactCategories(nav))})};
+  const measure=()=>{cancelAnimationFrame(frame);frame=requestAnimationFrame(()=>{const nav=root.current?.querySelector<HTMLElement>('.rpm-desktop-categories');if(nav)setCompact(requiresCompactCategories(nav))})};
   const sync=()=>{try{const saved=localStorage.getItem('rpm-language');if(saved==='pl'||saved==='en')setLang(saved);const cart=JSON.parse(localStorage.getItem('rpm-cart')??'[]');setCount(Array.isArray(cart)?cart.reduce((sum,line)=>sum+(Number(line?.qty)||0),0):0)}catch{}};
   sync();measure();window.addEventListener('resize',measure);window.addEventListener('storage',sync);document.fonts?.ready.then(measure);
   return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure);window.removeEventListener('storage',sync)};
