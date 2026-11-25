@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import ts from 'typescript';
+const source=readFileSync(new URL('../app/lib/fmic-commercial.ts',import.meta.url),'utf8');
+const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext,target:ts.ScriptTarget.ES2022}}).outputText;
+const {DEFAULT_FMIC_COMMERCIAL:d,validFmicCommercial,previewFmicPrice,parseFmicWeight,previewFmicDelivery}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+test('unknown prices never become sale prices',()=>assert.equal(previewFmicPrice(100,d),null));
+test('net purchase cost, markup and VAT are calculated separately',()=>assert.deepEqual(previewFmicPrice(100,{...d,priceBasis:'purchase_net',markupPercent:20}),{gross:147.6,net:120,profitNet:20}));
+test('gross purchase cost is not taxed twice',()=>assert.deepEqual(previewFmicPrice(123,{...d,priceBasis:'purchase_gross',markupPercent:20}),{gross:147.6,net:120,profitNet:20}));
+test('retail price does not imply procurement profit',()=>assert.deepEqual(previewFmicPrice(123,{...d,priceBasis:'retail_gross',markupPercent:50}),{gross:123,net:100,profitNet:null}));
+test('supplier weight format and invalid weights',()=>{assert.equal(parseFmicWeight('0.500000 kg'),.5);assert.equal(parseFmicWeight('2,5 kg'),2.5);assert.equal(parseFmicWeight(''),null);assert.equal(parseFmicWeight('0 kg'),null);assert.equal(parseFmicWeight('5 lb'),null)});
+test('shipping tiers require ordered bounds and known total weight',()=>{const s={...d,shippingMode:'weight',tiers:[{maxKg:5,gross:20},{maxKg:10,gross:35}]};assert.equal(validFmicCommercial(s),true);assert.deepEqual(previewFmicDelivery([{weight:'2 kg',qty:3}],s),{kg:6,gross:35});assert.equal(previewFmicDelivery([{weight:null,qty:1}],s),null);assert.equal(previewFmicDelivery([{weight:'11 kg',qty:1}],s),null);assert.equal(validFmicCommercial({...s,tiers:[...s.tiers].reverse()}),false)});
