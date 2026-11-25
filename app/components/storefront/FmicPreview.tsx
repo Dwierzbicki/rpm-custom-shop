@@ -4,29 +4,31 @@ import {Search,SlidersHorizontal,ChevronLeft,ChevronRight,ArrowRight,Package,Gri
 import '../../styles/fmic-listing.css';
 import FmicProductPreview from './FmicProductPreview';
 import {categoryPath,resolveCategoryPath} from '../../category-routing';
-type Result={items:{sku:string;name:string;proposed_gross:string;available:boolean;image:string|null}[];total:number;page:number;size:number;path:string[]};
+type Facet={key:string;label:string;options:{value:string;count:number}[]};
+type Result={facets?:Facet[];items:{sku:string;name:string;proposed_gross:string;available:boolean;image:string|null}[];total:number;page:number;size:number;path:string[]};
 export default function FmicPreview({pathname,lang,sort}:{pathname:string;lang:'pl'|'en';sort:string}){
  const [data,setData]=useState<Result|null>(null),[page,setPage]=useState(1),[q,setQ]=useState(''),[search,setSearch]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [stock,setStock]=useState('all'),[order,setOrder]=useState(sort),[filtersOpen,setFiltersOpen]=useState(false),[layout,setLayout]=useState('grid');
+ const [facets,setFacets]=useState<Facet[]>([]),[selected,setSelected]=useState<Record<string,string>>({}),[min,setMin]=useState(''),[max,setMax]=useState(''),[price,setPrice]=useState({min:'',max:''});
  const [sku,setSku]=useState('');
  useEffect(()=>{const sync=()=>setSku(new URLSearchParams(window.location.search).get('sku')??'');sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[pathname]);
  function openProduct(next:string){const url=new URL(window.location.href);url.searchParams.set('fmicPreview','1');url.searchParams.set('sku',next);window.history.pushState({},'',url.pathname+url.search);setSku(next);window.scrollTo({top:0})}
  function closeProduct(){const url=new URL(window.location.href);url.searchParams.delete('sku');window.history.pushState({},'',url.pathname+url.search);setSku('');window.scrollTo({top:0})}
  const path=resolveCategoryPath(pathname);
- useEffect(()=>{setPage(1);setQ('');setSearch('');setStock('all')},[pathname]);
+ useEffect(()=>{setPage(1);setQ('');setSearch('');setStock('all');setSelected({});setFacets([]);setMin('');setMax('');setPrice({min:'',max:''})},[pathname]);
  useEffect(()=>{
  if(!resolveCategoryPath(pathname)?.length)return;
  const controller=new AbortController();setBusy(true);setError('');setData(null);
- const params=new URLSearchParams({category:pathname,page:String(page),q:search,sort:order,stock});
- fetch('/api/admin/fmic-preview?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do panelu administratora.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted)setData(d)}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
+ const params=new URLSearchParams({category:pathname,page:String(page),q:search,sort:order,stock,...selected,...price});
+ fetch('/api/admin/fmic-preview?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do panelu administratora.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted){setData(d);setFacets(d.facets??[])}}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
  return()=>controller.abort();
- },[pathname,page,search,order,stock]);
+ },[pathname,page,search,order,stock,selected,price]);
  if(sku&&path?.length)return <FmicProductPreview key={sku} sku={sku} onBack={closeProduct} onOpen={openProduct}/>;
  if(!path?.length)return <p>Wybierz kategorię z menu, aby zobaczyć produkty FMIC.</p>;
  const pages=Math.max(1,Math.ceil((data?.total??0)/(data?.size??24)));
  const title=path[path.length-1];
  const go=(next:number)=>{setPage(next);window.scrollTo({top:0,behavior:'smooth'})};
- const reset=()=>{setQ('');setSearch('');setStock('all');setPage(1);setOrder('featured')};
+ const reset=()=>{setQ('');setSearch('');setStock('all');setPage(1);setOrder('featured');setSelected({});setMin('');setMax('');setPrice({min:'',max:''})};
  const pageNumbers=Array.from(new Set([1,...Array.from({length:5},(_,i)=>page+i-2).filter(n=>n>1&&n<pages),pages])).sort((a,b)=>a-b);
  return <section className="fmic-plp">
  <nav className="fplp-crumbs" aria-label="Ścieżka kategorii"><a href="/sklep?fmicPreview=1">Sklep</a>{path.map((name,i)=><span key={i}><ChevronRight size={13}/>{i===path.length-1?<strong>{name}</strong>:<a href={categoryPath(path.slice(0,i+1))+'?fmicPreview=1'}>{name}</a>}</span>)}</nav>
@@ -34,6 +36,8 @@ export default function FmicPreview({pathname,lang,sort}:{pathname:string;lang:'
  <div className="fplp-layout"><aside className={'fplp-filters '+(filtersOpen?'is-open':'')}><div className="fplp-filter-heading"><strong><SlidersHorizontal size={17}/> Filtry</strong><button type="button" onClick={reset}>Wyczyść</button></div>
  <form onSubmit={e=>{e.preventDefault();setPage(1);setSearch(q);setFiltersOpen(false)}}><label htmlFor="fplp-search">Szukaj w kategorii</label><div className="fplp-search"><input id="fplp-search" placeholder="Nazwa lub SKU" value={q} onChange={e=>setQ(e.target.value)} maxLength={120}/><button aria-label="Szukaj" type="submit"><Search size={17}/></button></div></form>
  <fieldset><legend>Dostępność</legend>{[['all','Wszystkie produkty'],['available','Dostępne'],['unavailable','Niedostępne']].map(([v,label])=><label className="fplp-radio" key={v}><input type="radio" name="stock" checked={stock===v} onChange={()=>{setStock(v);setPage(1)}}/>{label}</label>)}</fieldset>
+ <form className="fplp-price" onSubmit={e=>{e.preventDefault();if(min&&max&&Number(min)>Number(max))return;setPrice({min,max});setPage(1)}}><label>Cena brutto (zł)</label><div><input aria-label="Cena od" placeholder="Od" type="number" min="0" step="0.01" value={min} onChange={e=>setMin(e.target.value)}/><input aria-label="Cena do" placeholder="Do" type="number" min="0" step="0.01" value={max} onChange={e=>setMax(e.target.value)}/></div><button className="outline" type="submit">Zastosuj</button></form>
+ {facets.map(f=><label key={f.key} className="fplp-facet"><span>{f.label}</span><select value={selected[f.key]??''} onChange={e=>{setSelected(old=>({...old,[f.key]:e.target.value}));setPage(1)}}><option value="">Wszystkie</option>{selected[f.key]&&!f.options.some(o=>o.value===selected[f.key])&&<option value={selected[f.key]}>{selected[f.key]} (0)</option>}{f.options.map(o=><option key={o.value} value={o.value}>{o.value} ({o.count})</option>)}</select></label>)}
  <div className="fplp-filter-note">Dane pochodzą z aktualnego katalogu dostawcy. Cena jest proponowaną ceną brutto.</div></aside>
  <div className="fplp-main"><div className="fplp-toolbar"><button className="fplp-mobile-filter" onClick={()=>setFiltersOpen(v=>!v)}><SlidersHorizontal size={16}/> Filtry</button><span className="fplp-count">{data?<><strong>{data.total.toLocaleString('pl-PL')}</strong> produktów</>:busy?'Ładowanie…':''}</span><label className="fplp-sort"><span>Sortuj:</span><select value={order} onChange={e=>{setOrder(e.target.value);setPage(1)}}><option value="featured">Domyślnie</option><option value="priceAsc">Cena rosnąco</option><option value="priceDesc">Cena malejąco</option></select></label><div className="fplp-view"><button aria-label="Widok siatki" aria-pressed={layout==='grid'} onClick={()=>setLayout('grid')}><Grid2X2 size={17}/></button><button aria-label="Widok listy" aria-pressed={layout==='list'} onClick={()=>setLayout('list')}><List size={17}/></button></div></div>
  {search&&<button className="fplp-chip" onClick={()=>{setQ('');setSearch('');setPage(1)}}>{search} ×</button>}
