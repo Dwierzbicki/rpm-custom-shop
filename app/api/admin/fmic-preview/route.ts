@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 import {setupImageAudit} from '../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../lib/db';
 import {fmicSearchFacets} from '../../../lib/fmic-facets';
-import {visibleCatalog,categoryMembership,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
+import {visibleCatalog,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
 import {resolveCategoryPath} from '../../../category-routing';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -19,7 +19,7 @@ export async function GET(request:Request){
  const stock=params.get('stock')==='available'?'available':params.get('stock')==='unavailable'?'unavailable':'all';
  const order=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
  const patterns=searchPatterns(q);
- const where="WHERE "+visibleCatalog+" AND "+categoryMembership('$1')+" AND ($2::text IS NOT NULL) AND "+searchConditions(patterns,6)+" AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
+ const where="WHERE "+visibleCatalog+" AND "+listingCategoryMembership('$1',path)+" AND ($2::text IS NOT NULL) AND "+searchConditions(patterns,6)+" AND ($3='all' OR ($3='available' AND available) OR ($3='unavailable' AND NOT available))";
  try{
  await setupImageAudit();
  const db=getDbPool();
@@ -33,9 +33,8 @@ export async function GET(request:Request){
  const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)) ";
  const source="WITH catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+from;
  const facetSource="WITH catalog AS MATERIALIZED (SELECT "+facetColumns+from;
- const itemFrom=from.replace(categoryMembership('$1'),listingCategoryMembership('$1',path));
  // Keep large product JSON and image-audit lookups out of the sorting step.
- const itemSource="WITH catalog AS (SELECT sku,proposed_gross,available"+(facetColumns?','+facetColumns:'')+itemFrom;
+ const itemSource="WITH catalog AS (SELECT sku,proposed_gross,available"+(facetColumns?','+facetColumns:'')+from;
  function filtered(except=-1){
  const args:unknown[]=[...values];const conditions:string[]=[];
  defs.forEach((d,i)=>{if(i!==except&&selected[i]){args.push(selected[i]);conditions.push(d.key+'=$'+args.length)}});

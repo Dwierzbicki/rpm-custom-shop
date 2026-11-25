@@ -224,3 +224,11 @@ test('Standalone worker mode prevents background loops in the external-mode stor
  assert.equal(workerMode.fmicWorkerPoolSize({FMIC_WORKER_MODE:'external',FMIC_WORKER_PROCESS:'1'}),4);
  assert.equal(workerMode.fmicWorkerPoolSize({FMIC_WORKER_MODE:'external'}),10);
 });
+
+test('Producer facet retains explicit brand precedence and guarded word-boundary matching',()=>{
+ const expression=fmicSearchFacets([])[0].expression;
+ assert.ok(expression.startsWith("CASE WHEN NULLIF(trim(data->>'brand'),'') IS NOT NULL THEN trim(data->>'brand')"));
+ const expected="WHEN CASE WHEN strpos(lower(name),lower('Pulsar'))>0 THEN name ~* '"+String.raw`\mPulsar\M`+"' ELSE false END THEN 'Pulsar'";
+ assert.ok(expression.includes(expected));
+ assert.ok(expression.indexOf("THEN 'FMIC.Pro'")<expression.indexOf("THEN 'Pulsar'"));
+});
