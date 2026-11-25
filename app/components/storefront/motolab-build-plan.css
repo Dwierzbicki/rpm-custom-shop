@@ -137,3 +137,22 @@
 @media(max-width:950px){.rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{grid-template-columns:68px minmax(0,1fr)}.rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:68px;height:68px}.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:2;text-align:left;grid-template-columns:minmax(0,1fr) minmax(100px,135px);align-items:center}.rpm-build-workspace .rpm-build-product-action>small{grid-column:1;grid-row:2}.rpm-build-workspace .rpm-build-product-action>button{grid-column:2;grid-row:1/3}.rpm-build-workspace .rpm-build-product-action>p{grid-column:1/-1}}
 @media(max-width:760px){.rpm-build-workspace .rpm-build-workspace-grid{grid-template-columns:minmax(0,1fr);gap:12px}.rpm-build-workspace .rpm-build-systems{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-build-workspace .rpm-build-systems button{min-height:62px}.rpm-build-workspace .rpm-build-side{grid-row:2;position:static}.rpm-build-workspace .rpm-build-main{grid-row:3}.rpm-build-workspace .rpm-build-side-price>strong{font-size:27px}.rpm-build-workspace .rpm-build-parts-group{padding:10px}.rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{padding:9px;gap:10px}.rpm-build-workspace .rpm-build-product-name{font-size:13px}.rpm-build-workspace .rpm-build-product-price{font-size:18px}.rpm-build-workspace .rpm-parts-option{grid-template-columns:48px minmax(0,1fr)}.rpm-build-workspace .rpm-parts-option>button{grid-column:2}}
 @media(max-width:380px){.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:1/-1}.rpm-build-workspace .rpm-build-systems button strong{font-size:12px}}
+
+/* Restore desktop system sidebar while retaining compact product cards. */
+@media(min-width:1101px){
+ .rpm-build-workspace .rpm-build-workspace-grid{grid-template-columns:minmax(160px,185px) minmax(0,1fr) minmax(220px,260px);gap:14px}
+ .rpm-build-workspace .rpm-build-systems{position:sticky;top:112px;grid-column:auto;grid-template-columns:minmax(0,1fr);gap:7px}
+ .rpm-build-workspace .rpm-build-systems button{min-height:64px;padding:10px;grid-template-columns:20px minmax(0,1fr);text-align:left}
+ .rpm-build-workspace .rpm-build-systems button.active{box-shadow:inset 3px 0 0 var(--rpm-color-accent)}
+ .rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{grid-template-columns:68px minmax(0,1fr);gap:12px}
+ .rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:68px;height:68px}
+ .rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:2;grid-template-columns:minmax(0,1fr) minmax(100px,135px);align-items:center;text-align:left}
+ .rpm-build-workspace .rpm-build-product-action>small{grid-column:1;grid-row:2}
+ .rpm-build-workspace .rpm-build-product-action>button{grid-column:2;grid-row:1/3}
+ .rpm-build-workspace .rpm-build-product-action>p{grid-column:1/-1}
+}
+@media(min-width:1500px){
+ .rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card{grid-template-columns:76px minmax(0,1fr) 120px}
+ .rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:76px;height:76px}
+ .rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:3;display:flex;flex-direction:column;align-items:stretch;text-align:right}
+}
