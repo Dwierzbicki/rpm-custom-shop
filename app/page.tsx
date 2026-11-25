@@ -10,7 +10,7 @@ import type {View} from './lib/storefront-config';
 import {useShopCollections} from './components/storefront/hooks/useShopCollections';
 import {useProductConfiguration} from './components/storefront/hooks/useProductConfiguration';
 import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetails';
-import {useEffect,useState} from 'react';
+import {useEffect,useMemo,useState} from 'react';
 import dynamic from 'next/dynamic';
 import {createPortal} from 'react-dom';
 import {ShoppingCart,Search,Menu,X,UserRound,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft,FileDown,Wind,Droplets,Fuel,Flame,Disc,GitBranch,Gauge,Cpu,Armchair,Sparkles,Boxes} from 'lucide-react';
@@ -52,9 +52,10 @@ export default function Shop(){
 
  const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[toast,setToast]=useState('');
  const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
- const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
+ const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({enabled:view==='catalog'&&!fmicPreview,products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t,view==='checkout');
  const {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
+ const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')})),[products]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({enabled:view==='guides',products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
  const resetSearch=()=>{setQuery('');setGlobalFmicQuery('')};
@@ -74,7 +75,7 @@ export default function Shop(){
  const {checkoutDone,receipt,orderBusy,orderError,handleCheckoutSubmit,resetCheckout}=useCheckoutSubmission({cart,lang,phonePrefix,shippingMethod,paymentMethod,shippingSettingsReady,clearCart:()=>setCart([]),t});
  return <>{lightbox&&selected.images?.length&&<div className="rpm-lightbox" role="dialog" aria-modal="true" aria-label="Podgląd zdjęcia produktu" onClick={()=>setLightbox(false)}><button className="lightbox-close" onClick={()=>setLightbox(false)} aria-label="Zamknij"><X size={25}/></button><img src={selected.images[photoIndex]??selected.images[0]} alt={selected.name} onClick={e=>e.stopPropagation()}/>{selected.images.length>1&&<div className="lightbox-nav" onClick={e=>e.stopPropagation()}><button onClick={()=>setPhotoIndex(i=>(i-1+selected.images!.length)%selected.images!.length)} aria-label="Poprzednie"><ChevronLeft/></button><span>{photoIndex+1} / {selected.images.length}</span><button onClick={()=>setPhotoIndex(i=>(i+1)%selected.images!.length)} aria-label="Następne"><ChevronRight/></button></div>}</div>}<StorefrontHeader
  compactCategories={compactCategories} lang={lang} query={query} count={count}
- fmicPreview={fmicPreview} ownSuggestions={products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')}))} onOwnSuggestion={id=>{const p=products.find(p=>String(p.id)===id);if(p)openProduct(p)}}
+ fmicPreview={fmicPreview} ownSuggestions={ownSuggestions} onOwnSuggestion={id=>{const p=products.find(p=>String(p.id)===id);if(p)openProduct(p)}}
  onQuery={setQuery} onClearSearch={()=>{resetSearch();if(view==='catalog'){const url=new URL(window.location.href);url.searchParams.delete('q');url.searchParams.delete('sku');window.history.pushState({},'',url.pathname+url.search)}}} onHome={()=>navigate('home')}
  onSearchSubmit={()=>{setShopLanding(false);setCategory('Wszystkie');setShopSubcategory(null);setEngineFilter('Wszystkie');setTechnicalFilters({});const term=query.trim();if(fmicPreview){setGlobalFmicQuery(term);setFmicPath('/sklep');setView('catalog');setMobileMenu(false);setFmicMenuOpen(false);window.history.pushState({},'','/sklep?'+new URLSearchParams({q:term}));window.scrollTo({top:0});}else{navigate('catalog')}}}
  onLanguageChange={changeLang} onGarage={()=>navigate('garage')} onCart={()=>navigate('cart')}
