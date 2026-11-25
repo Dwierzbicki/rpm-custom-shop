@@ -21,6 +21,11 @@ export async function setupFmicCatalog(){
  discount NUMERIC(5,2) NOT NULL CHECK(discount>=0 AND discount<100)
  );
  INSERT INTO rpm_fmic_settings(id,discount) VALUES(1,5) ON CONFLICT DO NOTHING;
+ CREATE TABLE IF NOT EXISTS rpm_fmic_category_overrides (
+ source_category TEXT PRIMARY KEY,
+ target_category TEXT[] NOT NULL CHECK(cardinality(target_category)>0),
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+ );
  CREATE INDEX IF NOT EXISTS rpm_fmic_catalog_category_idx ON rpm_fmic_catalog(source_category);
  CREATE INDEX IF NOT EXISTS rpm_fmic_catalog_mapping_idx ON rpm_fmic_catalog(mapping_status);`);
 }
@@ -35,8 +40,10 @@ export async function stageFmicBatch(rows:FmicRow[], db:Pick<ReturnType<typeof g
   return {...row,target_category:match.targetPath,mapping_status:match.status};
  });
  const result=await db.query(`INSERT INTO rpm_fmic_catalog(sku,name,source_price,proposed_gross,available,source_category,target_category,mapping_status,data)
- SELECT x->>'sku',x->>'name',(x->>'source_price')::numeric,ceil((x->>'source_price')::numeric*(100-(SELECT discount FROM rpm_fmic_settings WHERE id=1))/100),x->>'availability'='in stock',x->>'category_path',ARRAY(SELECT jsonb_array_elements_text(x->'target_category')),x->>'mapping_status',x
+ SELECT x->>'sku',x->>'name',(x->>'source_price')::numeric,ceil((x->>'source_price')::numeric*(100-(SELECT discount FROM rpm_fmic_settings WHERE id=1))/100),x->>'availability'='in stock',x->>'category_path',COALESCE(o.target_category,ARRAY(SELECT jsonb_array_elements_text(x->'target_category'))),CASE WHEN o.source_category IS NOT NULL THEN 'manual' ELSE x->>'mapping_status' END,x
  FROM jsonb_array_elements($1::jsonb) AS x
+ LEFT JOIN rpm_fmic_category_overrides o ON o.source_category=x->>'category_path'
+ WHERE TRUE
  ON CONFLICT(sku) DO UPDATE SET name=EXCLUDED.name,source_price=EXCLUDED.source_price,proposed_gross=EXCLUDED.proposed_gross,available=EXCLUDED.available,source_category=EXCLUDED.source_category,target_category=EXCLUDED.target_category,mapping_status=EXCLUDED.mapping_status,data=EXCLUDED.data,updated_at=NOW()`,[JSON.stringify(payload)]);
  return result.rowCount??0;
 }
