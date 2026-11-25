@@ -16,7 +16,7 @@ import type {View} from './lib/storefront-config';
 import {useShopCollections} from './components/storefront/hooks/useShopCollections';
 import {useProductConfiguration} from './components/storefront/hooks/useProductConfiguration';
 import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetails';
-import {useEffect,useMemo,useState} from 'react';
+import {useEffect,useState} from 'react';
 import InlineHomepageEditor from './inline-homepage-editor';
 import {createPortal} from 'react-dom';
 import {ShoppingCart,Search,Menu,X,UserRound,ChevronRight,Plus,Minus,Trash2,Warehouse,Settings2,Wrench,Check,ArrowRight,Package,ShieldAlert,ZoomIn,ChevronLeft,FileDown,Wind,Droplets,Fuel,Flame,Disc,GitBranch,Gauge,Cpu,Armchair,Sparkles,Boxes} from 'lucide-react';
@@ -28,7 +28,7 @@ import {categoryPath} from './category-routing';
 import {storefrontPath,storefrontLocation,pushStorefrontPath} from './lib/storefront-navigation';
 import {useStorefrontMenu} from './components/storefront/hooks/useStorefrontMenu';
 import {usePowerGuides} from './components/storefront/hooks/usePowerGuides';
-import {buildCatalogFilters,matchesCatalogAttributes} from './lib/catalog-filters';
+import {useCatalogFiltering} from './components/storefront/hooks/useCatalogFiltering';
 export default function Shop(){
  const [globalFmicQuery,setGlobalFmicQuery]=useState('');
  const fmicPreview=true;const [fmicPath,setFmicPath]=useState('');
@@ -40,7 +40,6 @@ export default function Shop(){
  const [expandedShopCategory,setExpandedShopCategory]=useState<string|null>(null);
  const [shopSubcategory,setShopSubcategory]=useState<ShopSubcategory|null>(null);
  const [inlineShopOpen,setInlineShopOpen]=useState(false);
- const [technicalFilters,setTechnicalFilters]=useState<Record<string,string>>({});
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
  useEffect(()=>{fetch('/api/catalog',{cache:'no-store'}).then(async response=>{if(response.ok){const data=await response.json();if(Array.isArray(data.products))setProducts(data.products)}}).catch(()=>{})},[]);
  const {lang,t,changeLang}=useStorefrontLanguage();
@@ -48,6 +47,7 @@ export default function Shop(){
 
  const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[toast,setToast]=useState('');
  const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
+ const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t);
  const {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine}=useShopCollections(products,view,setView);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
@@ -64,13 +64,6 @@ export default function Shop(){
  const openDepartmentSubcategory=(sub:ShopSubcategory)=>{if(!sub.catalogCategory)return;setShopSubcategory(sub);setCategory(sub.catalogCategory);setEngineFilter('Wszystkie');setQuery('');setSort('featured');setShopLanding(false);setInlineShopOpen(false);requestAnimationFrame(()=>document.getElementById('rpm-inline-catalog')?.scrollIntoView({behavior:'smooth',block:'start'}))};
  const categoryLabel=(name:string)=>lang==='en'?({'Wszystkie':'All products','Kolektory':'Turbo manifolds','Turbo':'Turbochargers','Intercoolery':'Intercoolers','Wastegate':'Wastegates','Osprzęt':'Fittings & hardware','Elektronika':'Electronics','Paliwo':'Fuel system'}[name]??name):name;
  const categoryIcon=(name:string)=>({'Kolektory':'⚙','Turbo':'◉','Intercoolery':'▤','Wastegate':'◇','Osprzęt':'⬡','Elektronika':'⌁','Paliwo':'◈'}[name]??'✦');
- const catalogCategories=useMemo(()=>['Wszystkie',...Array.from(new Set(products.map(p=>p.category).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pl'))],[products]);
- const activeCategoryProducts=useMemo(()=>products.filter(p=>(category==='Wszystkie'||p.category===category)&&(!shopSubcategory?.keywords?.length||shopSubcategory.keywords.some(k=>[p.name,p.description??'',p.sku].join(' ').toLocaleLowerCase('pl').includes(k.toLocaleLowerCase('pl'))))),[products,category,shopSubcategory]);
- const technicalFilterOptions=useMemo(()=>buildCatalogFilters(activeCategoryProducts,category),[activeCategoryProducts,category]);
- useEffect(()=>setTechnicalFilters({}),[category,shopSubcategory]);
- const catalogEngines=useMemo(()=>['Wszystkie',...Array.from(new Set(products.filter(p=>category==='Wszystkie'||p.category===category).map(p=>p.engine).filter(Boolean))).sort((a,b)=>a.localeCompare(b,'pl'))],[products,category]);
- useEffect(()=>{if(!catalogEngines.includes(engineFilter))setEngineFilter('Wszystkie')},[catalogEngines,engineFilter]);
- const filtered=useMemo(()=>{const needle=query.trim().toLocaleLowerCase('pl');let p=products.filter(p=>(category==='Wszystkie'||p.category===category)&&(!shopSubcategory?.keywords?.length||shopSubcategory.keywords.some(k=>[p.name,p.description??'',p.sku].join(' ').toLocaleLowerCase('pl').includes(k.toLocaleLowerCase('pl'))))&&(engineFilter==='Wszystkie'||p.engine===engineFilter)&&matchesCatalogAttributes(p,technicalFilters)&&`${p.name} ${p.brand} ${p.sku} ${p.engine} ${p.description??''}`.toLocaleLowerCase('pl').includes(needle));if(sort==='priceAsc')p=[...p].sort((a,b)=>a.price-b.price);if(sort==='priceDesc')p=[...p].sort((a,b)=>b.price-a.price);return p},[products,query,category,engineFilter,sort,shopSubcategory,technicalFilters]);
  const card=(p:Product)=><ProductCard key={p.id} product={p} onOpen={openProduct} translate={t}/>;
  const cartList=(lines:CartLine[],editable:boolean)=><CartLineList lines={lines} editable={editable} products={products} onOpen={openProduct} onQuantityChange={changeQuantity} onRemove={removeLine}/>;
  const {checkoutDone,receipt,orderBusy,orderError,handleCheckoutSubmit,resetCheckout}=useCheckoutSubmission({cart,lang,phonePrefix,shippingMethod,paymentMethod,shippingSettingsReady,clearCart:()=>setCart([]),t});
