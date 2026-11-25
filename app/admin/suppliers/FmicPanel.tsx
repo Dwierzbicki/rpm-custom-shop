@@ -12,8 +12,15 @@ export default function FmicPanel(){
  setBusy(true);setError('');setSaved('');
  try{const r=await fetch('/api/admin/suppliers/fmic',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({discount:value})});const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd zapisu');await load(q);setSaved('Zapisano regułę. Przeliczono '+d.updated+' cen.')}catch(e){setError(String(e))}finally{setBusy(false)}
  }
+ async function runImport(){
+ if(!window.confirm('Pobrać aktualny feed FMIC i zapisać produkty w katalogu dostawcy? Produkty nie zostaną opublikowane.'))return;
+ setBusy(true);setError('');setSaved('Import w toku. Nie zamykaj strony.');
+ try{const r=await fetch('/api/admin/suppliers/fmic/import',{method:'POST'});const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd importu');await load(q);setSaved('Zakończono import: '+d.imported+' produktów. Opublikowano: 0.')}
+ catch(e){setSaved('');setError(String(e))}finally{setBusy(false)}
+ }
  useEffect(()=>{void load()},[]);
  return <section className="rpm-settings-card"><h2>FMIC — katalog XML</h2><p>Ceny proponowane brutto: −{data?.discount??5}%, zaokrąglenie w górę do pełnego PLN. Katalog dostawcy nie jest jeszcze publikowany w sklepie.</p>
+ <button type="button" className="primary" disabled={busy||!data} onClick={()=>void runImport()}>Pobierz XML i importuj produkty FMIC</button>
  {error&&<p role="alert">{error}</p>}{saved&&<p role="status">{saved}</p>}
  <div className="rpm-settings-grid"><label>Obniżka od ceny FMIC (%)<input type="number" min="0" max="99.99" step="0.01" value={discount} onChange={e=>setDiscount(e.target.value)}/></label><div><p>Przykład: 1000 zł → {discount.trim()&&Number(discount)>=0&&Number(discount)<100?Math.ceil(1000*(100-Number(discount))/100-1e-9):'—'} zł brutto</p><button className="primary" disabled={busy||!data||!discount.trim()||Number(discount)<0||Number(discount)>99.99||!Number.isFinite(Number(discount))} onClick={()=>void saveDiscount()}>Zapisz i przelicz ceny</button></div></div>
  {data&&<><div className="rpm-settings-grid"><div>Produkty: <strong>{data.stats.total.toLocaleString('pl-PL')}</strong></div><div>Dostępne: <strong>{data.stats.available.toLocaleString('pl-PL')}</strong></div><div>Dopasowane: <strong>{data.stats.mapped.toLocaleString('pl-PL')}</strong></div><div>Do weryfikacji: <strong>{(data.stats.total-data.stats.mapped).toLocaleString('pl-PL')}</strong></div></div><p>Ostatnia aktualizacja: {data.stats.updated_at?new Date(data.stats.updated_at).toLocaleString('pl-PL'):'Brak importu'}</p></>}
