@@ -1,4 +1,4 @@
-/* Shared RPM colors; legacy and catalog accents intentionally remain distinct. */
+/* Shared RPM motorsport palette. Legacy aliases resolve to the same brand accent. */
 :root{
  --rpm-color-background:#090a0d;
  --rpm-color-surface:#17191e;
@@ -6,9 +6,11 @@
  --rpm-color-border:#353941;
  --rpm-color-text:#f7f7f8;
  --rpm-color-muted:#b3b5ba;
- --rpm-color-accent-legacy:#e3385b;
- --rpm-color-accent-pink:#f05289;
- --rpm-color-accent-bright:#ff4d8b;
+ --rpm-color-accent:#f12748;
+ --rpm-color-accent-hover:#ff4865;
+ --rpm-color-accent-legacy:var(--rpm-color-accent);
+ --rpm-color-accent-pink:var(--rpm-color-accent);
+ --rpm-color-accent-bright:var(--rpm-color-accent-hover);
  --rpm-color-text-cool:#edf0f5;
  --rpm-color-panel:#20252e;
  --rpm-color-panel-border:#363e49;
