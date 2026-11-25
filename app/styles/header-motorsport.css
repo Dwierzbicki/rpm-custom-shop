@@ -112,3 +112,25 @@
  .rpm-header-v2.rpm-header-wide .rpm-clean-nav{display:flex!important}
  .rpm-header-v2 .rpm-drawer-root-line,.rpm-header-v2 .rpm-drawer-sub-line,.rpm-header-v2 .rpm-drawer-leaves>button{min-height:44px}
 }
+
+/* Fill the entire desktop category segment: no unclickable space between separators. */
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation{
+ justify-content:flex-start!important;gap:0!important;padding-inline:0!important;
+}
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root{
+ flex:1 0 auto!important;
+}
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button{
+ flex:1 0 auto!important;width:100%;align-self:stretch;
+}
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root:not(:first-child)::before{
+ z-index:3;
+}
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button::after{
+ left:0;right:0;transform:scaleX(0);
+}
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root.active>.rpm-desktop-root-button::after,
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button:hover::after,
+.rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button:focus-visible::after{
+ transform:scaleX(1);
+}
