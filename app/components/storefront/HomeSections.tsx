@@ -1,7 +1,6 @@
 'use client';
 import {ArrowRight,Check,Package,Settings2,ShoppingCart,Wrench} from 'lucide-react';
 import type {Product} from '../../data';
-import {POWER_ENGINES} from '../../lib/storefront-config';
 import ProductCard from './ProductCard';
 import CommunitySection from './CommunitySection';
 import BrandCarousel from './BrandCarousel';
@@ -22,8 +21,8 @@ type Props={
  * Navigation and shared state remain owned by the storefront controller.
  */
 export default function HomeSections({
- lang,products,onCategory,onSelectGuideEngine,
- onOpenGuides,onOpenGarage,onOpenProduct,translate
+ lang,products,onCategory,
+ onOpenGarage,onOpenProduct,translate
 }:Props){
  return (
 <main className="drift-home rpm-hp-v2">
@@ -37,8 +36,8 @@ export default function HomeSections({
    <h3>{lang==='en'?'YOUR ENGINE. YOUR BUILD.':'TWÓJ SILNIK. TWOJE MOŻLIWOŚCI.'}</h3>
    <p>{lang==='en'?'Explore proven build paths and component recommendations for your engine.':"Wybierz silnik, poznaj możliwe konfiguracje i dobierz komponenty do swojego projektu."}</p>
    <div className="rpm-motolab-benefits"><span><Wrench size={20}/>{lang==='en'?'Engine-specific':'Dopasowane do silnika'}</span><span><Check size={20}/>{lang==='en'?'Component recommendations':'Rekomendacje części'}</span><span><Settings2 size={20}/>{lang==='en'?'Your build goals':'Twój cel mocy'}</span></div>
-   <div className="rpm-motolab-engines">{POWER_ENGINES.map((e,i)=><button type="button" className="rpm-motolab-engine" key={e.id} onClick={()=>{onSelectGuideEngine(e.id)}}><span className="rpm-motolab-engine-visual">{['M50','M52','M54','2JZ'][i]}</span><small>{e.make}</small><strong>{e.name}</strong><span className="rpm-motolab-engine-arrow"><ArrowRight size={17}/></span></button>)}</div>
-   <div className="rpm-motolab-actions"><button className="primary" onClick={onOpenGuides}><Wrench size={19}/>{lang==='en'?'CONFIGURE ENGINE':'KONFIGURUJ SILNIK'} <ArrowRight size={18}/></button><a href="/cr-calculator" className="rpm-motolab-secondary" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,minHeight:49,padding:"13px 19px",fontSize:12,fontWeight:850}}>{lang==='en'?'CR CALCULATOR 3D':'KALKULATOR CR 3D'} <ArrowRight size={18}/></a></div>
+   <div className="rpm-motolab-tools"><a href="/power-guides"><Wrench size={23}/><strong>Power Builder</strong><small>{lang==='en'?'Engine configuration':'Konfiguracja silnika'}</small><ArrowRight size={15}/></a><a href="/cr-calculator"><Settings2 size={23}/><strong>CR Calculator 3D</strong><small>{lang==='en'?'Engine geometry':'Geometria silnika'}</small><ArrowRight size={15}/></a><a href="/motolab"><Package size={23}/><strong>ITB Designer</strong><small>{lang==='en'?'Intake design':'Projektowanie dolotu'}</small><ArrowRight size={15}/></a></div>
+   <div className="rpm-motolab-actions"><a href="/motolab" className="primary rpm-motolab-entry">{lang==='en'?'EXPLORE MOTOLAB':'PRZEJDŹ DO MOTOLAB'} <ArrowRight size={18}/></a></div>
   </div>
   <div className="rpm-motolab-photo" aria-hidden="true"><div className="rpm-motolab-photo-caption"><span>RPM CUSTOM</span><strong>ENGINE PERFORMANCE</strong><small>BUILD WITHOUT LIMITS</small></div></div>
  </section>
