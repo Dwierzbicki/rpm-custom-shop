@@ -48,9 +48,9 @@ test('stroker is distinct, has a geometry task and no borrowed M54 candidates',(
 
 test('parts list includes unresolved slots but no workshop tasks',()=>{
  const slots=plan.buildParts('m54b30',1,'drift','recommended','petrol');
- assert.equal(slots.filter(s=>s.candidate).length,7);
+ assert.equal(slots.filter(s=>s.candidate).length,8);
  assert.equal(slots.find(s=>s.id==='injectors').qty,1);
- assert.ok(slots.some(s=>s.id==='wastegate'&&!s.candidate));
+ assert.ok(slots.some(s=>s.id==='manifold'&&!s.candidate));
  assert.ok(!slots.some(s=>['health','hybrid','diagnostics'].includes(s.id)));
  assert.equal(new Set(slots.map(s=>s.id)).size,slots.length);
  const stroker=plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol');
@@ -69,4 +69,20 @@ test('alternative selection is scoped to slot and engine; choosing own part remo
  assert.equal(plan.selectedPart(inj,{injectors:'injectors1500'}),'injectors1500');
  for(const s of plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol'))assert.equal(plan.partOptions(s).length,0);
  assert.equal(plan.alternatives.injectors1500.verification,undefined);
+});
+
+test('GE and GTE use distinct engine-specific catalog pools',()=>{
+ const ge=plan.buildParts('2jz-ge',1,'drift','recommended','petrol'),gte=plan.buildParts('2jz-gte',1,'street','budget','petrol');
+ assert.equal(ge.find(s=>s.id==='manifold').candidate,'geManifold');
+ assert.equal(gte.find(s=>s.id==='manifold').candidate,'gteManifold');
+ assert.equal(ge.find(s=>s.id==='rods').candidate,undefined);
+ assert.equal(gte.find(s=>s.id==='injectors').candidate,undefined);
+ assert.equal(plan.partOptions(gte.find(s=>s.id==='rods')).join(','),'gteRods,gteRodsFmic');
+ assert.equal(plan.buildParts('2jz-gte',4,'drift','premium','ethanol').filter(s=>s.candidate).length,0);
+});
+test('flange mismatch changes immediately when turbo is switched',()=>{
+ const s=plan.buildParts('2jz-gte',1,'street','recommended','petrol');
+ assert.ok(!plan.assessBuild(s,{},'2jz-gte',1,'petrol').some(i=>i.level==='conflict'));
+ assert.ok(plan.assessBuild(s,{turbo:'turboVband'},'2jz-gte',1,'petrol').some(i=>i.id==='flange'&&i.level==='conflict'));
+ assert.ok(!plan.assessBuild(s,{turbo:'turboVband',manifold:'own'},'2jz-gte',1,'petrol').some(i=>i.level==='conflict'));
 });
