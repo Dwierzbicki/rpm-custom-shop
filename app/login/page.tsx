@@ -1,4 +1,5 @@
 'use client';
+import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';
 import {Suspense} from 'react';
@@ -10,4 +11,4 @@ function LoginContent(){
  {params.get('error')&&<p role="alert" className="rpm-settings-error">Nie udało się zalogować przez Google. Spróbuj ponownie.</p>}
  <Link href="/">Wróć do sklepu i kupuj bez logowania</Link></section></main>
 }
-export default function Login(){return <Suspense fallback={<main className="rpm-login-page"/>}><LoginContent/></Suspense>}
+export default function Login(){return <><StandaloneStorefrontHeader/><Suspense fallback={<main className="rpm-login-page"/>}><LoginContent/></Suspense></>}

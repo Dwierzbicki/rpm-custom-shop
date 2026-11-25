@@ -1,5 +1,6 @@
+import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 import type {Metadata} from 'next';
-import {ArrowLeft,ArrowRight,Box,Gauge,Wind} from 'lucide-react';
+import {ArrowRight,Box,Gauge,Wind} from 'lucide-react';
 
 export const metadata:Metadata={
  title:'Designery CAD | RPM Custom',
@@ -11,10 +12,7 @@ const itbActive=Boolean(process.env.ITB_DESIGNER_ORIGIN);
 export default function DesignersPage(){
  return (
   <div className="drift-home rpm-designers">
-   <header className="header" style={{justifyContent:'space-between',gap:12}}>
-    <a href="/" className="logo" aria-label="RPM Custom — strona główna"><img src="/rpm-logo.png.png" alt="RPM Custom — Exhaust & Intake Solutions" className="brand-logo"/></a>
-    <a href="/" className="outline" style={{textDecoration:'none',padding:'10px 14px',fontSize:12}}><ArrowLeft size={16}/> Wróć do sklepu</a>
-   </header>
+   <StandaloneStorefrontHeader/>
    <main>
     <section className="drift-hero" style={{minHeight:'clamp(340px,34vw,480px)',justifyContent:'center'}}>
      <div className="drift-hero-photo" aria-hidden="true"/>

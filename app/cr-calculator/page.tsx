@@ -1,4 +1,5 @@
 "use client";
+import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
@@ -166,14 +167,7 @@ export default function CrCalculatorPage() {
   ];
 
   return <main className={styles.page}>
-    <header className={styles.topbar}>
-      <a href="/" className={styles.logo} aria-label="RPM Custom — strona główna">RPM <span>CUSTOM</span><small>MOTOLAB / ENGINEERING</small></a>
-      <nav className={styles.nav} aria-label="Nawigacja">
-        <a href="/designery">Kreatory CAD</a>
-        <a href="/intake-designer">Kolektory 3D</a>
-        <a href="/">Sklep ↗</a>
-      </nav>
-    </header>
+    <StandaloneStorefrontHeader/>
 
     <div className={styles.container}>
       <section className={styles.hero}>
