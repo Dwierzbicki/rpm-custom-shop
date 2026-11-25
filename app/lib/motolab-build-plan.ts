@@ -1,9 +1,9 @@
-import {POWER_ENGINES,POWER_RANGES} from './storefront-config';
+import {POWER_ENGINES,powerRangesFor} from './storefront-config';
 export type Fuel='unknown'|'petrol'|'ethanol';
 export type BuildTask={id:string;title:[string,string];detail:[string,string];level:'required'|'inspect'|'conditional';candidates?:string[]};
 export type BuildCandidate={sku:string;expectedName:string;note:[string,string];source?:string;verification?:{checkedOn:string;scope:[string,string];url:string}};
 export const candidates:Record<string,BuildCandidate>={
- injectors:{sku:'DW-16MX-30-1200-6',expectedName:'Zestaw wtryskiwaczy DeatschWerks 1200cc BMW E46 3.2L M54/S54 2001-06 Porsche 911 996 H6 3.6L turbo 2001-05 BMW 328ci 2000 330i/330xi 2001-05 330ci 200',note:['Producent: komplet 6 Bosch EV14, 1200 cm³/min, zgodność z etanolem; potwierdź montaż i dane strojenia.','Manufacturer: matched set of six Bosch EV14, 1200 cc/min, ethanol-compatible; confirm fitment and calibration data.'],source:'https://deatschwerks.com/products/16mx-30-1200-6',verification:{"checkedOn":"2026-11-25","scope":["Komplet 6, 1200 cm³/min, Bosch EV14, zgodność z etanolem","Set of six, 1200 cc/min, Bosch EV14, ethanol compatibility"],"url":"https://deatschwerks.com/products/16mx-30-1200-6"}},
+ injectors:{sku:'DW-16MX-30-1200-6',expectedName:'Zestaw wtryskiwaczy DeatschWerks 1200cc BMW E46 3.2L M54/S54 2001-06 Porsche 911 996 H6 3.6L turbo 2001-05 BMW 328ci 2000 330i/330xi 2001-05 330ci 200',note:['Producent: komplet 6 Bosch EV14, 1200 cm³/min; potwierdź montaż i dane strojenia.','Manufacturer: matched set of six Bosch EV14, 1200 cc/min; confirm fitment and calibration data.'],source:'https://deatschwerks.com/products/16mx-30-1200-6',verification:{"checkedOn":"2026-11-25","scope":["Komplet 6, 1200 cm³/min, Bosch EV14","Set of six, 1200 cc/min, Bosch EV14"],"url":"https://deatschwerks.com/products/16mx-30-1200-6"}},
  pistons:{sku:'USA-WIS-KE325M84',expectedName:'Kute tłoki silnika Wiseco KE325M84 BMW E46 M54B30 Double Vanos 3.0L (84.00mm) STD, 9.0:1 CR',note:['Katalog FMIC: 84 mm, nominalne CR 9:1. Dane producenta niepotwierdzone. Wybierz dopiero po pomiarze cylindrów i obliczeniu rzeczywistego CR.','FMIC lists 84 mm and nominal 9:1 CR. Manufacturer data not verified. Select only after measuring cylinders and calculating actual CR.']},
  turbo:{sku:'102130183',expectedName:'Turbosprężarka Pulsar PSR 3076 Gen2 750HP .85 T4 Twin Scroll Wlot 3" V-Band Wylot Łożyska kulkowe',note:['Producent deklaruje około 65 lb/min i 750 FWHP dla modelu. Wariant T4 twin scroll .85. Porównaj mapę sprężarki i reakcję z celem momentu; potrzebny zgodny kolektor i układ wastegate.','Manufacturer quotes approximately 65 lb/min and 750 FWHP for the model. T4 twin-scroll .85 variant. Check compressor map and response against torque target; requires matching manifold and wastegate layout.'],source:'https://pulsarturbo.com/product/psr3076-gen2-dual-ball-bearing-turbocharger/'},
  ecu:{sku:'ECU-EMU-BLACK',expectedName:'EcuMaster EMU BLACK USB-C',note:['Sterownik uniwersalny; dobierz wiązkę, czujniki, obsługę przepustnicy i VANOS.','Universal ECU; confirm wiring, sensors, throttle and VANOS control.'],source:'https://www.ecumaster.com/products/emu-black/',verification:{"checkedOn":"2026-11-25","scope":["Funkcje EMU BLACK, w tym wejście lambda, MAP 4 bar i Flex Fuel","EMU BLACK features including wideband input, 4 bar MAP and flex fuel"],"url":"https://www.ecumaster.com/products/emu-black/"}},
@@ -12,8 +12,8 @@ export const candidates:Record<string,BuildCandidate>={
  rods:{sku:'ZRP-R-BMW-006-I',expectedName:'Kute korbowody ZRP BMW M20B25 / M50B25 / M52B25 / M50B28 / M52B28 / M54B30 / M52B32 Classic Series R-BMW-006-I',note:['Producent: R-BMW-006-I, komplet 6, 135 mm, sworzeń 22 mm, otwór stopy 48 mm, ARP2000. Sprawdź wymiary i luzy konkretnego silnika.','Manufacturer: R-BMW-006-I, set of six, 135 mm, 22 mm pin, 48 mm big-end bore, ARP2000. Verify actual engine dimensions and clearances.'],source:'https://zrp-rods.com/shop/bmw-m20b25-m50b25-m52b25-m50b28-m52b28-m54b30-m52b32-classic-series-connecting-rods/',verification:{"checkedOn":"2026-11-25","scope":["R-BMW-006-I, zastosowanie M54B30, długość 135 mm i sworzeń 22 mm","R-BMW-006-I, M54B30 application, 135 mm length and 22 mm pin"],"url":"https://zrp-rods.com/shop/bmw-m20b25-m50b25-m52b25-m50b28-m52b28-m54b30-m52b32-classic-series-connecting-rods/"}}
 };
 export function buildPlan(version:string,range:number,usage:string,tier:string,fuel:Fuel):BuildTask[]{
- if(!POWER_ENGINES.some(e=>e.versions.some(v=>v.id===version))||!POWER_RANGES[range]||!['street','drift','track'].includes(usage)||!['budget','recommended','premium'].includes(tier))return [];
- const na=version!=='2jz-gte',high=range>=2,example=version==='m54b30'&&range===1&&usage==='drift'&&tier==='recommended';
+ if(!POWER_ENGINES.some(e=>e.versions.some(v=>v.id===version))||!powerRangesFor(version)[range]||!['street','drift','track'].includes(usage)||!['budget','recommended','premium'].includes(tier))return [];
+ const na=version!=='2jz-gte',high=powerRangesFor(version)[range].max>=600,example=version==='m54b30'&&range===1&&usage==='drift'&&tier==='recommended';
  const task=(id:string,level:BuildTask['level'],title:BuildTask['title'],detail:BuildTask['detail'],keys?:string[]):BuildTask=>({id,level,title,detail,candidates:example?keys:undefined});
  return [
  task('health','required',['Diagnostyka jednostki','Engine health'],['Pomiar kompresji, leak-down, ciśnienie oleju, stan cylindrów i układu chłodzenia przed podnoszeniem mocy.','Measure compression, leak-down, oil pressure, cylinder and cooling condition before increasing power.']),
@@ -37,8 +37,8 @@ export function buildPlan(version:string,range:number,usage:string,tier:string,f
  * Not a pump flow curve or a calibration specification. E85 is an illustrative
  * assumption, not a model of every ethanol blend.
  */
-export function estimateFuel(range:number,fuel:Fuel){
- const band=POWER_RANGES[range];
+export function estimateFuel(version:string,range:number,fuel:Fuel){
+ const band=powerRangesFor(version)[range];
  if(!band||fuel==='unknown')return null;
  const hp=band.max*0.98632007;
  const bsfc=fuel==='ethanol'?0.85:0.65;
