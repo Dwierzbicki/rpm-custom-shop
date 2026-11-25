@@ -7,14 +7,23 @@ export async function GET(request:Request){
  try{
   await setupFmicCatalog();
   const db=getDbPool();
-  const q=(new URL(request.url).searchParams.get('q')??'').trim().slice(0,120);
-  const [stats,groups,products,settings]=await Promise.all([
+  const params=new URL(request.url).searchParams;
+  const q=(params.get('q')??'').trim().slice(0,120);
+  const size=[25,50,100].includes(Number(params.get('size')))?Number(params.get('size')):25;
+  const rawPage=Number(params.get('page')??1);
+  const page=Number.isSafeInteger(rawPage)?Math.max(1,Math.min(100000,rawPage)):1;
+  const availability=params.get('availability')??'all';
+  const sort=({sku:'sku ASC',priceAsc:'proposed_gross ASC,sku ASC',priceDesc:'proposed_gross DESC,sku ASC',name:'name ASC,sku ASC'} as Record<string,string>)[params.get('sort')??'sku']??'sku ASC';
+  const where="WHERE ($1='' OR strpos(lower(sku),lower($1))>0 OR strpos(lower(name),lower($1))>0) AND ($2='all' OR ($2='available' AND available) OR ($2='unavailable' AND NOT available))";
+  const filter=['available','unavailable'].includes(availability)?availability:'all';
+  const [stats,groups,products,settings,matched]=await Promise.all([
    db.query("SELECT count(*)::int AS total,count(*) FILTER (WHERE available)::int AS available,count(*) FILTER (WHERE mapping_status IN ('exact','normalized','manual'))::int AS mapped,max(updated_at) AS updated_at FROM rpm_fmic_catalog"),
    db.query("SELECT source_category,target_category,mapping_status,count(*)::int AS total FROM rpm_fmic_catalog GROUP BY 1,2,3 ORDER BY total DESC LIMIT 1000"),
-   db.query("SELECT sku,name,source_price,proposed_gross,available,mapping_status FROM rpm_fmic_catalog WHERE $1='' OR strpos(lower(sku),lower($1))>0 OR strpos(lower(name),lower($1))>0 ORDER BY sku LIMIT 50",[q]),
-   db.query("SELECT discount FROM rpm_fmic_settings WHERE id=1")
+   db.query("SELECT sku,name,source_price,proposed_gross,available,mapping_status,data->'images'->>0 AS image FROM rpm_fmic_catalog "+where+" ORDER BY "+sort+" LIMIT $3 OFFSET $4",[q,filter,size,(page-1)*size]),
+   db.query("SELECT discount FROM rpm_fmic_settings WHERE id=1"),
+   db.query("SELECT count(*)::int AS total FROM rpm_fmic_catalog "+where,[q,filter])
   ]);
-  return NextResponse.json({discount:Number(settings.rows[0].discount),stats:stats.rows[0],groups:groups.rows,products:products.rows},{headers:{'Cache-Control':'no-store'}});
+  return NextResponse.json({pagination:{page,size,total:matched.rows[0].total},discount:Number(settings.rows[0].discount),stats:stats.rows[0],groups:groups.rows,products:products.rows},{headers:{'Cache-Control':'no-store'}});
  }catch(error){console.error('FMIC catalog read failed',error);return NextResponse.json({error:'Nie udało się odczytać katalogu FMIC'},{status:500})}
 }
 
