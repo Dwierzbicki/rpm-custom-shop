@@ -1,4 +1,5 @@
 'use client';
+import '../styles/customer-account.css';
 import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 import {useEffect,useState} from 'react';
 import Link from 'next/link';

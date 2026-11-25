@@ -1,4 +1,5 @@
 'use client';
+import '../styles/customer-account.css';
 import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
 import Link from 'next/link';
 import {useSearchParams} from 'next/navigation';

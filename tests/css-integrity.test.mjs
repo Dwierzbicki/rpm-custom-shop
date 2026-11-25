@@ -31,7 +31,7 @@ const styleFiles=[
   "header-category-flyouts.css",
   "header-navigation-fit.css",
   "homepage-responsive.css",
-  "customer-account.css",
+  "header-account.css",
   "product-placeholder.css",
   "community.css"
 ];
@@ -144,3 +144,10 @@ test('Retired homepage editor is not mounted or linked',async()=>{
   assert.doesNotMatch(source,/useHomepagePreview|InlineHomepageEditor|homepageDraft|data-rpm-edit|\/admin\/editor|homepage-editor\.css/);
  }
 });
+
+ test('Customer account routes retain standalone login styles',async()=>{
+ const css=await readFile(new URL('../app/styles/customer-account.css',import.meta.url),'utf8');
+ assert.ok(rootRules(css).length>0);
+ for(const selector of ['.rpm-login-page','.rpm-login-card','.rpm-customer-google','.rpm-settings-error'])assert.ok(css.includes(selector));
+ for(const route of ['login','account'])assert.ok((await readFile(new URL('../app/'+route+'/page.tsx',import.meta.url),'utf8')).includes("import '../styles/customer-account.css';"));
+ });

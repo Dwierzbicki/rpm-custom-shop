@@ -1,0 +1,3 @@
+.rpm-header-account{display:inline-flex;align-items:center;gap:7px;color:inherit;text-decoration:none;font-weight:700;white-space:nowrap}
+.rpm-header-account:hover{color:#f23c59}
+@media(max-width:750px){.rpm-header-account span{display:none}.rpm-header-account{padding:8px}}
