@@ -1,0 +1,8 @@
+/* Explicit outer height prevents native dialog stretching to the viewport. */
+.fmic-pdp dialog.rpm-fmic-lightbox{--rpm-photo-height:min(760px,calc(100dvh - 208px));position:fixed;inset:0;margin:auto;width:min(900px,calc(100vw - 40px));height:calc(var(--rpm-photo-height) + 162px);min-height:0;max-height:calc(100dvh - 40px);box-sizing:border-box;padding:20px;overflow:auto}
+.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-inner{height:auto;min-height:0;display:grid;grid-template-rows:42px var(--rpm-photo-height) 42px;gap:18px}
+.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-media{height:var(--rpm-photo-height);min-height:0}
+.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-media img{width:100%;height:100%;object-fit:contain}
+.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-head,.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-nav{height:42px;min-height:0;margin:0;padding:0}
+@media(max-width:600px){.fmic-pdp dialog.rpm-fmic-lightbox{--rpm-photo-height:min(100vw,calc(100dvh - 160px));width:calc(100vw - 20px);height:calc(var(--rpm-photo-height) + 134px);max-height:calc(100dvh - 20px);padding:12px}.fmic-pdp dialog.rpm-fmic-lightbox .rpm-fmic-lightbox-inner{gap:12px}}
+

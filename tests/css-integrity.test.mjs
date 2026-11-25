@@ -105,3 +105,16 @@ test('critical storefront sections retain their CSS selectors',()=>{
   '.rpm-checkout-page','.rpm-cart-layout','.admin-page','scrollbar-gutter:stable'
  ])assert.ok(css.includes(selector),'missing CSS selector '+selector);
 });
+
+const productStyleFiles=["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"];
+test('FMIC product styles retain ordered component-local imports and valid blocks',async()=>{
+ const entry=await readFile(new URL('../app/styles/fmic-product.css',import.meta.url),'utf8');
+ assert.equal(entry.trim(),productStyleFiles.map(name=>`@import './${name}';`).join('\n'));
+ const parts=await Promise.all(productStyleFiles.map(name=>readFile(new URL('../app/styles/'+name,import.meta.url),'utf8')));
+ for(let i=0;i<parts.length;i++){
+  assert.ok(rootRules(parts[i]).length>0,'missing product rules in '+productStyleFiles[i]);
+  assert.ok(!parts[i].includes('@import'),'nested product import');
+ }
+ const component=await readFile(new URL('../app/components/storefront/FmicProductPreview.tsx',import.meta.url),'utf8');
+ assert.ok(component.includes("import '../../styles/fmic-product.css';"));
+});
