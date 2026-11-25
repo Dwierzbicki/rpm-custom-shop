@@ -2,6 +2,7 @@
 import {useEffect,useState,type Dispatch,type SetStateAction} from 'react';
 import type {CartLine,Product} from '../../../data';
 import type {View} from '../../../lib/storefront-config';
+import {CART_EVENT,quoteFmicCart,mergeFmicQuotes} from '../../../lib/fmic-cart';
 import {collectionTotal,changeLineQuantity,removeCollectionLine,appendCollectionLine} from '../../../lib/shop-collections';
 export function useShopCollections(products:Product[],view:View,setView:Dispatch<SetStateAction<View>>){
  const [cart,setCart]=useState<CartLine[]>([]),[garage,setGarage]=useState<CartLine[]>([]);
@@ -10,10 +11,14 @@ export function useShopCollections(products:Product[],view:View,setView:Dispatch
  useEffect(()=>{if(storageReady)localStorage.setItem('rpm-cart',JSON.stringify(cart))},[cart,storageReady]);
  useEffect(()=>{if(storageReady)localStorage.setItem('rpm-garage',JSON.stringify(garage))},[garage,storageReady]);
  useEffect(()=>{if(storageReady)sessionStorage.setItem('rpm-shop-view',view)},[view,storageReady]);
+ useEffect(()=>{const sync=()=>{try{const lines=JSON.parse(localStorage.getItem('rpm-cart')??'[]');if(Array.isArray(lines))setCart(lines)}catch{}};window.addEventListener(CART_EVENT,sync);window.addEventListener('storage',sync);return()=>{window.removeEventListener(CART_EVENT,sync);window.removeEventListener('storage',sync)}},[]);
+ const skuKey=JSON.stringify(cart.flatMap(l=>l.fmicSku?[l.fmicSku]:[]));
+ const [quoteState,setQuoteState]=useState<'idle'|'loading'|'ready'|'error'>('idle');
+ useEffect(()=>{if(!storageReady||view!=='cart')return;const skus=JSON.parse(skuKey) as string[];if(!skus.length){setQuoteState('idle');return}const ctrl=new AbortController();setQuoteState('loading');quoteFmicCart(skus,ctrl.signal).then(quotes=>{if(!ctrl.signal.aborted){setCart(old=>mergeFmicQuotes(old,quotes));setQuoteState('ready')}}).catch(()=>{if(!ctrl.signal.aborted)setQuoteState('error')});return()=>ctrl.abort()},[storageReady,view,skuKey]);
  const linesTotal=(lines:CartLine[])=>collectionTotal(lines,products);
  const count=cart.reduce((s,l)=>s+l.qty,0);
  const changeQuantity=(key:string,delta:number)=>setCart(old=>changeLineQuantity(old,key,delta));
  const removeLine=(key:string)=>setCart(old=>removeCollectionLine(old,key));
  const addSavedLine=(target:'cart'|'garage',line:CartLine)=>(target==='cart'?setCart:setGarage)(old=>appendCollectionLine(old,line));
- return {cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine};
+ return {quoteState,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine,addSavedLine};
 }
