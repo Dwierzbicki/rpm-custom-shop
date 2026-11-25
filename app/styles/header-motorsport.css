@@ -144,3 +144,26 @@
 .rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-category-label{
  text-align:center;
 }
+
+/* Compact Motorsport: anchored, two-column dropdown. */
+.rpm-header-v2 .rpm-mega-panel{
+ left:clamp(0px,var(--rpm-mega-anchor,0px),max(0px,calc(100% - 720px)));right:auto;
+ width:min(720px,100%);border-top-width:2px;border-radius:0 0 7px 7px;box-shadow:0 18px 44px #0009;
+}
+.rpm-header-v2 .rpm-mega-heading{padding:9px 14px;gap:12px;min-height:40px}
+.rpm-header-v2 .rpm-mega-heading strong{font-size:14px;font-weight:750}
+.rpm-header-v2 .rpm-mega-heading .rpm-mega-all{padding:5px 0;background:transparent;color:#ff6980;font-size:12px}
+.rpm-header-v2 .rpm-mega-heading .rpm-mega-all:hover{background:transparent;color:#fff}
+.rpm-header-v2 .rpm-mega-body{grid-template-columns:minmax(0,42%) minmax(0,1fr)}
+.rpm-header-v2 .rpm-mega-groups,.rpm-header-v2 .rpm-mega-detail{padding:7px;overflow-x:hidden}
+.rpm-header-v2 .rpm-mega-group,.rpm-header-v2 .rpm-mega-leaves button{min-height:36px;padding:8px 10px}
+.rpm-header-v2 .rpm-mega-detail{padding:9px 13px}
+.rpm-header-v2 .rpm-mega-detail-head{padding:5px 0 9px;margin-bottom:3px;gap:8px}
+.rpm-header-v2 .rpm-mega-detail-head strong{font-size:13px;color:#ff6980}
+.rpm-header-v2 .rpm-mega-detail-head button{font-size:11px;padding:2px 0;color:#b8bec9}
+.rpm-header-v2 .rpm-mega-leaves{grid-template-columns:minmax(0,1fr);gap:1px}
+@media(hover:none),(pointer:coarse){
+ .rpm-header-v2.rpm-header-wide .rpm-desktop-categories{display:none!important}
+ .rpm-header-v2.rpm-header-wide .rpm-clean-nav{display:flex!important}
+ .rpm-header-v2 .rpm-drawer-root-line,.rpm-header-v2 .rpm-drawer-sub-line,.rpm-header-v2 .rpm-drawer-leaves>button{min-height:44px}
+}
