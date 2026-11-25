@@ -9,5 +9,5 @@ export const products:Product[]=[
 // Preserve former product IDs for historical orders and saved links.
 export const RETIRED_DEMO_MAX_ID=30;
 export const isRetiredDemoProductId=(id:number)=>Number.isInteger(id)&&id>=1&&id<=RETIRED_DEMO_MAX_ID;
-export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number;fmicSku?:string;fmicName?:string;fmicImage?:string|null;fmicAvailable?:boolean};
+export type CartLine={key:string;productId:number;qty:number;options?:Record<string,string>;unitPrice?:number;fmicSku?:string;fmicName?:string;fmicImage?:string|null;fmicPreviousPrice?:number;fmicAvailable?:boolean};
 export const money=(v:number)=>new Intl.NumberFormat('pl-PL',{style:'currency',currency:'PLN'}).format(v);
