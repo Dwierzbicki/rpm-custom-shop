@@ -1,4 +1,5 @@
 import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
+import StorefrontFooter from '../components/storefront/StorefrontFooter';
 import type {Metadata} from 'next';
 import {ArrowRight,Box,Gauge,Wind} from 'lucide-react';
 
@@ -59,10 +60,7 @@ export default function DesignersPage(){
      </div>
     </section>
    </main>
-   <footer className="rpm-hp-brandstrip" style={{display:'flex',justifyContent:'center',alignItems:'center',flexWrap:'wrap',gap:24,padding:'24px 20px',borderTop:'1px solid var(--line)'}}>
-    <a href="/"><img src="/rpm-logo.png.png" alt="RPM Custom" style={{width:180,height:'auto',display:'block'}}/></a>
-    <span>PERFORMANCE</span><span>ENGINEERING</span><span>MOTORSPORT</span>
-   </footer>
+   <StorefrontFooter/>
   </div>
  );
 }
