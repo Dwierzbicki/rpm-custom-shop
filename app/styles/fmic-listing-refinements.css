@@ -46,3 +46,12 @@
 @media(max-width:900px){.fmic-plp .fplp-heading{align-items:flex-start;gap:5px}.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.fmic-plp .fplp-filters{position:static}.fplp-quick-categories a{padding:9px 11px;font-size:12px}}
 @media(max-width:540px){.fmic-plp .fplp-card-info{padding:10px}.fmic-plp .fplp-name{font-size:12px}.fmic-plp .fplp-card-bottom button{width:100%;font-size:11px}.fmic-plp .fplp-card-bottom strong{font-size:17px}.fmic-plp .fplp-grid:not(.fplp-list) .fplp-image{aspect-ratio:1.35}.fmic-plp .fplp-image img{padding:8px}.fmic-plp .fplp-toolbar{padding:7px}.fmic-plp .fplp-list .fplp-card-bottom button{width:auto}}
 
+
+/* Shared brand mark sits in the existing SKU row; does not overlap the product photo. */
+.fmic-plp .fplp-card-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:24px;min-width:0}
+.fmic-plp .fplp-card-meta .fplp-sku{min-width:0;overflow-wrap:anywhere}
+.fmic-plp .fplp-brand-logo{display:flex;align-items:center;justify-content:flex-end;width:76px;height:24px;flex:0 0 76px}
+.fmic-plp .fplp-brand-logo img{display:block;width:100%;height:100%;object-fit:contain;filter:grayscale(1) brightness(1.25);opacity:.86;transition:filter .2s,opacity .2s}
+.fmic-plp .fplp-card:hover .fplp-brand-logo img,.fmic-plp .fplp-card:focus-within .fplp-brand-logo img{filter:none;opacity:1}
+@media(max-width:540px){.fmic-plp .fplp-brand-logo{width:56px;flex-basis:56px;height:20px}.fmic-plp .fplp-card-meta{gap:5px;min-height:20px}}
+@media(prefers-reduced-motion:reduce){.fmic-plp .fplp-brand-logo img{transition:none}}
