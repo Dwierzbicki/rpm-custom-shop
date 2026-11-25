@@ -94,7 +94,7 @@ def normalize(item, discount=Decimal('5')):
         "images":images, "mpn":get(G+"mpn"), "ean":get(G+"ean"),
         "brand":get(G+"brand"), "shipping_weight_raw":get(G+"shipping_weight")}
 
-def inspect(path, discount=Decimal('5')):
+def inspect(path, discount=Decimal('5'), on_row=None):
     seen = set()
     counts = Counter()
     errors = Counter()
@@ -113,6 +113,8 @@ def inspect(path, discount=Decimal('5')):
                         raise ValueError("duplicate SKU")
                     seen.add(row["sku"])
                     counts["valid"] += 1
+                    if on_row is not None:
+                        on_row(row)
                     if row["proposed_gross"] is None:
                         counts["manual_price_required"] += 1
                     counts[row["availability"]] += 1
@@ -138,13 +140,15 @@ def inspect(path, discount=Decimal('5')):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("feed", help="Local XML or ZIP file")
+    parser.add_argument("--jsonl", action="store_true", help="Stream normalized rows to stdout, report to stderr")
     parser.add_argument("--discount", type=Decimal, default=Decimal("5"))
     args = parser.parse_args()
     try:
         if not args.discount.is_finite() or not 0 <= args.discount < 100:
             raise ValueError('Invalid discount')
-        result = inspect(args.feed, args.discount)
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        emit = (lambda row: print(json.dumps(row, ensure_ascii=False))) if args.jsonl else None
+        result = inspect(args.feed, args.discount, emit)
+        print(json.dumps(result, ensure_ascii=False, indent=2), file=sys.stderr if args.jsonl else sys.stdout)
         sys.exit(1 if result["counts"].get("invalid") else 0)
     except (OSError, ValueError, ET.ParseError, zipfile.BadZipFile) as exc:
         print(str(exc), file=sys.stderr)
