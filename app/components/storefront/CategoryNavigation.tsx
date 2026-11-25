@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useRef} from 'react';
+import {useEffect,useLayoutEffect,useRef} from 'react';
 import type {Dispatch,SetStateAction} from 'react';
 import {ArrowRight,ChevronRight,Menu,Truck,X} from 'lucide-react';
 import styles from './road-assistance-navigation.module.css';
@@ -54,6 +54,30 @@ export default function CategoryNavigation({
   window.addEventListener('resize',update);
   return()=>{observer.disconnect();window.removeEventListener('resize',update)};
  },[activeFmicRoot,mobileMenu]);
+ useLayoutEffect(()=>{
+  if(activeFmicRoot===null||activeFmicSub===null||mobileMenu)return;
+  const panel=navRef.current?.querySelector<HTMLElement>('#rpm-cascade-'+activeFmicRoot);
+  const groups=panel?.querySelector<HTMLElement>('.rpm-cascade-groups');
+  const row=groups?.querySelector<HTMLElement>('.rpm-cascade-group.is-selected');
+  const leaves=panel?.querySelector<HTMLElement>('.rpm-cascade-leaves');
+  if(!panel||!groups||!row||!leaves)return;
+  const update=()=>{
+   const panelTop=panel.getBoundingClientRect().top;
+   const list=groups.getBoundingClientRect();
+   const item=row.getBoundingClientRect();
+   const visible=item.bottom>list.top&&item.top<list.bottom;
+   const rowTop=Math.max(list.top,item.top)-panelTop;
+   const maxTop=Math.max(0,window.innerHeight-12-panelTop-leaves.offsetHeight);
+   leaves.style.marginTop=Math.max(0,Math.min(rowTop,maxTop))+'px';
+   leaves.style.visibility=visible?'visible':'hidden';
+  };
+  update();
+  groups.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update);
+  const observer=new ResizeObserver(update);
+  observer.observe(groups);observer.observe(leaves);
+  return()=>{groups.removeEventListener('scroll',update);window.removeEventListener('resize',update);observer.disconnect()};
+ },[activeFmicRoot,activeFmicSub,mobileMenu]);
  const closeDesktop=()=>{setActiveFmicRoot(null);setActiveFmicSub(null)};
  const openDesktop=(i:number)=>{positionPanel(i);setActiveFmicRoot(i);setActiveFmicSub(null)};
  const navigate=(names:string[])=>{closeDesktop();onOpenCatalogPath(names)};
