@@ -13,3 +13,10 @@
 .rpm-live-search .rpm-search-dropdown p{font-size:12px;padding:12px;margin:0}
 .rpm-live-search .rpm-search-dropdown .rpm-search-all{display:block;width:100%;height:auto;padding:12px;background:#e3385b;color:#fff;font-size:12px;border:0;border-radius:0;text-align:center;font-weight:600;cursor:pointer}
 @media(max-width:600px){.rpm-live-search .rpm-search-dropdown{min-width:0}.rpm-live-search .rpm-search-result{padding:8px;gap:7px}.rpm-live-search .rpm-search-thumb{width:38px;height:38px;flex-basis:38px}.rpm-live-search .rpm-search-price{font-size:11px}}
+
+/* Only the results scroll; the action stays visible at the bottom. */
+.rpm-live-search .rpm-search-dropdown{display:flex;flex-direction:column;overflow:hidden}
+.rpm-live-search .rpm-search-caption{flex:0 0 auto}
+.rpm-live-search #rpm-search-results{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.rpm-live-search .rpm-search-dropdown p{flex:0 0 auto}
+.rpm-live-search .rpm-search-dropdown .rpm-search-all{flex:0 0 auto;margin:0}
