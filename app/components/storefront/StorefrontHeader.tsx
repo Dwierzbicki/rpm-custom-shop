@@ -2,6 +2,7 @@
 import {en} from '../../lib/translations';
 import {useEffect,useRef,useState} from 'react';
 import {matchesSearch} from '../../lib/header-search';
+import {ownProductHref} from '../../lib/own-catalog-listing';
 import {productPath} from '../../lib/product-path';
 import './header-search.css';
 import {categoryPath} from '../../category-routing';
@@ -10,7 +11,7 @@ import {Package,Search,ShoppingCart,UserRound,Warehouse} from 'lucide-react';
 import type {CategoryNavigationProps} from './CategoryNavigation';
 import CategoryNavigation from './CategoryNavigation';
 
-type Suggestion={sku:string;name:string;proposed_gross:string;available:boolean;image:string|null};
+type Suggestion={sku:string;name:string;proposed_gross:string;available:boolean;image:string|null;own_id?:number|null;stock_status?:string|null};
 type OwnSuggestion={id:string;name:string;sku:string;price:number;image?:string;keywords?:string};
 type Props=CategoryNavigationProps&{
  fmicPreview?:boolean;
@@ -42,7 +43,7 @@ export default function StorefrontHeader({
  const form=useRef<HTMLFormElement>(null);
  const term=query.trim();
  const own=term.length>=2?ownSuggestions.filter(p=>matchesSearch(term,[p.name,p.sku,p.keywords])).slice(0,3):[];
- const results=[...own.map(p=>({key:'own-'+p.id,name:p.name,sku:p.sku,price:p.price,image:p.image??null,available:null as boolean|null,choose:()=>onOwnSuggestion?.(p.id)})),...remote.map(p=>({key:'fmic-'+p.sku,name:p.name,sku:p.sku,price:Number(p.proposed_gross),image:p.image,available:p.available as boolean|null,choose:()=>{window.location.assign(productPath(p.name,p.sku))}}))];
+ const results=[...own.filter(p=>!remote.some(r=>r.own_id===Number(p.id))).map(p=>({key:'own-'+p.id,name:p.name,sku:p.sku,price:p.price,image:p.image??null,available:null as boolean|null,choose:()=>onOwnSuggestion?.(p.id)})),...remote.map(p=>({key:(p.own_id?'own-':'fmic-')+p.sku,name:p.name,sku:p.sku,price:Number(p.proposed_gross),image:p.image,available:p.available as boolean|null,choose:()=>{window.location.assign(p.own_id?ownProductHref(p.own_id):productPath(p.name,p.sku))}}))];
  useEffect(()=>{setRemote([]);setCategories([]);setRemoteTotal(null);setActive(-1);setFailed(false);setPending(false);if(!open||!fmicPreview||term.length<2)return;const controller=new AbortController();setPending(true);const timer=setTimeout(async()=>{try{const response=await fetch('/api/catalog/fmic/suggest?'+new URLSearchParams({q:term}),{signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('Search unavailable');const data=await response.json();if(!controller.signal.aborted){setRemote(data.items??[]);setCategories(data.categories??[]);setRemoteTotal(data.total??null)}}catch{if(!controller.signal.aborted)setFailed(true)}finally{if(!controller.signal.aborted)setPending(false)}},200);return()=>{clearTimeout(timer);controller.abort()}},[term,open,fmicPreview]);
  useEffect(()=>{const outside=(e:PointerEvent)=>{if(!form.current?.contains(e.target as Node))setOpen(false)};document.addEventListener('pointerdown',outside);return()=>document.removeEventListener('pointerdown',outside)},[]);
  useEffect(()=>{if(!term){setOpen(false);setActive(-1)}},[term]);
