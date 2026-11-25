@@ -95,3 +95,8 @@ test('Product classification only fills missing supplier categories with explici
  assert.equal(classify('Zestaw sprzęgła BMW','Elektronika > nieznana').status,'parent_review');
  assert.deepEqual(classify('Zestaw sprzęgła BMW','Hamulce i koła > Tarcze hamulcowe').targetPath,['Hamulce i koła','Tarcze hamulcowe']);
 });
+
+test('Second classification pass distinguishes turbo components and explicit product types',()=>{
+ for(const [name,path] of [["Blow off BOV Turbosmart TS-0265-1042 eBG50 Electronic BoostGate Black",["Układ wydechowy","Wastegate"]],["Turbine Housing Turbosmart 62mm T3",["Silnik i turbo","Turbosprężarki","Muszle wydechowe"]],["Koło zamachowe Xtreme Mazda",["Napęd i zawieszenie","Sprzęgło","Koła zamachowe"]],["Rear Suspension Arm 5 Wisefab",["Napęd i zawieszenie","Wahacze regulowane i drążki"]],["Pasek rozrządu GReddy Toyota 2JZ",["Silnik i turbo","Rozrząd","Paski rozrządu"]]])assert.deepEqual(mapper.mapFmicProductCategory('',name).targetPath,path);
+ assert.equal(mapper.mapFmicProductCategory('','TS-0223-3011').status,'unmapped');
+});
