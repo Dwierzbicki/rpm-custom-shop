@@ -25,9 +25,6 @@ const styleFiles=[
   "legacy-shop-inline.css",
   "legacy-home-hero.css",
   "power-guides.css",
-  "power-guides-pricing.css",
-  "power-guides-recommendations.css",
-  "power-guides-cart.css",
   "settings-home.css",
   "homepage-v2.css",
   "header-navigation-legacy.css",
@@ -112,6 +109,7 @@ test('critical storefront sections retain their CSS selectors',()=>{
 });
 
 const componentStyles=[
+ {entry:'power-guides-detail.css',component:'PowerGuidesView.tsx',files:["power-guides-pricing.css","power-guides-recommendations.css","power-guides-cart.css"]},
  {entry:'fmic-product.css',component:'FmicProductPreview.tsx',files:["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"]},
  {entry:'fmic-listing.css',component:'FmicPreview.tsx',files:["fmic-listing-base.css","fmic-listing-controls.css","fmic-listing-layout.css","fmic-listing-search.css","fmic-listing-refinements.css","fmic-listing-media.css"]}
 ];
@@ -128,3 +126,8 @@ for(const {entry,component,files} of componentStyles){
   assert.ok(componentSource.includes("import '../../styles/"+entry+"';"));
  });
 }
+
+test('Admin Power Guides retains its local styles',async()=>{
+ const source=await readFile(new URL('../app/admin/settings/power-guides/page.tsx',import.meta.url),'utf8');
+ assert.ok(source.includes("import '../../../styles/power-guides-detail.css';"));
+});
