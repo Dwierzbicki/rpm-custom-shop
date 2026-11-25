@@ -18,7 +18,7 @@ export async function importFmicRemote(report:(p:ImportProgress)=>void=()=>{}){
   const lock=await client.query('SELECT pg_try_advisory_xact_lock(27391,1) AS acquired');
   if(!lock.rows[0].acquired)throw new Error('Another FMIC import is running');
   const settings=await client.query('SELECT discount FROM rpm_fmic_settings WHERE id=1');
-  child=spawn(process.env.PYTHON_BIN||'python3',[join(process.cwd(),'scripts/fmic-feed-inspect.py'),'-','--jsonl','--discount',String(settings.rows[0].discount)],{stdio:['pipe','pipe','pipe']});
+  child=spawn(process.env.PYTHON_BIN||'python3',[join(process.cwd(),'scripts/fmic-feed-inspect.py'),'-','--jsonl','--allow-invalid-identity','--discount',String(settings.rows[0].discount)],{stdio:['pipe','pipe','pipe']});
   const proc=child;
   const done=new Promise<number|null>((resolve,reject)=>{proc.once('error',reject);proc.once('close',resolve)});
   done.catch(()=>{});
@@ -49,9 +49,13 @@ export async function importFmicRemote(report:(p:ImportProgress)=>void=()=>{}){
   await input;
   const code=await done;
   if(code!==0||!count){console.error('FMIC parser report',diagnostics);throw new Error('Feed validation failed; import rolled back')}
+  const summary=JSON.parse(diagnostics);
+  const skipped=Number(summary.counts?.invalid??0);
+  if(summary.counts?.valid!==count||!Number.isInteger(skipped)||skipped<0)throw new Error('Feed report mismatch');
+  console.info('FMIC import validation',JSON.stringify(summary));
   progress('commit',true);
   await client.query('COMMIT');
-  return {imported:count,published:0};
+  return {imported:count,skipped,published:0};
  }catch(e){child?.kill();await client.query('ROLLBACK').catch(()=>{});throw e}
  finally{if(timer)clearTimeout(timer);client.release()}
 }
