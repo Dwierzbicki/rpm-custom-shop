@@ -1,0 +1,27 @@
+/* One continuous logo rail; light neutral surface preserves contrast for dark supplier logos. */
+.rpm-hp-v2 .rpm-brand-carousel{width:min(calc(100% - 2*var(--hp-gutter,24px)),1440px);margin:18px auto 24px;min-width:0}
+.rpm-brand-carousel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 9px}
+.rpm-brand-carousel-head h2{font-size:12px;font-weight:800;letter-spacing:.14em;color:#c2c6cf;margin:0}
+.rpm-brand-carousel-toggle{display:grid;place-items:center;background:transparent;border:1px solid #373d47;color:#b8bec9;border-radius:4px;width:32px;height:32px;cursor:pointer}
+.rpm-brand-carousel-toggle:hover,.rpm-brand-carousel-toggle:focus-visible{color:#fff;border-color:#f12748}
+.rpm-brand-carousel-window{overflow-x:auto;scrollbar-width:thin;background:#e9eaed;border:1px solid #c9cbd0;border-radius:5px}
+.rpm-brand-carousel-track{display:flex;width:max-content;min-width:100%;align-items:center}
+.rpm-brand-carousel-group{display:flex;flex:0 0 auto;align-items:center;justify-content:center;min-width:0}
+.rpm-brand-carousel-group>a{display:flex;align-items:center;justify-content:center;box-sizing:border-box;flex:0 0 172px;width:172px;height:84px;padding:12px 17px;outline-offset:-4px}
+.rpm-brand-carousel-group>a>img{display:block;width:100%;height:100%;max-height:58px;object-fit:contain;filter:grayscale(1);mix-blend-mode:multiply;opacity:.82;transition:filter .2s,opacity .2s}
+.rpm-brand-carousel-group>a:hover>img,.rpm-brand-carousel-group>a:focus-visible>img{filter:none;opacity:1}
+.rpm-brand-carousel-group>a:focus-visible{outline:2px solid #e72f59}
+.rpm-brand-carousel-window.is-animated{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.rpm-brand-carousel-window.is-animated .rpm-brand-carousel-track{animation:rpm-brand-loop 42s linear infinite}
+.rpm-brand-carousel-window.is-paused .rpm-brand-carousel-track,.rpm-brand-carousel-window:hover .rpm-brand-carousel-track,.rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation-play-state:paused}
+.rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation:none;transform:none}
+.rpm-brand-carousel-window:focus-within{overflow-x:auto}
+.rpm-brand-carousel-window:focus-within .is-copy{display:none}
+@keyframes rpm-brand-loop{to{transform:translateX(-50%)}}
+@media(max-width:700px),(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
+ .rpm-brand-carousel-window.is-animated{overflow-x:auto;mask-image:none}
+ .rpm-brand-carousel-window.is-animated .rpm-brand-carousel-track{animation:none}
+ .rpm-brand-carousel-group.is-copy,.rpm-brand-carousel-toggle{display:none}
+ .rpm-brand-carousel-group>a{flex-basis:145px;width:145px;height:73px;padding:10px 12px}
+ .rpm-brand-carousel-group>a>img{transition:none}
+}
