@@ -143,6 +143,7 @@ def inspect(path, discount=Decimal('5'), on_row=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("feed", help="Local XML or ZIP file")
+    parser.add_argument("--allow-invalid-identity", action="store_true", help="Allow at most 10 invalid SKU/name rows and at most 0.1 percent of feed; all other errors remain fatal")
     parser.add_argument("--jsonl", action="store_true", help="Stream normalized rows to stdout, report to stderr")
     parser.add_argument("--discount", type=Decimal, default=Decimal("5"))
     args = parser.parse_args()
@@ -152,7 +153,11 @@ if __name__ == "__main__":
         emit = (lambda row: print(json.dumps(row, ensure_ascii=False))) if args.jsonl else None
         result = inspect(args.feed, args.discount, emit)
         print(json.dumps(result, ensure_ascii=False, indent=2), file=sys.stderr if args.jsonl else sys.stdout)
-        sys.exit(1 if result["counts"].get("invalid") else 0)
+        invalid = result["counts"].get("invalid", 0)
+        tolerated = (args.allow_invalid_identity and invalid > 0
+            and result["errors"] == {"missing or invalid SKU/name": invalid}
+            and invalid <= 10 and invalid * 1000 <= result["counts"]["items"])
+        sys.exit(1 if invalid and not tolerated else 0)
     except (OSError, ValueError, ET.ParseError, zipfile.BadZipFile) as exc:
         print(str(exc), file=sys.stderr)
         sys.exit(2)
