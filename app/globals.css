@@ -10,11 +10,16 @@
 @import './styles/checkout-details.css';
 @import './styles/product-detail-final.css';
 @import './styles/legacy-home-catalog.css';
+@import './styles/legacy-shop-directory.css';
+@import './styles/legacy-shop-radial.css';
+@import './styles/legacy-shop-inline.css';
+@import './styles/legacy-home-hero.css';
 @import './styles/power-guides.css';
 @import './styles/power-guides-pricing.css';
 @import './styles/power-guides-recommendations.css';
 @import './styles/power-guides-cart.css';
 @import './styles/settings-home.css';
+@import './styles/homepage-v2.css';
 @import './styles/header-navigation-legacy.css';
 @import './styles/header-category-cascade.css';
 @import './styles/header-category-visual.css';
