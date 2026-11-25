@@ -286,7 +286,16 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Zestawy wtrysku wody i metanolu",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Zestawy",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Kolektory ssące",
@@ -298,7 +307,12 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Oil catch tank",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          }
+        ]
       },
       {
         "name": "MBC i akcesoria",
@@ -398,7 +412,24 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Końcówki olejowe",
-        "children": []
+        "children": [
+          {
+            "name": "Klucze nastawne",
+            "children": []
+          },
+          {
+            "name": "PTFE",
+            "children": []
+          },
+          {
+            "name": "Push On",
+            "children": []
+          },
+          {
+            "name": "Swivel",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Przewody olejowe",
@@ -427,7 +458,24 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Wentylatory",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Dedykowane",
+            "children": []
+          },
+          {
+            "name": "Ssące",
+            "children": []
+          },
+          {
+            "name": "Tłoczące",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Zbiorniczki płynu",
@@ -493,11 +541,33 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Filtry paliwa",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Mocowania",
+            "children": []
+          },
+          {
+            "name": "Wkłady filtrów",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Wtryskiwacze",
-        "children": []
+        "children": [
+          {
+            "name": "Wtryskiwacze dedykowane",
+            "children": []
+          },
+          {
+            "name": "Wtryskiwacze uniwersalne",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Regulatory ciśnienia paliwa",
@@ -601,11 +671,21 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Zbiorniki paliwa",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Swirl Poty",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Listwy paliwowe",
@@ -626,7 +706,20 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
     "children": [
       {
         "name": "Tłumiki sportowe",
-        "children": []
+        "children": [
+          {
+            "name": "Tłumiki aktywne",
+            "children": []
+          },
+          {
+            "name": "Tłumiki dedykowane",
+            "children": []
+          },
+          {
+            "name": "Tłumiki przelotowe",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Downpipe",
@@ -675,7 +768,20 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Katalizatory",
-        "children": []
+        "children": [
+          {
+            "name": "Benzyna",
+            "children": []
+          },
+          {
+            "name": "Diesel",
+            "children": []
+          },
+          {
+            "name": "Sportowe",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Termoizolacja",
@@ -704,7 +810,20 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Wastegate",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Sprężyny",
+            "children": []
+          },
+          {
+            "name": "Zawory Wastegate",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Łączniki elastyczne wydechu",
@@ -819,7 +938,24 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
     "children": [
       {
         "name": "Wahacze regulowane i drążki",
-        "children": []
+        "children": [
+          {
+            "name": "Drążki",
+            "children": []
+          },
+          {
+            "name": "Hicas lock kit",
+            "children": []
+          },
+          {
+            "name": "Końcówki kierownicze",
+            "children": []
+          },
+          {
+            "name": "Wahacze",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Zawieszenie gwintowane",
@@ -835,7 +971,12 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Zestawy skrętu",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Elementy poliuretanowe",
@@ -859,7 +1000,12 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Śruby i akcesoria",
-        "children": []
+        "children": [
+          {
+            "name": "Camber Bolt",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Mechanizmy różnicowe",
@@ -958,7 +1104,20 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Rozrząd",
-        "children": []
+        "children": [
+          {
+            "name": "Kółka rozrządu",
+            "children": []
+          },
+          {
+            "name": "Paski rozrządu",
+            "children": []
+          },
+          {
+            "name": "Wałki rozrządu",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Uszczelki głowicy i silnika",
@@ -999,11 +1158,29 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Układ zapłonowy",
-        "children": []
+        "children": [
+          {
+            "name": "Kable i wiązki",
+            "children": []
+          },
+          {
+            "name": "Świece zapłonowe",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Tuleje i pierścienie tłokowe",
-        "children": []
+        "children": [
+          {
+            "name": "Pierścienie tłokowe",
+            "children": []
+          },
+          {
+            "name": "Tuleje tłokowe",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Kute wały i podpory wału",
@@ -1102,16 +1279,42 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
           {
             "name": "Zestawy AFR",
             "children": []
+          },
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Czujniki",
+            "children": []
           }
         ]
       },
       {
         "name": "Wskaźniki",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Czujniki",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Zawory EBC i N75",
-        "children": []
+        "children": [
+          {
+            "name": "Akcesoria",
+            "children": []
+          },
+          {
+            "name": "Zawory",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Wtyczki",
@@ -1136,11 +1339,41 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
     "children": [
       {
         "name": "Odzież kierowcy FIA",
-        "children": []
+        "children": [
+          {
+            "name": "Bielizna",
+            "children": []
+          },
+          {
+            "name": "Buty",
+            "children": []
+          },
+          {
+            "name": "Kombinezony",
+            "children": []
+          },
+          {
+            "name": "Kominiarki",
+            "children": []
+          },
+          {
+            "name": "Rękawice",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Fotele i mocowania",
-        "children": []
+        "children": [
+          {
+            "name": "Fotele",
+            "children": []
+          },
+          {
+            "name": "Mocowania",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Pasy bezpieczeństwa",
@@ -1214,11 +1447,33 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Mycie samochodu",
-        "children": []
+        "children": [
+          {
+            "name": "Mycie wstępne",
+            "children": []
+          },
+          {
+            "name": "Piany aktywne",
+            "children": []
+          },
+          {
+            "name": "Szampony",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Przygotowanie lakieru",
-        "children": []
+        "children": [
+          {
+            "name": "Dekontaminacja lakieru",
+            "children": []
+          },
+          {
+            "name": "Glinki i lubrykanty",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Zabezpieczenie lakieru",
@@ -1281,7 +1536,12 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Pielęgnacja szyb",
-        "children": []
+        "children": [
+          {
+            "name": "Mycie szyb",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Czyszczenie i pielęgnacja wnętrza",
@@ -1306,7 +1566,16 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Plastiki zewnętrzne i elementy gumowe",
-        "children": []
+        "children": [
+          {
+            "name": "Pielęgnacja",
+            "children": []
+          },
+          {
+            "name": "Renowacja",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Metal i chrom",
@@ -1356,7 +1625,12 @@ export const FMIC_CATEGORY_TREE:SupplierCategory[]=[
       },
       {
         "name": "Wycieraczki samochodowe",
-        "children": []
+        "children": [
+          {
+            "name": "Uniwersalne",
+            "children": []
+          }
+        ]
       },
       {
         "name": "Air Jacks",
