@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {parseProductTechnical,mergeTechnicalFields} from '../../../../lib/fmic-technical';
-import {fmicSearchFacets} from '../../../../lib/fmic-facets';
+import {fmicSearchFacets,fmicProducerExpression} from '../../../../lib/fmic-facets';
 import {setupEnrichment} from '../../../../lib/fmic-enrichment';
 import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../../lib/db';
@@ -14,12 +14,12 @@ export async function GET(request:Request){
  try{
  await setupImageAudit();
  const db=getDbPool();
- const result=await db.query("SELECT sku,name,proposed_gross,available,"+primaryCategory+" AS target_category,COALESCE((SELECT jsonb_agg(url ORDER BY pos) FROM (SELECT DISTINCT ON (COALESCE(a.hash,img.url)) img.url,img.pos FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY COALESCE(a.hash,img.url),img.pos) cleaned),'[]'::jsonb) AS images,data->>'ean' AS ean,data->>'mpn' AS mpn,data->>'brand' AS brand,data->>'shipping_weight_raw' AS shipping_weight FROM rpm_fmic_catalog WHERE sku=$1 AND "+visibleCatalog,[sku]);
+ const result=await db.query("SELECT sku,name,proposed_gross,available,"+primaryCategory+" AS target_category,COALESCE((SELECT jsonb_agg(url ORDER BY pos) FROM (SELECT DISTINCT ON (COALESCE(a.hash,img.url)) img.url,img.pos FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY COALESCE(a.hash,img.url),img.pos) cleaned),'[]'::jsonb) AS images,data->>'ean' AS ean,data->>'mpn' AS mpn,("+fmicProducerExpression+") AS brand,data->>'shipping_weight_raw' AS shipping_weight FROM rpm_fmic_catalog WHERE sku=$1 AND "+visibleCatalog,[sku]);
  const product=result.rows[0];
  if(!product)return NextResponse.json({error:'Nie znaleziono produktu'},{status:404,headers});
  await setupEnrichment();
  const description=await db.query('SELECT description,brand,technical FROM rpm_fmic_product_descriptions WHERE sku=$1 AND published=true',[sku]);
- if(description.rows[0]){const row=description.rows[0];product.description=row.description;if(row.brand)product.brand=row.brand;product.technical=parseProductTechnical(product.name,row.description,product.target_category??[],sku);}
+ if(description.rows[0]){const row=description.rows[0];product.description=row.description;if(!product.brand&&row.brand)product.brand=row.brand;product.technical=parseProductTechnical(product.name,row.description,product.target_category??[],sku);}
  const defs=fmicSearchFacets(product.target_category??[]).filter(f=>f.key!=='producer');
  const parameters=defs.length?(await db.query('SELECT '+defs.map(f=>f.expression+' AS '+f.key).join(',')+' FROM rpm_fmic_catalog WHERE sku=$1',[sku])).rows[0]:{};
  product.technical=mergeTechnicalFields(product.technical??parseProductTechnical(product.name,'',product.target_category??[],sku),defs.map(f=>({key:f.key,label:f.label,value:String(parameters?.[f.key]??'')})));
