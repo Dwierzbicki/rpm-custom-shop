@@ -45,3 +45,15 @@ test('dyno publication requires evidence and explicit operator attestation',()=>
 });
 
 test('stroker is distinct, has a geometry task and no borrowed M54 candidates',()=>{const tasks=plan.buildPlan('m50b30-stroker',1,'drift','recommended','petrol');assert.ok(tasks.some(t=>t.id==='hybrid'));assert.equal(tasks.flatMap(t=>t.candidates??[]).length,0);assert.equal(config.approvedPowerRange('m50b30-stroker'),false);assert.equal(dyno.displacementCc({boreMm:84,strokeMm:89.6}),2979)});
+
+test('parts list includes unresolved slots but no workshop tasks',()=>{
+ const slots=plan.buildParts('m54b30',1,'drift','recommended','petrol');
+ assert.equal(slots.filter(s=>s.candidate).length,7);
+ assert.equal(slots.find(s=>s.id==='injectors').qty,1);
+ assert.ok(slots.some(s=>s.id==='wastegate'&&!s.candidate));
+ assert.ok(!slots.some(s=>['health','hybrid','diagnostics'].includes(s.id)));
+ assert.equal(new Set(slots.map(s=>s.id)).size,slots.length);
+ const stroker=plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol');
+ assert.ok(stroker.some(s=>s.id==='crank'));assert.equal(stroker.filter(s=>s.candidate).length,0);
+ assert.equal(plan.buildParts('m54b30',4,'drift','recommended','petrol').length,0);
+});
