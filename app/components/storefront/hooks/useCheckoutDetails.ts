@@ -1,0 +1,30 @@
+'use client';
+import {useEffect,useState} from 'react';
+import {PaymentMethod,PaymentSettings,DEFAULT_PAYMENT_SETTINGS,availablePaymentMethods} from '../../../lib/payment-settings';
+import {ShippingMethod,ShippingSettings,DEFAULT_SHIPPING_SETTINGS} from '../../../lib/shipping';
+import {parsePolishAddress} from '../../../company-utils.mjs';
+export function useCheckoutDetails(t:(value:string)=>string){
+ const [checkoutType,setCheckoutType]=useState<'private'|'company'>('private');
+ const [shippingMethod,setShippingMethod]=useState<ShippingMethod>('courier');
+ const [shippingSettings,setShippingSettings]=useState<ShippingSettings>(DEFAULT_SHIPPING_SETTINGS);
+ const [shippingSettingsReady,setShippingSettingsReady]=useState(false);
+ const [paymentSettings,setPaymentSettings]=useState<PaymentSettings>(DEFAULT_PAYMENT_SETTINGS);
+ const [paymentMethod,setPaymentMethod]=useState<PaymentMethod>('pay_on_pickup');
+ useEffect(()=>{fetch('/api/settings',{cache:'no-store'}).then(async r=>{if(!r.ok)throw Error('Settings unavailable');return r.json()}).then(d=>{setShippingSettings(d.shipping);setPaymentSettings(d.payments);setShippingMethod(m=>m==='courier'&&d.shipping.courierEnabled||m==='pickup'&&d.shipping.pickupEnabled?m:d.shipping.courierEnabled?'courier':'pickup');setShippingSettingsReady(true)}).catch(()=>setShippingSettingsReady(false))},[]);
+ useEffect(()=>{const methods=availablePaymentMethods(paymentSettings,shippingMethod);if(!methods.includes(paymentMethod)&&methods.length)setPaymentMethod(methods[0])},[paymentSettings,shippingMethod,paymentMethod]);
+ const [phonePrefix,setPhonePrefix]=useState('+48');
+ const [phoneMenuOpen,setPhoneMenuOpen]=useState(false);
+ const [companyName,setCompanyName]=useState('');
+ const [companyNip,setCompanyNip]=useState('');
+ const [companyAddress,setCompanyAddress]=useState('');
+ const [deliveryAddress,setDeliveryAddress]=useState('');
+ const [deliveryPostalCode,setDeliveryPostalCode]=useState('');
+ const [deliveryCity,setDeliveryCity]=useState('');
+ const [deliveryNotice,setDeliveryNotice]=useState('');
+ const copyCompanyAddress=()=>{const result=parsePolishAddress(companyAddress);setDeliveryAddress(result.street);setDeliveryPostalCode(result.postalCode);setDeliveryCity(result.city);setDeliveryNotice(result.complete?'Adres dostawy uzupełniony. Sprawdź jego poprawność przed wysłaniem.':'Uzupełniono dostępne dane. Sprawdź i uzupełnij brakujące pola adresu.');};
+ const [companyLookupBusy,setCompanyLookupBusy]=useState(false);
+ const [companyLookupMessage,setCompanyLookupMessage]=useState('');
+ const [companyLookupState,setCompanyLookupState]=useState<'success'|'error'|null>(null);
+ const lookupCompany=async()=>{if(companyLookupBusy)return;setCompanyLookupBusy(true);setCompanyLookupMessage('');setCompanyLookupState(null);setCompanyAddress('');setDeliveryNotice('');try{const response=await fetch('/api/company?nip='+encodeURIComponent(companyNip.replace(/[^0-9]/g,'')),{cache:'no-store'});const data=await response.json();if(!response.ok)throw Error(data.error||'Nie udało się pobrać danych firmy');setCompanyName(data.name||'');setCompanyAddress(data.address||'');setCompanyLookupMessage(data.source==='GUS + VAT'?t('Nazwa i adres z GUS/REGON, status VAT z wykazu VAT. Sprawdź poprawność danych.'):data.source==='GUS'?t('Dane firmy pobrane z GUS/REGON. Sprawdź ich poprawność.'):t('Dane firmy pobrane z wykazu VAT. Sprawdź ich poprawność.'));setCompanyLookupState('success');}catch(err){setCompanyLookupMessage(err instanceof Error?err.message:'Błąd pobierania danych. Wpisz je ręcznie.');setCompanyLookupState('error')}finally{setCompanyLookupBusy(false)}};
+ return {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany};
+}
