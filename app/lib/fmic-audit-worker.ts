@@ -1,4 +1,5 @@
 import {getDbPool} from './db';
+import {nextAuditCandidate,auditSupplierBlocked} from './fmic-audit-selection';
 import {setupImageAudit,inspectImage} from './fmic-image-quality';
 
 let setup:Promise<unknown>|undefined;
@@ -17,9 +18,12 @@ export async function seedAuditQueue(){
  const db=getDbPool();
  const result=await db.query("INSERT INTO rpm_fmic_image_audit(url) SELECT DISTINCT image FROM rpm_fmic_catalog CROSS JOIN LATERAL jsonb_array_elements_text(data->'images') AS image ON CONFLICT DO NOTHING");
  await db.query("INSERT INTO rpm_fmic_audit_priority(url) SELECT DISTINCT data->'images'->>0 FROM rpm_fmic_catalog WHERE NULLIF(data->'images'->>0,'') IS NOT NULL ON CONFLICT DO NOTHING");
+ resetAuditCandidates();
  return result.rowCount??0;
 }
-const runtime=globalThis as typeof globalThis & {rpmAuditLoop?:boolean};
+const runtime=globalThis as typeof globalThis & {rpmAuditLoop?:boolean;rpmAuditCandidates?:string[]};
+const candidates=runtime.rpmAuditCandidates??=[];
+export function resetAuditCandidates(){candidates.length=0}
 const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
 export function startAuditWorker(){
  if(runtime.rpmAuditLoop)return;
@@ -40,16 +44,19 @@ export function startAuditWorker(){
  const state=await client.query('SELECT enabled,intensity FROM rpm_fmic_audit_control WHERE id=1');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_audit_control SET heartbeat=NOW() WHERE id=1');
- const pending=await client.query("SELECT a.url FROM rpm_fmic_image_audit a LEFT JOIN rpm_fmic_audit_priority p ON p.url=a.url WHERE a.status='pending' ORDER BY (p.url IS NULL),a.url LIMIT $1",[1]);
- if(pending.rows.length){
- const outcomes=await Promise.all(pending.rows.map(async ({url})=>({url,...await inspectImage(url)})));
+ const url=await nextAuditCandidate(client,candidates);
+ if(url){
+ const outcomes=[{url,...await inspectImage(url)}];
+ const blocked=outcomes.find(x=>auditSupplierBlocked(x.detail));
+ const completed=outcomes.filter(x=>!auditSupplierBlocked(x.detail));
  await client.query('BEGIN');
  try{
- for(const result of outcomes.filter(x=>x.detail!=='HTTP 429'&&x.detail!=='HTTP 503'))await client.query("UPDATE rpm_fmic_image_audit SET status=$2,hash=$3,detail=$4,checked_at=NOW() WHERE url=$1 AND status='pending'",[result.url,result.status,result.hash,result.detail]);
- await client.query('UPDATE rpm_fmic_audit_control SET processed=processed+$1,heartbeat=NOW(),last_error=NULL WHERE id=1',[outcomes.filter(x=>x.detail!=='HTTP 429'&&x.detail!=='HTTP 503').length]);
+ for(const result of completed)await client.query("UPDATE rpm_fmic_image_audit SET status=$2,hash=$3,detail=$4,checked_at=NOW() WHERE url=$1 AND status='pending'",[result.url,result.status,result.hash,result.detail]);
+ await client.query('UPDATE rpm_fmic_audit_control SET processed=processed+$1,heartbeat=NOW(),last_error=$2,enabled=CASE WHEN $3::boolean THEN false ELSE enabled END WHERE id=1',[completed.length,blocked?.detail??null,blocked?.detail==='HTTP 403']);
  await client.query('COMMIT');
  }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}
- delay=outcomes.some(x=>x.detail==='HTTP 429'||x.detail==='HTTP 503')?30000:5000;
+ if(completed.length&&candidates[0]===url)candidates.shift();
+ delay=blocked?30000:5000;
  }
  }
  }

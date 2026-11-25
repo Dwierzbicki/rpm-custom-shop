@@ -195,3 +195,22 @@ test('Invalidation prevents in-flight pre-commit results from repopulating cache
  assert.equal(await fresh,'new');assert.equal(await duplicate,'new');
  assert.equal(await c.get('same',1000,async()=> 'wrong'),'new');
 });
+
+const {nextAuditCandidate,auditCandidateBatchSize,auditSupplierBlocked}=await load('app/lib/fmic-audit-selection.ts');
+test('Audit batches URL selection but rechecks queued candidates before each download',async()=>{
+ const candidates=[];const pending=new Set(['a','b','c']);let full=0,checks=0;
+ const db={query:async(sql,args)=>{
+ if(sql.startsWith('SELECT a.url')){full++;assert.equal(args[0],auditCandidateBatchSize);return {rows:[...pending].map(url=>({url}))}}
+ checks++;return {rowCount:pending.has(args[0])?1:0};
+ }};
+ assert.equal(await nextAuditCandidate(db,candidates),'a');
+ pending.delete('a');candidates.shift();pending.delete('b');
+ assert.equal(await nextAuditCandidate(db,candidates),'c');
+ assert.equal(full,1);assert.equal(checks,2);
+ pending.delete('c');candidates.shift();
+ assert.equal(await nextAuditCandidate(db,candidates),undefined);
+ assert.equal(full,2);
+ assert.ok([403,429,503].every(code=>auditSupplierBlocked('HTTP '+code)));
+ assert.equal(auditSupplierBlocked(null),false);
+ assert.equal(auditSupplierBlocked('HTTP 404'),false);
+});

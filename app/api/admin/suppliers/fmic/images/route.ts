@@ -1,6 +1,6 @@
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../../lib/db';
-import {setupAuditWorker,seedAuditQueue,startAuditWorker} from '../../../../../lib/fmic-audit-worker';
+import {setupAuditWorker,seedAuditQueue,startAuditWorker,resetAuditCandidates} from '../../../../../lib/fmic-audit-worker';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
@@ -20,7 +20,7 @@ export async function POST(request:Request){
  await setupAuditWorker();const db=getDbPool();
  if(action==='intensity'){if(![1,2,4].includes(intensity))return NextResponse.json({error:'Nieprawidłowa intensywność'},{status:400,headers});await db.query('UPDATE rpm_fmic_audit_control SET intensity=$1 WHERE id=1',[intensity]);return NextResponse.json({ok:true},{headers})}
  if(action==='seed')return NextResponse.json({added:await seedAuditQueue()},{headers});
- if(action==='retry'){const result=await db.query("UPDATE rpm_fmic_image_audit SET status='pending' WHERE status='review'");return NextResponse.json({added:result.rowCount},{headers})}
+ if(action==='retry'){const result=await db.query("UPDATE rpm_fmic_image_audit SET status='pending' WHERE status='review'");resetAuditCandidates();return NextResponse.json({added:result.rowCount},{headers})}
  if(action==='start'){await seedAuditQueue();await db.query('UPDATE rpm_fmic_audit_control SET enabled=true,last_error=NULL WHERE id=1');startAuditWorker()}
  else await db.query('UPDATE rpm_fmic_audit_control SET enabled=false WHERE id=1');
  return NextResponse.json({ok:true},{headers});
