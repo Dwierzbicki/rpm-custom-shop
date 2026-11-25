@@ -31,7 +31,7 @@ export function extractProduct(html:string,sku:string){
  const images=(Array.isArray(product.image)?product.image:[product.image]).map(x=>typeof x==='string'?x:str(obj(x)?.url)).filter(x=>{try{return new URL(x).protocol==='https:'}catch{return false}}).slice(0,20);
  return {sku,brand,name:str(product.name,1000),description:str(product.description,30000),mpn:str(product.mpn),offers,properties,images};
 }
-export async function inspectProduct(sku:string){
+export async function inspectProduct(sku:string,options:{persist?:boolean}={}){
  await setupEnrichment();
  const db=getDbPool();
  const result=await db.query("SELECT sku,data->>'url' AS url FROM rpm_fmic_catalog WHERE sku=$1",[sku]);
@@ -44,6 +44,6 @@ export async function inspectProduct(sku:string){
  const reader=response.body.getReader(),decoder=new TextDecoder();let html='',size=0;
  try{for(;;){const {done,value}=await reader.read();if(done)break;size+=value.byteLength;if(size>5*1024*1024)throw Error('HTML przekracza limit 5 MiB');html+=decoder.decode(value,{stream:true})}html+=decoder.decode()}finally{await reader.cancel().catch(()=>{});reader.releaseLock()}
  const data=extractProduct(html,sku);
- await db.query('INSERT INTO rpm_fmic_enrichment(sku,source_url,data) VALUES($1,$2,$3) ON CONFLICT(sku) DO UPDATE SET source_url=EXCLUDED.source_url,data=EXCLUDED.data,fetched_at=NOW()',[sku,url.href,JSON.stringify(data)]);
+ if(options.persist!==false)await db.query('INSERT INTO rpm_fmic_enrichment(sku,source_url,data) VALUES($1,$2,$3) ON CONFLICT(sku) DO UPDATE SET source_url=EXCLUDED.source_url,data=EXCLUDED.data,fetched_at=NOW()',[sku,url.href,JSON.stringify(data)]);
  return {sku,source_url:url.href,data};
 }
