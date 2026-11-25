@@ -87,3 +87,14 @@
  .fmic-pdp .rpm-pdp-tech-panel dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:900px){.fmic-pdp .rpm-pdp-tech-panel{grid-column:1/-1}}
+
+/* Gallery lightbox: independent spacing from storefront toolbar rules. */
+.fmic-pdp .rpm-fmic-lightbox{background:#202630;color:#edf0f5;border:1px solid #495361;border-radius:14px;padding:20px;margin:auto;max-width:calc(100vw - 40px);max-height:calc(100dvh - 40px);overflow:auto;box-sizing:border-box}
+.rpm-fmic-lightbox-inner{display:flex;flex-direction:column;gap:18px}
+.rpm-fmic-lightbox-head{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:14px;font-weight:650}
+.fmic-pdp .rpm-fmic-lightbox-head button{display:grid;place-items:center;width:42px;height:42px;padding:0;min-height:0;border-radius:7px}
+.rpm-fmic-lightbox-media{background:#fff;border-radius:8px;overflow:hidden;display:flex;justify-content:center;align-items:center}
+.rpm-fmic-lightbox-media img{display:block;max-width:min(82vw,100%);max-height:calc(100dvh - 208px);width:auto;height:auto;object-fit:contain}
+.rpm-fmic-lightbox-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:13px;font-variant-numeric:tabular-nums}
+.fmic-pdp .rpm-fmic-lightbox-nav button{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:42px;padding:10px 16px;border-radius:7px}
+@media(max-width:600px){.fmic-pdp .rpm-fmic-lightbox{padding:12px;max-width:calc(100vw - 20px);max-height:calc(100dvh - 20px)}.rpm-fmic-lightbox-inner{gap:12px}.rpm-fmic-lightbox-nav{gap:8px}.fmic-pdp .rpm-fmic-lightbox-nav button{padding:8px;font-size:12px}.rpm-fmic-lightbox-media img{max-width:calc(100vw - 46px);max-height:calc(100dvh - 160px)}}
