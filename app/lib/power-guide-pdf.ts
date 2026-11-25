@@ -1,4 +1,4 @@
-import {POWER_ENGINES,POWER_RANGES} from './storefront-config';
+import {POWER_ENGINES,powerRangesFor} from './storefront-config';
 import {guidePrice,type GuidePart} from './power-guides';
 import {money,type Product} from '../data';
 type PowerGuidePdfOptions={guideParts:GuidePart[];guideVersion:string;guideRange:number;guideUsage:string;guideTier:string;guideEngine:string;guideDiscount:number;products:Product[]};
@@ -9,7 +9,7 @@ export function openPowerGuidePdf({guideParts,guideVersion,guideRange,guideUsage
   if(!popup){alert('Zezwól na otwieranie nowych okien, aby wygenerować PDF.');return;}
   const escapeHtml=(v:string)=>v.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]??c));
   const engine=POWER_ENGINES.find(e=>e.id===guideEngine)?.versions.find(v=>v.id===guideVersion)?.name??guideVersion;
-  const range=POWER_RANGES[guideRange];
+  const range=powerRangesFor(guideVersion)[guideRange];
   const categories=Array.from(new Set(chosen.map(p=>p.category)));
   const priced=chosen.map(p=>guidePrice(p,guideDiscount)).filter((v):v is number=>v!==null);
   const total=priced.reduce((sum,v)=>sum+v,0);
