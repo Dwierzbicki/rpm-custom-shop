@@ -6,7 +6,7 @@ import FmicProductPreview from './FmicProductPreview';
 import {categoryPath,resolveCategoryPath} from '../../category-routing';
 type Facet={key:string;label:string;options:{value:string;count:number}[]};
 type Result={facets?:Facet[];items:{sku:string;name:string;proposed_gross:string;available:boolean;image:string|null}[];total:number;page:number;size:number;path:string[]};
-export default function FmicPreview({pathname,lang,sort}:{pathname:string;lang:'pl'|'en';sort:string}){
+export default function FmicPreview({pathname,lang,sort,globalQuery=''}:{pathname:string;lang:'pl'|'en';sort:string;globalQuery?:string}){
  const [data,setData]=useState<Result|null>(null),[page,setPage]=useState(1),[q,setQ]=useState(''),[search,setSearch]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
  const [stock,setStock]=useState('all'),[order,setOrder]=useState(sort),[filtersOpen,setFiltersOpen]=useState(false),[layout,setLayout]=useState('grid');
  const [facets,setFacets]=useState<Facet[]>([]),[selected,setSelected]=useState<Record<string,string>>({}),[min,setMin]=useState(''),[max,setMax]=useState(''),[price,setPrice]=useState({min:'',max:''});
@@ -15,18 +15,18 @@ export default function FmicPreview({pathname,lang,sort}:{pathname:string;lang:'
  function openProduct(next:string){const url=new URL(window.location.href);url.searchParams.set('fmicPreview','1');url.searchParams.set('sku',next);window.history.pushState({},'',url.pathname+url.search);setSku(next);window.scrollTo({top:0})}
  function closeProduct(){const url=new URL(window.location.href);url.searchParams.delete('sku');window.history.pushState({},'',url.pathname+url.search);setSku('');window.scrollTo({top:0})}
  const path=resolveCategoryPath(pathname);
- useEffect(()=>{setPage(1);setQ('');setSearch('');setStock('all');setSelected({});setFacets([]);setMin('');setMax('');setPrice({min:'',max:''})},[pathname]);
+ useEffect(()=>{setPage(1);setQ(globalQuery);setSearch(globalQuery);setSku(new URLSearchParams(window.location.search).get('sku')??'');setStock('all');setSelected({});setFacets([]);setMin('');setMax('');setPrice({min:'',max:''})},[pathname,globalQuery]);
  useEffect(()=>{
- if(!resolveCategoryPath(pathname)?.length)return;
+ if(!resolveCategoryPath(pathname))return;
  const controller=new AbortController();setBusy(true);setError('');setData(null);
  const params=new URLSearchParams({category:pathname,page:String(page),q:search,sort:order,stock,...selected,...price});
  fetch('/api/admin/fmic-preview?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do panelu administratora.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted){setData(d);setFacets(d.facets??[])}}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
  return()=>controller.abort();
  },[pathname,page,search,order,stock,selected,price]);
- if(sku&&path?.length)return <FmicProductPreview key={sku} sku={sku} onBack={closeProduct} onOpen={openProduct}/>;
- if(!path?.length)return <p>Wybierz kategorię z menu, aby zobaczyć produkty FMIC.</p>;
+ if(sku&&path)return <FmicProductPreview key={sku} sku={sku} onBack={closeProduct} onOpen={openProduct}/>;
+ if(!path)return <p>Wybierz kategorię z menu, aby zobaczyć produkty FMIC.</p>;
  const pages=Math.max(1,Math.ceil((data?.total??0)/(data?.size??24)));
- const title=path[path.length-1];
+ const title=path[path.length-1]??(search?'Wyniki wyszukiwania: '+search:'Wyszukiwarka produktów');
  const go=(next:number)=>{setPage(next);window.scrollTo({top:0,behavior:'smooth'})};
  const reset=()=>{setQ('');setSearch('');setStock('all');setPage(1);setOrder('featured');setSelected({});setMin('');setMax('');setPrice({min:'',max:''})};
  const pageNumbers=Array.from(new Set([1,...Array.from({length:5},(_,i)=>page+i-2).filter(n=>n>1&&n<pages),pages])).sort((a,b)=>a-b);
@@ -34,7 +34,7 @@ export default function FmicPreview({pathname,lang,sort}:{pathname:string;lang:'
  <nav className="fplp-crumbs" aria-label="Ścieżka kategorii"><a href="/sklep?fmicPreview=1">Sklep</a>{path.map((name,i)=><span key={i}><ChevronRight size={13}/>{i===path.length-1?<strong>{name}</strong>:<a href={categoryPath(path.slice(0,i+1))+'?fmicPreview=1'}>{name}</a>}</span>)}</nav>
  <header className="fplp-heading"><div><span className="eyebrow">RPM CUSTOM / MOTO LAB</span><h1>{title}</h1></div><small>Podgląd administratora · sprzedaż wyłączona</small></header>
  <div className="fplp-layout"><aside className={'fplp-filters '+(filtersOpen?'is-open':'')}><div className="fplp-filter-heading"><strong><SlidersHorizontal size={17}/> Filtry</strong><button type="button" onClick={reset}>Wyczyść</button></div>
- <form onSubmit={e=>{e.preventDefault();setPage(1);setSearch(q);setFiltersOpen(false)}}><label htmlFor="fplp-search">Szukaj w kategorii</label><div className="fplp-search"><input id="fplp-search" placeholder="Nazwa lub SKU" value={q} onChange={e=>setQ(e.target.value)} maxLength={120}/><button aria-label="Szukaj" type="submit"><Search size={17}/></button></div></form>
+ <form onSubmit={e=>{e.preventDefault();setPage(1);setSearch(q);setFiltersOpen(false)}}><label htmlFor="fplp-search">Szukaj produktów</label><div className="fplp-search"><input id="fplp-search" placeholder="Nazwa, SKU, EAN" value={q} onChange={e=>setQ(e.target.value)} maxLength={120}/><button aria-label="Szukaj" type="submit"><Search size={17}/></button></div></form>
  <fieldset><legend>Dostępność</legend>{[['all','Wszystkie produkty'],['available','Dostępne'],['unavailable','Niedostępne']].map(([v,label])=><label className="fplp-radio" key={v}><input type="radio" name="stock" checked={stock===v} onChange={()=>{setStock(v);setPage(1)}}/>{label}</label>)}</fieldset>
  <form className="fplp-price" onSubmit={e=>{e.preventDefault();if(min&&max&&Number(min)>Number(max))return;setPrice({min,max});setPage(1)}}><label>Cena brutto (zł)</label><div><input aria-label="Cena od" placeholder="Od" type="number" min="0" step="0.01" value={min} onChange={e=>setMin(e.target.value)}/><input aria-label="Cena do" placeholder="Do" type="number" min="0" step="0.01" value={max} onChange={e=>setMax(e.target.value)}/></div><button className="outline" type="submit">Zastosuj</button></form>
  {facets.map(f=><label key={f.key} className="fplp-facet"><span>{f.label}</span><select value={selected[f.key]??''} onChange={e=>{setSelected(old=>({...old,[f.key]:e.target.value}));setPage(1)}}><option value="">Wszystkie</option>{selected[f.key]&&!f.options.some(o=>o.value===selected[f.key])&&<option value={selected[f.key]}>{selected[f.key]} (0)</option>}{f.options.map(o=><option key={o.value} value={o.value}>{o.value} ({o.count})</option>)}</select></label>)}
