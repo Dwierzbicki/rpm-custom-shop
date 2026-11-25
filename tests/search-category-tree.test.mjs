@@ -13,6 +13,6 @@ test('empty and zero categories excluded; same child name in separate branches s
  const tree=buildSearchTree([{path:[],count:3},{path:['A'],count:0},{path:['B','X'],count:2},{path:['C','X'],count:1}]);
  assert.deepEqual(tree.map(n=>[n.name,n.children[0].path]),[['B',['B','X']],['C',['C','X']]]);
 });
-test('category links retain search term and preview mode',()=>{
- const u=new URL(searchCategoryHref('/sklep/elektronika',' E46 + M54 '),'https://rpmcustom.pl');assert.equal(u.pathname,'/sklep/elektronika');assert.equal(u.searchParams.get('q'),'E46 + M54');assert.equal(u.searchParams.get('fmicPreview'),'1');
+test('category links retain search term without preview mode',()=>{
+ const u=new URL(searchCategoryHref('/sklep/elektronika',' E46 + M54 '),'https://rpmcustom.pl');assert.equal(u.pathname,'/sklep/elektronika');assert.equal(u.searchParams.get('q'),'E46 + M54');assert.equal(u.searchParams.has('fmicPreview'),false);
 });
