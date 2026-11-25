@@ -1,4 +1,4 @@
-import type {CartLine} from '../data';
+import {isRetiredDemoProductId,type CartLine} from '../data';
 export const CART_EVENT='rpm-cart-change';
 export type FmicQuote={sku:string;name:string;unitPrice:number;available:boolean;image:string|null;updatedAt:string};
 export async function quoteFmicCart(skus:string[],signal?:AbortSignal):Promise<FmicQuote[]>{
@@ -26,7 +26,7 @@ export async function addFmicToCart(sku:string,qty:number,displayedPrice:number)
  if(quote.unitPrice!==displayedPrice)throw Error('Cena produktu uległa zmianie. Odśwież kartę produktu przed dodaniem.');
  const raw:unknown=JSON.parse(localStorage.getItem('rpm-cart')??'[]');
  if(!Array.isArray(raw))throw Error('Nie udało się odczytać koszyka.');
- const lines=raw as CartLine[],key='fmic:'+sku;
+ const lines=(raw as CartLine[]).filter(l=>l&&(l.fmicSku||!isRetiredDemoProductId(l.productId))),key='fmic:'+sku;
  const current=lines.find(l=>l.key===key);
  if((current?.qty??0)+qty>50)throw Error('Maksymalnie 50 sztuk na pozycję.');
  if(!current&&lines.length>=30)throw Error('Koszyk może zawierać maksymalnie 30 pozycji.');
