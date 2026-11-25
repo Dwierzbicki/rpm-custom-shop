@@ -8,6 +8,14 @@ export default function FmicPanel(){
  const importing=!!importState&&!['done','error'].includes(importState.phase);
  useEffect(()=>{if(importState&&!modal.current?.open)modal.current?.showModal()},[importState]);
  useEffect(()=>{if(!importing)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[importing]);
+ const [paths,setPaths]=useState<string[][]>([]),[chosen,setChosen]=useState<Record<string,string>>({}),[reviewOnly,setReviewOnly]=useState(true),[categorySearch,setCategorySearch]=useState('');
+ useEffect(()=>{fetch('/api/admin/suppliers/fmic/categories',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Błąd pobierania kategorii');return r.json()}).then(d=>setPaths(d.paths)).catch(e=>setError(String(e)))},[]);
+ async function saveMapping(source:string,target:string[],total:number){
+ if(!target.length||!window.confirm('Przypisać '+total+' produktów do '+target.join(' > ')+'?'))return;
+ setBusy(true);setError('');setSaved('');
+ try{const r=await fetch('/api/admin/suppliers/fmic/categories',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({source,target})});const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd mapowania');await load(q);setSaved('Zapisano mapowanie '+d.updated+' produktów.')}
+ catch(e){setError(String(e))}finally{setBusy(false)}
+ }
  const [discount,setDiscount]=useState('5'),[saved,setSaved]=useState('');
  async function load(query=''){setBusy(true);setError('');try{const r=await fetch('/api/admin/suppliers/fmic?q='+encodeURIComponent(query),{cache:'no-store'});if(!r.ok)throw Error('Nie udało się pobrać katalogu FMIC');const next:Catalog=await r.json();setData(next);setDiscount(String(next.discount))}catch(e){setError(String(e))}finally{setBusy(false)}}
  async function saveDiscount(){
@@ -44,7 +52,15 @@ export default function FmicPanel(){
  {data&&<><div className="rpm-settings-grid"><div>Produkty: <strong>{data.stats.total.toLocaleString('pl-PL')}</strong></div><div>Dostępne: <strong>{data.stats.available.toLocaleString('pl-PL')}</strong></div><div>Dopasowane: <strong>{data.stats.mapped.toLocaleString('pl-PL')}</strong></div><div>Do weryfikacji: <strong>{(data.stats.total-data.stats.mapped).toLocaleString('pl-PL')}</strong></div></div><p>Ostatnia aktualizacja: {data.stats.updated_at?new Date(data.stats.updated_at).toLocaleString('pl-PL'):'Brak importu'}</p></>}
  <form onSubmit={e=>{e.preventDefault();void load(q)}}><label>SKU lub nazwa <input value={q} onChange={e=>setQ(e.target.value)} maxLength={120}/></label> <button className="primary" disabled={busy}>Szukaj / odśwież</button></form>
  {data&&<><h3>Produkty (maks. 50 wyników)</h3><div style={{overflowX:'auto'}}><table><thead><tr><th>SKU</th><th>Produkt</th><th>FMIC</th><th>RPM brutto</th><th>Dostępność</th></tr></thead><tbody>{data.products.map(p=><tr key={p.sku}><td>{p.sku}</td><td>{p.name}</td><td>{p.source_price} zł</td><td>{p.proposed_gross} zł</td><td>{p.available?'Dostępny':'Niedostępny'}</td></tr>)}</tbody></table></div>
- <h3>Mapowanie kategorii</h3>{data.groups.map((g,i)=><div key={i} className="rpm-admin-settings-hub-link"><span><strong>{g.source_category||'Brak kategorii'}</strong><small>{g.target_category?.join(' > ')||'Nieprzypisana'} · {g.mapping_status}</small></span><strong>{g.total}</strong></div>)}</>}
+ <h3>Mapowanie kategorii</h3>
+ <div className="rpm-settings-grid"><label>Szukaj kategorii<input value={categorySearch} onChange={e=>setCategorySearch(e.target.value)}/></label><label><input type="checkbox" checked={reviewOnly} onChange={e=>setReviewOnly(e.target.checked)}/> Tylko do weryfikacji</label></div>
+ {data.groups.filter(g=>(!reviewOnly||!['exact','normalized','manual'].includes(g.mapping_status))&&g.source_category.toLocaleLowerCase('pl-PL').includes(categorySearch.toLocaleLowerCase('pl-PL'))).map(g=>{
+ const selected=chosen[g.source_category]??JSON.stringify(g.target_category??[]);
+ const blocked=!g.source_category.trim()||['default category','produkty bez kategorii'].includes(g.source_category.trim().toLowerCase());
+ return <div key={g.source_category+'|'+g.mapping_status} className="rpm-admin-settings-hub-link" style={{display:'grid',gap:10,marginBottom:12}}><span><strong>{g.source_category||'Brak kategorii'}</strong><small>{g.total.toLocaleString('pl-PL')} produktów · {({exact:'Dokładne',normalized:'Znormalizowane',manual:'Zatwierdzone ręcznie',parent_review:'Sugestia nadrzędna',unmapped:'Brak mapowania'} as Record<string,string>)[g.mapping_status]??g.mapping_status}</small></span>
+ {blocked?<small>Grupa ogólna — wymaga przypisania pojedynczych produktów (funkcja w przygotowaniu).</small>:<><label>Docelowa kategoria<select disabled={busy} value={selected} onChange={e=>setChosen(old=>({...old,[g.source_category]:e.target.value}))}><option value="[]">Wybierz kategorię</option>{paths.map(p=><option key={JSON.stringify(p)} value={JSON.stringify(p)}>{p.join(' > ')}</option>)}</select></label><button className="primary" disabled={busy||selected==='[]'||!paths.length} onClick={()=>void saveMapping(g.source_category,JSON.parse(selected),g.total)}>Zatwierdź mapowanie</button></>}
+ </div>})}</>}
+
  <dialog ref={modal} aria-labelledby="fmic-import-title" onCancel={e=>{e.preventDefault();if(!importing){modal.current?.close();setImportState(null)}}} style={{width:'min(520px,calc(100% - 32px))',border:'1px solid #444',borderRadius:16,padding:28,background:'#18191e',color:'#fff',boxShadow:'0 0 0 100vmax rgba(0,0,0,.7)',margin:'auto'}}>
  {importState&&<><span className="eyebrow">RPM CUSTOM / FMIC</span><h2 id="fmic-import-title">{importState.phase==='done'?'Import zakończony':importState.phase==='error'?'Błąd importu':'Import produktów FMIC'}</h2>
  <p role="status">{({download:'Łączenie i pobieranie XML…',processing:'Przetwarzanie produktów i zapis partii…',commit:'Zatwierdzanie transakcji PostgreSQL…',done:'Zapis zakończony. Produkty nie zostały opublikowane.',error:importState.error} as Record<string,string|undefined>)[importState.phase]}</p>
