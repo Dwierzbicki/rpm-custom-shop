@@ -16,6 +16,11 @@ export async function setupFmicCatalog(){
  data JSONB NOT NULL,
  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
  );
+ CREATE TABLE IF NOT EXISTS rpm_fmic_settings (
+ id INTEGER PRIMARY KEY CHECK(id=1),
+ discount NUMERIC(5,2) NOT NULL CHECK(discount>=0 AND discount<100)
+ );
+ INSERT INTO rpm_fmic_settings(id,discount) VALUES(1,5) ON CONFLICT DO NOTHING;
  CREATE INDEX IF NOT EXISTS rpm_fmic_catalog_category_idx ON rpm_fmic_catalog(source_category);
  CREATE INDEX IF NOT EXISTS rpm_fmic_catalog_mapping_idx ON rpm_fmic_catalog(mapping_status);`);
 }
@@ -30,7 +35,7 @@ export async function stageFmicBatch(rows:FmicRow[], db:Pick<ReturnType<typeof g
   return {...row,target_category:match.targetPath,mapping_status:match.status};
  });
  const result=await db.query(`INSERT INTO rpm_fmic_catalog(sku,name,source_price,proposed_gross,available,source_category,target_category,mapping_status,data)
- SELECT x->>'sku',x->>'name',(x->>'source_price')::numeric,(x->>'proposed_gross')::numeric,x->>'availability'='in stock',x->>'category_path',ARRAY(SELECT jsonb_array_elements_text(x->'target_category')),x->>'mapping_status',x
+ SELECT x->>'sku',x->>'name',(x->>'source_price')::numeric,ceil((x->>'source_price')::numeric*(100-(SELECT discount FROM rpm_fmic_settings WHERE id=1))/100),x->>'availability'='in stock',x->>'category_path',ARRAY(SELECT jsonb_array_elements_text(x->'target_category')),x->>'mapping_status',x
  FROM jsonb_array_elements($1::jsonb) AS x
  ON CONFLICT(sku) DO UPDATE SET name=EXCLUDED.name,source_price=EXCLUDED.source_price,proposed_gross=EXCLUDED.proposed_gross,available=EXCLUDED.available,source_category=EXCLUDED.source_category,target_category=EXCLUDED.target_category,mapping_status=EXCLUDED.mapping_status,data=EXCLUDED.data,updated_at=NOW()`,[JSON.stringify(payload)]);
  return result.rowCount??0;
