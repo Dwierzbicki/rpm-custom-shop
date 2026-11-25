@@ -1,4 +1,5 @@
 'use client';
+import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
 import {useEffect,useLayoutEffect,useRef} from 'react';
 import type {Dispatch,SetStateAction} from 'react';
 import {ArrowRight,ChevronRight,Menu,Truck,X} from 'lucide-react';
@@ -17,7 +18,7 @@ export type CategoryNavigationProps={
  productsOnly?:boolean;
 };
 
-const shortLabels:Record<string,string>={'Układ dolotowy':'Dolot','Układ chłodzenia':'Chłodzenie','Układ paliwowy':'Paliwo','Układ wydechowy':'Wydech','Wyposażenie wnętrza i kierowcy':'Wnętrze i kierowca'};
+const shortLabels:Record<string,string>={'Układ dolotowy':t("Dolot"),'Układ chłodzenia':t("Chłodzenie"),'Układ paliwowy':'Paliwo','Układ wydechowy':t("Wydech"),'Wyposażenie wnętrza i kierowcy':t("Wnętrze i kierowca")};
 
 const categoryIcons:Record<string,string>={"Układ dolotowy":"intake","Układ chłodzenia":"cooling","Układ paliwowy":"fuel","Układ wydechowy":"exhaust","Hamulce i koła":"brakes","Napęd i zawieszenie":"drivetrain","Silnik i turbo":"turbo","Elektronika":"ecu","Wyposażenie wnętrza i kierowcy":"seat","Detailing":"detail","Pozostałe":"other"};
 function CategoryIcon({name}:{name:string}){
@@ -30,6 +31,7 @@ export default function CategoryNavigation({
  mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,
  setActiveFmicSub,onOpenCatalogPath,onMotoLab,productsOnly=false
 }:CategoryNavigationProps){
+ const {t}=useStorefrontLanguage();
  const navRef=useRef<HTMLElement>(null);
  function positionPanel(i:number){
   const root=navRef.current?.querySelectorAll<HTMLElement>('.rpm-desktop-root')[i];
@@ -83,7 +85,7 @@ export default function CategoryNavigation({
  const navigate=(names:string[])=>{closeDesktop();onOpenCatalogPath(names)};
  return (
   <>
- <nav ref={navRef} className="rpm-desktop-categories rpm-classic-navigation" aria-label="Kategorie produktów">
+ <nav ref={navRef} className="rpm-desktop-categories rpm-classic-navigation" aria-label={t("Kategorie produktów")}>
  {FMIC_CATEGORY_TREE.map((root,i)=>{
  const isOpen=activeFmicRoot===i&&!mobileMenu;
  const selected=activeFmicSub===null?undefined:root.children[activeFmicSub];
@@ -92,41 +94,41 @@ export default function CategoryNavigation({
  onMouseLeave={e=>{if(!e.currentTarget.querySelector('.rpm-cascade-panel')?.contains(document.activeElement))closeDesktop()}}
  onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))closeDesktop()}}
  onKeyDown={e=>{if(e.key==='Escape'&&isOpen){e.preventDefault();e.currentTarget.querySelector<HTMLButtonElement>('.rpm-desktop-root-button')?.focus();closeDesktop()}}}>
- <button type="button" className="rpm-desktop-root-button" title={root.name}
+ <button type="button" className="rpm-desktop-root-button" title={t(root.name)}
  aria-expanded={isOpen} aria-controls={isOpen?'rpm-cascade-'+i:undefined}
  onFocus={()=>{if(!isOpen)openDesktop(i)}} onClick={()=>navigate([root.name])}
  onKeyDown={e=>{if(e.key==='ArrowDown'){e.preventDefault();if(!isOpen)openDesktop(i);requestAnimationFrame(()=>navRef.current?.querySelector<HTMLButtonElement>('#rpm-cascade-'+i+' .rpm-cascade-group')?.focus())}}}>
- <span className="rpm-nav-category-label">{productsOnly?(shortLabels[root.name]??root.name):root.name}</span>
+ <span className="rpm-nav-category-label">{t(productsOnly?(shortLabels[root.name]??root.name):root.name)}</span>
  </button>
  {isOpen&&<div className="rpm-cascade-panel" id={'rpm-cascade-'+i}>
- <div className="rpm-cascade-groups" aria-label="Podkategorie">
+ <div className="rpm-cascade-groups" aria-label={t("Podkategorie")}>
  {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-cascade-group'+(activeFmicSub===j?' is-selected':'')}
  aria-expanded={sub.children.length?activeFmicSub===j:undefined}
  onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)}
  onKeyDown={e=>{if(e.key==='ArrowRight'&&sub.children.length){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-leaves button')?.focus()}}}
- onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span>{sub.children.length>0&&<ChevronRight size={15} aria-hidden="true"/>}</button>)}
+ onClick={()=>navigate([root.name,sub.name])}><span>{t(sub.name)}<///span>{sub.children.length>0&&<ChevronRight size={15} aria-hidden="true"/>}</button>)}
  </div>
- {selected&&selected.children.length>0&&<div className="rpm-cascade-leaves" key={selected.name} aria-label={selected.name}
+ {selected&&selected.children.length>0&&<div className="rpm-cascade-leaves" key={selected.name} aria-label={t(selected.name)}
  onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-group.is-selected')?.focus()}}}>
- {selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}>{leaf.name}</button>)}
+ {selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}>{t(leaf.name)}<///button>)}
  </div>}
  </div>}</div>
  })}
  {!productsOnly&&<><button type="button" className="rpm-desktop-motolab" onClick={onMotoLab}>MOTOLAB <ArrowRight size={14}/></button>
  <a className={styles.desktopRoad} href="/autopomoc"><Truck size={15}/> AUTO POMOC</a></>}
  </nav>
- <nav className="rpm-clean-nav" aria-label="Nawigacja sklepu">
- <button type="button" className="rpm-clean-categories-button" aria-expanded={mobileMenu} aria-controls="rpm-category-drawer" onClick={()=>{setMobileMenu(v=>!v);setActiveFmicRoot(null);setActiveFmicSub(null)}}>{mobileMenu?<X size={19}/>:<Menu size={19}/>} <span>KATEGORIE PRODUKTÓW</span> <ChevronRight size={15}/></button>
+ <nav className="rpm-clean-nav" aria-label={t("Nawigacja sklepu")}>
+ <button type="button" className="rpm-clean-categories-button" aria-expanded={mobileMenu} aria-controls="rpm-category-drawer" onClick={()=>{setMobileMenu(v=>!v);setActiveFmicRoot(null);setActiveFmicSub(null)}}>{mobileMenu?<X size={19}/>:<Menu size={19}/>} <span>{t("KATEGORIE PRODUKTÓW")}</span> <ChevronRight size={15}/></button>
  {!productsOnly&&<button type="button" className="rpm-clean-motolab" onClick={onMotoLab}>MOTOLAB <ArrowRight size={16}/></button>}
  </nav>
  {mobileMenu&&<div className="rpm-drawer-backdrop" onClick={()=>setMobileMenu(false)} aria-hidden="true"/>}
- <aside id="rpm-category-drawer" className={'rpm-category-drawer'+(mobileMenu?' is-open':'')} aria-label="Kategorie produktów" aria-hidden={!mobileMenu}>
- <div className="rpm-drawer-head"><div className="rpm-drawer-heading"><span className="rpm-drawer-eyebrow">RPM CUSTOM / SKLEP</span><strong>Kategorie produktów</strong></div><button type="button" onClick={()=>setMobileMenu(false)} aria-label="Zamknij kategorie"><X size={22}/></button></div><div className="rpm-drawer-hint">Wybierz dział lub rozwiń strzałką podkategorie</div>
+ <aside id="rpm-category-drawer" className={'rpm-category-drawer'+(mobileMenu?' is-open':'')} aria-label={t("Kategorie produktów")} aria-hidden={!mobileMenu}>
+ <div className="rpm-drawer-head"><div className="rpm-drawer-heading"><span className="rpm-drawer-eyebrow">{t("RPM CUSTOM / SKLEP")}</span><strong>{t("Kategorie produktów")}</strong></div><button type="button" onClick={()=>setMobileMenu(false)} aria-label={t("Zamknij kategorie")}><X size={22}/></button></div><div className="rpm-drawer-hint">{t("Wybierz dział lub rozwiń strzałką podkategorie")}</div>
  {!productsOnly&&<a className={styles.drawerRoad} href="/autopomoc"><Truck size={18}/> POMOC DROGOWA — WEZWIJ LAWETĘ <ArrowRight size={15}/></a>}
  <div className="rpm-drawer-scroll">
  {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={"rpm-drawer-root"+(activeFmicRoot===i?" is-active":"")}>
- <div className="rpm-drawer-root-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name])}><CategoryIcon name={root.name}/><span>{root.name}</span></button><button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+root.name} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
- {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name,sub.name])}>{sub.name}</button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={'Rozwiń '+sub.name} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>onOpenCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}</div>)}</div>}
+ <div className="rpm-drawer-root-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name])}><CategoryIcon name={root.name}/><span>{t(root.name)}<///span></button><button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(root.name)} aria-expanded={activeFmicRoot===i} onClick={()=>{setActiveFmicRoot(activeFmicRoot===i?null:i);setActiveFmicSub(null)}}><ChevronRight size={18}/></button></div>
+ {activeFmicRoot===i&&<div className="rpm-drawer-subs">{root.children.map((sub,j)=><div key={j} className={"rpm-drawer-sub"+(activeFmicSub===j?" is-active":"")}><div className="rpm-drawer-sub-line"><button type="button" onClick={()=>onOpenCatalogPath([root.name,sub.name])}>{t(sub.name)}<///button>{sub.children.length>0&&<button type="button" className="rpm-drawer-expand" aria-label={t('Rozwiń ')+t(sub.name)} aria-expanded={activeFmicSub===j} onClick={()=>setActiveFmicSub(activeFmicSub===j?null:j)}><ChevronRight size={16}/></button>}</div>{activeFmicSub===j&&sub.children.length>0&&<div className="rpm-drawer-leaves">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>onOpenCatalogPath([root.name,sub.name,leaf.name])}>{t(leaf.name)}<///button>)}</div>}</div>)}</div>}
  </div>)}
  </div></aside>
   </>
