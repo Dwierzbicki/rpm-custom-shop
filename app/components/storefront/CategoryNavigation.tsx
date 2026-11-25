@@ -32,9 +32,15 @@ export default function CategoryNavigation({
 }:CategoryNavigationProps){
  const navRef=useRef<HTMLElement>(null);
  function positionPanel(i:number){
-  const nav=navRef.current;
-  const root=nav?.querySelectorAll<HTMLElement>('.rpm-desktop-root')[i];
-  if(nav&&root)nav.style.setProperty('--rpm-mega-anchor',Math.max(0,root.getBoundingClientRect().left-nav.getBoundingClientRect().left)+'px');
+  const root=navRef.current?.querySelectorAll<HTMLElement>('.rpm-desktop-root')[i];
+  if(!root)return;
+  const bounds=root.getBoundingClientRect();
+  const viewport=document.documentElement.clientWidth;
+  const right=viewport-bounds.left, left=bounds.right;
+  const reverse=right<580&&left>right;
+  root.dataset.cascadeSide=reverse?'left':'right';
+  root.style.setProperty('--rpm-cascade-width',Math.max(0,Math.min(580,(reverse?left:right)-4))+'px');
+  root.style.setProperty('--rpm-cascade-height',Math.max(96,window.innerHeight-bounds.bottom-12)+'px');
  }
  useEffect(()=>{
   if(activeFmicRoot===null||mobileMenu)return;
@@ -45,38 +51,41 @@ export default function CategoryNavigation({
   const observer=new ResizeObserver(update);
   observer.observe(nav);
   nav.querySelectorAll('.rpm-desktop-root-button').forEach(el=>observer.observe(el));
-  return()=>observer.disconnect();
+  window.addEventListener('resize',update);
+  return()=>{observer.disconnect();window.removeEventListener('resize',update)};
  },[activeFmicRoot,mobileMenu]);
  const closeDesktop=()=>{setActiveFmicRoot(null);setActiveFmicSub(null)};
- const openDesktop=(i:number)=>{positionPanel(i);setActiveFmicRoot(i);setActiveFmicSub(FMIC_CATEGORY_TREE[i].children.length?0:null)};
+ const openDesktop=(i:number)=>{positionPanel(i);setActiveFmicRoot(i);setActiveFmicSub(null)};
  const navigate=(names:string[])=>{closeDesktop();onOpenCatalogPath(names)};
  return (
   <>
- <nav ref={navRef} className="rpm-desktop-categories rpm-mega-navigation" aria-label="Kategorie produktów">
+ <nav ref={navRef} className="rpm-desktop-categories rpm-classic-navigation" aria-label="Kategorie produktów">
  {FMIC_CATEGORY_TREE.map((root,i)=>{
  const isOpen=activeFmicRoot===i&&!mobileMenu;
  const selected=activeFmicSub===null?undefined:root.children[activeFmicSub];
  return <div key={root.name} className={'rpm-desktop-root'+(isOpen?' active':'')}
  onMouseEnter={()=>{if(!isOpen)openDesktop(i)}}
- onMouseLeave={e=>{if(!e.currentTarget.querySelector(".rpm-mega-panel")?.contains(document.activeElement))closeDesktop()}}
+ onMouseLeave={e=>{if(!e.currentTarget.querySelector('.rpm-cascade-panel')?.contains(document.activeElement))closeDesktop()}}
  onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))closeDesktop()}}
  onKeyDown={e=>{if(e.key==='Escape'&&isOpen){e.preventDefault();e.currentTarget.querySelector<HTMLButtonElement>('.rpm-desktop-root-button')?.focus();closeDesktop()}}}>
  <button type="button" className="rpm-desktop-root-button" title={root.name}
- aria-expanded={isOpen} aria-controls={isOpen?'rpm-mega-panel-'+i:undefined}
- onFocus={()=>{if(!isOpen)openDesktop(i)}} onClick={()=>navigate([root.name])}>
+ aria-expanded={isOpen} aria-controls={isOpen?'rpm-cascade-'+i:undefined}
+ onFocus={()=>{if(!isOpen)openDesktop(i)}} onClick={()=>navigate([root.name])}
+ onKeyDown={e=>{if(e.key==='ArrowDown'){e.preventDefault();if(!isOpen)openDesktop(i);requestAnimationFrame(()=>navRef.current?.querySelector<HTMLButtonElement>('#rpm-cascade-'+i+' .rpm-cascade-group')?.focus())}}}>
  <span className="rpm-nav-category-label">{productsOnly?(shortLabels[root.name]??root.name):root.name}</span>
  </button>
- {isOpen&&<div className="rpm-mega-panel" id={'rpm-mega-panel-'+i} style={{height:'min('+Math.min(440,Math.max(176,70+root.children.length*36))+'px,max(120px,calc(100dvh - 180px)))'}}>
- <div className="rpm-mega-heading"><div><strong>{root.name}</strong></div><button type="button" className="rpm-mega-all" onClick={()=>navigate([root.name])}>Zobacz cały dział <ArrowRight size={17}/></button></div>
- <div className="rpm-mega-body">
- <div className="rpm-mega-groups" aria-label="Podkategorie">
- {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-mega-group'+(activeFmicSub===j?' is-selected':'')} onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)} onKeyDown={e=>{if(e.key==='ArrowRight'){e.preventDefault();e.currentTarget.closest('.rpm-mega-body')?.querySelector<HTMLButtonElement>('.rpm-mega-detail button')?.focus()}}} onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span><ChevronRight size={16} aria-hidden="true"/></button>)}
+ {isOpen&&<div className="rpm-cascade-panel" id={'rpm-cascade-'+i}>
+ <div className="rpm-cascade-groups" aria-label="Podkategorie">
+ {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-cascade-group'+(activeFmicSub===j?' is-selected':'')}
+ aria-expanded={sub.children.length?activeFmicSub===j:undefined}
+ onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)}
+ onKeyDown={e=>{if(e.key==='ArrowRight'&&sub.children.length){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-leaves button')?.focus()}}}
+ onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span>{sub.children.length>0&&<ChevronRight size={15} aria-hidden="true"/>}</button>)}
  </div>
- <div className="rpm-mega-detail" key={selected?.name??root.name} onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();e.currentTarget.closest('.rpm-mega-body')?.querySelector<HTMLButtonElement>('.rpm-mega-group.is-selected')?.focus()}}}>
- {selected?<><div className="rpm-mega-detail-head"><strong>{selected.name}</strong><button type="button" onClick={()=>navigate([root.name,selected.name])}>Zobacz wszystkie <ArrowRight size={15}/></button></div>
- {selected.children.length>0?<div className="rpm-mega-leaves">{selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}><span>{leaf.name}</span><ChevronRight size={14} aria-hidden="true"/></button>)}</div>:<p className="rpm-mega-note">Przejdź do kategorii, aby zobaczyć dostępne produkty.</p>}</>:<p className="rpm-mega-note">Wybierz podkategorię lub zobacz cały dział.</p>}
- </div>
- </div>
+ {selected&&selected.children.length>0&&<div className="rpm-cascade-leaves" key={selected.name} aria-label={selected.name}
+ onKeyDown={e=>{if(e.key==='ArrowLeft'){e.preventDefault();e.currentTarget.closest('.rpm-cascade-panel')?.querySelector<HTMLButtonElement>('.rpm-cascade-group.is-selected')?.focus()}}}>
+ {selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}>{leaf.name}</button>)}
+ </div>}
  </div>}</div>
  })}
  {!productsOnly&&<><button type="button" className="rpm-desktop-motolab" onClick={onMotoLab}>MOTOLAB <ArrowRight size={14}/></button>
