@@ -141,3 +141,5 @@ Object.assign(en,{
 });
 
 Object.assign(en,{'Przejdź do zamówienia':'Proceed to checkout','Wartość zapisanych części':'Saved parts total','Dodano do koszyka':'Added to cart'});
+
+Object.assign(en,{'Cena uległa zmianie':'Price changed'});
