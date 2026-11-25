@@ -1,0 +1,13 @@
+'use client';
+import {useEffect,useState} from 'react';
+import Link from 'next/link';
+import {money} from '../../data';
+type Quote={id:string;customer:{name:string;email:string;postalCode:string;notes:string;language:'pl'|'en'};items:{sku:string;name:string;qty:number;unitPrice:number}[];subtotal:number;status:string;created_at:string};
+const labels:Record<string,string>={new:'Nowe',contacted:'Kontakt nawiązany',closed:'Zamknięte'};
+export default function QuoteRequests(){
+ const [rows,setRows]=useState<Quote[]>([]),[busy,setBusy]=useState(true),[saving,setSaving]=useState(''),[error,setError]=useState('');
+ async function load(){setBusy(true);setError('');try{const r=await fetch('/api/admin/quote-requests',{cache:'no-store'});if(!r.ok)throw Error();setRows((await r.json()).requests)}catch{setError('Nie udało się pobrać zapytań.')}finally{setBusy(false)}}
+ useEffect(()=>{void load()},[]);
+ async function save(id:string,status:string){setSaving(id);setError('');try{const r=await fetch('/api/admin/quote-requests',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});if(!r.ok)throw Error();setRows(old=>old.map(x=>x.id===id?{...x,status}:x))}catch{setError('Nie udało się zapisać statusu.')}finally{setSaving('')}}
+ return <main className="admin-page rpm-orders-page"><div className="admin-top"><div><Link href="/admin/orders" className="admin-back">← Zamówienia</Link><h1>Zapytania ofertowe FMIC</h1><p>Niewiążące zapytania klientów. Nie są płatnymi zamówieniami ani rezerwacjami towaru.</p></div><button className="outline" onClick={()=>void load()} disabled={busy}>Odśwież</button></div>{error&&<p role="alert">{error}</p>}{busy?<p>Ładowanie…</p>:!rows.length?<p>Brak zapytań.</p>:<div className="rpm-orders-list">{rows.map(q=><article className="rpm-order-card" key={q.id}><div className="rpm-order-details"><div className="rpm-order-contact"><h3>Q-{q.id} · {new Date(q.created_at).toLocaleString('pl-PL')}</h3><p>{q.customer.name} · {q.customer.language.toUpperCase()}</p><p><a href={'mailto:'+q.customer.email}>{q.customer.email}</a></p><p>Kod dostawy: {q.customer.postalCode||'—'}</p><p style={{whiteSpace:'pre-wrap'}}>{q.customer.notes}</p></div><div>{q.items.map(i=><div key={i.sku} className="rpm-order-item"><strong>{i.name}</strong><small>{i.sku} · {i.qty} × {money(i.unitPrice)}</small></div>)}</div><div className="rpm-order-update"><strong>Wstępna wartość: {money(q.subtotal)}</strong><label>Status<select value={q.status} disabled={Boolean(saving)} onChange={e=>void save(q.id,e.target.value)}>{Object.entries(labels).map(([k,v])=><option key={k} value={k}>{v}</option>)}</select></label></div></div></article>)}</div>}</main>
+}
