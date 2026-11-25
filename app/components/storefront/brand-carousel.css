@@ -1,27 +1,33 @@
-/* Compact dark supplier logo rail. */
+/* Compact dark supplier logo rail, with full-color hover. */
 .rpm-hp-v2 .rpm-brand-carousel{width:min(calc(100% - 2*var(--hp-gutter,24px)),1440px);margin:18px auto 24px;min-width:0}
-.rpm-brand-carousel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px 12px;min-height:32px}
+.rpm-brand-carousel-head{display:flex;align-items:center;padding:0 2px 12px;min-height:32px}
 .rpm-brand-carousel-head h2{font-size:12px;font-weight:800;letter-spacing:.14em;color:#c2c6cf;margin:0}
 .rpm-brand-carousel-window{overflow-x:auto;scrollbar-width:thin;background:#15181e;border:1px solid #30343d;border-radius:5px}
 .rpm-brand-carousel-track{display:flex;width:max-content;min-width:100%;align-items:center}
 .rpm-brand-carousel-group{display:flex;flex:0 0 auto;align-items:center;justify-content:center;min-width:0}
-.rpm-brand-carousel-group>a{display:flex;align-items:center;justify-content:center;box-sizing:border-box;flex:0 0 172px;width:172px;height:84px;padding:12px 17px;outline-offset:-4px}
-.rpm-brand-carousel-group>a>img{display:block;width:100%;height:100%;max-height:58px;object-fit:contain;filter:brightness(0) invert(.78);opacity:.95;transition:filter .2s,opacity .2s}
-.rpm-brand-carousel-group>a:hover>img,.rpm-brand-carousel-group>a:focus-visible>img{filter:brightness(1.2);opacity:1}
+.rpm-brand-carousel-group>a{display:flex;align-items:center;justify-content:center;box-sizing:border-box;flex:0 0 172px;width:172px;height:84px;padding:10px 13px;outline-offset:-4px;text-decoration:none}
+.rpm-brand-mark{position:relative;display:grid;place-items:center;width:100%;height:100%;--logo-width:132px;--logo-height:51px}
+.rpm-brand-mark>img{position:absolute;inset:0;margin:auto;display:block;width:min(100%,var(--logo-width));height:var(--logo-height);max-height:100%;object-fit:contain;visibility:hidden;filter:grayscale(1) brightness(1.35) contrast(1.06);opacity:.93;transition:filter .22s,opacity .22s}
+.rpm-brand-mark>img.is-ready{visibility:visible}
+.rpm-brand-carousel-group>a:hover img,.rpm-brand-carousel-group>a:focus-visible img{filter:none;opacity:1}
+.rpm-brand-name{font-size:14px;font-weight:750;letter-spacing:.045em;text-align:center;color:#b6bbc4;text-decoration:none}
+.rpm-brand-carousel-group>a:hover .rpm-brand-name,.rpm-brand-carousel-group>a:focus-visible .rpm-brand-name{color:#fff}
+.rpm-brand-canchecked,.rpm-brand-iod{--logo-width:144px;--logo-height:55px}
+.rpm-brand-penrite,.rpm-brand-elring,.rpm-brand-wisefab{--logo-width:100px;--logo-height:57px}
+.rpm-brand-zrp{--logo-width:118px;--logo-height:48px}
+.rpm-brand-wilwood,.rpm-brand-pulsar,.rpm-brand-tein{--logo-width:142px;--logo-height:49px}
 .rpm-brand-carousel-group>a:focus-visible{outline:2px solid #e72f59}
-.rpm-brand-carousel-window.is-animated{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 97%,transparent)}
+.rpm-brand-carousel-window.is-animated{overflow:hidden;mask-image:linear-gradient(90deg,transparent,#000 1%,#000 99%,transparent)}
 .rpm-brand-carousel-window.is-animated .rpm-brand-carousel-track{animation:rpm-brand-loop 42s linear infinite}
 .rpm-brand-carousel-window:hover .rpm-brand-carousel-track,.rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation-play-state:paused}
 .rpm-brand-carousel-window:focus-within .rpm-brand-carousel-track{animation:none;transform:none}
-.rpm-brand-carousel-window:focus-within{overflow-x:auto}
+.rpm-brand-carousel-window:focus-within{overflow-x:auto;mask-image:none}
 .rpm-brand-carousel-window:focus-within .is-copy{display:none}
-.rpm-brand-carousel-group>a>img.is-original{filter:grayscale(1) invert(1) contrast(1.12);mix-blend-mode:screen}
-.rpm-brand-carousel-group>a:hover>img.is-original,.rpm-brand-carousel-group>a:focus-visible>img.is-original{filter:grayscale(1) invert(1) contrast(1.3) brightness(1.2)}
 @keyframes rpm-brand-loop{to{transform:translateX(-50%)}}
 @media(max-width:700px),(hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
  .rpm-brand-carousel-window.is-animated{overflow-x:auto;mask-image:none}
  .rpm-brand-carousel-window.is-animated .rpm-brand-carousel-track{animation:none}
  .rpm-brand-carousel-group.is-copy{display:none}
  .rpm-brand-carousel-group>a{flex-basis:145px;width:145px;height:73px;padding:10px 12px}
- .rpm-brand-carousel-group>a>img{transition:none}
+ .rpm-brand-mark>img{transition:none}
 }
