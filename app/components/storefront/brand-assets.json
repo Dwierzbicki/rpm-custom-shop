@@ -58,5 +58,17 @@
     "name": "IOD",
     "slug": "iod",
     "url": "https://fmic.pl/media/catalog/product/I/O/IOD-LOGO.jpg"
+  },
+  {
+    "name": "Sparco",
+    "slug": "sparco",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/c/c6/Sparco_company_logo.png",
+    "source": "https://commons.wikimedia.org/wiki/File:Sparco_company_logo.png"
+  },
+  {
+    "name": "Strongflex",
+    "slug": "strongflex",
+    "url": "https://www.strongflex.eu/logo-strongflex/miniatures/color-white.png",
+    "source": "https://www.strongflex.eu/en/content/8-our-logo"
   }
 ]
