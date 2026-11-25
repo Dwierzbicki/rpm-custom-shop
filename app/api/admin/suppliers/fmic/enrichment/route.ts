@@ -2,6 +2,7 @@ import {NextResponse} from 'next/server';
 import {parseProductTechnical} from '../../../../../lib/fmic-technical';
 import {getDbPool} from '../../../../../lib/db';
 import {setupEnrichment,inspectProduct} from '../../../../../lib/fmic-enrichment';
+import {setupDescriptionQueue} from '../../../../../lib/fmic-description-worker';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
@@ -15,11 +16,31 @@ export async function POST(request:Request){
  if(!origin||!host||new URL(origin).host!==host)return NextResponse.json({error:'Niedozwolone pochodzenie'},{status:403,headers});
  if(process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return NextResponse.json({error:'Pilotaż wymaga potwierdzenia zasad FMIC i konfiguracji FMIC_ENRICHMENT_ALLOWED=1'},{status:403,headers});
  const {sku}=await request.json();if(typeof sku!=='string'||!sku.trim()||sku.length>120)return NextResponse.json({error:'Podaj prawidłowe SKU'},{status:400,headers});
- await setupEnrichment();const client=await getDbPool().connect();let locked=false;
- try{const lock=await client.query('SELECT pg_try_advisory_lock(27391,3) AS acquired');locked=lock.rows[0].acquired;if(!locked)return NextResponse.json({error:'Pilotaż już trwa'},{status:409,headers});
- const recent=await client.query("SELECT 1 FROM rpm_fmic_enrichment WHERE fetched_at>NOW()-interval '30 seconds' LIMIT 1");if(recent.rowCount)return NextResponse.json({error:'Odczekaj 30 sekund pomiędzy próbami'},{status:429,headers});
- return NextResponse.json(await inspectProduct(sku.trim()),{headers});
- }finally{if(locked)await client.query('SELECT pg_advisory_unlock(27391,3)').catch(()=>{});client.release()}
+ await setupDescriptionQueue();const client=await getDbPool().connect();let locked=false,manual=false;
+ try{
+ const reservation=await client.query('SELECT pg_try_advisory_lock(27391,4) AS acquired');manual=reservation.rows[0].acquired;
+ if(!manual)return NextResponse.json({error:'Trwa inne ręczne pobieranie. Poczekaj na jego zakończenie.'},{status:409,headers});
+ await client.query("UPDATE rpm_fmic_description_control SET manual_until=NOW()+interval '90 seconds' WHERE id=1");
+ const deadline=Date.now()+45000;
+ while(Date.now()<deadline&&!request.signal.aborted){
+ const lock=await client.query('SELECT pg_try_advisory_lock(27391,3) AS acquired');locked=lock.rows[0].acquired;
+ if(locked){
+ const state=await client.query("SELECT (next_request_at IS NULL OR next_request_at<=NOW()) AS ready FROM rpm_fmic_description_control WHERE id=1");
+ if(state.rows[0]?.ready){
+ await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
+ try{return NextResponse.json(await inspectProduct(sku.trim()),{headers})}
+ catch(e){if(/HTTP (403|429|503)/.test(String(e)))await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[String(e).slice(0,400)]);throw e}
+ }
+ await client.query('SELECT pg_advisory_unlock(27391,3)');locked=false;
+ }
+ await new Promise(r=>setTimeout(r,1000));
+ }
+ return NextResponse.json({error:'Nie udało się uzyskać wolnego terminu pobrania. Spróbuj ponownie.'},{status:503,headers});
+ }finally{
+ if(locked)await client.query('SELECT pg_advisory_unlock(27391,3)').catch(()=>{});
+ if(manual){await client.query('UPDATE rpm_fmic_description_control SET manual_until=NULL WHERE id=1').catch(()=>{});await client.query('SELECT pg_advisory_unlock(27391,4)').catch(()=>{})}
+ client.release()
+ }
  }catch(e){return NextResponse.json({error:e instanceof Error?e.message.slice(0,250):'Błąd pilotażu'},{status:422,headers})}
 }
 

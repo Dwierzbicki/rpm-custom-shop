@@ -9,7 +9,7 @@ export async function setupDescriptionQueue(){
  ); CREATE INDEX IF NOT EXISTS rpm_fmic_description_queue_status_idx ON rpm_fmic_description_queue(status,sku);
  CREATE TABLE IF NOT EXISTS rpm_fmic_description_control (
  id integer PRIMARY KEY CHECK(id=1), enabled boolean NOT NULL DEFAULT false, heartbeat timestamptz, last_error text, next_request_at timestamptz
- ); INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;`)})().catch(e=>{setup=undefined;throw e});
+ ); ALTER TABLE rpm_fmic_description_control ADD COLUMN IF NOT EXISTS manual_until timestamptz; INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;`)})().catch(e=>{setup=undefined;throw e});
  await setup;
 }
 export async function seedDescriptionQueue(){
@@ -37,12 +37,12 @@ export function startDescriptionWorker(){
  let client:import('pg').PoolClient|undefined,locked=false;
  try{
  await setupDescriptionQueue();const db=getDbPool();
- const control=await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (next_request_at IS NULL OR next_request_at<=NOW())');
+ const control=await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())');
  if(control.rows[0]?.enabled&&process.memoryUsage().rss<320*1024*1024){
  client=await db.connect();
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,3) AS acquired');locked=lock.rows[0].acquired;
  if(locked){
- const state=await client.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (next_request_at IS NULL OR next_request_at<=NOW())');
+ const state=await client.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW() WHERE id=1');
  const row=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' ORDER BY sku LIMIT 1")).rows[0];
