@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server';
+import {parseProductTechnical} from '../../../../../lib/fmic-technical';
 import {getDbPool} from '../../../../../lib/db';
 import {setupEnrichment,inspectProduct} from '../../../../../lib/fmic-enrichment';
 export const runtime='nodejs';
@@ -29,7 +30,10 @@ export async function PUT(request:Request){
  const {sku,description,brand,published}=await request.json();
  if(typeof sku!=='string'||!sku.trim()||sku.length>120||typeof description!=='string'||description.length>30000||typeof brand!=='string'||brand.length>200||typeof published!=='boolean'||(published&&!description.trim()))return NextResponse.json({error:'Nieprawidłowe dane opisu'},{status:400,headers});
  await setupEnrichment();const db=getDbPool();
- const result=await db.query("INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published) SELECT sku,$2,$3,$4 FROM rpm_fmic_catalog WHERE sku=$1 ON CONFLICT(sku) DO UPDATE SET description=EXCLUDED.description,brand=EXCLUDED.brand,published=EXCLUDED.published,updated_at=NOW() RETURNING sku",[sku.trim(),description.trim(),brand.trim(),published]);
+ const source=(await db.query('SELECT name,target_category FROM rpm_fmic_catalog WHERE sku=$1',[sku.trim()])).rows[0];
+ if(!source)return NextResponse.json({error:'Nie znaleziono SKU'},{status:404,headers});
+ const technical=parseProductTechnical(source.name,description.trim(),source.target_category??[],sku.trim());
+ const result=await db.query("INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published,technical) SELECT sku,$2,$3,$4,$5::jsonb FROM rpm_fmic_catalog WHERE sku=$1 ON CONFLICT(sku) DO UPDATE SET description=EXCLUDED.description,brand=EXCLUDED.brand,published=EXCLUDED.published,technical=EXCLUDED.technical,updated_at=NOW() RETURNING sku",[sku.trim(),description.trim(),brand.trim(),published,JSON.stringify(technical)]);
  if(!result.rowCount)return NextResponse.json({error:'Nie znaleziono SKU'},{status:404,headers});
  return NextResponse.json({ok:true},{headers});
  }catch(e){console.error('Save FMIC description',e);return NextResponse.json({error:'Nie udało się zapisać opisu'},{status:500,headers})}

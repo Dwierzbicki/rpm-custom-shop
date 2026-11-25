@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server';
+import {parseProductTechnical} from '../../../../lib/fmic-technical';
 import {setupEnrichment} from '../../../../lib/fmic-enrichment';
 import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../../lib/db';
@@ -15,8 +16,8 @@ export async function GET(request:Request){
  const product=result.rows[0];
  if(!product)return NextResponse.json({error:'Nie znaleziono produktu'},{status:404,headers});
  await setupEnrichment();
- const description=await db.query('SELECT description,brand FROM rpm_fmic_product_descriptions WHERE sku=$1 AND published=true',[sku]);
- if(description.rows[0]){product.description=description.rows[0].description;if(description.rows[0].brand)product.brand=description.rows[0].brand;}
+ const description=await db.query('SELECT description,brand,technical FROM rpm_fmic_product_descriptions WHERE sku=$1 AND published=true',[sku]);
+ if(description.rows[0]){const row=description.rows[0];product.description=row.description;if(row.brand)product.brand=row.brand;product.technical=row.technical??parseProductTechnical(product.name,row.description,product.target_category??[],sku);}
  const related=await db.query("SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM rpm_fmic_catalog WHERE target_category=$1::text[] AND sku<>$2 AND mapping_status IN ('exact','normalized','manual') ORDER BY available DESC,sku LIMIT 4",[product.target_category,sku]);
  return NextResponse.json({product,related:related.rows},{headers});
  }catch(e){console.error('FMIC product preview failed',e);return NextResponse.json({error:'Nie udało się pobrać produktu'},{status:500,headers})}

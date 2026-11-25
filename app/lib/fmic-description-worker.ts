@@ -1,3 +1,4 @@
+import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
 import {setupEnrichment,inspectProduct} from './fmic-enrichment';
 let setup:Promise<unknown>|undefined;
@@ -19,10 +20,13 @@ export async function seedDescriptionQueue(){
 }
 export async function assignDraft(sku:string){
  const db=getDbPool();
- const result=await db.query(`INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published)
- SELECT sku,trim(data->>'description'),left(COALESCE(data->>'brand',''),200),false FROM rpm_fmic_enrichment
+ const source=(await db.query("SELECT c.name,c.target_category,e.data->>'description' AS description FROM rpm_fmic_catalog c JOIN rpm_fmic_enrichment e ON e.sku=c.sku WHERE c.sku=$1",[sku])).rows[0];
+ if(!source?.description?.trim())return false;
+ const technical=parseProductTechnical(source.name,source.description.trim(),source.target_category??[],sku);
+ const result=await db.query(`INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published,technical)
+ SELECT sku,trim(data->>'description'),left(COALESCE(data->>'brand',''),200),false,$2::jsonb FROM rpm_fmic_enrichment
  WHERE sku=$1 AND NULLIF(trim(data->>'description'),'') IS NOT NULL
- ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku]);
+ ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku,JSON.stringify(technical)]);
  return !!result.rowCount;
 }
 const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean};
