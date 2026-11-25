@@ -299,7 +299,7 @@ export default function Shop(){
  guideDataError={guideDataError} exportGuidePdf={exportGuidePdf}
  onBackHome={()=>navigate('home')} onOpenProduct={openProduct}
 />}
- {view==='catalog'&&fmicPreview&&<main className="page rpm-shop-page"><FmicPreview key={fmicPath+'|'+globalFmicQuery} pathname={fmicPath} lang={lang} sort={sort} globalQuery={globalFmicQuery}/></main>}
+ {view==='catalog'&&fmicPreview&&<main className="page rpm-shop-page"><FmicPreview key={globalFmicQuery} pathname={fmicPath} lang={lang} sort={sort} globalQuery={globalFmicQuery} onCategorySelect={(path,term)=>{setFmicPath(path);setQuery(term);window.history.pushState({},'',path+'?'+new URLSearchParams({fmicPreview:'1',q:term}));}}/></main>}
  {view==='catalog'&&!fmicPreview&&<CatalogView
  lang={lang} translate={t} shopSubcategory={shopSubcategory}
  mobileFiltersOpen={mobileFiltersOpen} query={query} category={category}
