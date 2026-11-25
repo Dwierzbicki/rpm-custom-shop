@@ -2,10 +2,10 @@
 import '../../../styles/power-guides-detail.css';
 import {useEffect,useState} from 'react';
 import Link from 'next/link';
-import {powerRangesFor} from '../../../lib/storefront-config';
+import {powerRangesFor,POWER_ENGINES} from '../../../lib/storefront-config';
 import type {Product} from '../../../data';
 import {DEFAULT_GUIDE_SETTINGS,GUIDE_CATEGORIES,GuidePart,GuideSettings,guidePrice} from '../../../lib/power-guides';
-const engines=['m50b20','m50b25','m52b20','m52b25','m52b28','m54b22','m54b25','m54b30','2jz-ge','2jz-gte'];
+const engines=POWER_ENGINES.flatMap(g=>g.versions.map(v=>v.id));
 
 const usages=['street','drift','track'] as const;
 const tiers=['budget','recommended','premium'] as const;
