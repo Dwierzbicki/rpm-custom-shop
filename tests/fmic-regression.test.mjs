@@ -153,3 +153,10 @@ test('Aggregate cache deduplicates concurrent requests and retries rejected load
  await assert.rejects(searchPerformance.cachedSearch('test-retry',1000,async()=>{throw Error('retry')}));
  assert.equal(await searchPerformance.cachedSearch('test-retry',1000,load),42);
 });
+
+test('Root listing indexes preserve shared-category membership and stable sort order',()=>{
+ assert.equal(categoryIndexes.listingRoot,categorySql.listingRoot);
+ assert.equal(categorySql.listingCategoryMembership('$1',['Hamulce i koła']),"(target_category[1])=($1::text[])[1]");
+ for(const path of [[],['Układ dolotowy'],['Układ wydechowy'],['Hamulce i koła','Dystanse kół']])assert.equal(categorySql.listingCategoryMembership('$1',path),categorySql.categoryMembership('$1'));
+ for(const order of ['available DESC, sku ASC','proposed_gross ASC, sku ASC','proposed_gross DESC, sku ASC'])assert.ok(categoryIndexes.indexes.some(([name,definition])=>name.startsWith('rpm_fmic_root_')&&definition==='USING btree ('+categorySql.listingRoot+', '+order+')'));
+});

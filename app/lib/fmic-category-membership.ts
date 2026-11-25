@@ -10,3 +10,11 @@ export const alternateCategory="(CASE WHEN "+shared+" THEN ARRAY[CASE WHEN ("+pr
 export const categoryMembership=(parameter:string)=>"(cardinality("+parameter+"::text[])=0 OR (("+primaryCategory+") @> "+parameter+"::text[] AND ("+primaryCategory+")[1:cardinality("+parameter+"::text[])]="+parameter+"::text[]) OR (("+alternateCategory+") @> "+parameter+"::text[] AND ("+alternateCategory+")[1:cardinality("+parameter+"::text[])]="+parameter+"::text[]))";
 // Expand only category counts, never product listings. Global totals stay unique.
 export const categoryExpansion=" CROSS JOIN LATERAL (SELECT "+primaryCategory+" AS path UNION ALL SELECT "+alternateCategory+" AS path WHERE "+alternateCategory+" IS NOT NULL) AS memberships ";
+
+// Only intake/exhaust have alternate-root memberships; every other root is exclusive.
+// The legacy welded exception changes its leaf, not its root.
+export const listingRoot="(target_category[1])";
+export function listingCategoryMembership(parameter:string,path:string[]){
+ return path.length===1&&!['Układ dolotowy','Układ wydechowy'].includes(path[0])
+  ?listingRoot+'=('+parameter+'::text[])[1]':categoryMembership(parameter);
+}

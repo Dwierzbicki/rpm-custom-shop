@@ -10,7 +10,11 @@ export const primaryCategory="(CASE WHEN "+welded+" THEN ARRAY['Układ dolotowy'
 const shared="(("+primaryCategory+")[1] IN "+roots+" AND ("+primaryCategory+")[2]="+steel+" AND ("+primaryCategory+")[3] IN "+leaves+" AND cardinality("+primaryCategory+")=3)";
 export const alternateCategory="(CASE WHEN "+shared+" THEN ARRAY[CASE WHEN ("+primaryCategory+")[1]='Układ dolotowy' THEN 'Układ wydechowy' ELSE 'Układ dolotowy' END,("+primaryCategory+")[2],("+primaryCategory+")[3]]::text[] END)";
 
+export const listingRoot="(target_category[1])";
 export const indexes=[
+ ['rpm_fmic_root_available_sku_v1','USING btree ('+listingRoot+', available DESC, sku ASC)'],
+ ['rpm_fmic_root_price_asc_v1','USING btree ('+listingRoot+', proposed_gross ASC, sku ASC)'],
+ ['rpm_fmic_root_price_desc_v1','USING btree ('+listingRoot+', proposed_gross DESC, sku ASC)'],
  ['rpm_fmic_primary_category_gin_v1','USING gin (('+primaryCategory+'))'],
  ['rpm_fmic_alternate_category_gin_v1','USING gin (('+alternateCategory+'))'],
  ['rpm_fmic_visible_price_asc_v1','USING btree (proposed_gross ASC, sku ASC)']

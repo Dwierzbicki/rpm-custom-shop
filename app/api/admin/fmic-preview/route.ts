@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 import {setupImageAudit} from '../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../lib/db';
 import {fmicSearchFacets} from '../../../lib/fmic-facets';
-import {visibleCatalog,categoryMembership,categoryExpansion} from '../../../lib/fmic-category-membership';
+import {visibleCatalog,categoryMembership,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
 import {resolveCategoryPath} from '../../../category-routing';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -33,6 +33,9 @@ export async function GET(request:Request){
  const from=" FROM rpm_fmic_catalog "+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)) ";
  const source="WITH catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+from;
  const facetSource="WITH catalog AS MATERIALIZED (SELECT "+facetColumns+from;
+ const itemFrom=from.replace(categoryMembership('$1'),listingCategoryMembership('$1',path));
+ // Keep large product JSON and image-audit lookups out of the sorting step.
+ const itemSource="WITH catalog AS (SELECT sku,proposed_gross,available"+(facetColumns?','+facetColumns:'')+itemFrom;
  function filtered(except=-1){
  const args:unknown[]=[...values];const conditions:string[]=[];
  defs.forEach((d,i)=>{if(i!==except&&selected[i]){args.push(selected[i]);conditions.push(d.key+'=$'+args.length)}});
@@ -49,7 +52,7 @@ export async function GET(request:Request){
  });
  const [count,items,facetRows,categories]=await Promise.all([
  cachedSearch(keys.count,15000,async()=> (await db.query(source+'SELECT count(*)::int AS total FROM catalog'+all.sql,all.args)).rows),
- cachedSearch(keys.items,15000,async()=> (await db.query(source+"SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(images) WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2),[...all.args,size,(page-1)*size])).rows),
+ cachedSearch(keys.items,15000,async()=> (await db.query(itemSource+", page_rows AS MATERIALIZED (SELECT sku,proposed_gross,available FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2)+") SELECT p.sku,c.name,p.proposed_gross,p.available,(SELECT img.url FROM jsonb_array_elements_text(c.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM page_rows p JOIN rpm_fmic_catalog c ON c.sku=p.sku ORDER BY "+order.replace(/\b(sku|available|proposed_gross)\b/g,'p.$1'),[...all.args,size,(page-1)*size])).rows),
  branches.length?cachedSearch(keys.facets,15000,async()=> (await db.query(facetSource+branches.join(' UNION ALL '),facetArgs)).rows):Promise.resolve([]),
  q.length>=2?cachedSearch(keys.categories,15000,async()=> (await db.query("SELECT memberships.path AS path,count(*)::int AS count FROM rpm_fmic_catalog "+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+searchConditions(patterns,4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
  ]);
