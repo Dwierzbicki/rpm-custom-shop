@@ -1,3 +1,4 @@
+import {invalidateFmicSearchCache} from '../../../../../lib/fmic-search-performance';
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../../lib/db';
 import {setupFmicCatalog} from '../../../../../lib/fmic-catalog-db';
@@ -25,6 +26,7 @@ export async function PUT(request:Request){
  if(!updated.rowCount){await client.query('ROLLBACK');return NextResponse.json({error:'Nie znaleziono grupy'},{status:404})}
  await client.query('INSERT INTO rpm_fmic_category_overrides(source_category,target_category) VALUES($1,$2) ON CONFLICT(source_category) DO UPDATE SET target_category=EXCLUDED.target_category,updated_at=NOW()',[source,target]);
  await client.query('COMMIT');
+  invalidateFmicSearchCache();
  return NextResponse.json({updated:updated.rowCount});
  }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}finally{client.release()}
  }catch(e){console.error('FMIC mapping update failed',e);return NextResponse.json({error:'Nie udało się zapisać mapowania'},{status:500})}

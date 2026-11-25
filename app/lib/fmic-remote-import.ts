@@ -1,3 +1,4 @@
+import {invalidateFmicSearchCache} from './fmic-search-performance';
 import {spawn} from 'node:child_process';
 import {createInterface} from 'node:readline';
 import {join} from 'node:path';
@@ -56,6 +57,7 @@ export async function importFmicRemote(report:(p:ImportProgress)=>void=()=>{}){
   console.info('FMIC import validation',JSON.stringify(summary));
   progress('commit',true);
   await client.query('COMMIT');
+  invalidateFmicSearchCache();
   await seedAuditQueue().catch(e=>console.error('FMIC audit queue update failed',e));
   return {imported:count,skipped,published:0};
  }catch(e){child?.kill();await client.query('ROLLBACK').catch(()=>{});throw e}

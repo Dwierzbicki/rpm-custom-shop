@@ -160,3 +160,38 @@ test('Root listing indexes preserve shared-category membership and stable sort o
  for(const path of [[],['Układ dolotowy'],['Układ wydechowy'],['Hamulce i koła','Dystanse kół']])assert.equal(categorySql.listingCategoryMembership('$1',path),categorySql.categoryMembership('$1'));
  for(const order of ['available DESC, sku ASC','proposed_gross ASC, sku ASC','proposed_gross DESC, sku ASC'])assert.ok(categoryIndexes.indexes.some(([name,definition])=>name.startsWith('rpm_fmic_root_')&&definition==='USING btree ('+categorySql.listingRoot+', '+order+')'));
 });
+
+test('Search cache retains hot entries, expires by TTL and enforces payload budget',async()=>{
+ let time=0,calls=0;
+ const c=searchPerformance.createSearchCache({maxEntries:2,maxBytes:100,maxEntryBytes:40,now:()=>time});
+ const load=async()=>++calls;
+ assert.equal(await c.get('a',15,load),1);
+ assert.equal(await c.get('b',15,load),2);
+ assert.equal(await c.get('a',15,load),1);
+ assert.equal(await c.get('c',15,load),3);
+ assert.equal(await c.get('a',15,load),1);
+ assert.equal(await c.get('b',15,load),4);
+ time=16;
+ assert.equal(await c.get('a',15,load),5);
+ const huge=async()=>{calls++;return 'x'.repeat(100)};
+ await c.get('huge',15,huge);await c.get('huge',15,huge);
+ assert.equal(calls,7);
+ const small=searchPerformance.createSearchCache({maxEntries:10,maxBytes:30,maxEntryBytes:30});
+ let runs=0;const payload=async()=>{runs++;return 'x'.repeat(20)};
+ await small.get('one',1000,payload);await small.get('two',1000,payload);await small.get('one',1000,payload);
+ assert.equal(runs,3);
+});
+test('Invalidation prevents in-flight pre-commit results from repopulating cache',async()=>{
+ const c=searchPerformance.createSearchCache();
+ let resolveOld,resolveNew;
+ const old=c.get('same',1000,()=>new Promise(r=>{resolveOld=r}));
+ await Promise.resolve();
+ c.clear();
+ const fresh=c.get('same',1000,()=>new Promise(r=>{resolveNew=r}));
+ await Promise.resolve();
+ resolveOld('old');assert.equal(await old,'old');
+ const duplicate=c.get('same',1000,async()=>{throw Error('fresh request should be deduplicated')});
+ resolveNew('new');
+ assert.equal(await fresh,'new');assert.equal(await duplicate,'new');
+ assert.equal(await c.get('same',1000,async()=> 'wrong'),'new');
+});

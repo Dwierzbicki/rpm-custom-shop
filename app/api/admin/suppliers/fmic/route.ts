@@ -1,3 +1,4 @@
+import {invalidateFmicSearchCache} from '../../../../lib/fmic-search-performance';
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../lib/db';
 import {setupImageAudit} from '../../../../lib/fmic-image-quality';
@@ -45,6 +46,7 @@ export async function PUT(request:Request){
    await client.query('UPDATE rpm_fmic_settings SET discount=$1 WHERE id=1',[discount]);
    const result=await client.query('UPDATE rpm_fmic_catalog SET proposed_gross=ceil(source_price*(100-$1::numeric)/100) WHERE proposed_gross<>ceil(source_price*(100-$1::numeric)/100)',[discount]);
    await client.query('COMMIT');
+  invalidateFmicSearchCache();
    return NextResponse.json({discount,updated:result.rowCount??0});
   }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e}finally{client.release()}
  }catch(e){console.error('FMIC pricing update failed',e);return NextResponse.json({error:'Nie udało się zapisać reguły cenowej'},{status:500})}
