@@ -1290,6 +1290,27 @@ const reviewedProducts:Record<string,{name:string;source:string;target:string[]}
       "Pozostałe",
       "Akcesoria warsztatowe"
     ]
+  },
+  "FGM130-TP": {
+    "name": "Timing Pin - FGM130-TP",
+    "source": "",
+    "target": [
+      "Pozostałe"
+    ]
+  },
+  "TS-0991-1001": {
+    "name": "Boost Up System - Blue",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Pozostałe"
+    ]
+  },
+  "TS-0991-1003": {
+    "name": "Boost Up System - Black",
+    "source": "Produkty bez kategorii",
+    "target": [
+      "Pozostałe"
+    ]
   }
 };
 export function mapFmicProductCategory(sourcePath:string,name:string,sku?:string):FmicCategoryMatch{
