@@ -49,6 +49,13 @@ export function startAuditWorker(){
  const url=await nextAuditCandidate(client,candidates);
  if(url){
  const outcomes=[{url,...await inspectImage(url)}];
+ // Exact content matches to visually confirmed watermarks, not heuristic detection.
+ for(const result of outcomes){
+  if(result.status==='ok'&&result.hash){
+   const match=await client.query("SELECT 1 FROM rpm_fmic_image_audit WHERE status='watermarked' AND hash=$1 LIMIT 1",[result.hash]);
+   if(match.rowCount){result.status='watermarked';result.detail='Identyczny plik z potwierdzonym znakiem wodnym'}
+  }
+ }
  const blocked=outcomes.find(x=>auditSupplierBlocked(x.detail));
  const completed=outcomes.filter(x=>!auditSupplierBlocked(x.detail));
  await client.query('BEGIN');
