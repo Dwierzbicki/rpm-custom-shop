@@ -1,5 +1,5 @@
 'use client';
-import type {ProductTechnical} from '../../lib/fmic-technical';
+import {splitTechnicalFields,type ProductTechnical} from '../../lib/fmic-technical';
 import ProductImage from './ProductImage';
 import {useEffect,useRef,useState} from 'react';
 import {ChevronLeft,ChevronRight,ShoppingCart,ZoomIn,X,FileText,ListChecks,ChevronDown,ShieldCheck,Gauge,Settings2,Layers,CircleDot,Heart,Scale,Truck,MessageCircle} from 'lucide-react';
@@ -26,13 +26,10 @@ export default function FmicProductPreview({sku,onBack,onOpen,initialData}:{sku:
  const hasTechnical=!!technical?.fields?.length;
  const rawDescription=(hasTechnical?technical?.intro:p?.description)?.trim()??'';
  const description=rawDescription===p?.name.trim()?'':rawDescription;
- const highlights=['power','ar','turbine_inlet','bearing'].flatMap(key=>technical?.fields.filter(f=>f.key===key)??[]);
- const remainingFields=(technical?.fields??[]).filter(f=>!highlights.some(h=>h.key===f.key));
- const splitAt=Math.ceil(remainingFields.length/2);
- const technicalTables=[remainingFields.slice(0,splitAt),remainingFields.slice(splitAt)].filter(group=>group.length>0);
+ const {highlights,remaining:remainingFields,tables:technicalTables}=splitTechnicalFields(technical?.fields??[],p?.target_category??[]);
  const longDescription=description.length>900||description.split('\n').length>12;
  const specification=p?[['Kod produktu (SKU)',p.sku],['Producent',p.brand],['EAN',p.ean],['Waga wysyłkowa',p.shipping_weight?.replace(/(\d+)\.0+(?=\s|$)/,"$1")]].filter(([,v])=>v):[];
- const highlightIcons={power:Gauge,ar:Settings2,turbine_inlet:Layers,bearing:CircleDot} as const;
+ const highlightIcons={power:Gauge,ar:Settings2,turbine_inlet:Layers,bearing:CircleDot,piston_bore:CircleDot,compression:Gauge,rod_length:Layers,rod_type:Settings2,pipe_size:CircleDot,bend:Settings2,flow:Gauge,pump_flow:Gauge,wastegate_mm:CircleDot,pressure_psi:Gauge,pcd:CircleDot,center_bore:CircleDot,oil_rows:Layers,core_dimensions:Layers} as const;
  const compared=comparison.some(item=>item.sku===sku);
  const compareFields=Array.from(new Map(comparison.flatMap(item=>item.fields.map(f=>[f.key,f.label] as const))).entries());
  const toggleFavorite=()=>{if(!p)return;try{const raw=JSON.parse(localStorage.getItem('rpm-fmic-favorites')??'[]');const all=Array.isArray(raw)?raw:[];const exists=all.some(x=>x?.sku===sku);const next=exists?all.filter(x=>x?.sku!==sku):[...all,{sku,name:p.name}];localStorage.setItem('rpm-fmic-favorites',JSON.stringify(next));setSaved(!exists);setActionError('')}catch{setActionError('Nie udało się zapisać ulubionych.')}};

@@ -48,3 +48,25 @@ export function parseProductTechnical(name:string,description:string,category:st
  if(intro.startsWith(normalizedName)&&sku&&intro.slice(normalizedName.length).trimStart().startsWith('- '+sku+' -'))intro=normalizedName;
  return {intro:intro||normalizedName,fields:out,warranty};
 }
+
+/** Facet values are already normalized by the catalog SQL. Published explicit specs win. */
+export function mergeTechnicalFields(technical:ProductTechnical,facets:TechnicalField[]):ProductTechnical{
+ const fields=[...technical.fields];
+ const aliases:Record<string,string>={flange:'turbine_inlet'};
+ for(const item of facets){
+  if(!item.value.trim()||fields.some(f=>f.key===(aliases[item.key]??item.key)))continue;
+  const unit=/\((mm|cm|ml|cc\/min|l\/h|PSI)\)/.exec(item.label)?.[1];
+  const value=item.key==='compression'?item.value+':1':item.key==='bend'?item.value+'°':unit?item.value+' '+unit:item.value;
+  fields.push({key:aliases[item.key]??item.key,label:item.label.replace(/ \((mm|cm|ml|cc\/min|l\/h|PSI)\)/,''),value});
+ }
+ return {...technical,fields};
+}
+export function splitTechnicalFields(fields:TechnicalField[],category:string[]){
+ const turbo=category.includes('Turbosprężarki tuningowe');
+ const preferred=turbo?['power','ar','turbine_inlet','bearing']:['piston_bore','compression','rod_length','rod_type','pipe_size','bend','pipe_length','core_dimensions','flow','pump_flow','wastegate_mm','spacer_thickness','pcd','center_bore','oil_rows','viscosity','volume_ml','color'];
+ const prioritized=preferred.flatMap(key=>fields.filter(f=>f.key===key));
+ const highlights=(turbo?prioritized:[...prioritized,...fields.filter(f=>!prioritized.includes(f))]).slice(0,4);
+ const remaining=fields.filter(f=>!highlights.some(h=>h.key===f.key));
+ const split=Math.ceil(remaining.length/2);
+ return {highlights,tables:[remaining.slice(0,split),remaining.slice(split)].filter(group=>group.length>0),remaining};
+}

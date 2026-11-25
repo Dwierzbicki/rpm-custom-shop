@@ -1,5 +1,6 @@
 import {NextResponse} from 'next/server';
-import {parseProductTechnical} from '../../../../lib/fmic-technical';
+import {parseProductTechnical,mergeTechnicalFields} from '../../../../lib/fmic-technical';
+import {fmicSearchFacets} from '../../../../lib/fmic-facets';
 import {setupEnrichment} from '../../../../lib/fmic-enrichment';
 import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../../lib/db';
@@ -18,7 +19,10 @@ export async function GET(request:Request){
  if(!product)return NextResponse.json({error:'Nie znaleziono produktu'},{status:404,headers});
  await setupEnrichment();
  const description=await db.query('SELECT description,brand,technical FROM rpm_fmic_product_descriptions WHERE sku=$1 AND published=true',[sku]);
- if(description.rows[0]){const row=description.rows[0];product.description=row.description;if(row.brand)product.brand=row.brand;product.technical=row.technical??parseProductTechnical(product.name,row.description,product.target_category??[],sku);}
+ if(description.rows[0]){const row=description.rows[0];product.description=row.description;if(row.brand)product.brand=row.brand;product.technical=parseProductTechnical(product.name,row.description,product.target_category??[],sku);}
+ const defs=fmicSearchFacets(product.target_category??[]).filter(f=>f.key!=='producer');
+ const parameters=defs.length?(await db.query('SELECT '+defs.map(f=>f.expression+' AS '+f.key).join(',')+' FROM rpm_fmic_catalog WHERE sku=$1',[sku])).rows[0]:{};
+ product.technical=mergeTechnicalFields(product.technical??parseProductTechnical(product.name,'',product.target_category??[],sku),defs.map(f=>({key:f.key,label:f.label,value:String(parameters?.[f.key]??'')})));
  const related=await db.query("SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM rpm_fmic_catalog WHERE "+categoryMembership('$1')+" AND sku<>$2 AND "+visibleCatalog+" ORDER BY available DESC,sku LIMIT 4",[product.target_category,sku]);
  return NextResponse.json({product,related:related.rows},{headers});
  }catch(e){console.error('FMIC product preview failed',e);return NextResponse.json({error:'Nie udało się pobrać produktu'},{status:500,headers})}

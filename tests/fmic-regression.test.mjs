@@ -44,13 +44,20 @@ test('image audit classifies fixtures without contacting supplier',async t=>{
  assert.equal((await inspectImage('https://example.org/test.png')).status,'review');
 });
 
-test('global search exposes category-scoped technical facets and producer',()=>{
- const defs=fmicSearchFacets([]);
- assert.equal(new Set(defs.map(f=>f.key)).size,defs.length);
- for(const key of ['producer','model','flange','ar','bearing','flow','diameter','explicit_diameter'])assert.ok(defs.some(f=>f.key===key));
- assert.match(defs.find(f=>f.key==='ar').expression,/Turbosprężarki tuningowe.*ANY\(target_category\)/);
- assert.match(defs.find(f=>f.key==='flow').expression,/Wtryskiwacze/);
- assert.match(defs.find(f=>f.key==='diameter').expression,/Wastegate/);
- assert.deepEqual(fmicSearchFacets(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']),fmicFacets(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']));
- assert.ok(!fmicSearchFacets(['Elektronika']).some(f=>['ar','flow','diameter'].includes(f.key)));
+test('broad searches stay lightweight and category facets are unique',()=>{
+ assert.deepEqual(fmicSearchFacets([]).map(f=>f.key),['producer']);
+ const turbo=fmicSearchFacets(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']);
+ assert.equal(new Set(turbo.map(f=>f.key)).size,turbo.length);
+ for(const key of ['producer','model','flange','ar','bearing'])assert.ok(turbo.some(f=>f.key===key));
+ assert.match(turbo.find(f=>f.key==='ar').expression,/Turbosprężarki tuningowe.*ANY\(target_category\)/);
+ assert.ok(fmicSearchFacets(['Silnik i turbo','Kute tłoki']).some(f=>f.key==='piston_bore'));
+ assert.ok(!fmicSearchFacets(['Elektronika']).some(f=>['ar','flow','piston_bore'].includes(f.key)));
+});
+const {mergeTechnicalFields,splitTechnicalFields}=await load('app/lib/fmic-technical.ts');
+test('product cards share facet values and preserve explicitly published specifications',()=>{
+ const base={intro:'',warranty:'',fields:[{key:'turbine_inlet',label:'Flansza',value:'T3'}]};
+ const merged=mergeTechnicalFields(base,[{key:'flange',label:'Flansza',value:'T4'},{key:'ar',label:'A/R',value:'0.82'},{key:'piston_bore',label:'Średnica tłoka (mm)',value:''}]);
+ assert.deepEqual(merged.fields.map(f=>f.value),['T3','0.82']);
+ const pistons=mergeTechnicalFields({intro:'',warranty:'',fields:[]},[{key:'piston_bore',label:'Średnica tłoka (mm)',value:'84.25'},{key:'compression',label:'Stopień sprężania',value:'9'}]);
+ assert.deepEqual(splitTechnicalFields(pistons.fields,['Kute tłoki']).highlights.map(f=>f.value),['84.25 mm','9:1']);
 });
