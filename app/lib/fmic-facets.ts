@@ -33,6 +33,9 @@ const match=(pattern:string)=>"replace(substring(name from '(?i)"+pattern.replac
 const rule=(categories:string[],key:string,label:string,expression:string):Rule=>({categories,facet:{key,label,expression}});
 const mm="([0-9]{1,4}(?:[.,][0-9]{1,3})?)";
 const color="CASE WHEN name ~* '\\m(czarn[yae]|black)\\M' THEN 'Czarny' WHEN name ~* '\\m(czerwon[yae]|red)\\M' THEN 'Czerwony' WHEN name ~* '\\m(niebiesk[iaie]|blue)\\M' THEN 'Niebieski' WHEN name ~* '\\m(różow[yae]|pink)\\M' THEN 'Różowy' WHEN name ~* '\\m(biał[yae]|white)\\M' THEN 'Biały' WHEN name ~* '\\m(zielon[yae]|green)\\M' THEN 'Zielony' WHEN name ~* '\\m(srebrn[yae]|silver)\\M' THEN 'Srebrny' WHEN name ~* '\\m(żółt[yae]|yellow)\\M' THEN 'Żółty' END";
+const normalizedNumber=(expressions:string[])=>"trim_scale(COALESCE("+expressions.join(",")+")::numeric)::text";
+const pistonBore="CASE WHEN name ~* '(tłok|piston)' AND name !~* '^Rod Set' THEN "+normalizedNumber(["\\m([0-9]{2,3}(?:[.,][0-9]{1,3})?)[ ]*mm[ ]*(?:bor|bore)\\M","\\([ ]*([0-9]{2,3}(?:[.,][0-9]{1,3})?)[ ]*mm[ ]*\\)","(?:średnica|srednica|bore)[ ]*[:=]?[ ]*([0-9]{2,3}(?:[.,][0-9]{1,3})?)[ ]*mm\\M","(?<![0-9.,+/-])([0-9]{2,3}(?:[.,][0-9]{1,3})?)[ ]*mm\\M"].map(match))+" END";
+const pistonCR=normalizedNumber(["\\mCR[ ]*[:=]?[ ]*([0-9]{1,2}(?:[.,][0-9]+)?)(?:[ ]*:[ ]*1)?","compression ratio[ ]*[:=]?[ ]*([0-9]{1,2}(?:[.,][0-9]+)?)","\\m([0-9]{1,2}(?:[.,][0-9]+)?)[ ]*:[ ]*1\\M","\\m([0-9]{1,2}(?:[.,][0-9]+)?)[ ]+CR\\M"].map(match));
 const rules:Rule[]=[
  ...turboDefs.filter(f=>f.key!=='producer').map(f=>({categories:['Turbosprężarki tuningowe'],facet:f})),
  rule(['Wtryskiwacze'],'flow','Wydajność wtryskiwacza (cc/min)',match('\\m([0-9]{3,4})[ ]*(?:cc|cm3)')),
@@ -46,8 +49,8 @@ const rules:Rule[]=[
  rule(['Łączniki silikonowe','Kolanka i rury aluminiowe'],'bend','Kąt kolanka',match("(?:kolanko|kolanka|redukcyjne)[ ]+(23|45|67|90|135|180)[ ]*(?:°|'|deg)")),
  rule(['Łączniki silikonowe','Kolanka i rury aluminiowe'],'pipe_length','Długość (cm)',match('\\m'+mm+'[ ]*cm\\M')),
  rule(['Łączniki silikonowe','Przewody hamulcowe HEL','Przewody sprzęgła','Nakrętki i śruby koła','Kierownice, naby i rozpinki','Dywaniki welurowe'],'color','Kolor',color),
- rule(['Kute tłoki'],'piston_bore','Średnica tłoka (mm)',match(mm+'[ ]*mm[ ]*(?:bor|bore)')),
- rule(['Kute tłoki'],'compression','Stopień sprężania',match('\\mCR[ ]*[:=]?[ ]*([0-9]{1,2}(?:[.,][0-9]+)?)(?:[ ]*:[ ]*1)?')),
+ rule(['Kute tłoki'],'piston_bore','Średnica tłoka (mm)',pistonBore),
+ rule(['Kute tłoki'],'compression','Stopień sprężania',pistonCR),
  rule(['Kute korbowody'],'rod_length','Długość korbowodu (mm)',match('\\m'+mm+'[ ]*mm\\M')),
  rule(['Kute korbowody'],'rod_type','Profil korbowodu',"CASE WHEN name ~* '\\mH[- ]?Beam\\M' THEN 'H-Beam' WHEN name ~* '\\mI[- ]?Beam\\M' THEN 'I-Beam' WHEN name ~* '\\mX[- ]?Beam\\M' THEN 'X-Beam' END"),
  rule(['Uszczelki głowicy i silnika'],'gasket_type','Typ uszczelki',"CASE WHEN name ~* 'Cut Ring' THEN 'Cut Ring' WHEN name ~* '\\mMLS\\M' THEN 'MLS' END"),
