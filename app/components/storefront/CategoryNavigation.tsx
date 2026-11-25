@@ -29,17 +29,40 @@ export default function CategoryNavigation({
  mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,
  setActiveFmicSub,onOpenCatalogPath,onMotoLab,productsOnly=false
 }:CategoryNavigationProps){
+ const closeDesktop=()=>{setActiveFmicRoot(null);setActiveFmicSub(null)};
+ const openDesktop=(i:number)=>{setActiveFmicRoot(i);setActiveFmicSub(FMIC_CATEGORY_TREE[i].children.length?0:null)};
+ const navigate=(names:string[])=>{closeDesktop();onOpenCatalogPath(names)};
  return (
   <>
- <nav className="rpm-desktop-categories" aria-label="Kategorie produktów">
- {FMIC_CATEGORY_TREE.map((root,i)=><div key={root.name} className={'rpm-desktop-root'+(activeFmicRoot===i?' active':'')} onMouseEnter={()=>{setActiveFmicRoot(i);setActiveFmicSub(null)}} onMouseLeave={()=>{setActiveFmicRoot(null);setActiveFmicSub(null)}}>
- <button type="button" className="rpm-desktop-root-button" title={root.name} onClick={()=>onOpenCatalogPath([root.name])}><CategoryIcon name={root.name}/><span className="rpm-nav-category-label">{productsOnly?(shortLabels[root.name]??root.name):root.name}</span><ChevronDown className="rpm-nav-chevron" size={11} aria-hidden="true"/></button>
- {activeFmicRoot===i&&<div className="rpm-desktop-level2">
- {root.children.map((sub,j)=><div className="rpm-desktop-sub" key={j} onMouseEnter={()=>setActiveFmicSub(j)}>
- <button type="button" onClick={()=>onOpenCatalogPath([root.name,sub.name])}>{sub.name}{sub.children.length>0&&<ChevronRight size={14}/>}</button>
- {activeFmicSub===j&&sub.children.length>0&&<div className="rpm-desktop-level3">{sub.children.map((leaf,k)=><button type="button" key={k} onClick={()=>onOpenCatalogPath([root.name,sub.name,leaf.name])}>{leaf.name}</button>)}</div>}
- </div>)}
- </div>}</div>)}
+ <nav className="rpm-desktop-categories rpm-mega-navigation" aria-label="Kategorie produktów">
+ {FMIC_CATEGORY_TREE.map((root,i)=>{
+ const isOpen=activeFmicRoot===i&&!mobileMenu;
+ const selected=activeFmicSub===null?undefined:root.children[activeFmicSub];
+ return <div key={root.name} className={'rpm-desktop-root'+(isOpen?' active':'')}
+ onMouseEnter={()=>{if(!isOpen)openDesktop(i)}}
+ onMouseLeave={closeDesktop}
+ onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))closeDesktop()}}
+ onKeyDown={e=>{if(e.key==='Escape'&&isOpen){e.preventDefault();e.currentTarget.querySelector<HTMLButtonElement>('.rpm-desktop-root-button')?.focus();closeDesktop()}}}>
+ <button type="button" className="rpm-desktop-root-button" title={root.name}
+ aria-expanded={isOpen} aria-controls={isOpen?'rpm-mega-panel-'+i:undefined}
+ onFocus={()=>{if(!isOpen)openDesktop(i)}} onClick={()=>navigate([root.name])}>
+ <CategoryIcon name={root.name}/><span className="rpm-nav-category-label">{productsOnly?(shortLabels[root.name]??root.name):root.name}</span><ChevronDown className="rpm-nav-chevron" size={11} aria-hidden="true"/>
+ </button>
+ {isOpen&&<div className="rpm-mega-panel" id={'rpm-mega-panel-'+i}>
+ <div className="rpm-mega-heading"><div><span className="rpm-mega-eyebrow">RPM CUSTOM / PERFORMANCE PARTS</span><strong>{root.name}</strong></div><button type="button" className="rpm-mega-all" onClick={()=>navigate([root.name])}>Zobacz cały dział <ArrowRight size={17}/></button></div>
+ <div className="rpm-mega-body">
+ <div className="rpm-mega-groups" aria-label="Podkategorie">
+ <span className="rpm-mega-caption">PODKATEGORIE</span>
+ {root.children.map((sub,j)=><button key={sub.name} type="button" className={'rpm-mega-group'+(activeFmicSub===j?' is-selected':'')} onMouseEnter={()=>setActiveFmicSub(j)} onFocus={()=>setActiveFmicSub(j)} onClick={()=>navigate([root.name,sub.name])}><span>{sub.name}</span><ChevronRight size={16} aria-hidden="true"/></button>)}
+ </div>
+ <div className="rpm-mega-detail" key={selected?.name??root.name}>
+ {selected?<><div className="rpm-mega-detail-head"><strong>{selected.name}</strong><button type="button" onClick={()=>navigate([root.name,selected.name])}>Zobacz wszystkie <ArrowRight size={15}/></button></div>
+ {selected.children.length>0?<div className="rpm-mega-leaves">{selected.children.map(leaf=><button type="button" key={leaf.name} onClick={()=>navigate([root.name,selected.name,leaf.name])}><span>{leaf.name}</span><ChevronRight size={14} aria-hidden="true"/></button>)}</div>:<p className="rpm-mega-note">Przejdź do kategorii, aby zobaczyć dostępne produkty.</p>}</>:<p className="rpm-mega-note">Wybierz podkategorię lub zobacz cały dział.</p>}
+ </div>
+ <div className="rpm-mega-feature"><span className="rpm-mega-eyebrow">PERFORMANCE / DEPARTMENT</span><CategoryIcon name={root.name}/><strong>{shortLabels[root.name]??root.name}</strong><span className="rpm-mega-note">{root.children.length} podkategorii</span><button type="button" onClick={()=>navigate([root.name])}>Przeglądaj produkty <ArrowRight size={16}/></button></div>
+ </div>
+ </div>}</div>
+ })}
  {!productsOnly&&<><button type="button" className="rpm-desktop-motolab" onClick={onMotoLab}>MOTOLAB <ArrowRight size={14}/></button>
  <a className={styles.desktopRoad} href="/autopomoc"><Truck size={15}/> AUTO POMOC</a></>}
  </nav>
