@@ -20,3 +20,5 @@
 .rpm-live-search #rpm-search-results{flex:0 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain}
 .rpm-live-search .rpm-search-dropdown p{flex:0 0 auto}
 .rpm-live-search .rpm-search-dropdown .rpm-search-all{flex:0 0 auto;margin:0}
+
+.rpm-live-search .rpm-search-category{display:flex;align-items:center;gap:8px;padding:7px 12px;border-top:1px solid #303744;color:#edf1f6;text-decoration:none;font-size:12px}.rpm-live-search .rpm-search-category>span:first-child{flex:1}.rpm-live-search .rpm-search-category small{color:#a8b2bf}.rpm-live-search .rpm-search-category:hover,.rpm-live-search .rpm-search-category:focus-visible{background:#2b3440}
