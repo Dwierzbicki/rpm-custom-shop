@@ -1,7 +1,7 @@
 import {NextResponse} from 'next/server';
 import {setupImageAudit} from '../../../lib/fmic-image-quality';
 import {getDbPool} from '../../../lib/db';
-import {fmicFacets} from '../../../lib/fmic-facets';
+import {fmicFacets,fmicSearchFacets} from '../../../lib/fmic-facets';
 import {resolveCategoryPath} from '../../../category-routing';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -20,7 +20,7 @@ export async function GET(request:Request){
  try{
  await setupImageAudit();
  const db=getDbPool();
- const defs=fmicFacets(path).slice(0,5);
+ const defs=q.length>=2?fmicSearchFacets(path):fmicFacets(path).slice(0,5);
  const selected=defs.map(d=>(params.get(d.key)??'').slice(0,100));
  const base=[path,q,stock];
  const min=params.get('min'),max=params.get('max');

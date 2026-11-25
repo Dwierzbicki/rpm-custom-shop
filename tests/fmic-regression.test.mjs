@@ -18,7 +18,7 @@ test('numeric facets order ascending including decimal A/R',()=>{
  assert.deepEqual(sorted(['10,5','2,25','1,5']),['1,5','2,25','10,5']);
 });
 test('model identifiers use natural order',()=>assert.deepEqual(sorted(['PSR 6266','PSR 100','PSR 99']),['PSR 99','PSR 100','PSR 6266']));
-const {fmicFacets}=await load('app/lib/fmic-facets.ts');
+const {fmicFacets,fmicSearchFacets}=await load('app/lib/fmic-facets.ts');
 test('maximum five technical filters for turbo, unknown categories none',()=>{
  assert.equal(fmicFacets(['Silnik i turbo','Turbosprężarki tuningowe']).length,5);
  assert.deepEqual(fmicFacets([]),[]);
@@ -42,4 +42,15 @@ test('image audit classifies fixtures without contacting supplier',async t=>{
  assert.equal((await check(dark)).hash,(await check(dark)).hash);
  globalThis.fetch=async()=>{throw Error('Unexpected outbound call')};
  assert.equal((await inspectImage('https://example.org/test.png')).status,'review');
+});
+
+test('global search exposes category-scoped technical facets and producer',()=>{
+ const defs=fmicSearchFacets([]);
+ assert.equal(new Set(defs.map(f=>f.key)).size,defs.length);
+ for(const key of ['producer','model','flange','ar','bearing','flow','diameter','explicit_diameter'])assert.ok(defs.some(f=>f.key===key));
+ assert.match(defs.find(f=>f.key==='ar').expression,/Turbosprężarki tuningowe.*ANY\(target_category\)/);
+ assert.match(defs.find(f=>f.key==='flow').expression,/Wtryskiwacze/);
+ assert.match(defs.find(f=>f.key==='diameter').expression,/Wastegate/);
+ assert.deepEqual(fmicSearchFacets(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']),fmicFacets(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']));
+ assert.ok(!fmicSearchFacets(['Elektronika']).some(f=>['ar','flow','diameter'].includes(f.key)));
 });

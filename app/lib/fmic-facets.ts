@@ -13,3 +13,30 @@ export function fmicFacets(path:string[]):Facet[]{
  if(path.some(x=>/wastegate/i.test(x)))return [{key:'diameter',label:'Średnica',expression:"substring(name from '(?i)\\m([0-9]{2})[ ]*mm\\M')"}];
  return [];
 }
+
+/** Search facets are derived from mapped product categories, never from the search term.
+ * Only extract technical values in the relevant category, to avoid interpreting e.g. a
+ * brake disc diameter as a wastegate diameter. All SQL expressions are server constants.
+ */
+const turboPath=['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe'];
+const turboDefs=fmicFacets(turboPath);
+const injector=fmicFacets(['Układ paliwowy','Wtryskiwacze'])[0];
+const wastegate=fmicFacets(['Układ wydechowy','Wastegate'])[0];
+const inCategory=(name:string)=>"'"+name.replace(/'/g,"''")+"' = ANY(target_category)";
+const scoped=(facet:Facet,category:string):Facet=>({...facet,expression:'CASE WHEN '+inCategory(category)+' THEN '+facet.expression+' END'});
+const knownProducer="CASE WHEN NULLIF(trim(data->>'brand'),'') IS NOT NULL THEN trim(data->>'brand') WHEN name ~* '\\mPulsar\\M' THEN 'Pulsar' WHEN name ~* '\\mGarrett\\M' THEN 'Garrett' WHEN name ~* '\\mJRspec\\M' THEN 'JRspec' WHEN name ~* '\\mTurboSystems\\M' THEN 'TurboSystems' WHEN name ~* '\\mBorgWarner\\M' THEN 'BorgWarner' WHEN name ~* '\\mBosch\\M' THEN 'Bosch' WHEN name ~* '\\mEcumaster\\M' THEN 'ECUMaster' WHEN name ~* '\\mTurbosmart\\M' THEN 'Turbosmart' WHEN name ~* '\\mMishimoto\\M' THEN 'Mishimoto' WHEN name ~* '\\mWiseco\\M' THEN 'Wiseco' WHEN name ~* '\\mMahle\\M' THEN 'Mahle' WHEN name ~* '\\mRecaro\\M' THEN 'Recaro' WHEN name ~* '\\mBrembo\\M' THEN 'Brembo' WHEN name ~* '\\mARP\\M' THEN 'ARP' END";
+const explicitDiameter="replace(substring(name from '(?i)(?:średnica|srednica|diameter)[ ]*[:=]?[ ]*([0-9]+(?:[.,][0-9]+)?)[ ]*mm'),',','.')";
+
+export function fmicSearchFacets(path:string[]):Facet[]{
+ const existing=fmicFacets(path);
+ if(path.includes('Turbosprężarki tuningowe'))return existing;
+ const defs:Facet[]=[{key:'producer',label:'Producent',expression:knownProducer}];
+ const canInclude=(root:string,category?:string)=>!path.length||path[0]===root&&(path.length===1||!category||path.includes(category));
+ if(canInclude('Silnik i turbo','Turbosprężarki')){
+  defs.push(...turboDefs.filter(f=>f.key!=='producer').map(f=>scoped(f,'Turbosprężarki tuningowe')));
+ }
+ if(canInclude('Układ paliwowy','Wtryskiwacze'))defs.push(scoped(injector,'Wtryskiwacze'));
+ if(canInclude('Układ wydechowy','Wastegate'))defs.push(scoped({...wastegate,label:'Średnica wastegate (mm)'},'Wastegate'));
+ defs.push({key:'explicit_diameter',label:'Średnica (mm, podana w nazwie)',expression:explicitDiameter});
+ return defs;
+}
