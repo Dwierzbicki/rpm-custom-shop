@@ -3,6 +3,7 @@ import {createInterface} from 'node:readline';
 import {join} from 'node:path';
 import {pipeline} from 'node:stream/promises';
 import {getDbPool} from './db';
+import {seedAuditQueue} from './fmic-audit-worker';
 import {setupFmicCatalog,stageFmicBatch,type FmicRow} from './fmic-catalog-db';
 
 export type ImportProgress={phase:'download'|'processing'|'commit';count:number;percent:number|null;bytes:number};
@@ -55,6 +56,7 @@ export async function importFmicRemote(report:(p:ImportProgress)=>void=()=>{}){
   console.info('FMIC import validation',JSON.stringify(summary));
   progress('commit',true);
   await client.query('COMMIT');
+  await seedAuditQueue().catch(e=>console.error('FMIC audit queue update failed',e));
   return {imported:count,skipped,published:0};
  }catch(e){child?.kill();await client.query('ROLLBACK').catch(()=>{});throw e}
  finally{if(timer)clearTimeout(timer);client.release()}
