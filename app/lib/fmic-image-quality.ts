@@ -1,4 +1,5 @@
 import sharp from 'sharp';
+import {isMagentoPlaceholder} from './fmic-placeholder';
 import {createHash} from 'node:crypto';
 import {getDbPool} from './db';
 // Keep native libvips allocations bounded on the 512 MiB storefront instance.
@@ -10,7 +11,12 @@ export async function setupImageAudit(){
  if(!auditSetup)auditSetup=getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_image_audit (
  url TEXT PRIMARY KEY, status TEXT NOT NULL DEFAULT 'pending',
  checked_at TIMESTAMPTZ, hash TEXT, detail TEXT
- ); CREATE INDEX IF NOT EXISTS rpm_fmic_image_audit_status_idx ON rpm_fmic_image_audit(status,url)`).catch(e=>{auditSetup=undefined;throw e});
+ ); CREATE INDEX IF NOT EXISTS rpm_fmic_image_audit_status_idx ON rpm_fmic_image_audit(status,url);
+ -- Confirmed Magento placeholder from storefront inspection; shared by 27 SKUs.
+ INSERT INTO rpm_fmic_image_audit(url,status,checked_at,detail)
+ VALUES('https://fmic.pl/media/catalog/product/A/u/AudiShortshifterPRO7_03f79d57-be25-4c89-aec7-9c0584448055.jpg','blank',NOW(),'Confirmed Magento placeholder')
+ ON CONFLICT(url) DO UPDATE SET status='blank',checked_at=NOW(),detail=EXCLUDED.detail
+ WHERE rpm_fmic_image_audit.status IN ('pending','review')`).catch(e=>{auditSetup=undefined;throw e});
  await auditSetup;
 }
 export async function inspectImage(url:string){
@@ -31,6 +37,7 @@ export async function inspectImage(url:string){
  catch{return {status:'review',hash,detail:'Nie udało się zdekodować obrazu'};}
  // Only near-uniform white at every sampled pixel is hidden automatically.
  const blank=pixels.length===96*96*3&&pixels.every(v=>v>=250);
- return {status:blank?'blank':'ok',hash,detail:null};
+ const placeholder=isMagentoPlaceholder(pixels);
+ return {status:blank||placeholder?'blank':'ok',hash,detail:placeholder?'Magento placeholder':null};
  }catch(e){return {status:'review',hash:null,detail:e instanceof Error?e.message.slice(0,180):'Błąd pobierania'}}
 }
