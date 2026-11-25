@@ -7,7 +7,7 @@
 .rpm-community-benefits span{display:flex;align-items:center;gap:8px;font-size:13px;color:#d9dfe7}
 .rpm-community-benefits svg{color:#f05289;flex:none}
 .rpm-community-cta{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:14px 18px;background:#cf366a;color:#fff;border-radius:7px;font-size:13px;font-weight:800;text-decoration:none;line-height:1.3}
-.rpm-community-cta:hover{background:#ed4e86;color:#fff}
+.rpm-community-cta:hover{background:#b92b5d;color:#fff}
 .rpm-community-visual{position:relative;min-height:320px;display:grid;place-items:center;background:radial-gradient(ellipse at 75% 30%,#4a243e,transparent 65%),repeating-linear-gradient(135deg,#1b2029 0 2px,#202630 2px 16px);overflow:hidden}
 .rpm-community-visual>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .rpm-community-art{display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px;text-align:center}
