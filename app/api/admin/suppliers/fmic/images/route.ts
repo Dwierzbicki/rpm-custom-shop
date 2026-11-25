@@ -32,7 +32,7 @@ export async function POST(request:Request){
   if(parsed.origin!=='https://fmic.pl'||parsed.username||parsed.password)return NextResponse.json({error:'Nieobsługiwany host'},{status:400,headers});
   const result=await db.query(`INSERT INTO rpm_fmic_image_audit(url,status,detail,checked_at)
    SELECT $2,$3,$4,NOW() FROM rpm_fmic_catalog WHERE sku=$1 AND data->'images' ? $2
-   ON CONFLICT(url) DO UPDATE SET status=EXCLUDED.status,detail=EXCLUDED.detail,checked_at=NOW()
+   ON CONFLICT(url) DO UPDATE SET status=EXCLUDED.status,detail=EXCLUDED.detail,checked_at=NOW(),hash=CASE WHEN EXCLUDED.status='pending' THEN NULL ELSE rpm_fmic_image_audit.hash END
    WHERE rpm_fmic_image_audit.status NOT IN ('blank','missing') OR EXCLUDED.status='pending' RETURNING url`,[sku,url,status,status==='watermarked'?'Ręcznie potwierdzony znak wodny':status==='ok'?'Ręcznie sprawdzone zdjęcie':null]);
   if(!result.rowCount)return NextResponse.json({error:'Brak zdjęcia lub wymagane ponowne sprawdzenie pliku'},{status:409,headers});
   resetAuditCandidates();
