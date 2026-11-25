@@ -1,9 +1,8 @@
 import brands from './brand-assets.json';
+import {normalizeBrand as normalized,brandAliases as aliases} from '../../lib/brand-search';
 import generated from './brand-display.generated.json';
 const logos:Record<string,string>=generated;
 type Brand=(typeof brands)[number];
-const normalized=(value:string)=>value.normalize('NFKC').trim().toLowerCase().replace(/\s+/g,' ');
-const aliases:Record<string,string>={'manley performance':'manley','iod performance':'iod','pulsar turbo systems':'pulsar','pulsar psr':'pulsar','ecu master':'ecumaster'};
 export function findBrandAsset(brand:string|null|undefined,name:string):Brand|undefined{
  const explicit=normalized(brand??'');
  if(explicit)return brands.find(b=>normalized(b.name)===explicit||b.slug===aliases[explicit]);
