@@ -4,7 +4,7 @@ import ts from 'typescript';
 import {readFileSync} from 'node:fs';
 const source=readFileSync(new URL('../app/lib/search-category-tree.ts',import.meta.url),'utf8');
 const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
-const {buildSearchTree,searchCategoryHref}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
+const {buildSearchTree,searchCategoryHref,visibleCategories}=await import('data:text/javascript;base64,'+Buffer.from(js).toString('base64'));
 test('parent totals sum each exact category once, including direct parent products',()=>{
  const tree=buildSearchTree([{path:['Silnik','Turbo'],count:8},{path:['Silnik','Dolot'],count:3},{path:['Silnik'],count:2},{path:['Zawieszenie'],count:4}]);
  assert.equal(tree[0].name,'Silnik');assert.equal(tree[0].count,13);assert.deepEqual(tree[0].children.map(n=>[n.name,n.count]),[['Turbo',8],['Dolot',3]]);assert.equal(tree.reduce((sum,n)=>sum+n.count,0),17);
@@ -15,4 +15,23 @@ test('empty and zero categories excluded; same child name in separate branches s
 });
 test('category links retain search term without preview mode',()=>{
  const u=new URL(searchCategoryHref('/sklep/elektronika',' E46 + M54 '),'https://rpmcustom.pl');assert.equal(u.pathname,'/sklep/elektronika');assert.equal(u.searchParams.get('q'),'E46 + M54');assert.equal(u.searchParams.has('fmicPreview'),false);
+});
+
+test('large result groups are capped but all nodes remain accessible',()=>{
+ const nodes=buildSearchTree(Array.from({length:9},(_,i)=>({path:['Cat '+i],count:100-i})));
+ assert.equal(visibleCategories(nodes,[],6).length,6);
+ assert.deepEqual(visibleCategories(nodes,[],6,true),nodes);
+ assert.equal(visibleCategories(nodes,[],6)[0],nodes[0]);
+});
+test('active nested path remains visible even beyond the limit',()=>{
+ const nodes=buildSearchTree(Array.from({length:10},(_,i)=>({path:['Turbo','Cat '+i],count:100-i})));
+ const children=nodes[0].children;
+ const shown=visibleCategories(children,['Turbo','Cat 9','Details'],5);
+ assert.equal(shown.length,5);
+ assert.equal(shown[4].name,'Cat 9');
+ assert.deepEqual(children.map(n=>n.name),Array.from({length:10},(_,i)=>'Cat '+i));
+});
+test('small category groups are unchanged',()=>{
+ const nodes=buildSearchTree([{path:['A'],count:2},{path:['B'],count:1}]);
+ assert.deepEqual(visibleCategories(nodes,[],5),nodes);
 });
