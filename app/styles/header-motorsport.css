@@ -69,8 +69,8 @@
  content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:#3a3d46;transform:skewX(-12deg);pointer-events:none;
 }
 .rpm-header-v2 .rpm-mega-panel{
- position:absolute;top:100%;left:50%;transform:translateX(-50%);
- width:min(1260px,calc(100% - 32px));box-sizing:border-box;
+ position:absolute;top:100%;left:0;right:0;transform:none;
+ width:100%;box-sizing:border-box;
  height:min(520px,max(120px,calc(100dvh - 180px)));min-height:0;
  display:grid;grid-template-rows:auto minmax(0,1fr);
  color:#f4f5f7;background:#181b22;border:1px solid #3a404a;border-top:3px solid #f12748;
