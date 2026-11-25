@@ -10,8 +10,8 @@
 }
 .rpm-header-v2.rpm-header-product-first .rpm-desktop-root-button{
  position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;
- gap:5px;min-height:78px;min-width:64px;
- padding:9px clamp(7px,.8vw,18px) 7px!important;
+ gap:0;min-height:68px;min-width:64px;
+ padding:9px clamp(7px,.8vw,18px)!important;text-align:center;
  font-size:clamp(12px,.82vw,14px)!important;
  font-weight:750;letter-spacing:.015em!important;
  border-radius:0!important;background:transparent!important;
@@ -62,107 +62,52 @@
  .rpm-header-v2 .rpm-nav-pictogram,.rpm-header-v2 .rpm-nav-chevron{transition:none!important}
 }
 
-/* Motorsport Mega Menu 2.0: one anchored panel instead of nested flyouts. */
-.rpm-header-v2 .rpm-mega-navigation>.rpm-desktop-root{position:static}
-.rpm-header-v2 .rpm-mega-navigation>.rpm-desktop-root::before{display:none}
-.rpm-header-v2 .rpm-mega-navigation>.rpm-desktop-root:not(:first-child)>.rpm-desktop-root-button::before{
+
+/* Classic cascade: the third level appears only when its parent is selected.
+   Panels share an edge; no gap between the trigger or between columns. */
+.rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root{position:relative}
+.rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root:not(:first-child)::before{
  content:"";position:absolute;left:0;top:14px;bottom:14px;width:1px;background:#3a3d46;transform:skewX(-12deg);pointer-events:none;
 }
-.rpm-header-v2 .rpm-mega-panel{
- position:absolute;top:100%;left:0;right:0;transform:none;
- width:100%;box-sizing:border-box;
- height:min(520px,max(120px,calc(100dvh - 180px)));min-height:0;
- display:grid;grid-template-rows:auto minmax(0,1fr);
- color:#f4f5f7;background:#181b22;border:1px solid #3a404a;border-top:3px solid #f12748;
- border-radius:0 0 10px 10px;box-shadow:0 24px 64px #000b;overflow:hidden;z-index:160;
+.rpm-header-v2 .rpm-classic-navigation>.rpm-desktop-root.active{z-index:2}
+.rpm-header-v2 .rpm-cascade-panel{
+ --rpm-group-width:min(270px,calc(var(--rpm-cascade-width,580px) / 2));
+ position:absolute;top:100%;left:0;right:auto;
+ display:flex;align-items:flex-start;width:max-content;max-width:var(--rpm-cascade-width,580px);
+ z-index:160;color:#f4f5f7;
 }
-.rpm-header-v2 .rpm-mega-heading{
- display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 22px;
- background:linear-gradient(110deg,#21252d,#191b22 65%,#301923);border-bottom:1px solid #393e48;
+.rpm-header-v2 .rpm-desktop-root[data-cascade-side="left"]>.rpm-cascade-panel{left:auto;right:0;flex-direction:row-reverse}
+.rpm-header-v2 .rpm-cascade-groups,.rpm-header-v2 .rpm-cascade-leaves{
+ box-sizing:border-box;min-width:0;flex:none;padding:5px;
+ background:#181b22;border:1px solid #3b414c;border-top:2px solid #f12748;
+ box-shadow:0 16px 36px #0009;border-radius:0 0 6px 6px;
+ max-height:min(640px,var(--rpm-cascade-height,calc(100dvh - 180px)));
+ overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+ scrollbar-width:thin;scrollbar-color:#4b515c transparent;
 }
-.rpm-header-v2 .rpm-mega-heading>div{display:grid;gap:4px;min-width:0}
-.rpm-header-v2 .rpm-mega-heading strong{font-size:22px;line-height:1.2;letter-spacing:-.02em}
-.rpm-header-v2 .rpm-mega-eyebrow{font-size:10px;letter-spacing:.13em;font-weight:800;color:#ff4865}
-.rpm-header-v2 .rpm-mega-panel :where(button){font:inherit;cursor:pointer;border:0;color:inherit;text-align:left}
-.rpm-header-v2 .rpm-mega-heading .rpm-mega-all,.rpm-header-v2 .rpm-mega-feature button{
- display:flex;align-items:center;justify-content:center;gap:10px;
- padding:11px 14px;background:#da1538;color:#fff;font-size:12px;font-weight:800;border-radius:5px;
+.rpm-header-v2 .rpm-cascade-groups{width:var(--rpm-group-width)}
+.rpm-header-v2 .rpm-cascade-leaves{
+ width:min(310px,calc(var(--rpm-cascade-width,580px) - var(--rpm-group-width)));
+ background:#1c2028;border-left:0;
 }
-.rpm-header-v2 .rpm-mega-heading .rpm-mega-all:hover,.rpm-header-v2 .rpm-mega-feature button:hover{background:#f12748}
-.rpm-header-v2 .rpm-mega-body{display:grid;grid-template-columns:minmax(225px,28%) minmax(0,1fr) minmax(190px,24%);min-height:0}
-.rpm-header-v2 .rpm-mega-groups,.rpm-header-v2 .rpm-mega-detail{
- min-height:0;min-width:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#4b515c transparent;padding:13px;
+.rpm-header-v2 .rpm-desktop-root[data-cascade-side="left"] .rpm-cascade-leaves{border-left:1px solid #3b414c;border-right:0}
+.rpm-header-v2 .rpm-cascade-group,.rpm-header-v2 .rpm-cascade-leaves>button{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ width:100%;min-height:37px;padding:9px 11px;
+ background:transparent;border:0;border-radius:4px;color:#e5e8ed;
+ text-align:left;font-family:inherit;font-weight:550;font-size:13px;line-height:1.35;cursor:pointer;
+ white-space:normal;overflow-wrap:anywhere;
 }
-.rpm-header-v2 .rpm-mega-groups{background:#14171d;border-right:1px solid #343944}
-.rpm-header-v2 .rpm-mega-caption{display:block;margin:4px 10px 10px;color:#9da5b3;font-size:10px;font-weight:800;letter-spacing:.12em}
-.rpm-header-v2 .rpm-mega-group,.rpm-header-v2 .rpm-mega-leaves button{
- display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;
- min-height:43px;padding:10px 12px;background:transparent;border-radius:5px;font-size:13px;line-height:1.35;
-}
-.rpm-header-v2 .rpm-mega-group>span,.rpm-header-v2 .rpm-mega-leaves button>span{min-width:0;overflow-wrap:anywhere}
-.rpm-header-v2 .rpm-mega-group svg,.rpm-header-v2 .rpm-mega-leaves svg{flex:none;color:#8993a1}
-.rpm-header-v2 .rpm-mega-group.is-selected,.rpm-header-v2 .rpm-mega-group:hover{
+.rpm-header-v2 .rpm-cascade-group>span{min-width:0}
+.rpm-header-v2 .rpm-cascade-group>svg{flex-shrink:0;color:#9ba5b4}
+.rpm-header-v2 .rpm-desktop-root[data-cascade-side="left"] .rpm-cascade-group>svg{transform:rotate(180deg)}
+.rpm-header-v2 .rpm-cascade-group.is-selected,.rpm-header-v2 .rpm-cascade-group:hover,.rpm-header-v2 .rpm-cascade-leaves>button:hover{
  background:linear-gradient(90deg,#472230,#28252e);box-shadow:inset 3px 0 #f12748;color:#fff;
 }
-.rpm-header-v2 .rpm-mega-group.is-selected svg,.rpm-header-v2 .rpm-mega-group:hover svg{color:#ff4865}
-.rpm-header-v2 .rpm-mega-detail{padding:18px 20px}
-.rpm-header-v2 .rpm-mega-detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 0 15px;margin-bottom:7px;border-bottom:1px solid #343944}
-.rpm-header-v2 .rpm-mega-detail-head strong{font-size:17px;line-height:1.4;overflow-wrap:anywhere}
-.rpm-header-v2 .rpm-mega-detail-head button{display:flex;align-items:center;gap:7px;padding:4px 0;background:transparent;color:#ff6980;font-size:12px;font-weight:700;flex-shrink:0}
-.rpm-header-v2 .rpm-mega-detail-head button:hover{color:white}
-.rpm-header-v2 .rpm-mega-leaves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 8px}
-.rpm-header-v2 .rpm-mega-leaves button:hover,.rpm-header-v2 .rpm-mega-leaves button:focus-visible{background:#2b313b;color:#fff}
-.rpm-header-v2 .rpm-mega-note{color:#aab2bf;font-size:12px;line-height:1.5}
-.rpm-header-v2 .rpm-mega-feature{
- display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:13px;min-width:0;min-height:0;overflow:auto;
- padding:22px;background:radial-gradient(ellipse at 65% 25%,#4c2533 0%,transparent 62%),repeating-linear-gradient(135deg,#ffffff03 0 1px,transparent 1px 13px),#171a21;
- border-left:1px solid #343944;
-}
-.rpm-header-v2 .rpm-mega-feature>.rpm-nav-pictogram{width:100px;height:100px;flex:0 0 100px;color:#e7eaf0;filter:drop-shadow(0 0 20px #ff31523b)}
-.rpm-header-v2 .rpm-mega-feature strong{font-size:23px;line-height:1.15;letter-spacing:-.025em}
-.rpm-header-v2 .rpm-mega-feature button{margin-top:4px;width:100%;justify-content:space-between}
-.rpm-header-v2 .rpm-mega-panel button:focus-visible{outline:2px solid #ff4865!important;outline-offset:-2px}
-.rpm-header-v2.rpm-header-compact .rpm-mega-panel{display:none!important}
-@media(max-width:1150px){
- .rpm-header-v2 .rpm-mega-body{grid-template-columns:minmax(215px,32%) minmax(0,1fr)}
- .rpm-header-v2 .rpm-mega-feature{display:none}
-}
-@media(max-height:590px){
- .rpm-header-v2 .rpm-mega-feature>.rpm-nav-pictogram{width:54px;height:54px;flex-basis:54px}
- .rpm-header-v2 .rpm-mega-feature{gap:8px;padding:14px}
-}
-
-/* Text-only desktop category strip; preserve mega menu and mobile drawer. */
-.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button{
- align-items:center;justify-content:center;text-align:center;gap:0;
- padding-block:9px!important;
-}
-.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-pictogram,
-.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-chevron{
- display:none;
-}
-.rpm-header-v2.rpm-header-product-first .rpm-mega-navigation>.rpm-desktop-root>.rpm-desktop-root-button>.rpm-nav-category-label{
- text-align:center;
-}
-
-/* Compact Motorsport: anchored, two-column dropdown. */
-.rpm-header-v2 .rpm-mega-panel{
- left:clamp(0px,var(--rpm-mega-anchor,0px),max(0px,calc(100% - 720px)));right:auto;
- width:min(720px,100%);border-top-width:2px;border-radius:0 0 7px 7px;box-shadow:0 18px 44px #0009;
-}
-.rpm-header-v2 .rpm-mega-heading{padding:9px 14px;gap:12px;min-height:40px}
-.rpm-header-v2 .rpm-mega-heading strong{font-size:14px;font-weight:750}
-.rpm-header-v2 .rpm-mega-heading .rpm-mega-all{padding:5px 0;background:transparent;color:#ff6980;font-size:12px}
-.rpm-header-v2 .rpm-mega-heading .rpm-mega-all:hover{background:transparent;color:#fff}
-.rpm-header-v2 .rpm-mega-body{grid-template-columns:minmax(0,42%) minmax(0,1fr)}
-.rpm-header-v2 .rpm-mega-groups,.rpm-header-v2 .rpm-mega-detail{padding:7px;overflow-x:hidden}
-.rpm-header-v2 .rpm-mega-group,.rpm-header-v2 .rpm-mega-leaves button{min-height:36px;padding:8px 10px}
-.rpm-header-v2 .rpm-mega-detail{padding:9px 13px}
-.rpm-header-v2 .rpm-mega-detail-head{padding:5px 0 9px;margin-bottom:3px;gap:8px}
-.rpm-header-v2 .rpm-mega-detail-head strong{font-size:13px;color:#ff6980}
-.rpm-header-v2 .rpm-mega-detail-head button{font-size:11px;padding:2px 0;color:#b8bec9}
-.rpm-header-v2 .rpm-mega-leaves{grid-template-columns:minmax(0,1fr);gap:1px}
-@media(hover:none),(pointer:coarse){
+.rpm-header-v2 .rpm-cascade-group.is-selected>svg{color:#ff4865}
+.rpm-header-v2 .rpm-cascade-panel button:focus-visible{outline:2px solid #ff4865!important;outline-offset:-2px}
+.rpm-header-v2.rpm-header-compact .rpm-cascade-panel{display:none!important}
+@media(max-width:1000px),(hover:none),(pointer:coarse){
  .rpm-header-v2.rpm-header-wide .rpm-desktop-categories{display:none!important}
  .rpm-header-v2.rpm-header-wide .rpm-clean-nav{display:flex!important}
  .rpm-header-v2 .rpm-drawer-root-line,.rpm-header-v2 .rpm-drawer-sub-line,.rpm-header-v2 .rpm-drawer-leaves>button{min-height:44px}
