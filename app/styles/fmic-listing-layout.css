@@ -11,7 +11,7 @@
 .fmic-plp .fplp-category-row>button{display:grid;place-items:center}
 .fmic-plp .fplp-category-row>a,.fmic-plp .fplp-all-categories{padding:7px 6px;line-height:1.4;font-size:12px;font-weight:500}
 .fmic-plp .fplp-category-row>a:hover,.fmic-plp .fplp-all-categories:hover{background:#29313e}
-.fmic-plp .fplp-search-tree a[aria-current=page]{background:#362531;color:#ff86a6;box-shadow:inset 2px 0 #e3385b}
+.fmic-plp .fplp-search-tree a[aria-current=page]{background:#362531;color:#ff86a6;box-shadow:inset 2px 0 var(--rpm-color-accent)}
 .fmic-plp .fplp-search-tree small{font-variant-numeric:tabular-nums;flex-shrink:0}
 .fmic-plp .fplp-category-branch>.fplp-category-branch{margin-left:8px;padding-left:7px}
 .fmic-plp .fplp-toolbar{justify-content:space-between;min-height:38px;gap:8px;margin-bottom:12px}
