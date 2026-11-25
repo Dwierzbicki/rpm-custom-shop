@@ -4,6 +4,19 @@ import {fmicFacets} from '../../../lib/fmic-facets';
 import {resolveCategoryPath} from '../../../category-routing';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
+const naturalOrder=new Intl.Collator('pl',{numeric:true,sensitivity:'base'});
+function numericValue(value:string){
+ const match=value.trim().match(/^([+-]?(?:\d+(?:[.,]\d+)?|[.,]\d+))\s*(mm|cm|cc(?:\/min)?|cm3|cm³|bar|psi|hp|km|l\/min|%|°)?$/i);
+ if(!match)return null;
+ const number=Number(match[1].replace(',','.'));
+ return Number.isFinite(number)?{number,unit:(match[2]??'').toLowerCase()}:null;
+}
+function compareOptions(a:{value:string},b:{value:string}){
+ const x=numericValue(a.value),y=numericValue(b.value);
+ if(x&&y)return naturalOrder.compare(x.unit,y.unit)||x.number-y.number||naturalOrder.compare(a.value,b.value);
+ if(x||y)return x?-1:1;
+ return naturalOrder.compare(a.value,b.value);
+}
 export async function GET(request:Request){
  const params=new URL(request.url).searchParams;
  const path=resolveCategoryPath(params.get('category')??'/sklep');
@@ -34,7 +47,7 @@ export async function GET(request:Request){
  db.query(source+'SELECT sku,name,proposed_gross,available,image FROM catalog'+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2),[...all.args,size,(page-1)*size]),
  ...defs.map((d,i)=>{const f=filtered(i);return db.query(source+'SELECT '+d.key+' AS value,count(*)::int AS count FROM catalog'+f.sql+(f.sql?' AND ':' WHERE ')+d.key+' IS NOT NULL GROUP BY 1 ORDER BY 1',f.args)})
  ]);
- const facets=defs.map((d,i)=>({key:d.key,label:d.label,options:facetRows[i].rows})).filter((d,i)=>d.options.length>1||!!selected[i]);
+ const facets=defs.map((d,i)=>({key:d.key,label:d.label,options:facetRows[i].rows.sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]);
  return NextResponse.json({items:items.rows,total:count.rows[0].total,page,size,path,facets},{headers:{'Cache-Control':'private, no-store'}});
 
  }catch(e){console.error('FMIC preview failed',e);return NextResponse.json({error:'Nie udało się pobrać podglądu'},{status:500})}
