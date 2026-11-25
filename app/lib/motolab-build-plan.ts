@@ -92,6 +92,9 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
 
 /** Catalog candidates, never a blanket compatibility certificate. */
 export const alternatives:Record<string,BuildCandidate>={
+ pumpAem:{sku:'USA-AEM-50-1200',expectedName:'Pompa paliwa AEM E85 340 LPH AEM-50-1200',note:['340 l/h przy 40 psi, E85. Wydajność przy docelowym ciśnieniu, montaż i zasilanie wymagają potwierdzenia.','340 l/h at 40 psi, E85. Confirm flow at operating pressure, fitment and electrical supply.'],verification:{checkedOn:'2026-11-25',scope:['50-1200: 340 l/h przy 40 psi, zgodność z E85','50-1200: 340 l/h at 40 psi, E85 compatibility'],url:'https://www.aemelectronics.com/products/fuel_delivery/high_flow_fuel_pumps/in-tank/parts/50-1200'}},
+ pumpWalbro:{sku:'WAL-F90000274',expectedName:'Pompa paliwa Walbro E85 High Performance 450 LPH',note:['450 l/h przy 40 psi wg TI Automotive. Producent publikuje krzywą przepływu; dobór wymaga rzeczywistego ciśnienia i napięcia.','450 l/h at 40 psi per TI Automotive. Manufacturer provides a flow curve; sizing requires actual pressure and voltage.'],verification:{checkedOn:'2026-11-25',scope:['F90000274: 450 l/h przy 40 psi','F90000274: 450 l/h at 40 psi'],url:'https://aftermarket.tiautomotive.com/product/f90000274/'}},
+ wastegateTial:{sku:'USA-TIAL-002949',expectedName:'Zawór Wastegate Tial MVR 44mm Czarny, Wszystkie sprężynki',note:['Katalog: MVR 44 mm. Mocowania, liczba zaworów, sprężyny i przepływ do potwierdzenia. Nie jest automatycznym zamiennikiem WG45.','Catalogue: MVR 44 mm. Confirm flanges, valve count, springs and flow. Not an automatic WG45 replacement.'],source:'https://tialsport.com/product/mvr-wastegate/'},
  turboVband:{sku:'102130140',expectedName:'Turbosprężarka Pulsar PSR 3076 Gen2 750HP 1.01 2,5" V-Band Wlot 3" V-Band Wylot Łożyska kulkowe',note:['Katalog: A/R 1.01, wlot V-Band 2,5 cala. Nie jest zamiennikiem montażowym wersji T4; reakcja i mapa do potwierdzenia.','Catalogue: A/R 1.01, 2.5-inch V-band inlet. Not a direct replacement for T4; response and map require confirmation.']},
  geInjectors:{sku:'USA-DW-22S-03-1000-6',expectedName:'DeatschWerks zestaw 6 wtryskiwaczy paliwa 1000cc/min, Lexus IS300 2JZ-GE 01-05',note:['Zastosowanie katalogowe: Lexus IS300 2001–2005 2JZ-GE, komplet sześciu. Nie oznacza zgodności z każdą wersją GE; sprawdź listwę i dane kalibracyjne.','Catalogue application: 2001–2005 Lexus IS300 2JZ-GE, set of six. Confirm exact GE variant, fuel rail and calibration.']},
  geManifold:{sku:'FMICPRO-MAN-2',expectedName:'Kolektor wydechowy FMIC.Pro Toyota 2JZ GE T4 Twin scroll stal nierdzewna 321',note:['Katalog: 2JZ-GE, T4 Twin Scroll, stal 321. Układ wastegate i miejsce montażu do potwierdzenia.','Catalogue: 2JZ-GE, T4 twin-scroll, 321 stainless. Confirm wastegate arrangement and packaging.']},
@@ -108,7 +111,7 @@ export const alternatives:Record<string,BuildCandidate>={
  injectors1500:{sku:'USA-DW-16M-30-1500-6',expectedName:'Zestaw wtryskiwaczy DeatschWerks 1500cc Porsche 911/996 H6 01-05 2001-05 BMW E46 M52 1998-2000 E46 3.2L M54/S54 2001-06 E90-E93 N52 2007-13 BMW 328ci',note:['Katalog: 1500 cc/min, zestaw dedykowany m.in. M54/S54. Zweryfikuj liczbę, ciśnienie referencyjne, geometrię i dane kalibracyjne. Większy przepływ nie oznacza lepszego doboru.','Catalogue: 1500 cc/min, application includes M54/S54. Confirm quantity, reference pressure, geometry and calibration. Higher flow is not inherently better.']}
 };
 export const allCandidates:Record<string,BuildCandidate>={...candidates,...alternatives};
-const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco']};
+const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco'],pump:['pumpAem','pumpWalbro'],wastegate45:['wastegateTial']};
 export function partOptions(slot:PartsSlot):string[]{
  return slot.candidate?[slot.candidate,...(optionKeys[slot.candidate]??[])]:[];
 }
@@ -129,6 +132,18 @@ export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,ve
  const flow=injector==='injectors'?1200:injector==='injectors1500'?1500:injector==='geInjectors'?1000:undefined;
  if(flow&&demand&&flow<demand.injectorCc)issues.push({id:'injector-flow',slots:['injectors'],level:'conflict',message:['Nominalny przepływ wtryskiwacza jest niższy od szacowanego zapotrzebowania przy założeniach MotoLab. Dobierz wydajniejszy wariant.','Nominal injector flow is below estimated demand under MotoLab assumptions. Choose a higher-flow option.']});
  else if(flow)issues.push({id:'injector-review',slots:['injectors'],level:'review',message:['Przepływ katalogowy to nie potwierdzenie wydajności przy wybranym paliwie i ciśnieniu; sprawdź również geometrię i kalibrację.','Catalogue flow is not proof of performance with the selected fuel and pressure; geometry and calibration also require confirmation.']});
- if(get('pump'))issues.push({id:'pump-review',slots:['pump'],level:'review',message:['Brak potwierdzonej krzywej wydajności pompy przy ciśnieniu roboczym.','Pump flow curve at operating pressure is not confirmed.']});
+ const pump=get('pump');
+ if(pump)issues.push({id:'pump-review',slots:['pump'],level:'review',message:['Wydajność wybranej pompy przy rzeczywistym ciśnieniu i napięciu nie została obliczona.','Selected pump flow at actual operating pressure and voltage has not been calculated.']});
  return issues;
 }
+
+const candidateBrands:Record<string,string>={
+ injectors:'DeatschWerks',injectors1500:'DeatschWerks',geInjectors:'DeatschWerks',
+ pistons:'Wiseco',gtePistons:'Manley',gtePistonsWiseco:'Wiseco',
+ turbo:'Pulsar',turboVband:'Pulsar',ecu:'ECUMaster',pump:'DeatschWerks',pumpAem:'AEM',pumpWalbro:'Walbro / TI Automotive',
+ intercooler:'FMIC.EU',intercoolerBlack:'FMIC.EU',intercoolerJr:'JRspec',intercoolerPsr:'Pulsar',
+ rods:'ZRP',rodsFmic:'FMIC.Pro',gteRods:'ZRP',gteRodsFmic:'FMIC.Pro',
+ geManifold:'FMIC.Pro',gteManifold:'FMIC.Pro',wastegate45:'Turbosmart',wastegateTial:'TiAL'
+};
+export function candidateBrand(key:string):string|undefined{return Object.prototype.hasOwnProperty.call(candidateBrands,key)?candidateBrands[key]:undefined}
+export function brandsForOptions(keys:string[]):string[]{return [...new Set(keys.flatMap(k=>{const b=candidateBrand(k);return b?[b]:[]}))].sort((a,b)=>a.localeCompare(b))}
