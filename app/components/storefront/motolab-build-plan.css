@@ -3,3 +3,5 @@
 .rpm-build-verification{display:grid;gap:5px;padding:8px;border:1px solid var(--rpm-color-border);border-radius:5px}.rpm-build-verification a{display:inline-flex;align-items:center;gap:6px;color:#6ed99a;font-size:12px;font-weight:750}.rpm-build-verification small{line-height:1.4}
 
 .rpm-build-risk{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--rpm-color-panel-border);border-left:3px solid #e7aa62;border-radius:6px;background:var(--rpm-color-background);padding:16px}.rpm-build-risk>svg{color:#e7aa62;flex-shrink:0}.rpm-build-risk strong{color:var(--rpm-color-text);font-size:14px}.rpm-build-risk p:last-child{margin-bottom:0}
+
+.rpm-dyno-chart{display:block;max-width:100%;max-height:420px;object-fit:contain;margin:12px 0;border-radius:6px;background:white}
