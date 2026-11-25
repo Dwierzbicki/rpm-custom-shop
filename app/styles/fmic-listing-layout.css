@@ -1,0 +1,31 @@
+/* Storefront result layout — compact navigation, consistent product tiles. */
+.fmic-plp .fplp-heading{margin-bottom:18px;padding-bottom:14px}
+.fmic-plp .fplp-heading h1{font-size:clamp(23px,2.6vw,32px);font-weight:750;line-height:1.25;letter-spacing:-.025em}
+.fmic-plp .fplp-title-category{font-size:.68em;font-weight:500;color:#aeb9c9}
+.fmic-plp .fplp-layout{grid-template-columns:260px minmax(0,1fr);gap:20px}
+.fmic-plp .fplp-filters{background:#1b2029;border-color:#343d49;gap:16px;padding:15px;scrollbar-width:thin}
+.fmic-plp .fplp-search-tree{gap:4px;padding-bottom:14px}
+.fmic-plp .fplp-search-tree>strong{margin-bottom:4px;font-size:14px}
+.fmic-plp .fplp-category-row{gap:1px}
+.fmic-plp .fplp-category-row>button,.fmic-plp .fplp-category-spacer{width:18px;flex-basis:18px;height:28px}
+.fmic-plp .fplp-category-row>button{display:grid;place-items:center}
+.fmic-plp .fplp-category-row>a,.fmic-plp .fplp-all-categories{padding:7px 6px;line-height:1.4;font-size:12px;font-weight:500}
+.fmic-plp .fplp-category-row>a:hover,.fmic-plp .fplp-all-categories:hover{background:#29313e}
+.fmic-plp .fplp-search-tree a[aria-current=page]{background:#362531;color:#ff86a6;box-shadow:inset 2px 0 #e3385b}
+.fmic-plp .fplp-search-tree small{font-variant-numeric:tabular-nums;flex-shrink:0}
+.fmic-plp .fplp-category-branch>.fplp-category-branch{margin-left:8px;padding-left:7px}
+.fmic-plp .fplp-toolbar{justify-content:space-between;min-height:38px;gap:8px;margin-bottom:12px}
+.fmic-plp .fplp-toolbar .fplp-sort{display:flex;flex-direction:row;align-items:center;gap:6px;margin:0;min-width:0;width:auto}
+.fmic-plp .fplp-toolbar .fplp-sort select{width:auto;max-width:160px;min-height:34px;padding:6px 9px;font-size:12px}
+.fmic-plp .fplp-toolbar .fplp-view{display:flex;flex-shrink:0}
+.fmic-plp .fplp-chip{background:#30232e;border:1px solid #543545;border-radius:5px;padding:5px 9px;margin-bottom:12px}
+.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(auto-fill,minmax(min(195px,100%),1fr));gap:12px}
+.fmic-plp .fplp-grid:not(.fplp-list) .fplp-card{max-width:280px}
+.fmic-plp .fplp-card{border-radius:8px;background:#1b2029}
+.fmic-plp .fplp-image{aspect-ratio:5/4}
+.fmic-plp .fplp-card-info{padding:12px;gap:7px}
+.fmic-plp .fplp-name{font-size:13px;font-weight:600}
+.fmic-plp .fplp-card-bottom strong{font-size:19px}
+@media(max-width:900px){.fmic-plp .fplp-layout{grid-template-columns:1fr}.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(2,minmax(0,1fr))}.fmic-plp .fplp-grid:not(.fplp-list) .fplp-card{max-width:none}.fmic-plp .fplp-filters{max-height:none}}
+@media(max-width:450px){.fmic-plp .fplp-toolbar .fplp-sort select{max-width:120px}.fmic-plp .fplp-grid:not(.fplp-list){gap:8px}.fmic-plp .fplp-card-info{padding:9px}.fmic-plp .fplp-card-bottom strong{font-size:15px}.fmic-plp .fplp-name{font-size:12px}}
+

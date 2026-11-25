@@ -1,0 +1,20 @@
+/* High-volume search results: bounded category navigation and responsive product grid. */
+.fmic-plp .fplp-layout{grid-template-columns:minmax(250px,280px) minmax(0,1fr);gap:20px}
+.fmic-plp .fplp-tree-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:3px 0 7px;background:none;border:0;color:#edf1f6;font:inherit;font-size:14px;font-weight:700;text-align:left;cursor:pointer}
+.fmic-plp .fplp-category-children{padding-left:9px;margin-left:7px;border-left:1px solid #343d49}
+.fmic-plp .fplp-category-row>a>span{overflow-wrap:normal;word-break:normal;hyphens:auto;min-width:0}
+.fmic-plp .fplp-category-row>a{padding:6px 5px;line-height:1.35}
+.fmic-plp .fplp-category-row>button,.fmic-plp .fplp-category-spacer{width:15px;flex-basis:15px}
+.fmic-plp .fplp-more-categories{display:block;margin:3px 0 5px 17px;padding:5px 6px;background:none;border:0;color:#f58da8;font-size:12px;font-weight:500;text-align:left;cursor:pointer}
+.fmic-plp .fplp-more-categories:hover{text-decoration:underline}
+.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.fmic-plp .fplp-grid:not(.fplp-list) .fplp-card{max-width:none}
+.fmic-plp .fplp-name{height:2.8em;min-height:2.8em;font-size:14px;line-height:1.4;-webkit-line-clamp:2}
+.fmic-plp .fplp-list .fplp-name{height:auto;min-height:0}
+.fmic-plp .fplp-sku{font-size:11px;color:#a5b1c1;font-weight:400}
+.fmic-plp .fplp-count{font-size:14px}
+@media(min-width:1600px){.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(min-width:901px) and (max-width:1100px){.fmic-plp .fplp-layout{grid-template-columns:245px minmax(0,1fr);gap:14px}.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}}
+@media(max-width:900px){.fmic-plp .fplp-layout{grid-template-columns:1fr}.fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media(max-width:450px){.fmic-plp .fplp-name{font-size:12px}.fmic-plp .fplp-grid:not(.fplp-list){gap:8px}}
+

@@ -106,15 +106,20 @@ test('critical storefront sections retain their CSS selectors',()=>{
  ])assert.ok(css.includes(selector),'missing CSS selector '+selector);
 });
 
-const productStyleFiles=["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"];
-test('FMIC product styles retain ordered component-local imports and valid blocks',async()=>{
- const entry=await readFile(new URL('../app/styles/fmic-product.css',import.meta.url),'utf8');
- assert.equal(entry.trim(),productStyleFiles.map(name=>`@import './${name}';`).join('\n'));
- const parts=await Promise.all(productStyleFiles.map(name=>readFile(new URL('../app/styles/'+name,import.meta.url),'utf8')));
- for(let i=0;i<parts.length;i++){
-  assert.ok(rootRules(parts[i]).length>0,'missing product rules in '+productStyleFiles[i]);
-  assert.ok(!parts[i].includes('@import'),'nested product import');
- }
- const component=await readFile(new URL('../app/components/storefront/FmicProductPreview.tsx',import.meta.url),'utf8');
- assert.ok(component.includes("import '../../styles/fmic-product.css';"));
-});
+const componentStyles=[
+ {entry:'fmic-product.css',component:'FmicProductPreview.tsx',files:["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"]},
+ {entry:'fmic-listing.css',component:'FmicPreview.tsx',files:["fmic-listing-base.css","fmic-listing-controls.css","fmic-listing-layout.css","fmic-listing-search.css","fmic-listing-refinements.css","fmic-listing-media.css"]}
+];
+for(const {entry,component,files} of componentStyles){
+ test(entry+' retains ordered component-local imports and valid blocks',async()=>{
+  const source=await readFile(new URL('../app/styles/'+entry,import.meta.url),'utf8');
+  assert.equal(source.trim(),files.map(name=>`@import './${name}';`).join('\n'));
+  const parts=await Promise.all(files.map(name=>readFile(new URL('../app/styles/'+name,import.meta.url),'utf8')));
+  for(let i=0;i<parts.length;i++){
+   assert.ok(rootRules(parts[i]).length>0,'missing rules in '+files[i]);
+   assert.ok(!parts[i].includes('@import'),'nested component stylesheet import');
+  }
+  const componentSource=await readFile(new URL('../app/components/storefront/'+component,import.meta.url),'utf8');
+  assert.ok(componentSource.includes("import '../../styles/"+entry+"';"));
+ });
+}
