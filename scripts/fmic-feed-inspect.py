@@ -6,7 +6,7 @@ import re
 import sys
 import zipfile
 from collections import Counter
-from decimal import Decimal, InvalidOperation, ROUND_FLOOR
+from decimal import Decimal, InvalidOperation, ROUND_CEILING
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from contextlib import contextmanager
@@ -63,7 +63,7 @@ def proposed_gross(source_price, discount=Decimal("5")):
         raise ValueError("invalid reference price")
     if not discount.is_finite() or not 0 <= discount < 100:
         raise ValueError("discount must be between 0 and 100 percent (exclusive)")
-    rounded = (amount * (100 - discount) / 100).to_integral_value(rounding=ROUND_FLOOR)
+    rounded = (amount * (100 - discount) / 100).to_integral_value(rounding=ROUND_CEILING)
     return str(rounded.quantize(Decimal("0.01"))) if rounded >= 1 else None
 
 def https_url(value):
@@ -133,7 +133,7 @@ def inspect(path, discount=Decimal('5')):
         raise ValueError("No product items found")
     return {"counts":dict(counts), "categories":len(categories), "errors":dict(errors),
             "price_kind":"unknown", "discount_percent":str(discount),
-            "rounding":"floor_whole_pln", "published":0}
+            "rounding":"ceil_whole_pln", "published":0}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
