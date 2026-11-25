@@ -1,6 +1,7 @@
 import {canRunFmicWorker} from './fmic-worker-mode';
 import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
+import {refreshSupplierDescription} from './fmic-description-refresh';
 import {setupEnrichment,inspectProduct} from './fmic-enrichment';
 let setup:Promise<unknown>|undefined;
 export async function setupDescriptionQueue(){
@@ -47,8 +48,14 @@ export function startDescriptionWorker(){
  const state=await client.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW() WHERE id=1');
+ const refresh=(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
+ if(refresh){
+  await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
+  try{await refreshSupplierDescription(refresh.sku);await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW(),last_error=NULL WHERE id=1')}
+  catch(e){const msg=String(e).slice(0,400);if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg])}else{await client.query("INSERT INTO rpm_fmic_description_queue(sku,status,detail,updated_at) VALUES($1,'review',$2,NOW()) ON CONFLICT(sku) DO UPDATE SET status='review',detail=EXCLUDED.detail,updated_at=NOW()",[refresh.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg])}}
+ }else{
  const row=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' ORDER BY sku LIMIT 1")).rows[0];
- if(!row)await client.query('UPDATE rpm_fmic_description_control SET enabled=false WHERE id=1');
+ if(!row)await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '1 hour' WHERE id=1");
  else {
  try{
  if(!row.assigned){
@@ -65,6 +72,7 @@ export function startDescriptionWorker(){
  const msg=String(e).slice(0,400);
  if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg]);}
  else{await client.query("UPDATE rpm_fmic_description_queue SET status='review',detail=$2,updated_at=NOW() WHERE sku=$1",[row.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg]);}
+ }
  }
  }
  }
