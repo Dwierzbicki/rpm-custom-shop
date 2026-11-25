@@ -1,7 +1,7 @@
 import type {RpmMotoLabFitment} from './lib/motolab-rpm-parts';
 export type ProductOption={id:string;label:string;price:number};
 export type ProductOptionGroup={id:string;name:string;required:boolean;options:ProductOption[]};
-export type Product={id:number;name:string;brand:string;category:string;price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[];optionGroups?:ProductOptionGroup[];attributes?:Record<string,string>;motolab?:RpmMotoLabFitment|null};
+export type Product={id:number;name:string;brand:string;category:string;targetCategory?:string[];price:number;engine:string;configurable?:boolean;sku:string;description:string;images?:string[];optionGroups?:ProductOptionGroup[];attributes?:Record<string,string>;motolab?:RpmMotoLabFitment|null};
 // Legacy definitions for the two persisted RPM products; not public fallback inventory.
 export const products:Product[]=[
  {id:1,name:'Kolektor turbo BMW E36 M50/M52',brand:'RPM Custom',category:'Kolektory',price:2899,engine:'BMW M50/M52',configurable:true,sku:'RPM-DEMO-001',description:'Kolektor wykonywany na zamówienie. Wybierz wymagane parametry. Zgodność i termin wymagają potwierdzenia.'},
