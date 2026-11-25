@@ -1,13 +1,15 @@
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../../../lib/db';
+import {setupImageAudit} from '../../../../lib/fmic-image-quality';
 import {setupFmicCatalog} from '../../../../lib/fmic-catalog-db';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 export async function GET(request:Request){
  try{
-  await setupFmicCatalog();
+  await setupFmicCatalog();await setupImageAudit();
   const db=getDbPool();
   const params=new URL(request.url).searchParams;
+  if(params.get('summary')==='1'){const stats=await db.query("SELECT count(*)::int AS total,count(*) FILTER (WHERE available)::int AS available,count(*) FILTER (WHERE mapping_status IN ('exact','normalized','manual'))::int AS mapped,max(updated_at) AS updated_at FROM rpm_fmic_catalog");return NextResponse.json({stats:stats.rows[0]},{headers:{'Cache-Control':'no-store'}})}
   const q=(params.get('q')??'').trim().slice(0,120);
   const size=[25,50,100].includes(Number(params.get('size')))?Number(params.get('size')):25;
   const rawPage=Number(params.get('page')??1);
@@ -19,7 +21,7 @@ export async function GET(request:Request){
   const [stats,groups,products,settings,matched]=await Promise.all([
    db.query("SELECT count(*)::int AS total,count(*) FILTER (WHERE available)::int AS available,count(*) FILTER (WHERE mapping_status IN ('exact','normalized','manual'))::int AS mapped,max(updated_at) AS updated_at FROM rpm_fmic_catalog"),
    db.query("SELECT source_category,target_category,mapping_status,count(*)::int AS total FROM rpm_fmic_catalog GROUP BY 1,2,3 ORDER BY total DESC LIMIT 1000"),
-   db.query("SELECT sku,name,source_price,proposed_gross,available,mapping_status,data->'images'->>0 AS image FROM rpm_fmic_catalog "+where+" ORDER BY "+sort+" LIMIT $3 OFFSET $4",[q,filter,size,(page-1)*size]),
+   db.query("SELECT sku,name,source_price,proposed_gross,available,mapping_status,data->>'availability' AS feed_availability,data->>'url' AS supplier_url,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY img(url,pos) LEFT JOIN rpm_fmic_image_audit audit ON audit.url=img.url WHERE COALESCE(audit.status,'pending') NOT IN ('blank','missing') ORDER BY img.pos LIMIT 1) AS image FROM rpm_fmic_catalog "+where+" ORDER BY "+sort+" LIMIT $3 OFFSET $4",[q,filter,size,(page-1)*size]),
    db.query("SELECT discount FROM rpm_fmic_settings WHERE id=1"),
    db.query("SELECT count(*)::int AS total FROM rpm_fmic_catalog "+where,[q,filter])
   ]);
