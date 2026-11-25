@@ -1,3 +1,5 @@
+'use client';
+import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
 import {ArrowUpRight,Mail,Facebook} from 'lucide-react';
 import {categoryPath} from '../../category-routing';
 import {DEFAULT_COMMUNITY} from '../../lib/community-settings';
@@ -8,8 +10,9 @@ const categoryLinks=[
  ['Układ dolotowy','Intake'],['Układ chłodzenia','Cooling'],['Układ paliwowy','Fuel system'],
  ['Układ wydechowy','Exhaust'],['Silnik i turbo','Engine & turbo'],['Elektronika','Electronics']
 ];
-export default function StorefrontFooter({lang='pl'}:{lang?:Lang}){
- const en=lang==='en';
+export default function StorefrontFooter({lang}:{lang?:Lang}){
+ const current=useStorefrontLanguage();
+ const en=(lang??current.lang)==='en';
  const tr=(pl:string,english:string)=>en?english:pl;
  return <footer className="rpm-store-footer">
   <div className="rpm-footer-inner">
