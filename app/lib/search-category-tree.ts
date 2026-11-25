@@ -14,3 +14,11 @@ export function buildSearchTree(rows:CategoryCount[]):CategoryNode[]{
  return sort(roots)
 }
 export function searchCategoryHref(path:string,query:string){return path+'?'+new URLSearchParams({q:query.trim()})}
+
+export function visibleCategories(nodes:CategoryNode[],activePath:string[],limit:number,showAll=false){
+ if(showAll||nodes.length<=limit)return nodes;
+ const active=nodes.find(n=>n.path.length<=activePath.length&&n.path.every((part,i)=>part===activePath[i]));
+ const initial=nodes.slice(0,limit);
+ if(active&&!initial.includes(active))return [...initial.slice(0,Math.max(0,limit-1)),active];
+ return initial;
+}
