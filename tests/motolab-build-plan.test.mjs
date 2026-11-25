@@ -105,3 +105,17 @@ test('Garrett supercore requires only the missing hot side and prevents incomple
  assert.ok(!plan.assessBuild(slots,selection,'2jz-gte',1,'petrol').some(i=>i.id==='flange-review'));
  assert.equal(plan.turboAssemblySlots(slots,{turbo:'turboVband'}).length,0);
 });
+
+const rpmParts=load('motolab-rpm-parts',{'./storefront-config':config});
+test('manual catalog part is eligible only for explicitly assigned versions and full power band',()=>{
+ const product={id:31,sku:'RPM-00031',name:'Test fixture rods',brand:'Test fixture',visible:true,stockStatus:'order',price:100,configurable:false,motolab:{slot:'rods',versions:['m54b30','m50b25'],maxPowerPs:700,note:'Fixture',noteEn:'Fixture',enabled:true}};
+ assert.equal(rpmParts.eligibleRpmParts([product],'m54b30',2).length,1);
+ assert.equal(rpmParts.eligibleRpmParts([product],'m50b30-stroker',2).length,0);
+ assert.equal(rpmParts.eligibleRpmParts([product],'2jz-gte',2).length,0);
+ assert.equal(rpmParts.eligibleRpmParts([{...product,motolab:{...product.motolab,maxPowerPs:650}}],'m54b30',2).length,0);
+ for(const patch of [{visible:false},{price:0},{stockStatus:'unavailable'},{id:2},{configurable:true},{optionGroups:[{}]},{motolab:{...product.motolab,enabled:false}}])assert.equal(rpmParts.eligibleRpmParts([{...product,...patch}],'m54b30',1).length,0);
+ const slot={...plan.buildParts('m54b30',1,'drift','recommended','petrol').find(s=>s.id==='rods'),rpmOptions:['rpm:31']};
+ assert.ok(plan.partOptions(slot).includes('rpm:31'));
+ assert.equal(plan.selectedPart(slot,{rods:'rpm:31'}),'rpm:31');
+ assert.equal(plan.selectedPart({...slot,rpmOptions:[]},{rods:'rpm:31'}),'rods');
+});
