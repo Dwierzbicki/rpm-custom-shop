@@ -6,7 +6,7 @@ import re
 import sys
 import zipfile
 from collections import Counter
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_FLOOR
 from pathlib import Path
 from xml.etree import ElementTree as ET
 from contextlib import contextmanager
@@ -55,6 +55,17 @@ def money(value):
         raise ValueError("source price outside bounds")
     return str(amount.quantize(Decimal("0.01")))
 
+def proposed_gross(source_price, discount=Decimal("5")):
+    """Provisional gross selling price in whole PLN; never silently publish zero."""
+    amount = Decimal(source_price)
+    discount = Decimal(str(discount))
+    if not amount.is_finite() or amount <= 0:
+        raise ValueError("invalid reference price")
+    if not discount.is_finite() or not 0 <= discount < 100:
+        raise ValueError("discount must be between 0 and 100 percent (exclusive)")
+    rounded = (amount * (100 - discount) / 100).to_integral_value(rounding=ROUND_FLOOR)
+    return str(rounded.quantize(Decimal("0.01"))) if rounded >= 1 else None
+
 def https_url(value):
     try:
         u = urlsplit(value)
@@ -62,7 +73,7 @@ def https_url(value):
     except ValueError:
         return ""
 
-def normalize(item):
+def normalize(item, discount=Decimal('5')):
     def get(tag):
         return (item.findtext(tag) or "").strip()
     sku = get(G+"id")
@@ -74,14 +85,16 @@ def normalize(item):
         raise ValueError("unknown availability")
     images = list(dict.fromkeys(filter(None, [https_url(get(G+"image_link"))] +
         [https_url((x.text or "").strip()) for x in item.findall(G+"additional_image_link")])))
+    source_price = money(get(G+"price"))
     return {"supplier":"fmic", "sku":sku, "name":name,
-        "source_price":money(get(G+"price")), "currency":"PLN",
+        "source_price":source_price, "currency":"PLN",
+        "proposed_gross":proposed_gross(source_price, discount),
         "price_kind":"unknown", "availability":availability,
         "category_path":get(G+"product_type"), "url":https_url(get("link")),
         "images":images, "mpn":get(G+"mpn"), "ean":get(G+"ean"),
         "brand":get(G+"brand"), "shipping_weight_raw":get(G+"shipping_weight")}
 
-def inspect(path):
+def inspect(path, discount=Decimal('5')):
     seen = set()
     counts = Counter()
     errors = Counter()
@@ -95,11 +108,13 @@ def inspect(path):
             if element.tag == "item":
                 counts["items"] += 1
                 try:
-                    row = normalize(element)
+                    row = normalize(element, discount)
                     if row["sku"] in seen:
                         raise ValueError("duplicate SKU")
                     seen.add(row["sku"])
                     counts["valid"] += 1
+                    if row["proposed_gross"] is None:
+                        counts["manual_price_required"] += 1
                     counts[row["availability"]] += 1
                     if not row["images"]:
                         counts["missing_images"] += 1
@@ -117,14 +132,18 @@ def inspect(path):
     if not counts["items"]:
         raise ValueError("No product items found")
     return {"counts":dict(counts), "categories":len(categories), "errors":dict(errors),
-            "price_kind":"unknown", "published":0}
+            "price_kind":"unknown", "discount_percent":str(discount),
+            "rounding":"floor_whole_pln", "published":0}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("feed", help="Local XML or ZIP file")
+    parser.add_argument("--discount", type=Decimal, default=Decimal("5"))
     args = parser.parse_args()
     try:
-        result = inspect(args.feed)
+        if not args.discount.is_finite() or not 0 <= args.discount < 100:
+            raise ValueError('Invalid discount')
+        result = inspect(args.feed, args.discount)
         print(json.dumps(result, ensure_ascii=False, indent=2))
         sys.exit(1 if result["counts"].get("invalid") else 0)
     except (OSError, ValueError, ET.ParseError, zipfile.BadZipFile) as exc:
