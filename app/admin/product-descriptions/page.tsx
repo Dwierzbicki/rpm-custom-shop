@@ -1,2 +1,2 @@
 import FmicEnrichment from '../suppliers/FmicEnrichment';
-export default function ProductDescriptionsPage(){return <main className="admin-page rpm-settings-page"><div className="admin-top"><div><span className="eyebrow">RPM CUSTOM / KATALOG</span><h1>Przypisanie opisu <em>do produktu</em></h1><p>Centrum opisów, danych źródłowych i publikacji produktów FMIC.</p></div></div><FmicEnrichment/></main>}
+export default function ProductDescriptionsPage(){return <main className="admin-page rpm-settings-page"><div className="admin-top"><div><span className="eyebrow">RPM CUSTOM / KATALOG</span><h1>Opisy i <em>parametry produktów</em></h1><p>Pobieranie, cykliczna aktualizacja, weryfikacja i publikacja danych produktowych.</p></div></div><FmicEnrichment/></main>}
