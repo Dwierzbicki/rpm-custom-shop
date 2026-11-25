@@ -1,6 +1,7 @@
 'use client';
 import '../styles/customer-account.css';
 import StandaloneStorefrontHeader from '../components/storefront/StandaloneStorefrontHeader';
+import StorefrontFooter from '../components/storefront/StorefrontFooter';
 import {useEffect,useState} from 'react';
 import Link from 'next/link';
 function AccountContent(){
@@ -12,4 +13,4 @@ function AccountContent(){
  return <main className="rpm-login-page"><section className="rpm-login-card"><span className="eyebrow">RPM CUSTOM / KONTO</span><h1>Cześć, {user.display_name||'Kierowco'}!</h1><p>{user.email}</p><p>Twoje konto jest aktywne. Historia zamówień pojawi się po podłączeniu zamówień do konta.</p><Link href="/">Wróć do sklepu</Link><button className="outline" onClick={async()=>{await fetch('/api/auth/logout',{method:'POST'});window.location.assign('/')}}>Wyloguj się</button></section></main>;
 }
 
-export default function Account(){return <><StandaloneStorefrontHeader/><AccountContent/></>}
+export default function Account(){return <><StandaloneStorefrontHeader/><AccountContent/><StorefrontFooter/></>}
