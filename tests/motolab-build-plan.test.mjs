@@ -86,3 +86,22 @@ test('flange mismatch changes immediately when turbo is switched',()=>{
  assert.ok(plan.assessBuild(s,{turbo:'turboVband'},'2jz-gte',1,'petrol').some(i=>i.id==='flange'&&i.level==='conflict'));
  assert.ok(!plan.assessBuild(s,{turbo:'turboVband',manifold:'own'},'2jz-gte',1,'petrol').some(i=>i.level==='conflict'));
 });
+
+test('brand filters only contain assigned candidate manufacturers',()=>{
+ const slots=plan.buildParts('m54b30',1,'drift','recommended','petrol');
+ const pump=slots.find(s=>s.id==='pump');
+ assert.equal(plan.brandsForOptions(plan.partOptions(pump)).length,3);
+ assert.ok(plan.brandsForOptions(plan.partOptions(pump)).includes('AEM'));
+ const turbo=slots.find(s=>s.id==='turbo');
+ assert.ok(plan.brandsForOptions(plan.partOptions(turbo)).includes('Garrett'));
+});
+test('Garrett supercore requires only the missing hot side and prevents incomplete purchase',()=>{
+ const slots=plan.buildParts('2jz-gte',1,'drift','recommended','petrol');
+ assert.equal(plan.turboAssemblySlots(slots,{}).length,0);
+ const selection={turbo:'garrett3076'};
+ const extra=plan.turboAssemblySlots(slots,selection);
+ assert.equal(extra.length,1);assert.equal(extra[0].id,'turbo-hot');assert.equal(extra[0].candidate,undefined);
+ assert.ok(plan.assessBuild(slots,selection,'2jz-gte',1,'petrol').some(i=>i.id==='turbo-incomplete'&&i.level==='conflict'));
+ assert.ok(!plan.assessBuild(slots,selection,'2jz-gte',1,'petrol').some(i=>i.id==='flange-review'));
+ assert.equal(plan.turboAssemblySlots(slots,{turbo:'turboVband'}).length,0);
+});
