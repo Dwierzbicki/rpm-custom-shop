@@ -43,7 +43,7 @@ const rules:Rule[]=[
  rule(['Dystanse kół'],'pcd','Rozstaw śrub (PCD)',match('\\m([3-8][ ]*x[ ]*[0-9]{2,3}(?:[.,][0-9])?)\\M')),
  rule(['Dystanse kół'],'center_bore','Otwór centrujący (mm)',match('[3-8]x[0-9]{2,3}(?:[.,][0-9])?[ ]+'+mm+'[ ]*mm')),
  rule(['Łączniki silikonowe','Kolanka i rury aluminiowe','Przewody silikonowe'],'pipe_size','Wymiar przyłącza (mm)',match('\\m([0-9]{1,3}(?:[.,][0-9]+)?(?:[/][0-9]{1,3}(?:[.,][0-9]+)?)?)[ ]*mm\\M')),
- rule(['Łączniki silikonowe','Kolanka i rury aluminiowe'],'bend','Kąt kolanka',match('(?:kolanko|kolanka|redukcyjne)[ ]+(23|45|67|90|135|180)[ ]*(?:°|['']|deg)')),
+ rule(['Łączniki silikonowe','Kolanka i rury aluminiowe'],'bend','Kąt kolanka',match("(?:kolanko|kolanka|redukcyjne)[ ]+(23|45|67|90|135|180)[ ]*(?:°|'|deg)")),
  rule(['Łączniki silikonowe','Kolanka i rury aluminiowe'],'pipe_length','Długość (cm)',match('\\m'+mm+'[ ]*cm\\M')),
  rule(['Łączniki silikonowe','Przewody hamulcowe HEL','Przewody sprzęgła','Nakrętki i śruby koła','Kierownice, naby i rozpinki','Dywaniki welurowe'],'color','Kolor',color),
  rule(['Kute tłoki'],'piston_bore','Średnica tłoka (mm)',match(mm+'[ ]*mm[ ]*(?:bor|bore)')),
