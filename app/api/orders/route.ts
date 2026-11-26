@@ -5,6 +5,7 @@ import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../lib/db';
 import {getCatalog} from '../../lib/catalog-db';
+import {automaticWastegate} from '../../lib/product-configuration';
 import {isValidIdempotencyKey,orderRequestHash} from '../../lib/order-idempotency';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -82,7 +83,7 @@ export async function POST(request:Request){
     const flange=groups.find(g=>g.id==='rpm-flange');
     if(flange){
      const chosen=flange.options.find(o=>o.label===supplied[flange.name]);
-     if(chosen)verified.Wastegate=chosen.id.endsWith('-twin')?'2× WG':'1× WG';
+     if(chosen)verified.Wastegate=automaticWastegate(chosen.id);
     }
    }else if(p.configurable)return NextResponse.json({error:'Konfiguracja produktu wymaga potwierdzenia'},{status:409});
    items.push({productId:p.id,sku:p.sku,name:p.name,qty:line.qty,unitPrice:Math.round((p.price+extra)*100)/100,options:verified});

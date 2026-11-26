@@ -1,5 +1,9 @@
 /** Polish -> English UI labels; retained verbatim during refactor. */
 export const en:Record<string,string>={
+ 'Średnica WG':'WG diameter',
+ 'Wyjścia Wastegate':'Wastegate outlets',
+ 'Średnica nominalna zaworu. Przy dwóch wyjściach oba mają ten sam rozmiar. Typ flanszy WG wymaga potwierdzenia.':'Nominal valve diameter. Two outlets share the same size. Wastegate flange type must be confirmed.',
+
 "Nadwozie":"Chassis",
 "Nadwozie docelowe — dopasowanie do konkretnego projektu wymaga potwierdzenia.":"Target chassis — fitment for the specific build requires confirmation.",
 "Bez króćców EGT":"Without EGT ports",

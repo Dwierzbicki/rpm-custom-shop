@@ -23,3 +23,5 @@ test('ordinary product needs no options',()=>{
  const line=configuredCartLine({id:3,price:12.5},initial);
  assert.equal(line.unitPrice,12.5);assert.equal(line.options,undefined);
 });
+
+test('T4 single scroll also requires two wastegate outlets',()=>{const product={id:2,price:100,optionGroups:[{id:'rpm-flange',name:'Flansza',required:true,options:[{id:'t4-single',label:'T4 single',price:25}]}]};assert.equal(configuredCartLine(product,{...initial,chosenOptions:{'rpm-flange':'t4-single'}}).options.Wastegate,'2× WG')});

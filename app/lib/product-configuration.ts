@@ -1,9 +1,14 @@
 import type {Product,CartLine} from '../data';
+/** Keep count identical on PDP, legacy configurator, Power Builder and order validation. */
+export function automaticWastegate(flangeId:string|undefined):string{
+ if(!flangeId)return '';
+ return /^t4(?:-|$)/i.test(flangeId)||flangeId.endsWith('-twin')?'2× WG':'1× WG';
+}
 export type Configuration={chosenOptions:Record<string,string>;engine:string;flange:string;wg:string;egt:boolean;qty:number};
 export function describeConfiguration(selected:Product,{chosenOptions,engine,flange,wg,qty}:Configuration){
  const customGroups=(selected.optionGroups??[]).filter(g=>!(selected.optionGroups??[]).some(f=>f.id==='rpm-flange')||g.id!=='rpm-wastegate');
  const rpmFlange=chosenOptions['rpm-flange'];
- const automaticWg=rpmFlange?(rpmFlange.endsWith('-twin')?'2× WG':'1× WG'):'';
+ const automaticWg=automaticWastegate(rpmFlange);
  const usesCustom=customGroups.length>0;
  const customReady=customGroups.every(g=>chosenOptions[g.id]?g.options.some(o=>o.id===chosenOptions[g.id]):!g.required);
  const customExtra=customGroups.reduce((sum,g)=>sum+(g.options.find(o=>o.id===chosenOptions[g.id])?.price??0),0);

@@ -53,3 +53,7 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - BRAND-02: kolektory nierdzewne, filtr Producent → RPM Custom → RPM-00032 i RPM-00033; filtr pozostaje dostępny także przy jednej marce. Test routingu dodany, test rzeczywistego API/UI NOT RUN.
 - BRAND-03: zapis liścia w adminie nie usuwa grup wariantów, bez duplikatów na rodzicu i liściu. Test jednostkowy dodany, API/RWD NOT RUN.
 - INC-001: 2026-11-26 użytkownik zgłosił wyjątek klienta na listingu kolektorów nierdzewnych; po odświeżeniu działał, konsola bez błędów. Intermittent / not reproducible; przyczyna nieustalona.
+
+- WG-01: wszystkie 5 flansz / wybór średnicy / T4 Single i Twin 2×, T3 Twin 2×, T3 Single i V-Band 1×; brak/nieznana średnica blokuje zakup. Test jednostkowy dodany, NOT RUN.
+- WG-02: rozmiary 38/44 mm, różne klucze koszyka, zachowanie istniejących dopłat i wymuszenie średnicy w obu szablonach. Testy jednostkowe dodane, NOT RUN.
+- WG-03: PDP, admin, Power Builder, koszyk i API zamówienia, PL/EN oraz RWD 360/390/768/1024/1280/1920 — NOT RUN. Nie składamy prawdziwego zamówienia.
