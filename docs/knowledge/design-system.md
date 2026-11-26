@@ -39,3 +39,5 @@
 - 2026-11-26 | Zaawansowane: osobne widoki Audyt zdjęć, Opisy i parametry, RPM Variant Manager. Usunięto duplikaty zakładek z FMIC Catalog Center, zachowano skróty pulpitu i przekierowania starych adresów. Wspólny styl centrum jakości (karty KPI, responsywne akcje, przewijane tabele). Variant Manager: skan zakresu, filtry, rozwijana rodzina i decyzje. W KODZIE, RWD do weryfikacji.
 
 - 2026-11-26 | Pulpit nie powiela rozbudowanych kart automatyzacji opisów/audytu zdjęć. Szybkie działania prowadzą do osobnych centrów; ogólny KPI opublikowanych opisów zachowany.
+
+- 2026-11-26 | PDP dostawcy: zwarty selektor kolorów z tekstową nazwą PL/EN, swatchem, indywidualną ceną, oznaczeniem wybranego i niedostępnego SKU. Link do pełnej karty konkretnego SKU; bez zmiany konfiguratora kolektorów. W KODZIE, RWD NOT RUN.

@@ -14,3 +14,5 @@ Ostatni sprawdzony deploy: 83000d99 live 2026-11-26. Nie utożsamiaj z akceptacj
 2026-11-26 | Koszyk Premium i jawne stany gotowości w kodzie; wspólna finalizacja nadal PLAN. Przed jej uruchomieniem wymagane uzgodnione reguły dostawy, płatności i model realizacji obu źródeł (nie odblokowywać starego endpointu zamówień).
 
 2026-11-26 | Variant Manager V1 W KODZIE: osobna tabela, ręczne skany, decyzje bez publikacji. Następnie walidacja na aktualnym feedzie, grupy kolorów, indeks storefront przed paginacją, PDP wybór dokładnego SKU, benchmark przed/po. Warianty techniczne turbo dopiero po zweryfikowaniu osi i kombinacji.
+
+2026-11-26 | VAR PDP W KODZIE: wyłącznie zaakceptowane rodziny, linki do konkretnych SKU, live cena/stan i fail-closed przy konflikcie. Następnie wydzielony indeks członkostwa/rodzin dla listingów, zgodne filtry/SKU search przed paginacją i benchmark cold/warm. Nie zatwierdzano grup masowo.

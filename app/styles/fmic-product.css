@@ -88,3 +88,19 @@
  /* Reserve space independent of visibility, avoiding layout shifts when scrolling. */
  .fmic-pdp.rpm-pdp-premium:has(.rpm-pdp-configured-grid){padding-bottom:calc(92px + env(safe-area-inset-bottom,0px))}
 }
+
+/* Supplier colour families: native SKU links, no synthetic price/stock or cart state. */
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variants{border-top:1px solid var(--rpm-color-border);padding-top:14px;margin:14px 0;min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variants h2{font-size:13px;line-height:1.5;margin:0 0 10px;color:var(--rpm-color-muted);font-weight:500}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variants h2 strong{color:var(--rpm-color-text)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variant-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,132px),1fr));gap:7px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variant{box-sizing:border-box;display:flex;align-items:center;gap:8px;min-height:52px;padding:7px 9px;border:1px solid var(--rpm-color-border);border-radius:6px;color:var(--rpm-color-text);background:var(--rpm-color-surface);text-decoration:none;min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variant.is-selected{border-color:var(--rpm-color-accent);background:#38242c}
+.fmic-pdp.rpm-pdp-premium a.rpm-pdp-variant:hover{border-color:var(--rpm-color-accent-hover)}
+.fmic-pdp.rpm-pdp-premium a.rpm-pdp-variant:focus-visible{outline:2px solid var(--rpm-color-accent-hover);outline-offset:2px}
+.fmic-pdp.rpm-pdp-premium .rpm-variant-swatch{width:22px;height:22px;border-radius:50%;border:1px solid #a5a5a5;flex:none}
+.fmic-pdp.rpm-pdp-premium .rpm-variant-label{display:grid;gap:3px;flex:1;min-width:0;overflow-wrap:anywhere;font-size:12px}
+.fmic-pdp.rpm-pdp-premium .rpm-variant-label small{color:var(--rpm-color-muted);font-size:11px;line-height:1.35}
+.fmic-pdp.rpm-pdp-premium .rpm-variant-label .rpm-variant-stock{color:#efa45e}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-variant svg{flex:none;color:var(--rpm-color-accent-hover)}
+@media(max-width:360px){.fmic-pdp.rpm-pdp-premium .rpm-pdp-variant-grid{grid-template-columns:1fr}}

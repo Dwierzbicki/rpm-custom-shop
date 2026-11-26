@@ -7,6 +7,7 @@ import {reviewedProductSpec} from '../../../../lib/reviewed-product-specs';
 import {fmicSearchFacets,fmicProducerExpression} from '../../../../lib/fmic-facets';
 import {setupEnrichment} from '../../../../lib/fmic-enrichment';
 import {getDbPool} from '../../../../lib/db';
+import {readStorefrontVariants} from '../../../../lib/storefront-variant-db';
 import {visibleCatalog,primaryCategory,categoryMembership} from '../../../../lib/fmic-category-membership';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -45,6 +46,7 @@ export async function GET(request:Request){
   product.spec_sources=reviewed.sources;
  }
  const related=await db.query("SELECT sku,name,proposed_gross,available,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM rpm_fmic_catalog WHERE "+categoryMembership('$1')+" AND sku<>$2 AND "+visibleCatalog+" ORDER BY available DESC,sku LIMIT 4",[product.target_category,sku]);
- return NextResponse.json({product,related:related.rows},{headers});
+ const variantFamily=new URL(request.url).pathname==='/api/catalog/fmic/product'?await readStorefrontVariants(sku):null;
+ return NextResponse.json({product,related:related.rows,variantFamily},{headers});
  }catch(e){console.error('FMIC product preview failed',e);return NextResponse.json({error:'Nie udało się pobrać produktu'},{status:500,headers})}
 }
