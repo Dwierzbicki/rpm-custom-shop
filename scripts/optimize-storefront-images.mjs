@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import {mkdir} from 'node:fs/promises';
+import {mkdir,readFile} from 'node:fs/promises';
 await mkdir('public/optimized',{recursive:true});
 await sharp('public/rpm-hero-drift.png').resize({width:1920,withoutEnlargement:true}).webp({quality:80}).toFile('public/optimized/hero.webp');
 await sharp('public/rpm-logo.png.png').resize({width:1024,withoutEnlargement:true}).webp({quality:85}).toFile('public/optimized/logo.webp');
@@ -12,3 +12,12 @@ await sharp(socialBackground).composite([{input:socialLogo,left:275,top:155}]).j
 
 // Keep logo processing optional so a supplier outage cannot block deployments.
 await import('./optimize-brand-assets.mjs').catch(e=>console.warn('Brand optimizer skipped:',e.message));
+
+// Local workshop photos: preserve originals and normalize EXIF orientation.
+// Generate assets at build time, without contacting any external service.
+const projectPhotos=JSON.parse(await readFile(new URL('../app/components/storefront/custom-project-photos.json',import.meta.url),'utf8'));
+await mkdir('public/optimized/cars',{recursive:true});
+for(const filename of projectPhotos){
+ const output=filename.replace(/\.jpg$/i,'.webp');
+ await sharp('public/cars/'+filename).rotate().resize({width:1600,height:1600,fit:'inside',withoutEnlargement:true}).webp({quality:82}).toFile('public/optimized/cars/'+output);
+}
