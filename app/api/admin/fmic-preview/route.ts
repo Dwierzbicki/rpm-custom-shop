@@ -2,7 +2,7 @@ import {imageOrderSql} from '../../../lib/fmic-image-ranking';
 import {NextResponse} from 'next/server';
 import {brandSearchNames} from '../../../lib/brand-search';
 import {getDbPool} from '../../../lib/db';
-import {fmicSearchFacets} from '../../../lib/fmic-facets';
+import {fmicSearchFacets,explicitProducerFilter} from '../../../lib/fmic-facets';
 import {visibleCatalog,categoryExpansion,listingCategoryMembership} from '../../../lib/fmic-category-membership';
 import {getCatalog} from '../../../lib/catalog-db';
 import {matchesSearch} from '../../../lib/header-search';
@@ -89,11 +89,18 @@ export async function GET(request:Request){
  const manualId=mixed?',NULL::integer AS manual_id':'';
  const facetColumns=defs.map(d=>d.expression+' AS '+d.key).join(',');
  const from=" FROM rpm_fmic_catalog "+(grouped?variantListingJoin:"")+where+" AND ($4::numeric IS NULL OR proposed_gross >= $4) AND ($5::numeric IS NULL OR proposed_gross <= $5)";
- const source="WITH "+variantCte+manualCte+"catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+variantColumns+from+manualSelect("sku,name,proposed_gross,available,data->'images' AS images")+") ";
+ // Producer is always the first facet. An explicit-only value cannot originate from the
+ // name rules; push down an equivalent cheap predicate for item/count queries only.
+ // Facet counts still ignore their own selection and include all qualifying brands.
+ const producerIndex=defs.findIndex(d=>d.key==='producer');
+ const producerValue=selected[producerIndex]??'';
+ const producerParam=values.length+1+selected.slice(0,producerIndex).filter(Boolean).length;
+ const resultFrom=producerIndex>=0&&explicitProducerFilter(producerValue)?from+" AND trim(data->>'brand')=$"+producerParam:from;
+ const source="WITH "+variantCte+manualCte+"catalog AS (SELECT sku,name,proposed_gross,available,data->'images' AS images"+(facetColumns?','+facetColumns:'')+variantColumns+resultFrom+manualSelect("sku,name,proposed_gross,available,data->'images' AS images")+") ";
  const facetSource="WITH "+variantCte+manualCte+"catalog AS MATERIALIZED (SELECT "+facetColumns+variantColumns+from+(mixed?' UNION ALL SELECT '+manualFacets+manualVariantColumns+' FROM manual_rows':'')+") ";
- const itemSource="WITH "+variantCte+manualCte+"catalog AS (SELECT sku,proposed_gross,available"+manualId+(facetColumns?','+facetColumns:'')+variantColumns+from+manualSelect("sku,proposed_gross,available,manual_id")+") ";
+ const itemSource="WITH "+variantCte+manualCte+"catalog AS (SELECT sku,proposed_gross,available"+manualId+(facetColumns?','+facetColumns:'')+variantColumns+resultFrom+manualSelect("sku,proposed_gross,available,manual_id")+") ";
  const manualKey=mixed?':manual:'+createHash('sha256').update(JSON.stringify(manualRows)).digest('hex'):'';
- const listingKey=(key:string)=>key+':v6:'+String(indexed)+':'+String(includeManual)+':groups:'+String(grouped)+manualKey;
+ const listingKey=(key:string)=>key+':v7:'+String(indexed)+':'+String(includeManual)+':groups:'+String(grouped)+manualKey;
  function filtered(except=-1){
  const args:unknown[]=[...values];const conditions:string[]=[];
  defs.forEach((d,i)=>{if(i!==except&&selected[i]){args.push(selected[i]);conditions.push(d.key+'=$'+args.length)}});

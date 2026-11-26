@@ -47,7 +47,7 @@ export function listingCacheKeys(input:{path:string[];q:string;stock:string;sort
  const normalizedSort=sort==='priceAsc'||sort==='priceDesc'?sort:'default';
  return {
   count:'listing-count:'+JSON.stringify(criteria),
-  facets:'listing-facets:'+JSON.stringify(criteria),
+  facets:'listing-facets:'+JSON.stringify([path,q,stock,min,max,selected.length===1?['']:selected]),
   items:'listing-items:'+JSON.stringify([...criteria,normalizedSort,page]),
   categories:'listing-categories:'+JSON.stringify([q,stock,min,max])
  };
