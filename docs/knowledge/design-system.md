@@ -37,3 +37,5 @@
 - 2026-11-26 | Admin: kontrola linków w Zaawansowanych i szybkich działaniach pulpitu; wybór zakresu, start/pauza/wznowienie, postęp, raport CSV i lista problemów. W KODZIE; RWD do potwierdzenia.
 
 - 2026-11-26 | Zaawansowane: osobne widoki Audyt zdjęć, Opisy i parametry, RPM Variant Manager. Usunięto duplikaty zakładek z FMIC Catalog Center, zachowano skróty pulpitu i przekierowania starych adresów. Wspólny styl centrum jakości (karty KPI, responsywne akcje, przewijane tabele). Variant Manager: skan zakresu, filtry, rozwijana rodzina i decyzje. W KODZIE, RWD do weryfikacji.
+
+- 2026-11-26 | Pulpit nie powiela rozbudowanych kart automatyzacji opisów/audytu zdjęć. Szybkie działania prowadzą do osobnych centrów; ogólny KPI opublikowanych opisów zachowany.
