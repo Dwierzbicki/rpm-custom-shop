@@ -15,11 +15,15 @@ function flangeGroup(extended=false):ProductOptionGroup{
  {id:'t3-twin',label:'T3 Twin Scroll',price:0},{id:'t4-twin',label:'T4 Twin Scroll',price:0},
  ...(extended?[{id:'vband-single',label:'V-Band',price:0},{id:'t25-single',label:'T25',price:0}]:[])]};
 }
+// The admin may store either the legacy group or the canonical exhaust leaf.
+export function isManifoldCategory(category:string):boolean{
+ return ['Kolektory','Kolektory wydechowe','Kolektory wydechowe nierdzewne','Kolektory wydechowe żeliwne'].includes(category);
+}
 export function isBmwManifold(item:Pick<Product,'category'|'brand'|'engine'|'name'>){
- return item.category==='Kolektory'&&/^rpm custom$/i.test(item.brand.trim())&&/\bM(?:50|52|54)(?:B\d+|TU)?\b/i.test(item.engine+' '+item.name);
+ return isManifoldCategory(item.category)&&/^rpm custom$/i.test(item.brand.trim())&&/\bM(?:50|52|54)(?:B\d+|TU)?\b/i.test(item.engine+' '+item.name);
 }
 export function withManifoldOptions<T extends Product>(item:T):T{
- if(item.category!=='Kolektory')return item;
+ if(!isManifoldCategory(item.category))return item;
  const groups=(item.optionGroups??[]).filter(g=>g.id!=='rpm-wastegate');
  if(!groups.some(g=>g.id==='rpm-flange'))groups.unshift(flangeGroup());
  if(isBmwManifold(item)){

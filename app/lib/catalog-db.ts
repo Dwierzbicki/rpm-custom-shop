@@ -68,7 +68,7 @@ export async function importManifoldDrafts(){
 export async function persistManifoldWastegateOptions(){
  await ensure();
  const client=await getDbPool().connect();
- const marker='manual_catalog_update:rpm_manifold_wg:2026-11-26';
+ const marker='manual_catalog_update:rpm_manifold_wg:v2:2026-11-26';
  try{
   await client.query('BEGIN');
   await client.query('SELECT pg_advisory_xact_lock(9382761)');
@@ -76,12 +76,14 @@ export async function persistManifoldWastegateOptions(){
   if(previous.rowCount){await client.query('COMMIT');return}
   const result=await client.query<{id:number;data:CatalogItem}>(`SELECT id,data FROM rpm_catalog c
    WHERE ((id=32 AND data->>'sku'='RPM-00032') OR (id=33 AND data->>'sku'='RPM-00033'))
-   AND lower(trim(data->>'brand'))='rpm custom' AND data->>'category'='Kolektory'
+   AND lower(trim(data->>'brand'))='rpm custom' AND data->>'category' IN ('Kolektory','Kolektory wydechowe','Kolektory wydechowe nierdzewne','Kolektory wydechowe żeliwne')
    AND NOT EXISTS(SELECT 1 FROM rpm_catalog_deleted d WHERE d.id=c.id)
    ORDER BY id FOR UPDATE`);
+  if(result.rows.length!==2)throw Error('Expected two existing RPM manifold offers; got '+result.rows.length);
   const updated:string[]=[];
   for(const row of result.rows){
    const item=withManifoldOptions(row.data);
+   if(!item.optionGroups?.some(g=>g.id==='rpm-flange'&&g.options.some(o=>o.id==='t25-single'))||!item.optionGroups.some(g=>g.id==='rpm-wg-diameter'&&g.required&&g.options.some(o=>o.id==='internal')))throw Error('Manifold configuration incomplete: '+row.data.sku);
    const patch={optionGroups:item.optionGroups,description:item.description};
    if(JSON.stringify(row.data.optionGroups)!==JSON.stringify(patch.optionGroups)||row.data.description!==patch.description){
     await client.query('UPDATE rpm_catalog SET data=data||$2::jsonb,updated_at=NOW() WHERE id=$1',[row.id,JSON.stringify(patch)]);

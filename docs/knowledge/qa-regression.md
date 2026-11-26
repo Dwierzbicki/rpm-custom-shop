@@ -61,3 +61,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - WG-04: T3/T25/V-Band z wewnętrznym WG → 0 wyjść, bez średnicy; T4 z wewnętrznym WG → blokada; T25 zewnętrzny → 1 wyjście. Test jednostkowy dodany, NOT RUN. Zmiana flanszy na PDP czyści niedozwolony wybór; API oraz RWD NOT RUN.
 
 - WG-05: RPM-00032 i RPM-00033 / jednorazowa aktualizacja / 6 flansz, grupa WG (8 średnic + wewnętrzny), T4 +500 zł, EGT +350 zł, ceny 3000/3500 zł zachowane, pozostałe pola bez zmian, ponowny start nie nadpisuje edycji. Odczyt przed zmianą potwierdził brak zapisanych nowych grup; test po wdrożeniu NOT RUN.
+
+- WG-05 production 2026-11-26: FAIL on 1a04eac8 (live): log `[catalog] persisted manifold WG options []`, both DB rows have 5 flanges and no WG group, category `Kolektory wydechowe nierdzewne`. Fix: recognize canonical manifold categories in runtime and migration, new v2 marker, require exactly two rows and valid option groups before committing. Added regression across category forms. Post-fix production/RWD verification NOT RUN.

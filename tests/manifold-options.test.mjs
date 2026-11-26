@@ -97,3 +97,18 @@ test('existing published offer gets persisted WG options without losing operator
  assert.match(updated.description,/wewnętrzny WG/);
  assert.deepEqual(withManifoldOptions(updated),updated);
 });
+
+test('regression: canonical stainless leaf offers still get manifold configuration',()=>{
+ for(const category of ['Kolektory','Kolektory wydechowe','Kolektory wydechowe nierdzewne','Kolektory wydechowe żeliwne']){
+  for(const engine of ['BMW M50/M52/M54','Toyota 2JZ GE']){
+   const raw={...base,category,engine,name:'Kolektor turbo '+engine,optionGroups:manifoldPreset(engine.startsWith('BMW')?'bmw':'2jz-ge').filter(g=>g.id!=='rpm-wg-diameter').map(g=>g.id==='rpm-flange'?{...g,options:g.options.filter(o=>o.id!=='t25-single')}:g)};
+   const result=withManifoldOptions(raw);
+   assert.equal(result.category,category);
+   assert.equal(result.optionGroups.find(g=>g.id==='rpm-wg-diameter').options.length,9);
+   assert.ok(result.optionGroups.find(g=>g.id==='rpm-flange').options.some(o=>o.id==='t25-single'));
+   assert.equal(withManifoldOptions(result).optionGroups.length,result.optionGroups.length);
+  }
+ }
+ const component={...base,category:'Elementy kolektora wydechowego'};
+ assert.equal(withManifoldOptions(component),component);
+});
