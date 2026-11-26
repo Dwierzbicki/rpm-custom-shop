@@ -231,3 +231,23 @@ Object.assign(en,{
  "Nie udało się pobrać produktów FMIC.": "Could not load FMIC products.",
  "Zaloguj się do sklepu.": "Sign in to the shop."
 });
+
+Object.assign(en,{
+  "Twój koszyk": "Your cart",
+  "Produkty RPM Custom": "RPM Custom products",
+  "Produkty z katalogu dostawcy": "Supplier catalog products",
+  "Sprawdzanie produktów w koszyku…": "Checking your cart products…",
+  "Nie udało się pobrać produktów.": "Could not load products.",
+  "Cena brutto. Koszt dostawy poza podaną kwotą.": "Price includes VAT. Shipping is not included.",
+  "Ceny według ostatniego importu. Dostępność i dostawa wymagają potwierdzenia.": "Prices from the latest import. Availability and delivery require confirmation.",
+  "Nie udało się sprawdzić aktualnych cen.": "Could not check current prices.",
+  "Koszyk z dwóch źródeł": "Cart with two sources",
+  "Wspólna finalizacja nie jest jeszcze dostępna. Aby złożyć zamówienie lub zapytanie, pozostaw w koszyku produkty z jednego źródła.": "Combined checkout is not yet available. To place an order or request a quote, keep products from one source in your cart.",
+  "Usuń niedostępne pozycje przed przejściem do zamówienia.": "Remove unavailable items before checkout.",
+  "Bez automatycznego pobierania płatności.": "No automatic payment collection.",
+  "Znajdź części do swojego projektu.": "Find parts for your project.",
+  "Produkt o ID": "Product ID",
+  "Produkt nie jest obecnie dostępny w katalogu.": "Product is currently unavailable in the catalog.",
+  "Zamówienie": "Order",
+  "Produkt": "Product"
+});

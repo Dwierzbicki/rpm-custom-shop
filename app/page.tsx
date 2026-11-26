@@ -8,6 +8,7 @@ import {useStorefrontLanguage} from './components/storefront/hooks/useStorefront
 import type {View} from './lib/storefront-config';
 import {useShopCollections} from './components/storefront/hooks/useShopCollections';
 import {productPath} from './lib/product-path';
+import {cartReadiness,type CatalogState} from './lib/cart-readiness';
 import {useCheckoutDetails} from './components/storefront/hooks/useCheckoutDetails';
 import {useEffect,useMemo,useState} from 'react';
 import dynamic from 'next/dynamic';
@@ -33,16 +34,18 @@ export default function Shop(){
  const fmicPreview=true;const [fmicPath,setFmicPath]=useState('');
  useEffect(()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'');const sync=()=>{setFmicPath(window.location.pathname);setGlobalFmicQuery(new URLSearchParams(window.location.search).get('q')??'')};window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[]);
  const [products,setProducts]=useState<Product[]>([]);
+ const [catalogState,setCatalogState]=useState<CatalogState>('loading');
+ const [catalogRetry,setCatalogRetry]=useState(0);
  const [shopSubcategory,setShopSubcategory]=useState<ShopSubcategory|null>(null);
  const [mobileFiltersOpen,setMobileFiltersOpen]=useState(false);
- useEffect(()=>{fetch('/api/catalog',{cache:'no-store'}).then(async response=>{if(response.ok){const data=await response.json();if(Array.isArray(data.products))setProducts(data.products)}}).catch(()=>{})},[]);
+ useEffect(()=>{const ctrl=new AbortController();setCatalogState('loading');fetch('/api/catalog',{cache:'no-store',signal:ctrl.signal}).then(async response=>{if(!response.ok)throw Error('catalog');const data=await response.json();if(!Array.isArray(data.products))throw Error('catalog');if(!ctrl.signal.aborted){setProducts(data.products);setCatalogState('ready')}}).catch(()=>{if(!ctrl.signal.aborted)setCatalogState('error')});return()=>ctrl.abort()},[catalogRetry]);
  const {lang,t,changeLang}=useStorefrontLanguage();
 
  const [view,setView]=useState<View>('home'),[query,setQuery]=useState(''),[category,setCategory]=useState('Wszystkie'),[engineFilter,setEngineFilter]=useState('Wszystkie'),[sort,setSort]=useState('featured'),[toast,setToast]=useState('');
  const {mobileMenu,setMobileMenu,activeFmicRoot,setActiveFmicRoot,activeFmicSub,setActiveFmicSub,compactCategories,setFmicMenuOpen}=useStorefrontMenu(view);
  const {technicalFilters,setTechnicalFilters,catalogCategories,catalogEngines,technicalFilterOptions,filtered}=useCatalogFiltering({enabled:view==='catalog'&&!fmicPreview,products,category,shopSubcategory,engineFilter,setEngineFilter,query,sort});
  const {checkoutType,setCheckoutType,shippingMethod,setShippingMethod,shippingSettings,shippingSettingsReady,paymentSettings,paymentMethod,setPaymentMethod,phonePrefix,setPhonePrefix,phoneMenuOpen,setPhoneMenuOpen,companyName,setCompanyName,companyNip,setCompanyNip,companyAddress,setCompanyAddress,deliveryAddress,setDeliveryAddress,deliveryPostalCode,setDeliveryPostalCode,deliveryCity,setDeliveryCity,deliveryNotice,companyLookupBusy,companyLookupMessage,setCompanyLookupMessage,companyLookupState,setCompanyLookupState,copyCompanyAddress,lookupCompany}=useCheckoutDetails(t,view==='checkout');
- const {quoteState,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine}=useShopCollections(products,view,setView);
+ const {quoteState,retryQuote,cart,setCart,garage,setGarage,storageReady,linesTotal,count,changeQuantity,removeLine}=useShopCollections(products,view,setView);
  const ownSuggestions=useMemo(()=>products.map(p=>({id:String(p.id),name:p.name,sku:p.sku,price:p.price,image:p.images?.[0],keywords:[p.brand,p.engine,p.description].join(' ')})),[products]);
  const notify=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(''),3200)};
  const {guideEngine,setGuideEngine,guideVersion,setGuideVersion,guideRange,setGuideRange,guideUsage,setGuideUsage,guideTier,setGuideTier,guideParts,guideOpenCategories,setGuideOpenCategories,guideCartSelection,guideConfigOpen,setGuideConfigOpen,guideConfigValues,setGuideConfigValues,guideConfigError,setGuideConfigError,guideDiscount,guideDataError,matchedGuideParts,updateGuideSelection,selectedGuideProducts,guideCartTotal,guideEligibleProducts,guideConfigItems,guideConfigGroups,guideConfigKey,confirmGuideCart,addGuideProductsToCart,exportGuidePdf,resetGuide}=usePowerGuides({enabled:view==='guides',products,storageReady,setCart,onCart:()=>navigate('cart'),notify});
@@ -116,8 +119,8 @@ export default function Shop(){
  onSort={setSort}
  />}
  {view==='cart'&&<CartView
- cart={cart} products={products} count={count} total={linesTotal(cart)} t={t} quoteState={quoteState}
- onBrowseCatalog={()=>navigate('catalog')} onCheckout={()=>{if(!cart.some(l=>l.fmicSku))navigate('checkout')}}
+ cart={cart} products={products} count={count} total={linesTotal(cart)} t={t} quoteState={quoteState} catalogState={catalogState} onRetryQuote={retryQuote} onRetryCatalog={()=>setCatalogRetry(v=>v+1)}
+ onBrowseCatalog={()=>navigate('catalog')} onCheckout={()=>{if(cartReadiness(cart,products,catalogState,quoteState).canCheckout)navigate('checkout')}}
  onQuantityChange={changeQuantity}
  onRemove={removeLine}
 />}

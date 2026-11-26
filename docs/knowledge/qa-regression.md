@@ -89,3 +89,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - SOCIAL-02: po wdrożeniu SOCIAL-01 LIVE (9e2eb15), użytkownik zgłosił brak zmiany na FB, bramka nie miała OG. Publiczny GET / bez cookies powinien zwrócić wyłącznie formularz z OG marki, grafika 1200×630 dostępna, PDP/API/admin nadal zablokowane; po zalogowaniu normalny sklep. Test dokładnego wyjątku obrazu dodany, NOT RUN. Facebook cache/robots mogą nadal wpływać na wynik; Sharing Debugger do weryfikacji.
 
 - SOCIAL-03: opis OG strony głównej identyczny przed i po zalogowaniu; bez DEMO, prototypu i „Sklep w przygotowaniu”. Zmieniono tylko metadane publiczne, nie komunikat formularza ani blokadę. Test dodany, NOT RUN; Facebook cache do odświeżenia.
+
+- CART-02: koszyk manualny, FMIC, mieszany, pusty, nieaktualne/ukryte pozycje i błędy pobrania katalogu/wyceny; przywrócenie przez retry, brak niedozwolonego CTA, ilość i sumy, konfiguracja w podsumowaniu zamówienia. 3 testy cart-readiness dodane. RWD 360/390/768/1024/1280/1920 i pełny build NOT RUN; bez wysyłania zamówienia. Wspólna finalizacja FMIC nadal zablokowana.
