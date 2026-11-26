@@ -12,7 +12,7 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 import {cachedSearch,searchPatterns,searchConditions,listingCacheKeys} from '../../../lib/fmic-search-performance';
 import {compareOptions} from '../../../lib/fmic-filter-order';
-import {listingVariantCtes,indexedListingVariantCtes,variantListingJoin,listingCount,listingRepresentatives,listingVariantScope} from '../../../lib/listing-variants';
+import {listingVariantLookupCtes,indexedListingVariantLookupCtes,variantListingJoin,listingCount,listingRepresentatives,listingVariantPath} from '../../../lib/listing-variants';
 export async function GET(request:Request){
  const params=new URL(request.url).searchParams;
  const path=resolveCategoryPath(params.get('category')??'/sklep');
@@ -36,17 +36,17 @@ export async function GET(request:Request){
  try{
  const db=getDbPool();
  // Keep original indexed fast path when no family has been approved or optional table is absent.
- const variantRoot=listingVariantScope(path,showCategories);
- const grouped=includeManual&&await cachedSearch('listing-variant-enabled-v2:'+JSON.stringify(variantRoot),15000,async()=>{
+ const variantPath=listingVariantPath(path,showCategories);
+ const grouped=includeManual&&await cachedSearch('listing-variant-enabled-v3:'+JSON.stringify(variantPath),15000,async()=>{
   try{const exists=await db.query("SELECT to_regclass('rpm_variant_families') IS NOT NULL AS present");if(!exists.rows[0]?.present)return false;
-   const result=await db.query("SELECT EXISTS(SELECT 1 FROM rpm_variant_families WHERE scope IN ('colors','hel') AND decision='approved' AND present AND fingerprint=reviewed_fingerprint"+(variantRoot===null?"":" AND category[1]=$1")+") AS enabled",variantRoot===null?[]:[variantRoot]);return result.rows[0]?.enabled===true;
+   const result=await db.query("SELECT EXISTS(SELECT 1 FROM rpm_variant_families WHERE scope IN ('colors','hel') AND decision='approved' AND present AND fingerprint=reviewed_fingerprint"+(variantPath===null?"":" AND category[1:cardinality($1::text[])]=$1::text[]")+") AS enabled",variantPath===null?[]:[variantPath]);return result.rows[0]?.enabled===true;
   }catch(e){console.error('Variant listing availability check failed',e);return false}
  });
  const indexed=grouped&&await cachedSearch('listing-variant-index-v1',15000,async()=>{const result=await db.query("SELECT to_regclass('rpm_variant_members_v1') IS NOT NULL AS ready");return result.rows[0]?.ready===true});
- const membershipCtes=indexed?indexedListingVariantCtes:listingVariantCtes;
+ const membershipCtes=indexed?indexedListingVariantLookupCtes:listingVariantLookupCtes;
  const variantCte=grouped?membershipCtes+', ':'';
- const variantColumns=grouped?',family_id,variant_count':'';
- const manualVariantColumns=grouped?',NULL::text AS family_id,NULL::integer AS variant_count':'';
+ const variantColumns=grouped?',family_id,variant_count,variant_color':'';
+ const manualVariantColumns=grouped?',NULL::text AS family_id,NULL::integer AS variant_count,NULL::text AS variant_color':'';
  const countSql=listingCount(grouped);
  const defs=fmicSearchFacets(path);
  const selected=defs.map(d=>(params.get(d.key)??'').slice(0,100));
@@ -100,7 +100,7 @@ export async function GET(request:Request){
  const facetSource="WITH "+variantCte+manualCte+"catalog AS MATERIALIZED (SELECT "+facetColumns+variantColumns+from+(mixed?' UNION ALL SELECT '+manualFacets+manualVariantColumns+' FROM manual_rows':'')+") ";
  const itemSource="WITH "+variantCte+manualCte+"catalog AS (SELECT sku,proposed_gross,available"+manualId+(facetColumns?','+facetColumns:'')+variantColumns+resultFrom+manualSelect("sku,proposed_gross,available,manual_id")+") ";
  const manualKey=mixed?':manual:'+createHash('sha256').update(JSON.stringify(manualRows)).digest('hex'):'';
- const listingKey=(key:string)=>key+':v7:'+String(indexed)+':'+String(includeManual)+':groups:'+String(grouped)+manualKey;
+ const listingKey=(key:string)=>key+':v8:'+String(indexed)+':'+String(includeManual)+':groups:'+String(grouped)+manualKey;
  function filtered(except=-1){
  const args:unknown[]=[...values];const conditions:string[]=[];
  defs.forEach((d,i)=>{if(i!==except&&selected[i]){args.push(selected[i]);conditions.push(d.key+'=$'+args.length)}});
@@ -119,17 +119,17 @@ export async function GET(request:Request){
  const pageSource=grouped?itemSource+listingRepresentatives(pageColumns,all.sql,sort):itemSource;
  const pageFrom=grouped?' FROM representatives':' FROM catalog'+all.sql;
  const variantDetails=grouped?`,(SELECT jsonb_agg(jsonb_build_object(
- 'sku',v.sku,'name',v.name,'color',vm.variant_color,'proposed_gross',fr.proposed_gross::text,'available',fr.available,
+ 'sku',v.sku,'name',v.name,'color',fr.variant_color,'proposed_gross',fr.proposed_gross::text,'available',fr.available,
  'brand',COALESCE(NULLIF(trim(v.data->>'brand'),''),CASE WHEN ve.source_url=v.data->>'url' AND ve.data->>'sku'=v.sku AND ve.data->>'name'=v.name THEN NULLIF(trim(ve.data->>'brand'),'') END),
  'image',(SELECT img.url FROM jsonb_array_elements_text(v.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY ${imageOrderSql} LIMIT 1)
- ) ORDER BY vm.variant_color,v.sku)
- FROM filtered_rows fr JOIN variant_members vm ON vm.variant_sku=fr.sku AND vm.family_id=fr.family_id JOIN rpm_fmic_catalog v ON v.sku=fr.sku LEFT JOIN rpm_fmic_enrichment ve ON ve.sku=v.sku
+ ) ORDER BY fr.variant_color,v.sku)
+ FROM filtered_rows fr JOIN rpm_fmic_catalog v ON v.sku=fr.sku LEFT JOIN rpm_fmic_enrichment ve ON ve.sku=v.sku
  WHERE p.family_id IS NOT NULL AND fr.family_id=p.family_id) AS variants`:'';
  const [count,items,facetRows,categories]=await Promise.all([
  cachedSearch(listingKey(keys.count),15000,async()=> (await db.query(source+'SELECT '+countSql+' AS total FROM catalog'+all.sql,all.args)).rows),
  cachedSearch(listingKey(keys.items),15000,async()=> (await db.query(pageSource+", page_rows AS MATERIALIZED (SELECT "+pageColumns+pageFrom+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2)+") SELECT p.sku,"+(mixed?'COALESCE(m.name,c.name)':'c.name')+" AS name,p.proposed_gross,p.available,"+(grouped?"p.family_id AS variant_family_id,p.variant_count,":"")+(mixed?"p.manual_id,m.manual_stock_status,COALESCE(m.data->>'brand',":"")+"COALESCE(NULLIF(trim(c.data->>'brand'),''),CASE WHEN e.source_url=c.data->>'url' AND e.data->>'sku'=c.sku AND e.data->>'name'=c.name THEN NULLIF(trim(e.data->>'brand'),'') END)"+(mixed?')':'')+" AS brand,"+(mixed?"COALESCE(m.data->'images'->>0,":"")+"(SELECT img.url FROM jsonb_array_elements_text(c.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1)"+(mixed?')':'')+" AS image"+variantDetails+" FROM page_rows p "+(mixed?"LEFT JOIN rpm_fmic_catalog c ON c.sku=p.sku AND p.manual_id IS NULL LEFT JOIN manual_rows m ON m.manual_id=p.manual_id":"JOIN rpm_fmic_catalog c ON c.sku=p.sku")+" LEFT JOIN rpm_fmic_enrichment e ON e.sku=c.sku ORDER BY "+order.replace(/\b(sku|available|proposed_gross|manual_id)\b/g,'p.$1'),[...all.args,size,(page-1)*size])).rows),
  branches.length?cachedSearch(listingKey(keys.facets),15000,async()=> (await db.query(facetSource+branches.join(' UNION ALL '),facetArgs)).rows):Promise.resolve([]),
- showCategories?cachedSearch(keys.categories+':v5:'+String(indexed)+':groups:'+String(grouped),15000,async()=> (await db.query((grouped?"WITH "+membershipCtes+" ":"")+"SELECT memberships.path AS path,"+countSql+" AS count FROM rpm_fmic_catalog "+(grouped?variantListingJoin:"")+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+conditions(4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
+ showCategories?cachedSearch(keys.categories+':v6:'+String(indexed)+':groups:'+String(grouped),15000,async()=> (await db.query((grouped?"WITH "+membershipCtes+" ":"")+"SELECT memberships.path AS path,"+countSql+" AS count FROM rpm_fmic_catalog "+(grouped?variantListingJoin:"")+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+conditions(4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
  ]);
  const facets=defs.map(d=>({key:d.key,label:d.label,options:facetRows.filter(row=>row.facet===d.key).map(row=>({value:row.value,count:row.count})).sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]||(d.key==='producer'&&d.options.some(o=>o.value==='RPM Custom')));
  const categoryCounts=new Map<string,{path:string[];count:number}>(categories.map(row=>[JSON.stringify(row.path),{path:row.path,count:Number(row.count)}]));

@@ -14,3 +14,10 @@ test('global counts, root and dual-membership categories keep global grouping',(
  assert.equal(listingVariantScope([],false),null);
  for(const root of ['Układ dolotowy','Układ wydechowy'])assert.equal(listingVariantScope([root],false),null);
 });
+
+test('exact category prefix only for nonshared listings without global counts',()=>{
+ const {listingVariantPath}=m.exports;
+ assert.deepEqual(listingVariantPath(['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe'],false),['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe']);
+ assert.equal(listingVariantPath(['Układ dolotowy','Łączniki silikonowe'],false),null);
+ assert.equal(listingVariantPath(['Hamulce i koła'],true),null);
+});

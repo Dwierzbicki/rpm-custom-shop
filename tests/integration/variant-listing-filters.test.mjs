@@ -5,7 +5,7 @@ import ts from 'typescript';
 import pg from 'pg';
 const mod={exports:{}};
 new Function('exports','module',ts.transpileModule(fs.readFileSync(new URL('../../app/lib/listing-variants.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(mod.exports,mod);
-const {listingVariantCtes,indexedListingVariantCtes,listingRepresentatives,listingCount}=mod.exports;
+const {listingVariantCtes,indexedListingVariantCtes,listingVariantLookupCtes,indexedListingVariantLookupCtes,listingRepresentatives,listingCount}=mod.exports;
 test('actual listing SQL: grouped pagination, filter-specific SKU, price, stock and invalidated families',{skip:!process.env.DATABASE_URL},async()=>{
  const c=new pg.Client({connectionString:process.env.DATABASE_URL});await c.connect();
  try{
@@ -22,7 +22,7 @@ test('actual listing SQL: grouped pagination, filter-specific SKU, price, stock 
    for(const x of rows)await c.query('INSERT INTO rpm_variant_members_v1 VALUES($1,$2,$3,$4)',[id,x.sku,x.color,JSON.stringify([x.name,x.brand,x.mpn,x.ean,x.category])]);
   }
   const columns='sku,available,proposed_gross,family_id,variant_count,variant_color';
-  for(const membership of [listingVariantCtes,indexedListingVariantCtes]){
+  for(const membership of [listingVariantCtes,indexedListingVariantCtes,listingVariantLookupCtes,indexedListingVariantLookupCtes]){
    const source='WITH '+membership+', catalog AS (SELECT '+columns+' FROM rpm_fmic_catalog LEFT JOIN variant_members ON sku=variant_sku WHERE ($1::text IS NULL OR variant_color=$1) AND ($2::text IS NOT NULL) AND ($3::numeric IS NULL OR proposed_gross >= $3) AND ($4::boolean IS NULL OR available=$4))';
    const run=async({color=null,exact='',min=null,stock=null,sort='priceAsc',offset=0,limit=24}={})=>{
     const args=[color,exact,min,stock];
@@ -46,6 +46,14 @@ test('actual listing SQL: grouped pagination, filter-specific SKU, price, stock 
    assert.equal((await run()).count,5);
    await c.query("UPDATE rpm_fmic_catalog SET name='Kolanko A-B' WHERE sku='A-B'");
    await c.query("UPDATE rpm_fmic_catalog SET proposed_gross=20,available=false WHERE sku='A-N'");
+  }
+  // A SKU shared by two otherwise valid families invalidates BOTH complete families.
+  const overlap=[a[0],b[0]];
+  await c.query("INSERT INTO rpm_variant_families VALUES('overlap','colors','approved',true,'same','same',$1)",[JSON.stringify(overlap.map((x,i)=>({...x,color:i?'Niebieski':'Czarny'})))]);
+  for(const [i,x] of overlap.entries())await c.query('INSERT INTO rpm_variant_members_v1 VALUES($1,$2,$3,$4)',['overlap',x.sku,i?'Niebieski':'Czarny',JSON.stringify([x.name,x.brand,x.mpn,x.ean,x.category])]);
+  for(const membership of [listingVariantLookupCtes,indexedListingVariantLookupCtes]){
+   const result=await c.query('WITH '+membership+' SELECT count(*)::int AS rows,count(family_id)::int AS grouped FROM rpm_fmic_catalog LEFT JOIN variant_members ON sku=variant_sku');
+   assert.deepEqual(result.rows[0],{rows:6,grouped:0});
   }
  }finally{await c.query('ROLLBACK').catch(()=>{});await c.end()}
 });
