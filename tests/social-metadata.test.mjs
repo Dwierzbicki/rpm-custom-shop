@@ -34,3 +34,10 @@ test('long descriptions are shortened and whitespace/markup is normalized',()=>{
  assert.match(data.description,/^Stal 316/);
  assert.ok(!data.description.includes('<p>'));
 });
+
+test('locked homepage uses the full storefront social description',()=>{
+ const source=fs.readFileSync(new URL('../app/site-access/route.ts',import.meta.url),'utf8');
+ assert.match(source,/const teaser=siteDescription;/);
+ assert.equal(siteSocialMetadata().openGraph.description,m.exports.siteDescription);
+ assert.doesNotMatch(m.exports.siteDescription,/DEMO|prototyp|sklep w przygotowaniu/i);
+});
