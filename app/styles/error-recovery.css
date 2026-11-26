@@ -1,0 +1,8 @@
+.rpm-error-recovery{box-sizing:border-box;min-height:65vh;display:grid;place-items:center;padding:24px 16px;color:var(--rpm-color-text)}
+.rpm-error-recovery section{box-sizing:border-box;width:min(100%,580px);display:grid;gap:14px;border:1px solid var(--rpm-color-border);border-radius:12px;padding:clamp(18px,4vw,32px);background:var(--rpm-color-surface)}
+.rpm-error-recovery h1{margin:0;font-size:clamp(22px,4vw,30px);line-height:1.2}
+.rpm-error-recovery p{margin:0;line-height:1.6;color:var(--rpm-color-muted)}
+.rpm-error-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.rpm-error-actions :is(a,button){min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-align:center}
+.rpm-error-actions :is(a,button):focus-visible{outline:2px solid var(--rpm-color-accent-hover);outline-offset:2px}
+@media(max-width:480px){.rpm-error-actions :is(a,button){width:100%;box-sizing:border-box}}
