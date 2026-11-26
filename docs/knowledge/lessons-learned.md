@@ -10,3 +10,5 @@ Wspólny wygląd nie oznacza wspólnego identyfikatora realizacji. Kod app/lib/f
 
 ## LL-004 | 2026-11-26 — konfigurator zależny od starej kategorii
 Dowód: live 1a04eac8, log aktualizacji [], oba SKU mają canonical leaf Kolektory wydechowe nierdzewne, marker skus=[]. Wniosek: sprawdzać faktyczną wartość kategorii przed migracją, nie opierać typu produktu wyłącznie na aliasie. Marker sukcesu tylko po potwierdzeniu oczekiwanej liczby rekordów i postconditions. Regresja z realnym liściem i zachowaniem ceny. Naprawa w kodzie, ponowny odczyt DB wymagany.
+
+- 2026-11-26 | Nie zakładać, że encodeURIComponent chroni ukośnik w dynamicznym segmencie na wszystkich warstwach proxy. Testować rzeczywiste SKU dostawcy, w tym %, /, + i spacje, oraz zachowanie starego linku; nie zmieniać identyfikatora magazynowego dla potrzeb URL.

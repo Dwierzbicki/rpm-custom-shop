@@ -95,3 +95,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-09: T3 internal → T4, disabled (nie usuwać wiersza) i niezaznaczony WG; brak przesunięcia EGT >2px, wymagany zewnętrzny WG. TermShield +1600/szt., bez izolacji cena bazowa konfiguracji; stare koszyki nadal poprawne. Test jednostkowy i RWD rozszerzone. NOT RUN: brak lokalnego repo / autoryzowanej sesji. Produkcyjne zapisanie grup do dwóch SKU do potwierdzenia po deployu.
 
 - PDP-10: obie konfiguracje kolektorów, wybór TermShield na końcu formularza, cena końcowa zgodna z górną ceną i ilością; przy braku widocznego dolnego podsumowania i górnej cenie poza ekranem pojawia się pasek. Test funkcji geometrii i scenariusz RWD rozszerzone, NOT RUN w repo / brak autoryzowanej sesji. Brak zmian cen i walidacji zamówień.
+
+- PDP-11: zgłoszenie 404 dla 004548/70-G (produkt istnieje w DB; 3987 SKU z / na 133742 w feedzie). Testy roundtrip, stare adresy, brak/duplikat SKU, zwykły RPM, rzeczywisty 404 dodane. E2E `scripts/test-product-sku-routing.mjs` NOT RUN; stary adres może być odrzucony przez proxy przed Next, nowy omija kodowany ukośnik w ścieżce.
