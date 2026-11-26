@@ -30,3 +30,6 @@ export function safeReturnPath(value:string|null){
  if(!value||!value.startsWith('/')||value.startsWith('//')||/[\\\u0000-\u001f\u007f]/.test(value))return '/';
  try{const url=new URL(value,'https://local.invalid');if(url.origin!=='https://local.invalid'||url.pathname==='/site-access')return '/';return url.pathname+url.search}catch{return '/'}
 }
+
+// Only this non-sensitive branded artwork is public during the closed test phase.
+export function isPublicSocialArtwork(path:string,method:string){return path==='/optimized/social-card.jpg'&&(method==='GET'||method==='HEAD')}

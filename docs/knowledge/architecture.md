@@ -17,3 +17,5 @@
 - 2026-11-26 | Publiczny `/sklep` bez kategorii/frazy używa wspólnego listingu 24 SKU/stronę, a nie pustej odpowiedzi admin preview. Licznik globalny unikalny, kategorie z istniejącego mechanizmu membership (współdzielone kategorie mogą liczyć ten sam produkt w dwóch gałęziach), manual i FMIC przed paginacją, filtry producenta/dostępności/ceny. W KODZIE. Benchmark root dodany; wydajność i RWD do weryfikacji.
 
 - 2026-11-26 | Metadane social generowane wspólnie przez app/lib/social-metadata.ts; fallback JPG w prebuild przez Sharp. Bez zmiany middleware, robots i zasad dostępu. Podgląd FB nie pobierze chronionego PDP w trybie zamkniętym; odblokowanie publicznego sklepu wymaga decyzji operatora.
+
+- 2026-11-26 | Social sharing w zamkniętym sklepie: niezalogowane GET/HEAD strony głównej nadal serwuje formularz blokady (rewrite na /site-access), lecz z publicznymi metadanymi marki i komunikatem „Sklep w przygotowaniu”. Dokładnie jeden publiczny statyczny plik /optimized/social-card.jpg dla GET/HEAD; brak wyjątku UA, brak dostępu do katalogu, API, produktów, admina. Robots/noindex, logowanie, cookies bez zmian. W KODZIE.

@@ -85,3 +85,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-08: podwójna ramka zgłoszona na M54; po kliknięciu dowolnego kafelka pojedyncza ramka, klawiatura widoczny pojedynczy focus. Rozszerzenie testu RWD o computed style i Tab/Shift+Tab. NOT RUN: brak autoryzowanej sesji przeglądarkowej; ceny i konfiguracja bez zmian.
 
 - SOCIAL-01: meta home/PDP RPM-00031/32/33 i FMIC, rzeczywiste zdjęcie lub fallback, tytuł/opis, canonical, Twitter, og:image, bez zmiany robots i ochrony. 4 testy jednostkowe dodane; Facebook Sharing Debugger i publiczny podgląd BLOCKED przez blokadę sklepu, test po dopuszczeniu publicznego dostępu. Nie wprowadzać wyjątku na podstawie User-Agent.
+
+- SOCIAL-02: po wdrożeniu SOCIAL-01 LIVE (9e2eb15), użytkownik zgłosił brak zmiany na FB, bramka nie miała OG. Publiczny GET / bez cookies powinien zwrócić wyłącznie formularz z OG marki, grafika 1200×630 dostępna, PDP/API/admin nadal zablokowane; po zalogowaniu normalny sklep. Test dokładnego wyjątku obrazu dodany, NOT RUN. Facebook cache/robots mogą nadal wpływać na wynik; Sharing Debugger do weryfikacji.
