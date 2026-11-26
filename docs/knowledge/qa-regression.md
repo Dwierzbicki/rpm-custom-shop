@@ -81,3 +81,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-06 automation: `scripts/test-manifold-pdp-rwd.mjs` runs both real SKU configurations at six required viewports, checks gallery height, one description, disabled CTA, WG selection invalidation, changed price and overflow. Requires local server or authorized storage state. NOT RUN (no authenticated browser session available in this chat). Does not place orders.
 
 - PDP-07: RPM-00032/33 — brak bloku skrótu, opis i pełna specyfikacja nadal widoczne; Pulsar 102130123 — skrót parametrów pozostaje. Wszystkie PDP bez paska kotwic, sekcje docelowe bez zmian. Rozszerzono `scripts/test-manifold-pdp-rwd.mjs` na sześć profili. NOT RUN: brak autoryzowanej sesji przeglądarki / lokalnego uruchomienia całego repo.
+
+- PDP-08: podwójna ramka zgłoszona na M54; po kliknięciu dowolnego kafelka pojedyncza ramka, klawiatura widoczny pojedynczy focus. Rozszerzenie testu RWD o computed style i Tab/Shift+Tab. NOT RUN: brak autoryzowanej sesji przeglądarkowej; ceny i konfiguracja bez zmian.

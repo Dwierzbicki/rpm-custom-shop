@@ -28,6 +28,13 @@ try{
     const choose=async(group,value)=>page.locator('input[type=radio][name="'+sku+'-'+group+'"][value="'+value+'"]').check();
     if(sku==='RPM-00032'){await choose('rpm-engine','m54');await choose('rpm-chassis','e46')}
     await choose('rpm-flange','t3-single');
+    const selectedFlange=page.locator('.rpm-pdp-choice-rpm-flange label.is-selected');
+    const pointerStyle=await selectedFlange.evaluate(el=>{const s=getComputedStyle(el);return {outline:s.outlineStyle,shadow:s.boxShadow}});
+    assert.deepEqual(pointerStyle,{outline:'none',shadow:'none'},'Pointer selection must have only one border');
+    await page.keyboard.press('Tab');await page.keyboard.press('Shift+Tab');
+    assert.ok(await selectedFlange.locator('input').evaluate(el=>el.matches(':focus-visible')),'Keyboard focus must remain visible');
+    const keyboardStyle=await selectedFlange.evaluate(el=>{const s=getComputedStyle(el);return {outline:s.outlineStyle,offset:s.outlineOffset,shadow:s.boxShadow}});
+    assert.deepEqual(keyboardStyle,{outline:'solid',offset:'-2px',shadow:'none'},'Keyboard focus replaces rather than stacks borders');
     await choose('rpm-wg-diameter','internal');
     await choose('rpm-egt','yes');
     assert.equal(await add.isEnabled(),true);
