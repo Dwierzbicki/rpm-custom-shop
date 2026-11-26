@@ -43,3 +43,8 @@ test('2JZ preset includes V-Band and EGT, no BMW group, preserves prior prices',
  const line=configuredCartLine(product,config({'rpm-flange':'vband-single','rpm-egt':'no'}));
  assert.equal(line.options.Wastegate,'1× WG');
 });
+
+test('switching BMW template to 2JZ removes BMW-specific options',()=>{
+ const switched=manifoldPreset('2jz-ge',manifoldPreset('bmw'));
+ assert.ok(!switched.some(g=>g.id==='rpm-chassis'||g.id==='rpm-engine'));
+});

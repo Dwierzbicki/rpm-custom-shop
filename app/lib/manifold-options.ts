@@ -33,5 +33,5 @@ export function manifoldPreset(kind:'bmw'|'2jz-ge',existing:ProductOptionGroup[]
  return [...groups.map(g=>{
   const old=existing.find(x=>x.id===g.id);
   return old?{...old,required:true,options:[...old.options,...g.options.filter(o=>!old.options.some(x=>x.id===o.id))]}:g;
- }),...existing.filter(g=>g.id!=='rpm-wastegate'&&!groups.some(x=>x.id===g.id))];
+ }),...existing.filter(g=>g.id!=='rpm-wastegate'&&!(kind==='2jz-ge'&&['rpm-chassis','rpm-engine'].includes(g.id))&&!groups.some(x=>x.id===g.id))];
 }
