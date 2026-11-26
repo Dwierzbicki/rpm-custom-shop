@@ -17,7 +17,7 @@ type Props=CategoryNavigationProps&{
  fmicPreview?:boolean;
  ownSuggestions?:OwnSuggestion[];
  onOwnSuggestion?:(id:string)=>void;
- compactCategories:boolean;
+ compactCategories:boolean|null;
  lang:'pl'|'en';
  query:string;
  count:number;
@@ -50,7 +50,7 @@ export default function StorefrontHeader({
  const visible=open&&term.length>=2;
  function choose(i:number){const result=results[i];if(!result)return;setOpen(false);setActive(-1);result.choose()}
  return (
-<header className={"header rpm-header-v2"+(compactCategories?" rpm-header-compact":" rpm-header-wide")+" rpm-header-product-first"}>
+<header className={"header rpm-header-v2"+(compactCategories===true?" rpm-header-compact":" rpm-header-wide")+(compactCategories===null?" rpm-header-measuring":"")+" rpm-header-product-first"}>
  <div className="rpm-header-main">
  <HeaderLogo onHome={onHome}/>
  <form ref={form} className="rpm-header-search rpm-live-search" role="search" onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false)}} onSubmit={e=>{e.preventDefault();if(active>=0&&visible&&results[active]){choose(active);return}setOpen(false);setActive(-1);onSearchSubmit()}}>

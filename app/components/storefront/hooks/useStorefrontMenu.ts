@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useLayoutEffect,useState} from 'react';
 import type {View} from '../../../lib/storefront-config';
 // Measure intrinsic label widths, not the expanded desktop hit areas.
 export function requiresCompactCategories(nav:HTMLElement){
@@ -17,21 +17,19 @@ export function requiresCompactCategories(nav:HTMLElement){
 export function useStorefrontMenu(view:View){
  const [mobileMenu,setMobileMenu]=useState(false);
  const [activeFmicRoot,setActiveFmicRoot]=useState<number|null>(null);
- const [compactCategories,setCompactCategories]=useState(true);
- useEffect(()=>{
-  let frame=0;
-  const measure=()=>{
-   cancelAnimationFrame(frame);
-   frame=requestAnimationFrame(()=>{
-    const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
-    if(!nav)return;
-    setCompactCategories(requiresCompactCategories(nav));
-   });
+ const [compactCategories,setCompactCategories]=useState<boolean|null>(null);
+ useLayoutEffect(()=>{
+  let frame=0,disposed=false;
+  const measureNow=()=>{
+   if(disposed)return;
+   const nav=document.querySelector<HTMLElement>('.rpm-desktop-categories');
+   if(nav)setCompactCategories(requiresCompactCategories(nav));
   };
-  measure();
+  const measure=()=>{if(!disposed){cancelAnimationFrame(frame);frame=requestAnimationFrame(measureNow)}};
+  measureNow();
   window.addEventListener('resize',measure);
   document.fonts?.ready.then(measure);
-  return()=>{cancelAnimationFrame(frame);window.removeEventListener('resize',measure)};
+  return()=>{disposed=true;cancelAnimationFrame(frame);window.removeEventListener('resize',measure)};
  },[view]);
  useEffect(()=>{setMobileMenu(false);setActiveFmicRoot(null);setActiveFmicSub(null)},[compactCategories]);
  const [fmicMenuOpen,setFmicMenuOpen]=useState(false);

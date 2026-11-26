@@ -134,3 +134,33 @@
 .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button:focus-visible::after{
  transform:scaleX(1);
 }
+
+/* Correct SSR first paint. Existing media rule picks mobile without JavaScript. */
+.rpm-header-v2.rpm-header-measuring.rpm-header-wide .rpm-desktop-categories{overflow:clip!important}
+/* Motorsport segments: continuous hit areas, machined-metal dividers,
+   alternating restrained gradients. No extra width or changes to flyouts. */
+@media(min-width:1001px) and (hover:hover) and (pointer:fine){
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation{
+  border-top-color:#343944!important;
+  border-bottom-color:#3b404b!important;
+  box-shadow:inset 0 1px 0 #ffffff08,0 4px 12px #0003;
+ }
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button{
+  background:linear-gradient(180deg,#1e2229 0%,#15181e 100%)!important;
+  box-shadow:inset 0 1px 0 #ffffff06,inset 0 -1px 0 #0008!important;
+ }
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root:nth-child(even)>.rpm-desktop-root-button{
+  background:linear-gradient(180deg,#252930 0%,#191c22 100%)!important;
+ }
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root:not(:first-child)::before{
+  top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,#30343c,#505765 48%,#30343c);
+  box-shadow:1px 0 0 #08090c80;
+ }
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root.active>.rpm-desktop-root-button,
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button:hover,
+ .rpm-header-v2.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button:focus-visible{
+  background:linear-gradient(180deg,#30232c,#491d2b)!important;
+  color:#fff;
+ }
+}
