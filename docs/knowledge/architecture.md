@@ -9,3 +9,5 @@
 - Wdrożenie main przez Render; status live nie dowodzi poprawności funkcjonalnej. Strona nadal chroniona blokadą dostępu; nie zmieniaj bez uzgodnienia.
 
 - 2026-11-26 | W KODZIE: app/lib/fmic-description-publication.ts — wspólna bramka tożsamości, lokalna publikacja do 10 dawnych szkiców co cykl workera niezależnie od next_request_at, publication_origin chroni decyzje ręczne. Limit RSS workerów zależny od limitu kontenera (768 MiB dla 2 GiB, fallback 320 MiB); zachowane dotychczasowe odstępy dostawcy i blokady advisory. Nie utożsamiać zwiększenia budżetu z przyspieszeniem zewnętrznych żądań.
+
+- 2026-11-26 | W KODZIE: fmic-description-local.ts przetwarza do 3 odrębnych SKU już pobranych do PostgreSQL równolegle, pod dotychczasową blokadą workera. Nie czeka na okno HTTP. Po partii ponownie odczytuje sterowanie; pobieranie stron nadal maks. 1/30 s, obrazów bez zmian. Mismatch automatu trafia do review, ręczne przypisanie oznaczone manual. Brak zwiększenia częstotliwości żądań do dostawcy.

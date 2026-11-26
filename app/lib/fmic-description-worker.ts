@@ -1,5 +1,6 @@
 import {canRunFmicWorker,fmicWorkerMemoryBudget} from './fmic-worker-mode';
 import {verifiedSupplierIdentitySql,publishLegacyWorkerDrafts} from './fmic-description-publication';
+import {processCachedDescriptions} from './fmic-description-local';
 import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
 import {refreshSupplierDescription} from './fmic-description-refresh';
@@ -27,12 +28,21 @@ export async function assignDraft(sku:string,autoPublish=false){
  const technical=parseProductTechnical(source.name,source.description.trim(),source.target_category??[],sku);
  const result=await db.query(`INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published,technical,publication_origin)
  SELECT e.sku,trim(e.data->>'description'),left(COALESCE(e.data->>'brand',''),200),
- ($3::boolean AND ${verifiedSupplierIdentitySql}),$2::jsonb,CASE WHEN $3::boolean THEN 'supplier-worker' END
+ ($3::boolean AND ${verifiedSupplierIdentitySql}),$2::jsonb,CASE WHEN $3::boolean THEN 'supplier-worker' ELSE 'manual' END
  FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog c ON c.sku=e.sku
  WHERE e.sku=$1 AND NULLIF(trim(e.data->>'description'),'') IS NOT NULL AND c.name=$4
  AND c.target_category IS NOT DISTINCT FROM $5::text[] AND trim(e.data->>'description')=$6
  ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku,JSON.stringify(technical),autoPublish,source.name,source.target_category,source.description.trim()]);
  return !!result.rowCount;
+}
+/** Reuse already persisted source data. A failed/mismatched auto-publication stays reviewable. */
+async function completeCachedDescription(client:import('pg').PoolClient,sku:string){
+ await assignDraft(sku,true);
+ const description=(await client.query("SELECT description,published,publication_origin FROM rpm_fmic_product_descriptions WHERE sku=$1",[sku])).rows[0];
+ const hasDescription=!!description?.description?.trim();
+ const needsReview=hasDescription&&!description.published&&description.publication_origin==='supplier-worker';
+ const done=hasDescription&&!needsReview;
+ await client.query("UPDATE rpm_fmic_description_queue SET status=$2,detail=$3,updated_at=NOW() WHERE sku=$1 AND status='pending'",[sku,done?'done':'review',done?null:needsReview?'Niezgodna tożsamość — opis wymaga weryfikacji':'Brak opisu lub istniejący pusty szkic']);
 }
 const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean;rpmDescriptionStop?:boolean;rpmDescriptionTask?:Promise<void>};
 export function startDescriptionWorker(){
@@ -55,7 +65,11 @@ export function startDescriptionWorker(){
  // Local publication is independent of upstream request pacing.
  const published=await publishLegacyWorkerDrafts(client,10);
  if(published)console.info('FMIC verified legacy drafts published:',published);
- if(state.rows[0].fetch_ready){
+ const local=await processCachedDescriptions(client,sku=>completeCachedDescription(client!,sku));
+ if(local.some(result=>result.status==='rejected'))console.error('FMIC local description batch failed',local.filter(result=>result.status==='rejected').length);
+ // A pause, manual reservation or other control change during local work must be respected.
+ const fetchState=await client.query("SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())");
+ if(!g.rpmDescriptionStop&&fetchState.rows[0]?.enabled){
  const refresh=(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
  if(refresh){
   await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
@@ -71,10 +85,8 @@ export function startDescriptionWorker(){
  await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
  await inspectProduct(row.sku);
  }
- await assignDraft(row.sku,true);
  }
- const exists=await client.query("SELECT 1 FROM rpm_fmic_product_descriptions WHERE sku=$1 AND description<>''",[row.sku]);
- await client.query("UPDATE rpm_fmic_description_queue SET status=$2,detail=$3,updated_at=NOW() WHERE sku=$1",[row.sku,exists.rowCount?'done':'review',exists.rowCount?null:'Brak opisu lub istniejący pusty szkic']);
+ await completeCachedDescription(client,row.sku);
  await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW(),last_error=NULL WHERE id=1');
  }catch(e){
  const msg=String(e).slice(0,400);
