@@ -31,7 +31,9 @@ const styleFiles=[
   "homepage-responsive.css",
   "header-account.css",
   "product-placeholder.css",
-  "community.css"
+  "community.css",
+  "header-motorsport.css",
+  "storefront-wide.css"
 ];
 const imports=styleFiles.map(name=>`@import './styles/${name}';\n`).join('');
 const globals=await readFile(new URL('../app/globals.css',import.meta.url),'utf8');
@@ -102,8 +104,8 @@ test('critical storefront sections retain their CSS selectors',()=>{
 const componentStyles=[
  {entry:'checkout-local.css',component:'CheckoutView.tsx',files:["checkout-confirmation-card.css","checkout-primary.css","checkout-details.css"]},
  {entry:'power-guides-detail.css',component:'PowerGuidesView.tsx',files:["power-guides-pricing.css","power-guides-recommendations.css","power-guides-cart.css"]},
- {entry:'fmic-product.css',component:'FmicProductPreview.tsx',files:["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css"]},
- {entry:'fmic-listing.css',component:'FmicPreview.tsx',files:["fmic-listing-base.css","fmic-listing-controls.css","fmic-listing-layout.css","fmic-listing-search.css","fmic-listing-refinements.css","fmic-listing-media.css"]}
+ {entry:'fmic-product.css',component:'FmicProductPreview.tsx',files:["fmic-product-base.css","fmic-product-details.css","fmic-product-lightbox.css","fmic-product-layout.css","fmic-product-lightbox-size.css","fmic-product-refinements.css","fmic-product-purchase.css","fmic-product-premium.css","fmic-product-final-overrides.css"]},
+ {entry:'fmic-listing.css',component:'FmicPreview.tsx',files:["fmic-listing-base.css","fmic-listing-controls.css","fmic-listing-layout.css","fmic-listing-search.css","fmic-listing-refinements.css","fmic-listing-media.css","fmic-listing-final-overrides.css"]}
 ];
 for(const {entry,component,files} of componentStyles){
  test(entry+' retains ordered component-local imports and valid blocks',async()=>{
