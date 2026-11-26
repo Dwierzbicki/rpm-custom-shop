@@ -6,6 +6,7 @@ const groups=[
   {href:'/admin/settings/fmic-commercial',title:'FMIC — ceny i dostawa',desc:'Podstawa ceny, narzut i symulacja kosztów dostawy',icon:Percent},
   {href:'/admin/settings/shipping',title:'Dostawa i odbiór',desc:'Kurier, darmowa dostawa i odbiór osobisty',icon:Truck},
   {href:'/admin/settings/payments',title:'Płatności',desc:'Przelew i płatność przy odbiorze',icon:CreditCard},
+  {href:'/admin/settings/appearance',title:'Wygląd sklepu',desc:'Animacja lasera na logo i efekty wizualne',icon:Settings2},
   {href:'/admin/settings/company',title:'Dane firmy',desc:'Dane kontaktowe, NIP i adres',icon:Building2},
   {href:'/admin/settings/power-guides',title:'POWER GUIDES',desc:'Rekomendacje, powiązania produktów i ceny',icon:Wrench},
   {href:'/admin/suppliers',title:'Dostawcy i deduplikacja',desc:'FMIC, MTuning, oferty i wybór najtańszego źródła',icon:PlugZap}

@@ -4,6 +4,7 @@ import {useEffect,useRef,useState} from 'react';
 import {matchesSearch} from '../../lib/header-search';
 import {productPath} from '../../lib/product-path';
 import './header-search.css';
+import HeaderLogo from './LogoLaser';
 import {categoryPath} from '../../category-routing';
 import {searchCategoryHref} from '../../lib/search-category-tree';
 import {Package,Search,ShoppingCart,UserRound,Warehouse} from 'lucide-react';
@@ -51,7 +52,7 @@ export default function StorefrontHeader({
  return (
 <header className={"header rpm-header-v2"+(compactCategories?" rpm-header-compact":" rpm-header-wide")+" rpm-header-product-first"}>
  <div className="rpm-header-main">
- <button className="logo rpm-header-logo" onClick={onHome} aria-label="RPM Custom — strona główna"><img src="/optimized/logo.webp" width={1024} height={350} alt="RPM Custom — Exhaust & Intake Solutions" className="brand-logo"/></button>
+ <HeaderLogo onHome={onHome}/>
  <form ref={form} className="rpm-header-search rpm-live-search" role="search" onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setOpen(false)}} onSubmit={e=>{e.preventDefault();if(active>=0&&visible&&results[active]){choose(active);return}setOpen(false);setActive(-1);onSearchSubmit()}}>
  <label htmlFor="rpm-header-query" className="rpm-visually-hidden">{lang==='en'?'Search products':'Szukaj produktów'}</label>
  <input id="rpm-header-query" value={query} maxLength={120} autoComplete="off" role="combobox" aria-autocomplete="list" aria-expanded={visible} aria-controls="rpm-search-results" aria-activedescendant={visible&&active>=0&&results[active]?'rpm-search-option-'+active:undefined} onFocus={()=>setOpen(true)} onChange={e=>{setRemote([]);setCategories([]);setRemoteTotal(null);setActive(-1);onQuery(e.target.value);setOpen(true)}} onKeyDown={e=>{if(e.key==='Escape'){setOpen(false);setActive(-1)}else if(e.key==='ArrowDown'){e.preventDefault();setOpen(true);setActive(i=>Math.min(results.length-1,i+1))}else if(e.key==='ArrowUp'){e.preventDefault();setActive(i=>Math.max(-1,i-1))}}} placeholder={lang==='en'?'Search by name or part number':'Szukaj po nazwie lub numerze części'}/>
