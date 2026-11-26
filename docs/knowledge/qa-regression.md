@@ -70,3 +70,6 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 
 - PLP-ROOT-01: `/sklep` bez q/kategorii → niepusty listing 24/stronę, globalny total, filtr producenta i drzewo kategorii. FAIL przed poprawką: API early return items=[], total=0. Odczyt DB 2026-11-26: 133742 widoczne wg reguły FMIC, 3 własne widoczne. Test kontrolera z mockiem dodany, API produkcyjne NOT RUN.
 - PLP-ROOT-02: strona 2, producent RPM Custom (własne produkty), brak duplikatów, sort, cena, dostępność, wejście w PDP/wstecz; benchmark rozszerzony, NOT RUN. Admin bez kategorii pozostaje pusty. RWD 360/390/768/1024/1280/1920 NOT RUN.
+
+- PDP-04: SKU 102130123 Pulsar PSR 3076 Gen2 (3270 PLN, dostępny, 3 zdjęcia źródłowe, opublikowany opis z parametrami; odczyt DB) oraz RPM-00031/32/33: galeria, cena, dopłaty, ilość, walidacja opcji, mobilny CTA po przewinięciu, dialogi i nawigacja do koszyka. 2 testy funkcji prezentacji dodane, NOT RUN; E2E/RWD 360/390/768/1024/1280/1920 NOT RUN.
+- COMMUNITY-01: HP Community, PL/EN, istniejące zdjęcie i link FB, tokeny kolorów, brak overflow i focus na wszystkich profilach. NOT RUN.

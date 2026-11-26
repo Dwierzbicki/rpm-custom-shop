@@ -15,3 +15,5 @@
 - 2026-11-26 | RPM Custom w karuzeli marek, z własnym istniejącym logo /optimized/logo.webp; filtr producenta pokazuje RPM Custom w pierwszych opcjach, również gdy jest jedyną marką kategorii. Bez duplikowania produktów i bez osobnego drzewa kategorii.
 
 - 2026-11-26 | Jeden PDP niezależnie od punktu wejścia; brak etykiety DEMO na prawdziwych kartach polecanych. Natywne linki pozwalają na kopiowanie URL, otwarcie w nowej karcie i nawigację wstecz.
+
+- 2026-11-26 | PDP: wspólna hierarchia zakupu, galeria o niezależnych proporcjach, poziomy scroll miniatur, najważniejsze parametry pod hero, cena i dopłaty, oznaczenie na zamówienie, mobilny pasek z ceną łączną i CTA po przewinięciu głównego CTA. Community: współdzielone tokeny Motorsport Dark zamiast osobnego różowo-fioletowego motywu. W KODZIE, RWD do potwierdzenia.

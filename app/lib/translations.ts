@@ -1,5 +1,10 @@
 /** Polish -> English UI labels; retained verbatim during refactor. */
 export const en:Record<string,string>={
+"Cena bazowa":"Base price",
+"Dopłaty za konfigurację":"Configuration surcharges",
+"Wybierz wszystkie wymagane opcje.":"Select all required options.",
+"Szybki zakup":"Quick purchase",
+"Sprawdź produkt":"Review product",
  'Średnica WG':'WG size / internal',
  'Wewnętrzny WG — bez wyjścia':'Internal wastegate — no external outlet',
  'Wyjścia Wastegate':'Wastegate outlets',
