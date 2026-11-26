@@ -1,6 +1,7 @@
 import {getDbPool} from './db';
 import {products,Product,RETIRED_DEMO_MAX_ID,isRetiredDemoProductId} from '../data';
 import {withManifoldOptions} from './manifold-options';
+import {manifoldDrafts,manifoldDraftMarker} from './manifold-drafts';
 export type CatalogItem=Product&{stockStatus:'available'|'order'|'unavailable';leadTime:string;visible?:boolean;vatPercent?:number};
 const defaults:CatalogItem[]=products.map(p=>({...p,stockStatus:p.configurable?'order':'available',leadTime:p.configurable?'Do potwierdzenia':'',visible:true}));
 let setup:Promise<void>|undefined;
@@ -33,5 +34,30 @@ export async function importPrismManualDraft(){
   await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[marker,JSON.stringify({id,source:'https://allegro.pl/oferta/18688035757',referenceOfferPrice:2100,checkedOn:'2026-11-25',draft:true})]);
   await client.query('COMMIT');
   console.info('[catalog] PRISM manual draft import completed');
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}
+
+/** Operator-requested, hidden offers. Atomic, idempotent and never resurrects deleted records. */
+export async function importManifoldDrafts(){
+ await ensure();
+ const client=await getDbPool().connect();
+ try{
+  await client.query('BEGIN');
+  await client.query('SELECT pg_advisory_xact_lock(9382761)');
+  const previous=await client.query('SELECT 1 FROM rpm_shop_settings WHERE key=$1',[manifoldDraftMarker]);
+  if(previous.rowCount){await client.query('COMMIT');return}
+  const imported:Record<string,number>={};
+  for(const {key,input} of manifoldDrafts()){
+   const existing=await client.query<{id:number}>(`SELECT c.id FROM rpm_catalog c WHERE c.id>$1 AND NOT EXISTS(SELECT 1 FROM rpm_catalog_deleted d WHERE d.id=c.id) AND lower(trim(c.data->>'brand'))=lower($2) AND lower(trim(c.data->>'name'))=lower($3) LIMIT 1`,[RETIRED_DEMO_MAX_ID,input.brand,input.name]);
+   if(existing.rows[0]){imported[key]=existing.rows[0].id;continue}
+   const result=await client.query<{id:number}>('SELECT GREATEST(COALESCE((SELECT MAX(id) FROM rpm_catalog),0),COALESCE((SELECT MAX(id) FROM rpm_catalog_deleted),0),$1::integer)+1 AS id',[RETIRED_DEMO_MAX_ID]);
+   const id=result.rows[0].id;
+   const item:CatalogItem={...input,id,sku:'RPM-'+String(id).padStart(5,'0')};
+   await client.query('INSERT INTO rpm_catalog (id,data) VALUES($1,$2::jsonb)',[id,JSON.stringify(item)]);
+   imported[key]=id;
+  }
+  await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[manifoldDraftMarker,JSON.stringify({imported,draft:true,pricePending:true,photosPending:true})]);
+  await client.query('COMMIT');
+  console.info('[catalog] manifold drafts imported',Object.keys(imported).length);
  }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
 }

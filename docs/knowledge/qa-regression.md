@@ -46,3 +46,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 | MAN-05 | Mobile 360/390, tablet 768/1024, desktop 1280/1920 / radio, focus, cena i CTA, PL/EN, brak overflow | NOT RUN |
 
 2026-11-26: trzy testy jednostkowe manifold-options z wersji 97bd5b7 odtworzone lokalnie z treści plików repo na Node 22.16.0 — 3 PASS. Kolejny test zmiany szablonu BMW na 2JZ dodany; pełny build, testy rzeczywistego PDP/admin i RWD pozostają do potwierdzenia. Brak opublikowanego rzeczywistego kolektora z ceną ustaloną przez operatora.
+
+- MAN-06: import obu szkiców / start aplikacji / dokładnie dwa nowe rekordy, widoczność false, poprawne grupy, brak demo i zdjęć, brak zmian istniejących ofert. Test danych dodany; wykonanie importu i ponownego startu NOT RUN.
