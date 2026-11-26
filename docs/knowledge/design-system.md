@@ -25,3 +25,5 @@
 - 2026-11-26 | PDP: usuwamy blok „Najważniejsze parametry” dla rzeczywistych kolektorów wydechowych (liść nadrzędny/nierdzewne/żeliwne, nie elementy kolektora). Pełna specyfikacja, opis, galeria i konfigurator pozostają. Turbosprężarki i pozostałe kategorie zachowują skrót parametrów. Usuwamy także pasek kotwic sekcji ze wspólnego PDP, zgodnie z wcześniejszym wycinkiem użytkownika; sekcje docelowe pozostają. W KODZIE.
 
 - 2026-11-26 | Kafelki wariantów: jedna ramka akcentu po wyborze myszą/dotykiem, bez dodatkowego cienia i zewnętrznego focus-within. Focus klawiaturowy zastępuje ramkę jasnym obrysem wewnętrznym (:focus-visible), nie usuwa sygnału dostępności. W KODZIE.
+
+- 2026-11-26 | Social sharing: Open Graph PL, nazwa produktu, krótki opis, kanoniczny URL, rzeczywiste zdjęcie; własne Cloudinary pad 1200×630, brak zdjęcia → grafika marki 1200×630 bez fikcyjnego produktu. Twitter large image. W KODZIE; blokada sklepu pozostaje.

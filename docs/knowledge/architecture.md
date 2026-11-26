@@ -15,3 +15,5 @@
 - 2026-11-26 | W KODZIE: polecane produkty (ProductCard), koszyk/Garage, Power Builder i podobne produkty używają natywnego href z productPath. Stare ?product=id przekierowuje do kanonicznego PDP; stary ProductDetailView nie jest montowany przez Shop. Zachowano zapis ręcznych produktów do Garage w wspólnym PDP. Blokada sklepu i checkout bez zmian.
 
 - 2026-11-26 | Publiczny `/sklep` bez kategorii/frazy używa wspólnego listingu 24 SKU/stronę, a nie pustej odpowiedzi admin preview. Licznik globalny unikalny, kategorie z istniejącego mechanizmu membership (współdzielone kategorie mogą liczyć ten sam produkt w dwóch gałęziach), manual i FMIC przed paginacją, filtry producenta/dostępności/ceny. W KODZIE. Benchmark root dodany; wydajność i RWD do weryfikacji.
+
+- 2026-11-26 | Metadane social generowane wspólnie przez app/lib/social-metadata.ts; fallback JPG w prebuild przez Sharp. Bez zmiany middleware, robots i zasad dostępu. Podgląd FB nie pobierze chronionego PDP w trybie zamkniętym; odblokowanie publicznego sklepu wymaga decyzji operatora.

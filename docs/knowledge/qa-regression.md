@@ -83,3 +83,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-07: RPM-00032/33 — brak bloku skrótu, opis i pełna specyfikacja nadal widoczne; Pulsar 102130123 — skrót parametrów pozostaje. Wszystkie PDP bez paska kotwic, sekcje docelowe bez zmian. Rozszerzono `scripts/test-manifold-pdp-rwd.mjs` na sześć profili. NOT RUN: brak autoryzowanej sesji przeglądarki / lokalnego uruchomienia całego repo.
 
 - PDP-08: podwójna ramka zgłoszona na M54; po kliknięciu dowolnego kafelka pojedyncza ramka, klawiatura widoczny pojedynczy focus. Rozszerzenie testu RWD o computed style i Tab/Shift+Tab. NOT RUN: brak autoryzowanej sesji przeglądarkowej; ceny i konfiguracja bez zmian.
+
+- SOCIAL-01: meta home/PDP RPM-00031/32/33 i FMIC, rzeczywiste zdjęcie lub fallback, tytuł/opis, canonical, Twitter, og:image, bez zmiany robots i ochrony. 4 testy jednostkowe dodane; Facebook Sharing Debugger i publiczny podgląd BLOCKED przez blokadę sklepu, test po dopuszczeniu publicznego dostępu. Nie wprowadzać wyjątku na podstawie User-Agent.
