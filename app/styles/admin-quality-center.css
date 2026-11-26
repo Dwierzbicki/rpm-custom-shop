@@ -1,0 +1,20 @@
+.rpm-quality-center .rpm-quality-heading h1{display:flex;align-items:center;gap:12px;font-size:clamp(24px,3vw,36px);letter-spacing:-.035em}
+.rpm-quality-heading h1 svg{color:var(--rpm-color-accent);flex:none}
+.rpm-quality-center .fmic-center{width:100%;min-width:0;max-width:none;box-sizing:border-box}
+.rpm-quality-center .rpm-settings-card{min-width:0;margin-bottom:16px}
+.rpm-quality-center .fc-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,140px),1fr));gap:10px;margin:16px 0}
+.rpm-quality-center .fc-kpi{padding:14px;border:1px solid #373e4a;border-radius:8px;background:#1c222b;display:grid;gap:6px}
+.rpm-quality-center .fc-kpi strong{font-size:26px;font-variant-numeric:tabular-nums}
+.rpm-quality-center .fc-kpi small,.rpm-quality-center .fc-note{color:var(--rpm-color-muted);font-size:13px}
+.rpm-quality-center .fc-toolbar,.rpm-quality-center .fc-tabs{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0;align-items:end}
+.rpm-quality-center .fc-toolbar label{min-width:0;flex:1 1 180px}
+.rpm-quality-center :is(button,select,input){min-height:44px}
+.rpm-quality-center .fc-progress{width:100%;accent-color:var(--rpm-color-accent)}
+.rpm-quality-center .fc-table-wrap{overflow:auto;max-height:65vh;border:1px solid #373e4a;border-radius:8px}
+.rpm-quality-center .fc-table{width:100%;border-collapse:collapse;table-layout:fixed;text-align:left;font-size:13px}
+.rpm-quality-center .fc-table th,.rpm-quality-center .fc-table td{padding:12px 10px;border-bottom:1px solid #343a45;overflow-wrap:anywhere;vertical-align:top}
+.rpm-quality-center .fc-table th{background:#252b35;position:sticky;top:0}
+.rpm-quality-center .fc-table th:first-child{width:55%}
+.rpm-quality-center .fc-tabs button[aria-selected=true]{border-color:var(--rpm-color-accent);color:var(--rpm-color-text);background:#38242c}
+.rpm-quality-center :is(button,a,input,select,textarea):focus-visible{outline:2px solid var(--rpm-color-accent-hover);outline-offset:2px}
+@media(max-width:600px){.rpm-quality-center .fc-toolbar button{flex:1 1 150px}.rpm-quality-center .fc-table th:first-child{width:45%}.rpm-quality-center .fc-table td{padding:9px 6px}.rpm-quality-center .rpm-audit-metrics{grid-template-columns:1fr}}

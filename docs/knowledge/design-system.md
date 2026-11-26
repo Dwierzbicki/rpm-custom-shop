@@ -35,3 +35,5 @@
 - 2026-11-26 | Konfigurator kompaktowy: mniejsze odstępy grup i kafelków (min. 44px cel dotykowy), stała geometria WG, łączna cena brutto bezpośrednio nad głównym CTA oraz pływający pasek ceny/zakupu na wszystkich profilach, gdy górna cena opuści ekran i dolne CTA nie jest jeszcze całe widoczne. Gdy dolne podsumowanie widoczne, pasek ustępuje; mobile zachowuje dotychczasowy pasek po przewinięciu CTA. W KODZIE.
 
 - 2026-11-26 | Admin: kontrola linków w Zaawansowanych i szybkich działaniach pulpitu; wybór zakresu, start/pauza/wznowienie, postęp, raport CSV i lista problemów. W KODZIE; RWD do potwierdzenia.
+
+- 2026-11-26 | Zaawansowane: osobne widoki Audyt zdjęć, Opisy i parametry, RPM Variant Manager. Usunięto duplikaty zakładek z FMIC Catalog Center, zachowano skróty pulpitu i przekierowania starych adresów. Wspólny styl centrum jakości (karty KPI, responsywne akcje, przewijane tabele). Variant Manager: skan zakresu, filtry, rozwijana rodzina i decyzje. W KODZIE, RWD do weryfikacji.

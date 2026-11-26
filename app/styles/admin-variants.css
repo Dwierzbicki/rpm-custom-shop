@@ -1,0 +1,18 @@
+.rpm-variants .rpm-variant-toolbar,.rpm-variants .rpm-variant-pagination{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:12px 0}
+.rpm-variants .rpm-variant-toolbar form{display:flex;gap:8px;flex:1 1 360px;align-items:end;flex-wrap:wrap;min-width:0}
+.rpm-variants .rpm-variant-toolbar label{display:grid;gap:5px;flex:1 1 180px;min-width:0}
+.rpm-variants .rpm-variant-toolbar :is(select,input){width:100%;min-width:0}
+.rpm-variants .rpm-variant-family{border:1px solid var(--rpm-color-border);border-radius:8px;margin:10px 0;overflow:hidden}
+.rpm-variants .rpm-variant-family-head{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;padding:14px;text-align:left;background:var(--rpm-color-surface);color:var(--rpm-color-text);border:0;cursor:pointer}
+.rpm-variants .rpm-variant-family-head>span,.rpm-variants .rpm-variant-members>div>span{min-width:0;display:grid;gap:5px;overflow-wrap:anywhere}
+.rpm-variants .rpm-variant-family-head svg{flex:none}
+.rpm-variants .rpm-variant-family-body{padding:14px;min-width:0;overflow-wrap:anywhere}
+.rpm-variants small{color:var(--rpm-color-muted)}
+.rpm-variants .rpm-variant-members{margin-bottom:16px}
+.rpm-variants .rpm-variant-members>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(100px,auto);gap:12px;padding:12px 0;border-bottom:1px solid var(--rpm-color-border)}
+.rpm-variants .rpm-variant-members>div>span:last-child{text-align:right}
+.rpm-variants .rpm-variant-members a{color:var(--rpm-color-accent-hover)}
+.rpm-variants .rpm-variant-pagination{justify-content:space-between;align-items:center}
+.rpm-variants button{min-height:44px;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.rpm-variants button.rpm-variant-family-head{justify-content:space-between}
+@media(max-width:600px){.rpm-variants .rpm-variant-toolbar label,.rpm-variants .rpm-variant-toolbar form{flex-basis:100%}.rpm-variants .rpm-admin-quick-actions button{width:100%}.rpm-variants .rpm-variant-members>div{grid-template-columns:minmax(0,1fr)}.rpm-variants .rpm-variant-members>div>span:last-child{text-align:left}}
