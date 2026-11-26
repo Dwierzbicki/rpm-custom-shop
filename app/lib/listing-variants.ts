@@ -29,3 +29,8 @@ export function representativeOrder(sort:string|null){
 export function listingRepresentatives(columns:string,filter:string,sort:string|null){
  return ', filtered_rows AS MATERIALIZED (SELECT '+columns+' FROM catalog'+filter+'), representatives AS (SELECT '+columns+' FROM filtered_rows WHERE family_id IS NULL UNION ALL SELECT '+columns+' FROM (SELECT DISTINCT ON (family_id) '+columns+' FROM filtered_rows WHERE family_id IS NOT NULL ORDER BY family_id, '+representativeOrder(sort)+') family_representatives)';
 }
+
+/** Category counts for searches are global. Shared intake/exhaust components have two roots. */
+export function listingVariantScope(path:string[],showCategories:boolean):string|null{
+ return !showCategories&&path.length>0&&!['Układ dolotowy','Układ wydechowy'].includes(path[0])?path[0]:null;
+}

@@ -18,3 +18,5 @@ Ostatni sprawdzony deploy: 83000d99 live 2026-11-26. Nie utożsamiaj z akceptacj
 2026-11-26 | VAR PDP W KODZIE: wyłącznie zaakceptowane rodziny, linki do konkretnych SKU, live cena/stan i fail-closed przy konflikcie. Następnie wydzielony indeks członkostwa/rodzin dla listingów, zgodne filtry/SKU search przed paginacją i benchmark cold/warm. Nie zatwierdzano grup masowo.
 
 - VAR PLP W KODZIE: grupowanie przed LIMIT, liczniki i filtry rodzin. Indeks materializowanego członkostwa/inkrementalna synchronizacja nadal PLAN; benchmark pełnej skali wymagany przed masową akceptacją HEL.
+
+- VAR PERF: root-local grouping activation in code, no migration yet. Next measure full public API, then design durable membership index and incremental refresh before bulk review. No mass approval.

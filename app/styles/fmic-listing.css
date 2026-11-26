@@ -23,3 +23,20 @@
 .fmic-plp .fplp-variant-swatches button.fplp-variant-more{width:auto;min-width:32px;border-radius:5px;border-color:var(--rpm-color-border);font-size:11px;padding:4px 7px}
 .fmic-plp .fplp-variant-hint{color:var(--rpm-color-muted);font-size:10px;line-height:1.4}
 @media(pointer:coarse),(max-width:600px){.fmic-plp .fplp-variant-swatches button{width:44px;height:44px;min-width:44px;min-height:44px}.fmic-plp .fplp-variant-swatches button.fplp-variant-more{min-width:44px}}
+
+/* Wide catalog only. PDP, checkout and home keep their existing container. */
+@media(min-width:1151px){
+ .page.rpm-shop-page:has(> .fmic-plp){max-width:1800px}
+ .fmic-plp{max-width:none}
+ .fmic-plp .fplp-layout{grid-template-columns:240px minmax(0,1fr);gap:20px}
+ .fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+ .fmic-plp .fplp-grid:not(.fplp-list) .fplp-card{max-width:none}
+ .fmic-plp .fplp-grid:not(.fplp-list) .fplp-card-info{padding:12px}
+ .fmic-plp .fplp-grid:not(.fplp-list) .fplp-card-bottom strong{font-size:clamp(17px,1.35vw,23px)}
+}
+@media(min-width:1366px){
+ .fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(5,minmax(0,1fr))}
+}
+@media(min-width:1151px) and (max-width:1535px){
+ .fmic-plp .fplp-grid:not(.fplp-list) .fplp-card-bottom button{width:100%;min-height:38px}
+}

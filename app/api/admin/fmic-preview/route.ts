@@ -12,7 +12,7 @@ export const runtime='nodejs';
 export const dynamic='force-dynamic';
 import {cachedSearch,searchPatterns,searchConditions,listingCacheKeys} from '../../../lib/fmic-search-performance';
 import {compareOptions} from '../../../lib/fmic-filter-order';
-import {listingVariantCtes,variantListingJoin,listingCount,listingRepresentatives} from '../../../lib/listing-variants';
+import {listingVariantCtes,variantListingJoin,listingCount,listingRepresentatives,listingVariantScope} from '../../../lib/listing-variants';
 export async function GET(request:Request){
  const params=new URL(request.url).searchParams;
  const path=resolveCategoryPath(params.get('category')??'/sklep');
@@ -36,9 +36,10 @@ export async function GET(request:Request){
  try{
  const db=getDbPool();
  // Keep original indexed fast path when no family has been approved or optional table is absent.
- const grouped=includeManual&&await cachedSearch('listing-variant-enabled-v1',15000,async()=>{
+ const variantRoot=listingVariantScope(path,showCategories);
+ const grouped=includeManual&&await cachedSearch('listing-variant-enabled-v2:'+JSON.stringify(variantRoot),15000,async()=>{
   try{const exists=await db.query("SELECT to_regclass('rpm_variant_families') IS NOT NULL AS present");if(!exists.rows[0]?.present)return false;
-   const result=await db.query("SELECT EXISTS(SELECT 1 FROM rpm_variant_families WHERE decision='approved' AND present AND fingerprint=reviewed_fingerprint) AS enabled");return result.rows[0]?.enabled===true;
+   const result=await db.query("SELECT EXISTS(SELECT 1 FROM rpm_variant_families WHERE scope IN ('colors','hel') AND decision='approved' AND present AND fingerprint=reviewed_fingerprint"+(variantRoot===null?"":" AND category[1]=$1")+") AS enabled",variantRoot===null?[]:[variantRoot]);return result.rows[0]?.enabled===true;
   }catch(e){console.error('Variant listing availability check failed',e);return false}
  });
  const variantCte=grouped?listingVariantCtes+', ':'';

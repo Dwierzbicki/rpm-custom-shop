@@ -45,3 +45,5 @@
 - VAR PLP: karta zachowuje nazwę, SKU, zdjęcie, cenę i stan rzeczywistego reprezentanta, ma dyskretny licznik kolorów. Nie pokazujemy fikcyjnej ceny od ani syntetycznego SKU. W KODZIE; RWD NOT RUN.
 
 - PLP: compact colour swatches under title, selected colour text, unavailable marker, max six initial choices plus expansion, 44 px touch targets; individual image/price/stock/SKU updates without leaving listing; opening product uses selected SKU. Unmatched colours accessible on PDP only. W KODZIE.
+
+- 2026-11-26 | PLP desktop wide: main container max 1800px (only .rpm-shop-page with direct .fmic-plp), 4 columns at 1151–1365px, 5 from 1366px, narrower unchanged; 240px filter sidebar, compact card spacing, CTA full width on narrower desktop cards. List mode, PDP, home, checkout unchanged. Page size remains 24. W KODZIE; RWD pending.
