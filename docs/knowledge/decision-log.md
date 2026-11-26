@@ -13,3 +13,4 @@ Dziennik dopisywany; decyzje zastąpione oznacz, nie usuwaj historii.
 - 2026-11-26 | D-010 | RPM Custom pełnoprawna marka producenta, w filtrach i karuzeli marek; kolektory AISI 316 w istniejącym liściu nierdzewnym. Nie zmieniamy cen ani danych handlowych.
 - 2026-11-26 | D-011 | Zastępuje wcześniejszą regułę liczby WG: T4 zawsze dwa, T3 Twin dwa, reszta jeden; obowiązkowa średnica dla 1× i 2×, wspólna przy dwóch. Dane katalogowe 35–60 mm, potwierdzenie flanszy konkretnego modelu. Dopłaty istniejące bez zmian.
 - 2026-11-26 | D-012 | T3/T25/V-Band dopuszczają wewnętrzny WG, bez zewnętrznego wyjścia; T4 zawsze dwa. T25 dodane, wspólna opcja średnicy lub wewnętrznego WG, bez zmian dotychczasowych dopłat.
+- 2026-11-26 | D-013 | Użytkownik: zapisać nowe warianty w dwóch istniejących ofertach, nie tylko generować je przy odczycie. Jednorazowa aktualizacja dwóch SKU, zachowanie danych handlowych.

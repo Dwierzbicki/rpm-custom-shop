@@ -85,3 +85,15 @@ test('internal WG is allowed on T3, T25 and V-band, never T4',()=>{
  assert.equal(external.options.Wastegate,'1× WG');
  assert.equal(external.options['Średnica WG'],'38 mm');
 });
+
+test('existing published offer gets persisted WG options without losing operator values',()=>{
+ const old={...base,sku:'RPM-00032',price:3000,visible:true,description:'Liczba przyłączy wastegate wynika z wyboru flanszy: single scroll — jedno, twin scroll — dwa.',images:['fixture-photo'],optionGroups:manifoldPreset('bmw').filter(g=>g.id!=='rpm-wg-diameter').map(g=>g.id==='rpm-flange'?{...g,options:g.options.filter(o=>o.id!=='t25-single').map(o=>({...o,price:o.id.startsWith('t4-')?500:0}))}:g.id==='rpm-egt'?{...g,options:g.options.map(o=>o.id==='yes'?{...o,label:'Z króćcami EGT + termopara',price:350}:o)}:g)};
+ const updated=withManifoldOptions(old);
+ assert.equal(updated.price,3000);assert.equal(updated.visible,true);assert.deepEqual(updated.images,old.images);
+ assert.equal(updated.optionGroups.find(g=>g.id==='rpm-flange').options.length,6);
+ assert.equal(updated.optionGroups.find(g=>g.id==='rpm-flange').options.find(o=>o.id==='t4-single').price,500);
+ assert.equal(updated.optionGroups.find(g=>g.id==='rpm-egt').options.find(o=>o.id==='yes').price,350);
+ assert.equal(updated.optionGroups.find(g=>g.id==='rpm-wg-diameter').options.length,9);
+ assert.match(updated.description,/wewnętrzny WG/);
+ assert.deepEqual(withManifoldOptions(updated),updated);
+});

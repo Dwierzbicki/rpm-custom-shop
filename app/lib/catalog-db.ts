@@ -61,3 +61,35 @@ export async function importManifoldDrafts(){
   console.info('[catalog] manifold drafts imported',Object.keys(imported).length);
  }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
 }
+
+/** Explicit operator request: persist existing WG/T25 configuration on the two real offers.
+ * Single transaction, row locks, only optionGroups/description, no recreation of deleted rows.
+ * The marker prevents later deployments from overwriting manual edits. */
+export async function persistManifoldWastegateOptions(){
+ await ensure();
+ const client=await getDbPool().connect();
+ const marker='manual_catalog_update:rpm_manifold_wg:2026-11-26';
+ try{
+  await client.query('BEGIN');
+  await client.query('SELECT pg_advisory_xact_lock(9382761)');
+  const previous=await client.query('SELECT 1 FROM rpm_shop_settings WHERE key=$1',[marker]);
+  if(previous.rowCount){await client.query('COMMIT');return}
+  const result=await client.query<{id:number;data:CatalogItem}>(`SELECT id,data FROM rpm_catalog c
+   WHERE ((id=32 AND data->>'sku'='RPM-00032') OR (id=33 AND data->>'sku'='RPM-00033'))
+   AND lower(trim(data->>'brand'))='rpm custom' AND data->>'category'='Kolektory'
+   AND NOT EXISTS(SELECT 1 FROM rpm_catalog_deleted d WHERE d.id=c.id)
+   ORDER BY id FOR UPDATE`);
+  const updated:string[]=[];
+  for(const row of result.rows){
+   const item=withManifoldOptions(row.data);
+   const patch={optionGroups:item.optionGroups,description:item.description};
+   if(JSON.stringify(row.data.optionGroups)!==JSON.stringify(patch.optionGroups)||row.data.description!==patch.description){
+    await client.query('UPDATE rpm_catalog SET data=data||$2::jsonb,updated_at=NOW() WHERE id=$1',[row.id,JSON.stringify(patch)]);
+   }
+   updated.push(row.data.sku);
+  }
+  await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[marker,JSON.stringify({skus:updated,fields:['optionGroups','description']})]);
+  await client.query('COMMIT');
+  console.info('[catalog] persisted manifold WG options',updated);
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}
