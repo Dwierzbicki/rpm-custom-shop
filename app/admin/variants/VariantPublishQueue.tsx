@@ -3,13 +3,13 @@ import {useEffect,useRef,useState} from 'react';
 import {reviewPresets} from '../../lib/variant-review-presets';
 import {maxVariantBatch} from '../../lib/variant-batch';
 type Item={id:string;fingerprint:string;skus:number;scope:'colors'|'hel'};
-type Queue={scope:'colors'|'hel'|null;items:Item[]};
+type Queue={scope:'colors'|'hel'|null;items:Item[];excluded?:{families:number;skus:number}};
 const batches=(queue:Queue)=>{
  const groups=(['colors','hel'] as const).map(scope=>({scope,items:queue.items.filter(i=>(i.scope??queue.scope)===scope)}));
  return groups.flatMap(({scope,items})=>Array.from({length:Math.ceil(items.length/maxVariantBatch)},(_,i)=>({scope,items:items.slice(i*maxVariantBatch,(i+1)*maxVariantBatch)})));
 };
 export default function VariantPublishQueue({disabled,onRunning,onComplete}:{disabled:boolean;onRunning:(v:boolean)=>void;onComplete:()=>void}){
- const [preset,setPreset]=useState<string>('all-reviewed'),[preview,setPreview]=useState<Queue|null>(null),[loading,setLoading]=useState(false),[running,setRunning]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState(''),[done,setDone]=useState(0);
+ const [preset,setPreset]=useState<string>('all-pending'),[preview,setPreview]=useState<Queue|null>(null),[loading,setLoading]=useState(false),[running,setRunning]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState(''),[done,setDone]=useState(0);
  const stop=useRef(false),lock=useRef(false);
  useEffect(()=>()=>{stop.current=true},[]);
  useEffect(()=>{if(!running)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[running]);
@@ -38,9 +38,10 @@ export default function VariantPublishQueue({disabled,onRunning,onComplete}:{dis
   finally{lock.current=false;setRunning(false);onRunning(false);setPreview(null);onComplete()}
  }
  const count=preview?.items.length??0;
- return <section className="rpm-settings-card"><h2>Masowa publikacja wariantów</h2><p>Podgląd zapisuje dokładne identyfikatory i fingerprinty. Każda partia przechodzi istniejącą kontrolę bieżącego katalogu, konfliktów i indeksu. Pozostaw tę kartę otwartą; można zatrzymać kolejkę między partiami.</p><div className="rpm-variant-toolbar"><label>Zakres publikacji<select value={preset} disabled={disabled||running||loading} onChange={e=>{setPreset(e.target.value);setPreview(null);setMessage('');setError('');setDone(0)}}><option value="all-reviewed">Silikony + Wastegate + HEL (razem)</option><option value="all-pending">Wszystkie oczekujące rodziny (także pozostałe kategorie)</option>{reviewPresets.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label><button className="outline" disabled={disabled||running||loading} onClick={()=>void inspect()}>{loading?'Pobieranie…':'Sprawdź kolejkę'}</button></div>
+ return <section className="rpm-settings-card"><h2>Masowa publikacja wariantów</h2><p>Podgląd zapisuje dokładne identyfikatory i fingerprinty. Każda partia przechodzi istniejącą kontrolę bieżącego katalogu, konfliktów i indeksu. Pozostaw tę kartę otwartą; można zatrzymać kolejkę między partiami.</p><div className="rpm-variant-toolbar"><label>Zakres publikacji<select value={preset} disabled={disabled||running||loading} onChange={e=>{setPreset(e.target.value);setPreview(null);setMessage('');setError('');setDone(0)}}><option value="all-reviewed">Silikony + Wastegate + HEL (razem)</option><option value="all-pending">Wszystkie oczekujące rodziny (bez wyjątków do weryfikacji)</option>{reviewPresets.map(p=><option key={p.id} value={p.id}>{p.label}</option>)}</select></label><button className="outline" disabled={disabled||running||loading} onClick={()=>void inspect()}>{loading?'Pobieranie…':'Sprawdź kolejkę'}</button></div>
  {preview&&<p role="status">{count.toLocaleString('pl-PL')} rodzin · {preview.items.reduce((n,x)=>n+x.skus,0).toLocaleString('pl-PL')} SKU · {batches(preview).length} partii</p>}
- {preset==='all-pending'&&<p className="admin-warning">Ten zakres zawiera również rodziny poza wcześniej audytowanymi kategoriami. Sprawdź je przed publikacją.</p>}
+ {preset==='all-pending'&&<p className="admin-warning">Zakres obejmuje również pozostałe kategorie. Zweryfikowany wyjątek CLM jest automatycznie pomijany; nowe rodziny nadal wymagają sprawdzenia.</p>}
+ {preview&&!!preview.excluded?.families&&<p role="status" className="admin-warning">Pominięto {preview.excluded.families} rodzin ({preview.excluded.skus} SKU) do indywidualnej weryfikacji — zestaw skrętu CLM BMW E8X/E9X.</p>}
  {preview&&!running&&<button className="primary" disabled={disabled||!count} onClick={()=>void publish()}>Zatwierdź wszystkie z podglądu ({count})</button>}
  {running&&<div><progress value={done} max={count}/><p role="status">Opublikowano {done} / {count} rodzin</p><button className="outline" onClick={()=>{stop.current=true;setMessage('Zatrzymanie po bieżącej partii…')}}>Zatrzymaj po bieżącej partii</button></div>}
  {message&&<p role="status" className="rpm-settings-success">{message}</p>}{error&&<p role="alert" className="rpm-settings-error">{error}</p>}</section>;
