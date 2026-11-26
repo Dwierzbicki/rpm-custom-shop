@@ -31,3 +31,5 @@
 - 2026-11-26 | Koszyk Premium: szerszy layout, linie oddzielone delikatnym separatorem, zdjęcie contain / wspólny placeholder, podsumowanie na desktopie i pod listą na mobile/tablecie, pojedyncze CTA zależne od źródła. Koszyk mieszany pokazuje dwie grupy i jawny komunikat zamiast nieaktywnego formularza FMIC. Checkout bez DEMO, warianty w podsumowaniu. W KODZIE.
 
 - 2026-11-26 | Stabilizacja konfiguratora: wewnętrzny WG nie znika z siatki po zmianie flanszy, lecz staje się disabled i ma stały opis dostępności. Cena bazowa/dopłaty pozostają w dwóch stałych wierszach, także przy 0 PLN. Opcjonalny TermShield w dwóch kafelkach, bez zmiany domyślnej ceny.
+
+- 2026-11-26 | Konfigurator kompaktowy: mniejsze odstępy grup i kafelków (min. 44px cel dotykowy), stała geometria WG, łączna cena brutto bezpośrednio nad głównym CTA oraz pływający pasek ceny/zakupu na wszystkich profilach, gdy górna cena opuści ekran i dolne CTA nie jest jeszcze całe widoczne. Gdy dolne podsumowanie widoczne, pasek ustępuje; mobile zachowuje dotychczasowy pasek po przewinięciu CTA. W KODZIE.

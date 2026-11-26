@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import ts from 'typescript';
 const m={exports:{}};
 new Function('exports','module',ts.transpileModule(fs.readFileSync(new URL('../app/lib/pdp-purchase.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(m.exports,m);
-const {purchaseSummary,showMobilePurchaseBar}=m.exports;
+const {purchaseSummary,showMobilePurchaseBar,showConfigurationPurchaseBar}=m.exports;
 test('Pulsar and configured manifold show unit extras and quantity total',()=>{
  assert.deepEqual(purchaseSummary(3270,3270,1),{base:3270,extra:0,total:3270});
  assert.deepEqual(purchaseSummary(3000,3850,2),{base:3000,extra:850,total:7700});
@@ -16,4 +16,13 @@ test('secondary purchase bar only after primary controls pass viewport top',()=>
  assert.equal(showMobilePurchaseBar(110,110),true);
  assert.equal(showMobilePurchaseBar(-40,110),true);
  assert.equal(showMobilePurchaseBar(NaN,110),false);
+});
+
+test('configured floating price covers the gap between header price and purchase controls',()=>{
+ assert.equal(showConfigurationPurchaseBar(200,900,1000,110,800),false);
+ assert.equal(showConfigurationPurchaseBar(90,900,1000,110,800),true);
+ assert.equal(showConfigurationPurchaseBar(-100,750,850,110,800),true);
+ assert.equal(showConfigurationPurchaseBar(-100,650,790,110,800),false);
+ assert.equal(showConfigurationPurchaseBar(-200,-80,50,110,800),false);
+ assert.equal(showConfigurationPurchaseBar(NaN,900,1000,110,800),false);
 });

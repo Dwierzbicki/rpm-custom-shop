@@ -55,6 +55,11 @@ try{
     const base=await priceNumber();
     await choose('rpm-thermal-insulation','termshield');
     assert.equal(await priceNumber(),base+1600);
+    const finalTotal=page.locator('.rpm-pdp-final-total strong');
+    assert.equal(await finalTotal.innerText(),await page.locator('.price-large').evaluate(el=>el.firstChild.textContent.trim()));
+    await page.locator('.rpm-pdp-choice-rpm-thermal-insulation').scrollIntoViewIfNeeded();
+    const inlineVisible=await page.locator('.rpm-pdp-final-total').evaluate(el=>{const r=el.getBoundingClientRect();return r.top>=110&&r.bottom<=innerHeight});
+    if(!inlineVisible){const floating=page.locator('.rpm-pdp-mobile-buy:visible .rpm-pdp-mobile-price strong');await floating.waitFor();assert.equal(await floating.innerText(),await finalTotal.innerText())}
     await choose('rpm-thermal-insulation','none');
     assert.equal(await priceNumber(),base);
     assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Horizontal overflow');

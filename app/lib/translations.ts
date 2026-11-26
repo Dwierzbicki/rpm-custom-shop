@@ -253,3 +253,5 @@ Object.assign(en,{
 });
 
 Object.assign(en, {"Izolacja termiczna":"Thermal insulation","Bez izolacji":"No insulation","Niedostępny dla wybranej flanszy":"Unavailable for selected flange","Dostępny dla wybranej flanszy":"Available for selected flange"});
+
+Object.assign(en, {"Łączna cena brutto":"Total incl. VAT"});
