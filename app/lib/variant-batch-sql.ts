@@ -5,7 +5,7 @@ import type {VariantScope} from './variant-rules';
 export function variantBatchValidationSql(scope:VariantScope){
  return `WITH requested AS MATERIALIZED (
  SELECT id,fingerprint FROM jsonb_to_recordset($1::jsonb) AS r(id text,fingerprint text)
- ), candidates AS MATERIALIZED (${variantCandidateSql(scope)}),
+ ), candidates AS MATERIALIZED (${variantCandidateSql(scope,scope==='hel')}),
  eligible AS MATERIALIZED (
  SELECT f.id,n.members FROM requested r JOIN rpm_variant_families f ON f.id=r.id
  JOIN candidates n ON n.id=f.id AND n.fingerprint=f.fingerprint
