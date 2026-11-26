@@ -24,3 +24,5 @@ Ostatni sprawdzony deploy: 83000d99 live 2026-11-26. Nie utożsamiaj z akceptacj
 - VAR INDEX / SYNC W KODZIE: opcjonalny indeks członkostwa z migracją/rollback, automatyczne odświeżenie kandydatów po udanym ręcznym XML, przyrostowe zapisy (pełna detekcja). Uruchomienie migracji na kopii/produkcji po osobnej zgodzie, następnie benchmark i grupowe zatwierdzanie z kontrolą zakresu. Bez zmian decyzji istniejących rodzin.
 
 - VAR INDEX AKTYWNY; benchmark pilotażu PASS funkcjonalnie, wykrył wolny root/producer. VAR-PERF-02 pushdown and single-facet cache reuse W KODZIE. Pełny root nadal wymaga obliczenia rozkładu producentów na zimnym cache; po pomiarach rozważyć materializację atrybutów, oddzielna autoryzacja DDL. Bulk approval nadal PLAN.
+
+- VAR-BATCH v1 W KODZIE: manually selected page-local approval max 20, all-or-nothing live verification. Next pilot controlled approval by owner and repeat API benchmark, then category-level reviewed batches if performance/correctness confirmed. No mass production changes executed.

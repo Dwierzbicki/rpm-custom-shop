@@ -1,6 +1,8 @@
 import {getDbPool} from './db';
 import {invalidateFmicSearchCache} from './fmic-search-performance';
 import {variantCandidateSql,variantStatusSql} from './variant-sql';
+import {variantBatchValidationSql} from './variant-batch-sql';
+import {parseVariantReviewItems,type VariantReviewItem} from './variant-batch';
 import type {VariantScope,VariantFilter,VariantDecision} from './variant-rules';
 let setup:Promise<void>|undefined;
 export function setupVariants():Promise<void>{
@@ -70,4 +72,33 @@ export async function syncVariantsAfterImport(){
   try{results[scope]={ok:true,groups:await scanVariants(scope)}}catch(error){console.error('Variant sync failed for '+scope,error)}
  }
  return results;
+}
+
+/** All or nothing; only explicit pending snapshots, never approve by query/filter. */
+export async function approveVariantBatch(scope:VariantScope,items:VariantReviewItem[]){
+ if(!parseVariantReviewItems(items))throw Error('Invalid variant batch');
+ await setupVariants();const c=await getDbPool().connect();
+ try{
+  await c.query('BEGIN');await c.query("SET LOCAL statement_timeout='25s'");await c.query("SET LOCAL lock_timeout='2s'");
+  const feedLock=await c.query('SELECT pg_try_advisory_xact_lock(27391,1) AS ok');if(!feedLock.rows[0]?.ok)throw Error('Trwa import XML lub zmiana mapowania.');
+  const lock=await c.query('SELECT pg_try_advisory_xact_lock(9382862) AS ok');if(!lock.rows[0]?.ok)throw Error('Trwa inna operacja wariantów.');
+  // Require migration and enabled synchronization trigger for batch publishing.
+  const ready=await c.query("SELECT to_regclass('rpm_variant_members_v1') IS NOT NULL AND EXISTS(SELECT 1 FROM pg_trigger WHERE tgrelid='rpm_variant_families'::regclass AND tgname='rpm_variant_members_v1_sync' AND tgenabled IN ('O','A')) AS ok");
+  if(!ready.rows[0]?.ok)throw Error('Indeks wariantów nieaktywny.');
+  const checked=await c.query(variantBatchValidationSql(scope),[JSON.stringify(items),scope]);
+  if(checked.rowCount!==items.length){
+   const valid=new Set(checked.rows.map(r=>String(r.id)));
+   await c.query('ROLLBACK');return {saved:false as const,conflicts:items.filter(i=>!valid.has(i.id)).map(i=>i.id)};
+  }
+  const updated=await c.query(`UPDATE rpm_variant_families f SET decision='approved',reviewed_fingerprint=f.fingerprint,reviewed_members=f.members,reviewed_at=now()
+   FROM jsonb_to_recordset($1::jsonb) r(id text,fingerprint text)
+   WHERE f.id=r.id AND f.fingerprint=r.fingerprint AND f.scope=$2 AND f.present AND f.decision='pending'
+   RETURNING f.id`,[JSON.stringify(items),scope]);
+  if(updated.rowCount!==items.length)throw Error('Variant batch changed during approval');
+  const verified=await c.query(`SELECT count(*)::int AS members,count(DISTINCT family_id)::int AS families FROM rpm_variant_members_v1 WHERE family_id=ANY($1::text[])`,[items.map(i=>i.id)]);
+  const skus=checked.rows.reduce((sum,r)=>sum+Number(r.skus),0);
+  if(verified.rows[0]?.members!==skus||verified.rows[0]?.families!==items.length)throw Error('Variant membership sync mismatch');
+  await c.query('COMMIT');invalidateFmicSearchCache();
+  return {saved:true as const,groups:items.length,skus};
+ }catch(error){await c.query('ROLLBACK').catch(()=>{});throw error}finally{c.release()}
 }

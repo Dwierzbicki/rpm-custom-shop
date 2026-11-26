@@ -49,3 +49,5 @@
 - 2026-11-26 | PLP desktop wide: main container max 1800px (only .rpm-shop-page with direct .fmic-plp), 4 columns at 1151–1365px, 5 from 1366px, narrower unchanged; 240px filter sidebar, compact card spacing, CTA full width on narrower desktop cards. List mode, PDP, home, checkout unchanged. Page size remains 24. W KODZIE; RWD pending.
 
 - 2026-11-26 | Wspólny desktop shell: od 1366 px header, główne sekcje HP, MotoLab/community na HP, listing i stopka korzystają z limitu 1800 px oraz 24 px marginesu wewnętrznego; PDP, koszyk i Power Builder do 1600 px. Bez rozszerzania tekstów opisowych, formularzy konta/checkoutu, stron informacyjnych ani admina. Mniejsze ekrany bez nowych reguł. W KODZIE; weryfikacja wizualna do wykonania.
+
+- Variant Manager bulk review: checkbox beside pending family only, select current page, live count of selected families/SKU/reduction, clear and explicit confirm; 44px row selection target and wrapping toolbar, mobile stacked; no select-all catalogue or cross-page selection. W KODZIE, RWD pending.
