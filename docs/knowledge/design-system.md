@@ -43,3 +43,5 @@
 - 2026-11-26 | PDP dostawcy: zwarty selektor kolorów z tekstową nazwą PL/EN, swatchem, indywidualną ceną, oznaczeniem wybranego i niedostępnego SKU. Link do pełnej karty konkretnego SKU; bez zmiany konfiguratora kolektorów. W KODZIE, RWD NOT RUN.
 
 - VAR PLP: karta zachowuje nazwę, SKU, zdjęcie, cenę i stan rzeczywistego reprezentanta, ma dyskretny licznik kolorów. Nie pokazujemy fikcyjnej ceny od ani syntetycznego SKU. W KODZIE; RWD NOT RUN.
+
+- PLP: compact colour swatches under title, selected colour text, unavailable marker, max six initial choices plus expansion, 44 px touch targets; individual image/price/stock/SKU updates without leaving listing; opening product uses selected SKU. Unmatched colours accessible on PDP only. W KODZIE.

@@ -9,7 +9,9 @@ const roadOrigin = 'https://rpm-custom-road-assistance.onrender.com';
 const itbOrigin = process.env.ITB_DESIGNER_ORIGIN?.trim().replace(/\/$/, '');
 
 /** @type {import('next').NextConfig} */
+const deploymentId = process.env.NEXT_DEPLOYMENT_ID || process.env.RENDER_GIT_COMMIT;
 const nextConfig = {
+  ...(deploymentId ? { deploymentId } : {}),
   async rewrites() {
     return {
       beforeFiles: [

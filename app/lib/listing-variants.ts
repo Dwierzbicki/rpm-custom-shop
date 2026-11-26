@@ -16,7 +16,7 @@ export const listingVariantCtes=`approved_variants AS MATERIALIZED (
  AND count(*)=count(DISTINCT variant_color) AND count(*)=count(DISTINCT variant_sku)
  AND NOT EXISTS (SELECT 1 FROM variant_checked vc JOIN variant_overlap vo USING(variant_sku) WHERE vc.family_id=variant_checked.family_id)
  ), variant_members AS MATERIALIZED (
- SELECT vc.variant_sku,vc.family_id,vf.variant_count FROM variant_checked vc JOIN valid_variant_families vf USING(family_id)
+ SELECT vc.variant_sku,vc.family_id,vc.variant_color,vf.variant_count FROM variant_checked vc JOIN valid_variant_families vf USING(family_id)
  )`;
 export const variantListingJoin=' LEFT JOIN variant_members ON variant_sku=rpm_fmic_catalog.sku ';
 export function listingCount(grouped:boolean){

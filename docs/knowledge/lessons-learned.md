@@ -14,3 +14,5 @@ Dowód: live 1a04eac8, log aktualizacji [], oba SKU mają canonical leaf Kolekto
 - 2026-11-26 | Nie zakładać, że encodeURIComponent chroni ukośnik w dynamicznym segmencie na wszystkich warstwach proxy. Testować rzeczywiste SKU dostawcy, w tym %, /, + i spacje, oraz zachowanie starego linku; nie zmieniać identyfikatora magazynowego dla potrzeb URL.
 
 - 2026-11-26 | Po deployu klient może mieć runtime poprzedniego buildu i żądać nieistniejących hashy JS/CSS. Zrzut tuż po przełączeniu, F5 pomogło. Nie cofać katalogu ani wyłączać autoryzacji na podstawie ChunkLoadError. Wczesny limitowany reload + React error boundary; osobno testować niespójność wersji i trwały brak zasobu. Zachować lazy loading.
+
+- DEP-01 follow-up: F5 recovery is fallback, not removal of version skew. Native Next deploymentId configured; to eliminate 404 of old lazy chunks, retain immutable build assets in separate versioned storage through deploys. Do not attach disk to main service without decision (Render persistent disks disable zero-downtime deployment); do not publicly expose protected storefront files or store build artifacts in product DB without authorization.
