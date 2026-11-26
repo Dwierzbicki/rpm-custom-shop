@@ -35,3 +35,12 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - LOCAL-01: do 3 różnych zapisanych SKU, start równoległy i oczekiwanie na wszystkie wyniki także przy błędzie. Test jednostkowy dodany, CI do potwierdzenia.
 - LOCAL-02: lokalne zadania przy zamkniętym oknie HTTP, wstrzymanie przed kolejnym pobraniem, brak dodatkowych żądań, ręczne przypisanie oraz mismatch do review — NOT RUN integracyjnie.
 - Odczyt produkcji po af900332: 442 opublikowane opisy; 132445 oczekujących opisów, 260227 oczekujących zdjęć. Wcześniejszy odczyt wykazał tylko 1 oczekujący SKU z zapisanym źródłem. Zatem sama lokalna równoległość nie usuwa ograniczenia pobierania.
+
+## Kolektory RPM — warianty
+| ID | Scenariusz | Wynik |
+|---|---|---|
+| MAN-01 | BMW: brak nadwozia / dodanie / blokada; cztery warianty, pojedynczy wybór | NOT RUN E2E |
+| MAN-02 | BMW E36 i E46 przy tej samej flanszy / koszyk / odrębne klucze, zachowana cena i opcje | test jednostkowy dodany |
+| MAN-03 | 2JZ GE / szablon / brak grupy BMW, EGT, T3/T4/V-Band i automatyczny WG | test jednostkowy dodany |
+| MAN-04 | Brak, nieznane lub zmienione nadwozie / backend zamówienia / odrzucenie nieprawidłowego wyboru | NOT RUN API |
+| MAN-05 | Mobile 360/390, tablet 768/1024, desktop 1280/1920 / radio, focus, cena i CTA, PL/EN, brak overflow | NOT RUN |

@@ -9,3 +9,5 @@
 
 ## Responsywność
 2026-11-26 | Każdą zmianę UI (także admin i narzędzia) implementuj i testuj w ramach tego samego zadania dla mobile, tablet i desktop; tablet w obu orientacjach. Obowiązkowe profile i kryteria w docs/knowledge/responsive-testing.md. Raportuj osobne wyniki funkcjonalne i wizualne dla każdej klasy; brak obowiązkowego testu blokuje pełny odbiór. Emulacja nie oznacza testu fizycznego urządzenia. Funkcje hover mają odpowiednik dotykowy i klawiaturowy. Nie ukrywaj krytycznych akcji na małym ekranie.
+
+- 2026-11-26 | W KODZIE: pojedynczy wybór nadwozia w PDP przez natywne radio i siatkę dwóch kolumn, min. wysokość 44 px, focus, PL/EN. Szablony kolektorów w panelu produktów. Testy RWD wymagane.

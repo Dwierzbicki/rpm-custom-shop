@@ -5,7 +5,7 @@ export function describeConfiguration(selected:Product,{chosenOptions,engine,fla
  const rpmFlange=chosenOptions['rpm-flange'];
  const automaticWg=rpmFlange?(rpmFlange.endsWith('-twin')?'2× WG':'1× WG'):'';
  const usesCustom=customGroups.length>0;
- const customReady=customGroups.every(g=>!g.required||!!chosenOptions[g.id]);
+ const customReady=customGroups.every(g=>chosenOptions[g.id]?g.options.some(o=>o.id===chosenOptions[g.id]):!g.required);
  const customExtra=customGroups.reduce((sum,g)=>sum+(g.options.find(o=>o.id===chosenOptions[g.id])?.price??0),0);
  const selectedPrice=selected.price+customExtra;
  const unitPrice=usesCustom?selectedPrice:selected.price;
