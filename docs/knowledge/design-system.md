@@ -6,3 +6,6 @@
 - PDP: wspólna galeria, specyfikacja, cena, warianty i CTA dla obu źródeł.
 - Power Builder: zaakceptowany układ głównych kategorii po lewej, lista w centrum na desktopie. Mobilnie adaptuj bez zasłaniania treści.
 Źródła: dotychczasowe decyzje użytkownika, app/components/storefront/, rpm-ui-ux-designer. Dokładne tokeny i breakpointy sprawdzaj w aktualnych CSS. Weryfikacja wizualna po nowych zmianach: NOT RUN.
+
+## Responsywność
+2026-11-26 | Każdą zmianę UI (także admin i narzędzia) implementuj i testuj w ramach tego samego zadania dla mobile, tablet i desktop; tablet w obu orientacjach. Obowiązkowe profile i kryteria w docs/knowledge/responsive-testing.md. Raportuj osobne wyniki funkcjonalne i wizualne dla każdej klasy; brak obowiązkowego testu blokuje pełny odbiór. Emulacja nie oznacza testu fizycznego urządzenia. Funkcje hover mają odpowiednik dotykowy i klawiaturowy. Nie ukrywaj krytycznych akcji na małym ekranie.

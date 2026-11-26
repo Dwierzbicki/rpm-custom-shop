@@ -7,6 +7,7 @@ Start: 2026-11-26. Baza wiedzy RPM Custom Shop / MotoLab / Power Builder. Czytaj
 | [Business Rules](business-rules.md) | Ceny, dostępność, zamówienia |
 | [Design System](design-system.md) | Zaakceptowane wzorce UI |
 | [Engine Database](engine-database.md) | Kompatybilność i źródła danych |
+| [Responsive Testing](responsive-testing.md) | Obowiązkowa matryca RWD |
 | [QA Regression](qa-regression.md) | Scenariusze i wyniki |
 | [Decision Log](decision-log.md) | Decyzje i uzasadnienia |
 | [Roadmap](roadmap.md) | Etapy, blokady |

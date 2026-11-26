@@ -9,8 +9,15 @@
 | PDP-01 | Manual, FMIC i konfigurowalny kolektor / otwórz PDP / poprawna galeria, cena, parametry, warianty | NOT RUN |
 | CART-01 | Oba źródła / dodaj pozycje / poprawne identyfikatory, cena, ilości, stan po odświeżeniu | NOT RUN |
 | ORD-01 | Koszyk mieszany na fixture / finalizacja / walidacja źródła, ceny i idempotencji, bez skutków zewnętrznych | BLOCKED — wspólny checkout do implementacji |
-| UI-01 | Desktop/mobile, PL/EN / menu, filtry, nawigacja / brak migania, overflow i błędów konsoli | NOT RUN |
+| UI-01 | Mobile/tablet/desktop, PL/EN / menu, filtry, nawigacja / brak migania, overflow i błędów konsoli | NOT RUN |
 | PERF-01 | Porównywalne dane / npm run fmic:benchmark / cold/warm, czas, bytes, liczba wyników | NOT RUN dla aktualnego HEAD |
+
+| RWD-01 | Zmieniony widok / 360×800 i 390×844 / poprawny layout i dotyk | NOT RUN |
+| RWD-02 | Zmieniony widok / 768×1024 i 1024×768 / poprawny layout w obu orientacjach | NOT RUN |
+| RWD-03 | Zmieniony widok / 1280×800 i 1920×1080 / poprawny layout, mysz i klawiatura | NOT RUN |
+| RWD-04 | Zmiana layoutu / resize wokół breakpointów / bez utraty stanu i overflow | NOT RUN |
+
+[Matryca RWD](responsive-testing.md).
 
 ## Istniejące dowody
 - 2026-11-25: celowane zapytanie odczytowe PostgreSQL zwróciło RPM-00031, PRISM, 135 mm, 2100 PLN i available=true. PASS dla tego zapytania; nie jest testem API, UI ani pełnego listingu.
