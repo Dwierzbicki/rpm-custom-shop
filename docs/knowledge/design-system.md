@@ -33,3 +33,5 @@
 - 2026-11-26 | Stabilizacja konfiguratora: wewnętrzny WG nie znika z siatki po zmianie flanszy, lecz staje się disabled i ma stały opis dostępności. Cena bazowa/dopłaty pozostają w dwóch stałych wierszach, także przy 0 PLN. Opcjonalny TermShield w dwóch kafelkach, bez zmiany domyślnej ceny.
 
 - 2026-11-26 | Konfigurator kompaktowy: mniejsze odstępy grup i kafelków (min. 44px cel dotykowy), stała geometria WG, łączna cena brutto bezpośrednio nad głównym CTA oraz pływający pasek ceny/zakupu na wszystkich profilach, gdy górna cena opuści ekran i dolne CTA nie jest jeszcze całe widoczne. Gdy dolne podsumowanie widoczne, pasek ustępuje; mobile zachowuje dotychczasowy pasek po przewinięciu CTA. W KODZIE.
+
+- 2026-11-26 | Admin: kontrola linków w Zaawansowanych i szybkich działaniach pulpitu; wybór zakresu, start/pauza/wznowienie, postęp, raport CSV i lista problemów. W KODZIE; RWD do potwierdzenia.

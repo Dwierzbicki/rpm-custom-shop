@@ -7,5 +7,5 @@ import {productPath} from '../lib/product-path';
 import {categoryPath} from '../category-routing';
 export default function ProductPageClient({data}:{data:Detail}){
  const {lang}=useStorefrontLanguage();
- return <><StandaloneStorefrontHeader/><main className="page rpm-shop-page"><FmicProductPreview sku={data.product.sku} initialData={data} onBack={()=>{try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&previous.pathname.startsWith('/sklep')){location.assign(previous.pathname+previous.search);return}}catch{}location.assign(categoryPath(data.product.target_category))}} onOpen={(sku,name)=>location.assign(productPath(name??'czesc',sku))}/></main><StorefrontFooter lang={lang}/></>;
+ return <><StandaloneStorefrontHeader/><main className="page rpm-shop-page" data-rpm-audit-sku={new URLSearchParams({sku:data.product.sku}).toString()}><FmicProductPreview sku={data.product.sku} initialData={data} onBack={()=>{try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&previous.pathname.startsWith('/sklep')){location.assign(previous.pathname+previous.search);return}}catch{}location.assign(categoryPath(data.product.target_category))}} onOpen={(sku,name)=>location.assign(productPath(name??'czesc',sku))}/></main><StorefrontFooter lang={lang}/></>;
 }
