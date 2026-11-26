@@ -1,10 +1,13 @@
 const variantValidationTail=` ), variant_overlap AS (
  SELECT variant_sku FROM variant_checked GROUP BY variant_sku HAVING count(*)>1
+ ), variant_conflicted_families AS MATERIALIZED (
+ SELECT DISTINCT vc.family_id FROM variant_checked vc JOIN variant_overlap vo USING(variant_sku)
  ), valid_variant_families AS (
- SELECT family_id,count(*)::int AS variant_count FROM variant_checked
- GROUP BY family_id HAVING count(*) BETWEEN 2 AND 40 AND bool_and(valid IS TRUE)
+ SELECT vc.family_id,count(*)::int AS variant_count FROM variant_checked vc
+ LEFT JOIN variant_conflicted_families bad ON bad.family_id=vc.family_id
+ WHERE bad.family_id IS NULL
+ GROUP BY vc.family_id HAVING count(*) BETWEEN 2 AND 40 AND bool_and(valid IS TRUE)
  AND count(*)=count(DISTINCT variant_color) AND count(*)=count(DISTINCT variant_sku)
- AND NOT EXISTS (SELECT 1 FROM variant_checked vc JOIN variant_overlap vo USING(variant_sku) WHERE vc.family_id=variant_checked.family_id)
  ), variant_members AS MATERIALIZED (
  SELECT vc.variant_sku,vc.family_id,vc.variant_color,vf.variant_count FROM variant_checked vc JOIN valid_variant_families vf USING(family_id)
  )`;
