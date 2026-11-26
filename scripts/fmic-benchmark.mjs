@@ -12,6 +12,8 @@ export const cases=[
  {label:'Hamulce i koła / page 100',params:{category:'/sklep/hamulce-i-kola',page:'100'},kind:'listing'},
  {label:'Hamulce i koła / ascending',params:{category:'/sklep/hamulce-i-kola',sort:'priceAsc'},kind:'listing'},
  {label:'Hamulce i koła / descending',params:{category:'/sklep/hamulce-i-kola',sort:'priceDesc'},kind:'listing'},
+ {label:'Approved variant family',params:{q:'1/8 NPT Nypel adapter żeńsko-żeński łącznik'},kind:'listing'},
+ {label:'Exact variant SKU',params:{q:'KP9016-02-N'},kind:'listing'},
  {label:'Search E46',params:{q:'E46'},kind:'listing'},
  {label:'Search BMW',params:{q:'BMW'},kind:'listing'},
  {label:'Suggestions E46',params:{q:'E46'},kind:'suggest'},
@@ -33,6 +35,7 @@ export function validateResponse(s,data){
  assert.ok(data.items.length>0,'Unexpected empty result');
  assert.ok(data.items.length<=(s.kind==='suggest'?6:24));
  assert.equal(new Set(data.items.map(x=>x.sku)).size,data.items.length,'Duplicate SKU');
+ const familyIds=data.items.map(x=>x.variant_family_id).filter(Boolean);assert.equal(new Set(familyIds).size,familyIds.length,'Duplicate family');
  if(s.kind==='listing'){
   assert.equal(data.page,Number(s.params.page??1));
   assert.ok(Array.isArray(data.facets));

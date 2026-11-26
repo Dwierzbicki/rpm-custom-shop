@@ -1,4 +1,5 @@
 import {getDbPool} from './db';
+import {invalidateFmicSearchCache} from './fmic-search-performance';
 import {variantCandidateSql,variantStatusSql} from './variant-sql';
 import type {VariantScope,VariantFilter,VariantDecision} from './variant-rules';
 let setup:Promise<void>|undefined;
@@ -22,7 +23,7 @@ export async function scanVariants(scope:VariantScope){
  SELECT id,$1,rule,title,category,members,fingerprint FROM (${variantCandidateSql(scope)}) candidates
  ON CONFLICT(id) DO UPDATE SET rule=EXCLUDED.rule,title=EXCLUDED.title,category=EXCLUDED.category,members=EXCLUDED.members,fingerprint=EXCLUDED.fingerprint,present=true,scanned_at=now()`,[scope]);
   await c.query("DELETE FROM rpm_variant_families WHERE scope=$1 AND NOT present AND decision='pending'",[scope]);
-  await c.query('COMMIT');return result.rowCount??0;
+  await c.query('COMMIT');invalidateFmicSearchCache();return result.rowCount??0;
  }catch(error){await c.query('ROLLBACK');throw error}finally{c.release()}
 }
 export async function listVariants(scope:VariantScope,filter:VariantFilter,q:string,page:number){
@@ -48,6 +49,6 @@ export async function reviewVariant(id:string,fingerprint:string,decision:Varian
     OR p.mapping_status NOT IN ('exact','normalized','manual')))
    RETURNING id`,[id,fingerprint,decision]);
   if(!result.rowCount){await c.query('ROLLBACK');return false}
-  await c.query('COMMIT');return true;
+  await c.query('COMMIT');invalidateFmicSearchCache();return true;
  }catch(error){await c.query('ROLLBACK');throw error}finally{c.release()}
 }
