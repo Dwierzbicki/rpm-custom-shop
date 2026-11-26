@@ -1,5 +1,13 @@
 /** Polish -> English UI labels; retained verbatim during refactor. */
 export const en:Record<string,string>={
+"Najważniejsze parametry":"Key specifications",
+"Identyfikacja produktu":"Product identifiers",
+"Parametry produktu":"Product specifications",
+"Parametry ogólne":"General specifications",
+"Układ sprężarki":"Compressor",
+"Układ turbiny":"Turbine",
+"Smarowanie i chłodzenie":"Lubrication and cooling",
+"Pozostałe parametry":"Other specifications",
 "Cena bazowa":"Base price",
 "Dopłaty za konfigurację":"Configuration surcharges",
 "Wybierz wszystkie wymagane opcje.":"Select all required options.",

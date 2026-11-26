@@ -73,3 +73,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 
 - PDP-04: SKU 102130123 Pulsar PSR 3076 Gen2 (3270 PLN, dostępny, 3 zdjęcia źródłowe, opublikowany opis z parametrami; odczyt DB) oraz RPM-00031/32/33: galeria, cena, dopłaty, ilość, walidacja opcji, mobilny CTA po przewinięciu, dialogi i nawigacja do koszyka. 2 testy funkcji prezentacji dodane, NOT RUN; E2E/RWD 360/390/768/1024/1280/1920 NOT RUN.
 - COMMUNITY-01: HP Community, PL/EN, istniejące zdjęcie i link FB, tokeny kolorów, brak overflow i focus na wszystkich profilach. NOT RUN.
+
+- PDP-05: Pulsar 102130123 / nowa hierarchia i grupy / wszystkie źródłowe parametry zachowane, waga wysyłkowa ukryta, brak duplikacji SKU/producenta; PRISM i oba kolektory / ogólna specyfikacja, warianty i zakup bez zmian. 3 testy jednostkowe grupowania/identyfikacji dodane; pełny build i E2E/RWD 360/390/768/1024/1280/1920 NOT RUN.

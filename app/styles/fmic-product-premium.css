@@ -1,0 +1,68 @@
+/* Premium PDP: scoped overrides, no changes to cart or variant logic. */
+.fmic-pdp.rpm-pdp-premium{max-width:1440px}
+.rpm-pdp-premium .rpm-pdp-title{margin-bottom:clamp(24px,3vw,42px)}
+.rpm-pdp-premium .rpm-pdp-title h1{font-size:clamp(26px,2.5vw,40px);line-height:1.19;font-weight:800;letter-spacing:-.035em;max-width:1200px}
+.rpm-pdp-premium .rpm-pdp-title .rpm-pdp-brandline{gap:20px;margin-top:14px}
+.rpm-pdp-premium .fmic-pdp-grid{gap:clamp(24px,3.5vw,54px)}
+.rpm-pdp-premium .fmic-pdp-gallery .detail-main-photo{border-radius:10px;max-height:620px}
+.rpm-pdp-premium .fmic-pdp-gallery .detail-thumbnails{gap:10px}
+.rpm-pdp-premium .fmic-pdp-gallery .detail-thumbnails img{width:60px;height:60px}
+.rpm-pdp-premium .fmic-pdp-gallery .detail-gallery>small{font-size:12px;color:var(--rpm-color-muted)}
+.rpm-pdp-premium .fmic-pdp-buy{background:transparent;border:0;border-bottom:1px solid var(--rpm-color-border);border-radius:0;padding:6px 0 26px;gap:20px}
+.rpm-pdp-premium .fmic-pdp-buy .price-large{font-size:clamp(36px,3.4vw,56px);line-height:1.06;letter-spacing:-.045em}
+.rpm-pdp-premium .fmic-pdp-buy .price-large small,.rpm-pdp-premium .fmic-pdp-note{font-size:13px;line-height:1.6}
+.rpm-pdp-premium .product-availability{font-size:14px}
+.rpm-pdp-premium .rpm-pdp-add{font-size:15px;min-height:54px;border-radius:6px}
+.rpm-pdp-premium .rpm-pdp-quantity button{height:52px}
+.rpm-pdp-premium .rpm-pdp-actions button{font-size:13px;background:transparent;border-color:var(--rpm-color-border)}
+.rpm-pdp-premium .rpm-pdp-actions button[aria-pressed=true]{border-color:var(--rpm-color-accent)}
+.rpm-pdp-premium .rpm-pdp-key-specs{margin-top:28px}
+.rpm-pdp-premium .rpm-pdp-key-specs h2{font-size:18px;letter-spacing:0;margin:0 0 18px}
+.rpm-pdp-premium .rpm-pdp-key-specs .rpm-pdp-highlights{margin:0;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 16px}
+.rpm-pdp-premium .rpm-pdp-highlights>div{border:0;background:transparent;border-radius:0;padding:2px 0;display:grid;grid-template-columns:28px minmax(0,1fr);gap:6px 10px}
+.rpm-pdp-premium .rpm-pdp-highlights span{font-size:13px;color:var(--rpm-color-muted)}
+.rpm-pdp-premium .rpm-pdp-highlights strong{font-size:clamp(20px,2vw,28px);line-height:1.2}
+.rpm-pdp-premium .rpm-pdp-section-nav{margin-top:clamp(38px,4vw,60px);background:transparent;border:0;border-bottom:1px solid var(--rpm-color-border);border-radius:0;justify-content:flex-start;gap:clamp(12px,2vw,30px)}
+.rpm-pdp-premium .rpm-pdp-section-nav>a{flex:0 0 auto;padding:16px 4px;font-size:14px;border-bottom:3px solid transparent}
+.rpm-pdp-premium .rpm-pdp-section-nav>a:hover,.rpm-pdp-premium .rpm-pdp-section-nav>a:focus-visible{background:transparent;border-bottom-color:var(--rpm-color-accent)}
+.rpm-pdp-premium .rpm-pdp-content-section,.rpm-pdp-premium .rpm-pdp-details{margin-top:clamp(32px,4vw,56px)}
+.rpm-pdp-premium .rpm-pdp-tech-panel,.rpm-pdp-premium .rpm-pdp-details>.fmic-pdp-spec{border:0;background:transparent;border-radius:0}
+.rpm-pdp-premium .rpm-pdp-section-head{padding:0 0 20px;background:transparent;border:0}
+.rpm-pdp-premium .rpm-pdp-section-head h2{font-size:clamp(22px,2.3vw,30px);letter-spacing:-.025em}
+.rpm-pdp-premium .rpm-pdp-spec-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px 48px}
+.rpm-pdp-premium .rpm-pdp-spec-group{min-width:0}
+.rpm-pdp-premium .rpm-pdp-spec-group h3{font-size:17px;font-weight:750;letter-spacing:0;color:var(--rpm-color-text);margin:0;padding:0 0 12px;border-bottom:2px solid var(--rpm-color-accent)}
+.rpm-pdp-premium .rpm-pdp-tech-panel .rpm-pdp-spec-group dl{display:block;margin:0;border:0;border-radius:0}
+.rpm-pdp-premium .rpm-pdp-tech-panel .rpm-pdp-spec-group dl>div:nth-child(n){background:transparent;border:0;border-bottom:1px solid var(--rpm-color-border);padding:13px 0;gap:12px;font-size:14px;line-height:1.55}
+.rpm-pdp-premium .rpm-pdp-spec-group dt,.rpm-pdp-premium .rpm-pdp-spec-group dd{overflow-wrap:anywhere;min-width:0}
+.rpm-pdp-premium .rpm-pdp-spec-group dd{font-weight:700}
+.rpm-pdp-premium .rpm-pdp-sources{margin-top:28px;padding:0}
+.rpm-pdp-premium .rpm-pdp-copy{padding:0;font-size:16px;max-width:90ch;line-height:1.85}
+.rpm-pdp-premium .rpm-pdp-copy.is-collapsed::after{background:linear-gradient(transparent,var(--rpm-color-background))}
+.rpm-pdp-premium .rpm-pdp-expand{margin:16px 0 0}
+.rpm-pdp-premium .rpm-pdp-services{margin-top:clamp(32px,4vw,52px);padding:24px 0;border-block:1px solid var(--rpm-color-border);gap:24px}
+.rpm-pdp-premium .rpm-pdp-services>a,.rpm-pdp-premium .rpm-pdp-services>div{background:transparent;border:0;padding:0;border-radius:0}
+.rpm-pdp-premium .rpm-pdp-services strong{font-size:16px}
+.rpm-pdp-premium .rpm-pdp-services small{font-size:13px}
+.rpm-pdp-premium .rpm-pdp-warranty-simple{display:flex;gap:16px;align-items:flex-start;margin-top:32px;color:var(--rpm-color-text)}
+.rpm-pdp-premium .rpm-pdp-warranty-simple svg{flex:none;color:var(--rpm-color-accent)}
+.rpm-pdp-premium .rpm-pdp-warranty-simple h2{font-size:19px;letter-spacing:0;margin:0 0 8px}
+.rpm-pdp-premium .rpm-pdp-warranty-simple p{font-size:14px;margin:0}
+.rpm-pdp-premium .fmic-pdp-related-title{font-size:clamp(22px,2.3vw,30px);margin:clamp(40px,5vw,64px) 0 22px}
+.rpm-pdp-premium .fmic-pdp-related{gap:18px}
+.rpm-pdp-premium a:focus-visible,.rpm-pdp-premium button:focus-visible,.rpm-pdp-premium select:focus-visible{outline:2px solid var(--rpm-color-accent-hover);outline-offset:3px}
+@media(min-width:901px){.fmic-pdp.rpm-pdp-premium .fmic-pdp-grid,.fmic-pdp.rpm-pdp-premium.has-technical .fmic-pdp-grid{grid-template-columns:minmax(0,1.1fr) minmax(0,1fr)}}
+@media(max-width:900px){
+ .rpm-pdp-premium .fmic-pdp-buy{padding-top:0}
+ .rpm-pdp-premium .rpm-pdp-spec-groups{gap:28px 24px}
+ .rpm-pdp-premium .rpm-pdp-highlights strong{font-size:20px}
+ .rpm-pdp-premium .rpm-pdp-section-nav>a{font-size:13px}
+}
+@media(max-width:600px){
+ .rpm-pdp-premium .rpm-pdp-spec-groups{grid-template-columns:minmax(0,1fr);gap:28px}
+ .rpm-pdp-premium .rpm-pdp-key-specs .rpm-pdp-highlights{gap:18px 12px}
+ .rpm-pdp-premium .rpm-pdp-highlights span{font-size:12px}
+ .rpm-pdp-premium .rpm-pdp-highlights strong{font-size:19px}
+ .rpm-pdp-premium .fmic-pdp-related{gap:10px}
+ .rpm-pdp-premium .rpm-pdp-services{grid-template-columns:1fr;gap:20px}
+}

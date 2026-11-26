@@ -17,3 +17,5 @@
 - 2026-11-26 | Jeden PDP niezależnie od punktu wejścia; brak etykiety DEMO na prawdziwych kartach polecanych. Natywne linki pozwalają na kopiowanie URL, otwarcie w nowej karcie i nawigację wstecz.
 
 - 2026-11-26 | PDP: wspólna hierarchia zakupu, galeria o niezależnych proporcjach, poziomy scroll miniatur, najważniejsze parametry pod hero, cena i dopłaty, oznaczenie na zamówienie, mobilny pasek z ceną łączną i CTA po przewinięciu głównego CTA. Community: współdzielone tokeny Motorsport Dark zamiast osobnego różowo-fioletowego motywu. W KODZIE, RWD do potwierdzenia.
+
+- 2026-11-26 | PDP Premium Performance V2: zaakceptowano kierunek mniej ramek, większa typografia, oddech 32–60 px; zakup i najważniejsze parametry obok galerii, specyfikacja turbo w grupach ogólne/sprężarka/turbina/smarowanie i chłodzenie/pozostałe. Inne produkty mają wspólną ogólną grupę bez wymyślania parametrów. Waga wysyłkowa nie jest widoczna w identyfikacji, pozostaje w API i danych logistycznych. MPN/EAN tylko jeśli istnieją, SKU/producent bez powtórzeń. Gwarancja i dostawa oddzielone od specyfikacji. W KODZIE; RWD do potwierdzenia.
