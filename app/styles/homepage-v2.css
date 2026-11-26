@@ -67,3 +67,64 @@
 .rpm-hp-v2 .product-card .product-link,.rpm-hp-v2 .rpm-community-copy .eyebrow{color:var(--rpm-color-accent)}
 
 .rpm-hp-v2 .rpm-hp-custom-copy .eyebrow{color:#f05289}
+
+/* Homepage brand story and distinct benefit-strip sectors. */
+.rpm-hp-v2 .rpm-hp-trust{gap:0;align-items:stretch;padding-block:20px}
+.rpm-hp-v2 .rpm-hp-trust>span{
+ box-sizing:border-box;min-width:0;min-height:76px;padding:16px clamp(12px,1.6vw,28px);
+ border-block:1px solid #30343c;border-inline-start:1px solid #30343c;
+ background:linear-gradient(150deg,#181b21,#111318);color:#f0f1f3;line-height:1.45
+}
+.rpm-hp-v2 .rpm-hp-trust>span:nth-child(even){background:linear-gradient(150deg,#1c2026,#14171c)}
+.rpm-hp-v2 .rpm-hp-trust>span:first-child{border-radius:8px 0 0 8px}
+.rpm-hp-v2 .rpm-hp-trust>span:last-child{border-inline-end:1px solid #30343c;border-radius:0 8px 8px 0}
+.rpm-hp-v2 .rpm-hp-trust>span>svg{color:#f03a59}
+.rpm-hp-v2 .rpm-hp-about{display:block;box-sizing:border-box;padding-block:clamp(32px,4vw,68px)}
+.rpm-hp-v2 .rpm-hp-about>.rpm-hp-about-panel{
+ max-width:none;min-width:0;position:relative;overflow:hidden;
+ border:1px solid #343943;border-radius:8px;
+ background:radial-gradient(ellipse at 88% 0%,#25252d 0%,transparent 55%),linear-gradient(140deg,#16191e,#101216);
+ padding:clamp(18px,3vw,46px)
+}
+.rpm-hp-about-intro{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);align-items:center}
+.rpm-hp-about-copy{min-width:0}
+.rpm-hp-v2 .rpm-hp-about h2{margin:12px 0 15px;max-width:780px;font-size:clamp(30px,3.6vw,55px);line-height:1.06;letter-spacing:-.035em}
+.rpm-hp-about-copy h3{font-size:clamp(13px,1.3vw,18px);line-height:1.45;letter-spacing:.035em;color:#f14a63;margin:0 0 22px;font-weight:850}
+.rpm-hp-v2 .rpm-hp-about p{margin:0 0 14px;font-size:14px;line-height:1.75;color:#c9cdd4;max-width:760px}
+.rpm-hp-about-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-top:24px}
+.rpm-hp-about-actions>a{display:inline-flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;min-height:46px;padding:12px 18px;font-size:12px;font-weight:800;box-sizing:border-box}
+.rpm-hp-v2 .rpm-hp-about .rpm-hp-about-accent{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+ min-width:0;padding:clamp(20px,3vw,44px);border:1px solid #343943;border-radius:6px;
+ background:repeating-linear-gradient(135deg,#ffffff02 0 1px,transparent 1px 10px),radial-gradient(ellipse at center,#262930,#111318);
+ text-align:center;font-style:normal;letter-spacing:normal;color:#f2f3f5;font-size:initial
+}
+.rpm-hp-v2 .rpm-hp-about-accent .rpm-about-brand-code{font-size:10px;letter-spacing:.16em;color:#9da4b0;font-weight:800}
+.rpm-hp-v2 .rpm-hp-about-accent img{max-width:360px;width:100%;height:auto;max-height:none}
+.rpm-hp-about-accent .rpm-about-brand-line{width:48px;height:3px;background:#ed2849;transform:skewX(-20deg)}
+.rpm-hp-about-accent strong{font-size:clamp(15px,1.5vw,23px);font-style:italic;letter-spacing:.025em;line-height:1.2}
+.rpm-hp-about-accent small{font-size:10px;letter-spacing:.12em;color:#adb3bf;line-height:1.6}
+.rpm-hp-about-pillars{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:clamp(24px,3vw,40px)}
+.rpm-about-pillar{min-width:0;border:1px solid #343943;border-radius:5px;padding:clamp(14px,1.6vw,24px);background:#1c2026}
+.rpm-about-pillar-head{display:flex;align-items:center;justify-content:space-between;color:#f14a63;margin-bottom:16px}
+.rpm-about-pillar-head span{font-size:11px;font-weight:850;letter-spacing:.1em;color:#8e96a3}
+.rpm-about-pillar h4{font-size:15px;line-height:1.35;margin:0 0 8px;color:#f1f3f6}
+.rpm-hp-v2 .rpm-hp-about .rpm-about-pillar p{font-size:13px;line-height:1.6;margin:0;overflow-wrap:anywhere}
+@media(max-width:1100px){.rpm-hp-about-pillars{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:780px){
+ .rpm-hp-v2 .rpm-hp-trust>span{min-height:68px;padding:12px;gap:9px}
+ .rpm-hp-v2 .rpm-hp-trust>span:nth-child(2){border-inline-end:1px solid #30343c;border-radius:0 8px 0 0}
+ .rpm-hp-v2 .rpm-hp-trust>span:first-child{border-radius:8px 0 0 0}
+ .rpm-hp-v2 .rpm-hp-trust>span:nth-child(n+3){border-top:0}
+ .rpm-hp-v2 .rpm-hp-trust>span:nth-child(3){border-radius:0 0 0 8px}
+ .rpm-hp-v2 .rpm-hp-trust>span:last-child{border-radius:0 0 8px 0}
+ .rpm-hp-about-intro{grid-template-columns:1fr;gap:24px}
+ .rpm-hp-v2 .rpm-hp-about .rpm-hp-about-accent{padding:24px;gap:12px}
+ .rpm-hp-v2 .rpm-hp-about-accent img{max-width:250px}
+}
+@media(max-width:480px){
+ .rpm-hp-v2 .rpm-hp-about{padding-inline:16px}
+ .rpm-hp-about-pillars{grid-template-columns:1fr;gap:8px}
+ .rpm-hp-about-actions{align-items:stretch;flex-direction:column}
+ .rpm-hp-about-actions>a{width:100%}
+}

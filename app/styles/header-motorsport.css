@@ -79,7 +79,7 @@
 .rpm-header-v2 .rpm-desktop-root[data-cascade-side="left"]>.rpm-cascade-panel{left:auto;right:0;flex-direction:row-reverse}
 .rpm-header-v2 .rpm-cascade-groups,.rpm-header-v2 .rpm-cascade-leaves{
  box-sizing:border-box;min-width:0;flex:none;padding:5px;
- background:#181b22;border:1px solid #3b414c;border-top:2px solid #f12748;
+ background:#181b22;border:1px solid #3b414c;
  box-shadow:0 16px 36px #0009;border-radius:0 0 6px 6px;
  max-height:min(640px,var(--rpm-cascade-height,calc(100dvh - 180px)));
  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
