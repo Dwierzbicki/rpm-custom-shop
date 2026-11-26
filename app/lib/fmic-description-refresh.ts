@@ -20,7 +20,7 @@ export async function refreshSupplierDescription(sku:string){
    WHERE e.sku=$1 AND c.sku=e.sku AND c.name=$3 AND c.data->>'url'=$4 AND e.fetched_at=$5 AND e.source_url=$4 RETURNING e.sku`,[sku,JSON.stringify(next.data),old.name,next.source_url,old.fetched_at]);
   if(!updated.rowCount)throw Error('Katalog zmienił się podczas odświeżania');
   // Only unedited, unpublished supplier drafts may be refreshed automatically.
-  if(changed)await client.query("UPDATE rpm_fmic_product_descriptions SET description=$2,technical=$3::jsonb,updated_at=NOW() WHERE sku=$1 AND published=false AND description=$4 AND brand=$5",[sku,next.data.description.trim(),JSON.stringify(technical),String(old.data.description??'').trim(),String(old.data.brand??'').slice(0,200)]);
+  if(changed)await client.query("UPDATE rpm_fmic_product_descriptions SET description=$2,technical=$3::jsonb,updated_at=NOW() WHERE sku=$1 AND published=false AND publication_origin IS DISTINCT FROM 'manual' AND description=$4 AND brand=$5",[sku,next.data.description.trim(),JSON.stringify(technical),String(old.data.description??'').trim(),String(old.data.brand??'').slice(0,200)]);
   const review=changed&&!!(await client.query("SELECT 1 FROM rpm_fmic_product_descriptions WHERE sku=$1 AND (published=true OR description<>$2 OR brand<>$3)",[sku,next.data.description.trim(),next.data.brand.slice(0,200)])).rowCount;
   // Preserve existing unresolved review states even if the source has not changed again.
   await client.query(`INSERT INTO rpm_fmic_description_queue(sku,status,detail,updated_at) VALUES($1,$2,$3,NOW())

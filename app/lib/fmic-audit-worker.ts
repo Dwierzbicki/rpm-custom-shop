@@ -1,4 +1,4 @@
-import {canRunFmicWorker} from './fmic-worker-mode';
+import {canRunFmicWorker,fmicWorkerMemoryBudget} from './fmic-worker-mode';
 import {getDbPool} from './db';
 import {nextAuditCandidate,auditSupplierBlocked} from './fmic-audit-selection';
 import {setupImageAudit,inspectImage} from './fmic-image-quality';
@@ -38,7 +38,7 @@ export function startAuditWorker(){
  await setupAuditWorker();
  const db=getDbPool();
  const control=await db.query('SELECT enabled FROM rpm_fmic_audit_control WHERE id=1');
- if(control.rows[0]?.enabled&&process.memoryUsage().rss<320*1024*1024){
+ if(control.rows[0]?.enabled&&process.memoryUsage().rss<fmicWorkerMemoryBudget()){
  client=await db.connect();
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,2) AS acquired');
  locked=lock.rows[0].acquired;

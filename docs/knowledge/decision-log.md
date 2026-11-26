@@ -6,3 +6,4 @@ Dziennik dopisywany; decyzje zastąpione oznacz, nie usuwaj historii.
 - 2026-11-26 | D-003 | POTWIERDZONE: pięć Skills i AGENTS.md zapisane w main, commit 83000d99.
 - 2026-11-26 | D-004 | POTWIERDZONA decyzja użytkownika: testy i dokumentacja to priorytet. Knowledge Manager aktualizuje wiedzę przy istotnym zadaniu; Definition of Done obejmuje dowody testów, aktualizację dokumentacji i stan wdrożenia. Nie oznacza pracy autonomicznej w tle.
 - 2026-11-26 | D-005 | POTWIERDZONA decyzja użytkownika: zmiany i testy obowiązkowo na mobile, tablet i desktop. Matryca RWD określa kryteria odbioru.
+- 2026-11-26 | D-006 | Automatyczna publikacja opisów o dokładnej tożsamości FMIC, ochrona ręcznych decyzji, lokalne partie do 10 i większy budżet pamięci w aktualnym planie Render; limity pobierania dostawcy pozostają bez zmian do potwierdzenia warunków. Stan wdrożenia i testy do weryfikacji.

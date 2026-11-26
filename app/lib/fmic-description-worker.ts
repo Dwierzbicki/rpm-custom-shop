@@ -1,4 +1,5 @@
-import {canRunFmicWorker} from './fmic-worker-mode';
+import {canRunFmicWorker,fmicWorkerMemoryBudget} from './fmic-worker-mode';
+import {verifiedSupplierIdentitySql,publishLegacyWorkerDrafts} from './fmic-description-publication';
 import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
 import {refreshSupplierDescription} from './fmic-description-refresh';
@@ -19,15 +20,18 @@ export async function seedDescriptionQueue(){
  const result=await getDbPool().query("INSERT INTO rpm_fmic_description_queue(sku) SELECT c.sku FROM rpm_fmic_catalog c WHERE NOT EXISTS (SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=c.sku AND d.description<>'') ON CONFLICT DO NOTHING");
  return result.rowCount??0;
 }
-export async function assignDraft(sku:string){
+export async function assignDraft(sku:string,autoPublish=false){
  const db=getDbPool();
  const source=(await db.query("SELECT c.name,c.target_category,e.data->>'description' AS description FROM rpm_fmic_catalog c JOIN rpm_fmic_enrichment e ON e.sku=c.sku WHERE c.sku=$1",[sku])).rows[0];
  if(!source?.description?.trim())return false;
  const technical=parseProductTechnical(source.name,source.description.trim(),source.target_category??[],sku);
- const result=await db.query(`INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published,technical)
- SELECT sku,trim(data->>'description'),left(COALESCE(data->>'brand',''),200),false,$2::jsonb FROM rpm_fmic_enrichment
- WHERE sku=$1 AND NULLIF(trim(data->>'description'),'') IS NOT NULL
- ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku,JSON.stringify(technical)]);
+ const result=await db.query(`INSERT INTO rpm_fmic_product_descriptions(sku,description,brand,published,technical,publication_origin)
+ SELECT e.sku,trim(e.data->>'description'),left(COALESCE(e.data->>'brand',''),200),
+ ($3::boolean AND ${verifiedSupplierIdentitySql}),$2::jsonb,CASE WHEN $3::boolean THEN 'supplier-worker' END
+ FROM rpm_fmic_enrichment e JOIN rpm_fmic_catalog c ON c.sku=e.sku
+ WHERE e.sku=$1 AND NULLIF(trim(e.data->>'description'),'') IS NOT NULL AND c.name=$4
+ AND c.target_category IS NOT DISTINCT FROM $5::text[] AND trim(e.data->>'description')=$6
+ ON CONFLICT(sku) DO NOTHING RETURNING sku`,[sku,JSON.stringify(technical),autoPublish,source.name,source.target_category,source.description.trim()]);
  return !!result.rowCount;
 }
 const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean;rpmDescriptionStop?:boolean;rpmDescriptionTask?:Promise<void>};
@@ -40,14 +44,18 @@ export function startDescriptionWorker(){
  let client:import('pg').PoolClient|undefined,locked=false;
  try{
  await setupDescriptionQueue();const db=getDbPool();
- const control=await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())');
- if(control.rows[0]?.enabled&&process.memoryUsage().rss<320*1024*1024){
+ const control=await db.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW())');
+ if(control.rows[0]?.enabled&&process.memoryUsage().rss<fmicWorkerMemoryBudget()){
  client=await db.connect();
  const lock=await client.query('SELECT pg_try_advisory_lock(27391,3) AS acquired');locked=lock.rows[0].acquired;
  if(locked){
- const state=await client.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())');
+ const state=await client.query('SELECT enabled,(next_request_at IS NULL OR next_request_at<=NOW()) AS fetch_ready FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW())');
  if(state.rows[0]?.enabled){
  await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW() WHERE id=1');
+ // Local publication is independent of upstream request pacing.
+ const published=await publishLegacyWorkerDrafts(client,10);
+ if(published)console.info('FMIC verified legacy drafts published:',published);
+ if(state.rows[0].fetch_ready){
  const refresh=(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
  if(refresh){
   await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
@@ -63,7 +71,7 @@ export function startDescriptionWorker(){
  await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
  await inspectProduct(row.sku);
  }
- await assignDraft(row.sku);
+ await assignDraft(row.sku,true);
  }
  const exists=await client.query("SELECT 1 FROM rpm_fmic_product_descriptions WHERE sku=$1 AND description<>''",[row.sku]);
  await client.query("UPDATE rpm_fmic_description_queue SET status=$2,detail=$3,updated_at=NOW() WHERE sku=$1",[row.sku,exists.rowCount?'done':'review',exists.rowCount?null:'Brak opisu lub istniejący pusty szkic']);
@@ -72,6 +80,7 @@ export function startDescriptionWorker(){
  const msg=String(e).slice(0,400);
  if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg]);}
  else{await client.query("UPDATE rpm_fmic_description_queue SET status='review',detail=$2,updated_at=NOW() WHERE sku=$1",[row.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg]);}
+ }
  }
  }
  }

@@ -23,3 +23,10 @@
 - 2026-11-25: celowane zapytanie odczytowe PostgreSQL zwróciło RPM-00031, PRISM, 135 mm, 2100 PLN i available=true. PASS dla tego zapytania; nie jest testem API, UI ani pełnego listingu.
 - 2026-11-26: Render deploy dep-dc3tri3bc2fs738vs4ug, commit 83000d99, status live. Potwierdza deployment, nie E2E.
 - Polecenia projektu: npm test, npm run typecheck, npm run build; wydajność npm run fmic:benchmark. Wyniki zapisuj z SHA, środowiskiem i dowodem. Nie uruchamiaj prawdziwych zamówień, płatności ani e-maili bez osobnej zgody.
+
+## FMIC — automatyczna publikacja i zasoby (2026-11-26)
+| DESC-01 | Dokładny SKU/MPN/nazwa/URL, niepusta marka źródła / pobierz / automat publikuje wyłącznie zgodny opis | NOT RUN |
+| DESC-02 | Sprzeczna marka lub tożsamość, ręczny zapis/wycofanie, review / automat / brak publikacji lub nadpisania | NOT RUN |
+| DESC-03 | Niezmienione stare szkice automatu / lokalna partia maks. 10 / publikacja bez nowych żądań HTTP | NOT RUN |
+| DESC-04 | 2 GiB limit / worker / limit RSS 768 MiB; zachowane 30 s opisów i 5 s zdjęć | NOT RUN |
+Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekstem źródłowym i czasami workera (maks. odstępy <0,21 s). Wcześniejszy odczyt ścisłego warunku tożsamości + prostych parametrów zwrócił 1 278 kwalifikujących się szkiców. To dowody odczytu, nie test wdrożenia. PDP na trzech klasach urządzeń: NOT RUN.
