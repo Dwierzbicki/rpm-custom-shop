@@ -17,3 +17,13 @@ export function usableVariantFamily(family:StorefrontVariantFamily|null|undefine
  if(new Set(family.variants.map(v=>v.sku)).size!==family.variants.length||new Set(family.variants.map(v=>v.color)).size!==family.variants.length)return null;
  return family;
 }
+
+// Compare displayed gross prices in integer grosze; avoid floating-point dust.
+export function variantPriceDelta(price:string,selectedPrice:string):string|null{
+ if(!price.trim()||!selectedPrice.trim())return null;
+ const current=Number(price),selected=Number(selectedPrice);
+ if(!Number.isFinite(current)||!Number.isFinite(selected)||current<0||selected<0)return null;
+ const delta=Math.round(current*100)-Math.round(selected*100);
+ if(!delta)return null;
+ return (delta>0?'+ ':'− ')+(Math.abs(delta)/100).toLocaleString('pl-PL',{style:'currency',currency:'PLN'});
+}
