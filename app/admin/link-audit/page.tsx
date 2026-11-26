@@ -38,7 +38,7 @@ export default function LinkAudit(){
   const ctrl=new AbortController();active.current=ctrl;setRunning(true);setError('');
   try{await navigator.locks.request('rpm-link-audit',{ifAvailable:true},async lock=>{
    if(!lock)throw Error('Audyt jest już uruchomiony w innej karcie.');
-   let s=resume?await readAudit():undefined;
+   let s:AuditState|undefined=resume?await readAudit():undefined;
    if(resume&&(!s||s.done))throw Error('Brak audytu do wznowienia.');
    if(!s){
     const first=await batch(mode,'prefix','',ctrl.signal,true);
@@ -46,7 +46,7 @@ export default function LinkAudit(){
     await saveAudit(s,undefined,true);setState(s);setIssues([]);
    }
    while(!ctrl.signal.aborted&&!s.done){
-    const b=await batch(s.mode,s.phase,s.cursor,ctrl.signal);
+    const b:{items:AuditItem[];total?:number}=await batch(s.mode,s.phase,s.cursor,ctrl.signal);
     if(ctrl.signal.aborted)break;
     if(!b.items.length){
      s=s.phase==='prefix'&&s.mode!=='pages'?{...s,phase:'supplier',cursor:''}:{...s,done:true};
@@ -58,7 +58,7 @@ export default function LinkAudit(){
      const result=await check(item,ctrl.signal);
      if(ctrl.signal.aborted)break;
      if(result==='HTTP 401'||result==='HTTP 403'||result==='Blokada dostępu')throw Error('Sesja wygasła lub dostęp zablokowany. Zaloguj się i wznów audyt.');
-     const issue=result==='200'?undefined:{id:s.phase+':'+item.cursor,path:item.path,sku:item.sku,result,checkedAt:new Date().toISOString()};
+     const issue:AuditIssue|undefined=result==='200'?undefined:{id:s.phase+':'+item.cursor,path:item.path,sku:item.sku,result,checkedAt:new Date().toISOString()};
      s={...s,cursor:item.cursor,checked:s.checked+1,ok:s.ok+(issue?0:1),issues:s.issues+(issue?1:0)};
      await saveAudit(s,issue);setState(s);
      if(issue)setIssues(old=>old.length<100?[...old,issue]:old);

@@ -99,3 +99,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-11: zgłoszenie 404 dla 004548/70-G (produkt istnieje w DB; 3987 SKU z / na 133742 w feedzie). Testy roundtrip, stare adresy, brak/duplikat SKU, zwykły RPM, rzeczywisty 404 dodane. E2E `scripts/test-product-sku-routing.mjs` NOT RUN; stary adres może być odrzucony przez proxy przed Next, nowy omija kodowany ukośnik w ścieżce.
 
 - LINK-01: admin → Zaawansowane → Sprawdzenie poprawności linków. Zakresy pages/special/all; sprawdzenie 200 z markerem SKU (w tym / i %), 404, blokada, przekierowanie, timeout, CSV, pauza i wznowienie po przeładowaniu. Testy klasyfikacji/CSV dodane, NOT RUN; RWD i pełna integracja NOT RUN. Pełny audyt nieuruchomiony, aby nie obciążać produkcji. Statyczne strony sprawdzane status/HTML, nie pełna semantyka ani kotwice.
+
+- LINK-01 build FAIL: Render dep-dc3vn4rrjlhs73f49kv0, commit c09d5cac, Next compiled successfully then strict TypeScript reported TS7022 on issue at app/admin/link-audit/page.tsx:61. Explicit types for state, batch and issue break circular inference. Build fix in code, full Next build and RWD to verify; no bypass of type checking.
