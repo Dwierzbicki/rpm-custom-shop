@@ -141,7 +141,11 @@ test('Listing cache reuses aggregate results across pagination and sorting only'
  assert.notEqual(keys.items,next.items);
  const selected=searchPerformance.listingCacheKeys({...input,selected:['HEL']});
  assert.notEqual(keys.count,selected.count);
- assert.notEqual(keys.facets,selected.facets);
+ // A single facet's counts ignore its own selection; multi-facet counts depend on the other filters.
+ assert.equal(keys.facets,selected.facets);
+ const multi=searchPerformance.listingCacheKeys({...input,selected:['','']});
+ const multiSelected=searchPerformance.listingCacheKeys({...input,selected:['HEL','']});
+ assert.notEqual(multi.facets,multiSelected.facets);
  assert.notEqual(keys.items,selected.items);
  assert.equal(keys.categories,selected.categories);
  const price=searchPerformance.listingCacheKeys({...input,min:100});
