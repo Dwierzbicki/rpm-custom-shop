@@ -51,3 +51,5 @@
 - 2026-11-26 | Wspólny desktop shell: od 1366 px header, główne sekcje HP, MotoLab/community na HP, listing i stopka korzystają z limitu 1800 px oraz 24 px marginesu wewnętrznego; PDP, koszyk i Power Builder do 1600 px. Bez rozszerzania tekstów opisowych, formularzy konta/checkoutu, stron informacyjnych ani admina. Mniejsze ekrany bez nowych reguł. W KODZIE; weryfikacja wizualna do wykonania.
 
 - Variant Manager bulk review: checkbox beside pending family only, select current page, live count of selected families/SKU/reduction, clear and explicit confirm; 44px row selection target and wrapping toolbar, mobile stacked; no select-all catalogue or cross-page selection. W KODZIE, RWD pending.
+
+- VAR-BATCH UX: domyślny filtr Do zatwierdzenia; po udanym zatwierdzeniu paczki automatyczny powrót na pierwszą stronę oczekujących w tym samym zakresie i wyszukiwaniu. Toolbar nie znika na stronach bez oczekujących, działania nieaktywne, skrót Pokaż oczekujące. Bez automatycznego zaznaczenia lub publikacji kolejnej paczki.
