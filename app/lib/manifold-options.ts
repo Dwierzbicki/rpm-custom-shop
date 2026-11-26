@@ -6,6 +6,13 @@ export const wastegateDiameters=[35,38,40,44,45,50,54,60] as const;
 export function wastegateDiameterGroup():ProductOptionGroup{
  return {id:'rpm-wg-diameter',name:'Średnica WG',required:true,options:[{id:'internal',label:'Wewnętrzny WG — bez wyjścia',price:0},...wastegateDiameters.map(mm=>({id:'wg-'+mm,label:mm+' mm',price:0}))]};
 }
+export function termShieldGroup():ProductOptionGroup{
+ return {id:'rpm-thermal-insulation',name:'Izolacja termiczna',required:false,options:[{id:'none',label:'Bez izolacji',price:0},{id:'termshield',label:'TermShield',price:1600}]};
+}
+/** Targeted persistence: keep any existing operator-managed group untouched. */
+export function withTermShieldOption(groups:ProductOptionGroup[]):ProductOptionGroup[]{
+ return groups.some(g=>g.id==='rpm-thermal-insulation')?groups:[...groups,termShieldGroup()];
+}
 export function bmwChassisGroup():ProductOptionGroup{
  return {id:'rpm-chassis',name:'Nadwozie',required:true,options:['E36','E46','E8x','E9x'].map(label=>({id:label.toLowerCase(),label:'BMW '+label,price:0}))};
 }
@@ -50,10 +57,11 @@ export function manifoldPreset(kind:'bmw'|'2jz-ge',existing:ProductOptionGroup[]
  ...(kind==='bmw'?[{id:'rpm-engine',name:'Silnik',required:true,options:['M50','M52','M54'].map(label=>({id:label.toLowerCase(),label,price:0}))},bmwChassisGroup()]:[]),
  flangeGroup(true),
  wastegateDiameterGroup(),
- {id:'rpm-egt',name:'EGT',required:true,options:[{id:'no',label:'Bez króćców EGT',price:0},{id:'yes',label:'Z króćcami EGT',price:0}]}
+ {id:'rpm-egt',name:'EGT',required:true,options:[{id:'no',label:'Bez króćców EGT',price:0},{id:'yes',label:'Z króćcami EGT',price:0}]},
+ termShieldGroup()
  ];
  return [...groups.map(g=>{
   const old=existing.find(x=>x.id===g.id);
-  return old?{...old,required:true,options:[...old.options,...g.options.filter(o=>!old.options.some(x=>x.id===o.id))]}:g;
+  return old?{...old,required:g.required,options:[...old.options,...g.options.filter(o=>!old.options.some(x=>x.id===o.id))]}:g;
  }),...existing.filter(g=>g.id!=='rpm-wastegate'&&!(kind==='2jz-ge'&&['rpm-chassis','rpm-engine'].includes(g.id))&&!groups.some(x=>x.id===g.id))];
 }

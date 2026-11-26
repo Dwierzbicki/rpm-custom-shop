@@ -80,7 +80,7 @@ export async function POST(request:Request){
     for(const group of groups){
      const chosen=supplied[group.name];
      const opt=group.options.find(o=>o.label===chosen);
-     if(group.required&&!opt)return NextResponse.json({error:'Wybierz wymagane opcje: '+group.name},{status:400});
+     if((group.required||(group.id==='rpm-thermal-insulation'&&chosen!==undefined))&&!opt)return NextResponse.json({error:'Wybierz wymagane opcje: '+group.name},{status:400});
      if(opt){verified[group.name]=opt.label;extra+=opt.price;}
     }
     const flange=groups.find(g=>g.id==='rpm-flange');

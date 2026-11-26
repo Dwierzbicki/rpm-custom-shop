@@ -48,3 +48,14 @@
  .fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description{padding:18px 16px}
 }
 @media(max-width:380px){.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-chassis .rpm-pdp-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Keep dependent configuration controls in place during flange and price changes. */
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-price-breakdown{display:grid;gap:4px;font-size:12px;line-height:1.5;min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-price-breakdown>span{display:flex;justify-content:space-between;gap:8px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-price-breakdown strong{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--rpm-color-text)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-wg-diameter label.is-wide{min-height:72px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label.is-unavailable{cursor:not-allowed;color:var(--rpm-color-muted);background:var(--rpm-color-background);border-color:var(--rpm-color-border)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label.is-unavailable input{cursor:not-allowed}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label.is-unavailable>span{opacity:.65}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-wg-summary{min-height:42px;line-height:1.5}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-add{min-height:54px}

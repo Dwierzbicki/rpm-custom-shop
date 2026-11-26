@@ -8,7 +8,7 @@ function load(name){
  new Function('exports','module',ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(mod.exports,mod);
  return mod.exports;
 }
-const {manifoldPreset,withManifoldOptions}=load('manifold-options');
+const {manifoldPreset,withManifoldOptions,withTermShieldOption}=load('manifold-options');
 const {configuredCartLine}=load('product-configuration');
 const base={id:99,sku:'TEST-99',name:'Kolektor turbo BMW M50/M52/M54',engine:'BMW M50/M52/M54',category:'Kolektory',brand:'RPM Custom',price:2500,description:'Fixture'};
 const config=chosenOptions=>({chosenOptions,engine:'',flange:'',wg:'',egt:false,qty:1});
@@ -111,4 +111,24 @@ test('regression: canonical stainless leaf offers still get manifold configurati
  }
  const component={...base,category:'Elementy kolektora wydechowego'};
  assert.equal(withManifoldOptions(component),component);
+});
+
+test('optional TermShield adds 1600 per manifold, preserves existing uninsulated carts and pricing',()=>{
+ for(const kind of ['bmw','2jz-ge']){
+  const old=manifoldPreset(kind).filter(g=>g.id!=='rpm-thermal-insulation');
+  old.find(g=>g.id==='rpm-flange').options.find(o=>o.id==='t4-single').price=500;
+  const groups=withTermShieldOption(old);
+  assert.deepEqual(groups.slice(0,-1),old);
+  assert.equal(withTermShieldOption(groups),groups);
+  const product={...base,configurable:true,optionGroups:groups};
+  const choice={'rpm-flange':'t4-single','rpm-wg-diameter':'wg-44','rpm-egt':'no',...(kind==='bmw'?{'rpm-engine':'m54','rpm-chassis':'e46'}:{})};
+  const plain=configuredCartLine(product,config(choice));
+  const thermal=configuredCartLine(product,config({...choice,'rpm-thermal-insulation':'termshield'}));
+  assert.equal(plain.unitPrice,3000);
+  assert.equal(thermal.unitPrice,4600);
+  assert.equal(thermal.options['Izolacja termiczna'],'TermShield');
+  assert.notEqual(plain.key,thermal.key);
+  assert.equal(configuredCartLine(product,config({...choice,'rpm-thermal-insulation':'invalid'})),null);
+  assert.equal(manifoldPreset(kind,groups).find(g=>g.id==='rpm-thermal-insulation').required,false);
+ }
 });

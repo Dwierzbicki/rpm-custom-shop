@@ -91,3 +91,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - SOCIAL-03: opis OG strony głównej identyczny przed i po zalogowaniu; bez DEMO, prototypu i „Sklep w przygotowaniu”. Zmieniono tylko metadane publiczne, nie komunikat formularza ani blokadę. Test dodany, NOT RUN; Facebook cache do odświeżenia.
 
 - CART-02: koszyk manualny, FMIC, mieszany, pusty, nieaktualne/ukryte pozycje i błędy pobrania katalogu/wyceny; przywrócenie przez retry, brak niedozwolonego CTA, ilość i sumy, konfiguracja w podsumowaniu zamówienia. 3 testy cart-readiness dodane. RWD 360/390/768/1024/1280/1920 i pełny build NOT RUN; bez wysyłania zamówienia. Wspólna finalizacja FMIC nadal zablokowana.
+
+- PDP-09: T3 internal → T4, disabled (nie usuwać wiersza) i niezaznaczony WG; brak przesunięcia EGT >2px, wymagany zewnętrzny WG. TermShield +1600/szt., bez izolacji cena bazowa konfiguracji; stare koszyki nadal poprawne. Test jednostkowy i RWD rozszerzone. NOT RUN: brak lokalnego repo / autoryzowanej sesji. Produkcyjne zapisanie grup do dwóch SKU do potwierdzenia po deployu.

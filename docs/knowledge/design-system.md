@@ -29,3 +29,5 @@
 - 2026-11-26 | Social sharing: Open Graph PL, nazwa produktu, krótki opis, kanoniczny URL, rzeczywiste zdjęcie; własne Cloudinary pad 1200×630, brak zdjęcia → grafika marki 1200×630 bez fikcyjnego produktu. Twitter large image. W KODZIE; blokada sklepu pozostaje.
 
 - 2026-11-26 | Koszyk Premium: szerszy layout, linie oddzielone delikatnym separatorem, zdjęcie contain / wspólny placeholder, podsumowanie na desktopie i pod listą na mobile/tablecie, pojedyncze CTA zależne od źródła. Koszyk mieszany pokazuje dwie grupy i jawny komunikat zamiast nieaktywnego formularza FMIC. Checkout bez DEMO, warianty w podsumowaniu. W KODZIE.
+
+- 2026-11-26 | Stabilizacja konfiguratora: wewnętrzny WG nie znika z siatki po zmianie flanszy, lecz staje się disabled i ma stały opis dostępności. Cena bazowa/dopłaty pozostają w dwóch stałych wierszach, także przy 0 PLN. Opcjonalny TermShield w dwóch kafelkach, bez zmiany domyślnej ceny.
