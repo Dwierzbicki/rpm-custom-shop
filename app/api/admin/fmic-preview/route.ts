@@ -19,7 +19,9 @@ export async function GET(request:Request){
  const raw=Number(params.get('page')??1),page=Number.isSafeInteger(raw)?Math.max(1,Math.min(10000,raw)):1,size=24;
  const q=(params.get('q')??'').trim().slice(0,120);
  const includeManual=new URL(request.url).pathname==='/api/catalog/fmic';
- if(!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[],includesManual:includeManual});
+ // The public storefront root is a browsable catalogue; preserve the admin preview guard.
+ if(!includeManual&&!path.length&&q.length<2)return NextResponse.json({items:[],total:0,page,size,path,facets:[],includesManual:includeManual});
+ const showCategories=q.length>=2||(!path.length&&includeManual);
  const sort=params.get('sort');
  const stock=params.get('stock')==='available'?'available':params.get('stock')==='unavailable'?'unavailable':'all';
  const supplierOrder=sort==='priceAsc'?'proposed_gross ASC, sku ASC':sort==='priceDesc'?'proposed_gross DESC, sku ASC':'available DESC, sku ASC';
@@ -96,11 +98,11 @@ export async function GET(request:Request){
  cachedSearch(listingKey(keys.count),15000,async()=> (await db.query(source+'SELECT count(*)::int AS total FROM catalog'+all.sql,all.args)).rows),
  cachedSearch(listingKey(keys.items),15000,async()=> (await db.query(itemSource+", page_rows AS MATERIALIZED (SELECT sku,proposed_gross,available"+(mixed?',manual_id':'')+" FROM catalog"+all.sql+' ORDER BY '+order+' LIMIT $'+(all.args.length+1)+' OFFSET $'+(all.args.length+2)+") SELECT p.sku,"+(mixed?'COALESCE(m.name,c.name)':'c.name')+" AS name,p.proposed_gross,p.available,"+(mixed?"p.manual_id,m.manual_stock_status,COALESCE(m.data->>'brand',":"")+"COALESCE(NULLIF(trim(c.data->>'brand'),''),CASE WHEN e.source_url=c.data->>'url' AND e.data->>'sku'=c.sku AND e.data->>'name'=c.name THEN NULLIF(trim(e.data->>'brand'),'') END)"+(mixed?')':'')+" AS brand,"+(mixed?"COALESCE(m.data->'images'->>0,":"")+"(SELECT img.url FROM jsonb_array_elements_text(c.data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1)"+(mixed?')':'')+" AS image FROM page_rows p "+(mixed?"LEFT JOIN rpm_fmic_catalog c ON c.sku=p.sku AND p.manual_id IS NULL LEFT JOIN manual_rows m ON m.manual_id=p.manual_id":"JOIN rpm_fmic_catalog c ON c.sku=p.sku")+" LEFT JOIN rpm_fmic_enrichment e ON e.sku=c.sku ORDER BY "+order.replace(/\b(sku|available|proposed_gross|manual_id)\b/g,'p.$1'),[...all.args,size,(page-1)*size])).rows),
  branches.length?cachedSearch(listingKey(keys.facets),15000,async()=> (await db.query(facetSource+branches.join(' UNION ALL '),facetArgs)).rows):Promise.resolve([]),
- q.length>=2?cachedSearch(keys.categories,15000,async()=> (await db.query("SELECT memberships.path AS path,count(*)::int AS count FROM rpm_fmic_catalog "+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+conditions(4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
+ showCategories?cachedSearch(keys.categories,15000,async()=> (await db.query("SELECT memberships.path AS path,count(*)::int AS count FROM rpm_fmic_catalog "+categoryExpansion+" WHERE "+visibleCatalog+" AND cardinality(memberships.path)>0 AND "+conditions(4)+" AND ($1='all' OR ($1='available' AND available) OR ($1='unavailable' AND NOT available)) AND ($2::numeric IS NULL OR proposed_gross >= $2) AND ($3::numeric IS NULL OR proposed_gross <= $3) GROUP BY memberships.path",[stock,price(min),price(max),...patterns])).rows):Promise.resolve([])
  ]);
  const facets=defs.map(d=>({key:d.key,label:d.label,options:facetRows.filter(row=>row.facet===d.key).map(row=>({value:row.value,count:row.count})).sort(compareOptions)})).filter((d,i)=>d.options.length>1||!!selected[i]||(d.key==='producer'&&d.options.some(o=>o.value==='RPM Custom')));
  const categoryCounts=new Map<string,{path:string[];count:number}>(categories.map(row=>[JSON.stringify(row.path),{path:row.path,count:Number(row.count)}]));
- if(q.length>=2)for(const p of manualGlobal){const key=JSON.stringify(p.target_category),current=categoryCounts.get(key);categoryCounts.set(key,{path:p.target_category,count:(current?.count??0)+1})}
+ if(showCategories)for(const p of manualGlobal){const key=JSON.stringify(p.target_category),current=categoryCounts.get(key);categoryCounts.set(key,{path:p.target_category,count:(current?.count??0)+1})}
  const payload={items,total:count[0].total,page,size,path,facets,categories:[...categoryCounts.values()],includesManual:includeManual};
  return NextResponse.json(payload,{headers:{'Cache-Control':'private, no-store'}});
 

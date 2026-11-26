@@ -15,3 +15,4 @@ Dziennik dopisywany; decyzje zastąpione oznacz, nie usuwaj historii.
 - 2026-11-26 | D-012 | T3/T25/V-Band dopuszczają wewnętrzny WG, bez zewnętrznego wyjścia; T4 zawsze dwa. T25 dodane, wspólna opcja średnicy lub wewnętrznego WG, bez zmian dotychczasowych dopłat.
 - 2026-11-26 | D-013 | Użytkownik: zapisać nowe warianty w dwóch istniejących ofertach, nie tylko generować je przy odczycie. Jednorazowa aktualizacja dwóch SKU, zachowanie danych handlowych.
 - 2026-11-26 | D-014 | Użytkownik zgłosił stary PDP dla produktów polecanych dodanych ręcznie. Wszystkie wejścia do produktu powinny prowadzić do wspólnego kanonicznego PDP, bez DEMO i bez stanu produktu pod /.
+- 2026-11-26 | D-015 | Publiczny /sklep ma wyświetlać cały dostępny katalog (paginacja, filtry, drzewo); nie wymaga frazy/kategorii. Admin preview zachowuje dotychczasowy warunek. Bez zmiany danych handlowych.

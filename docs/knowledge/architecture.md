@@ -13,3 +13,5 @@
 - 2026-11-26 | W KODZIE: fmic-description-local.ts przetwarza do 3 odrębnych SKU już pobranych do PostgreSQL równolegle, pod dotychczasową blokadą workera. Nie czeka na okno HTTP. Po partii ponownie odczytuje sterowanie; pobieranie stron nadal maks. 1/30 s, obrazów bez zmian. Mismatch automatu trafia do review, ręczne przypisanie oznaczone manual. Brak zwiększenia częstotliwości żądań do dostawcy.
 
 - 2026-11-26 | W KODZIE: polecane produkty (ProductCard), koszyk/Garage, Power Builder i podobne produkty używają natywnego href z productPath. Stare ?product=id przekierowuje do kanonicznego PDP; stary ProductDetailView nie jest montowany przez Shop. Zachowano zapis ręcznych produktów do Garage w wspólnym PDP. Blokada sklepu i checkout bez zmian.
+
+- 2026-11-26 | Publiczny `/sklep` bez kategorii/frazy używa wspólnego listingu 24 SKU/stronę, a nie pustej odpowiedzi admin preview. Licznik globalny unikalny, kategorie z istniejącego mechanizmu membership (współdzielone kategorie mogą liczyć ten sam produkt w dwóch gałęziach), manual i FMIC przed paginacją, filtry producenta/dostępności/ceny. W KODZIE. Benchmark root dodany; wydajność i RWD do weryfikacji.

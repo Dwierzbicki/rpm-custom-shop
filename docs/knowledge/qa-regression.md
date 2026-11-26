@@ -67,3 +67,6 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - PDP-01: polecany RPM-00031 / kliknięcie karty / /produkt/kute-korbowody-prism-bmw-m50-m52-m54-135-mm/RPM-00031, wspólny PDP, cena 2100 zł brutto, brak DEMO. Obserwacja użytkownika: FAIL przed zmianą, stary widok pod /. Po zmianie E2E NOT RUN.
 - PDP-02: oba kolektory, wejścia z koszyka/Garage/Power Buildera, odświeżenie, nowa karta, stare ?product=31; jeden PDP, poprawne opcje i ceny. NOT RUN.
 - PDP-03: RWD 360/390/768/1024/1280/1920, PL/EN, focus, brak błędów konsoli i overflow; zapis do Garage i brak regresji koszyka. NOT RUN.
+
+- PLP-ROOT-01: `/sklep` bez q/kategorii → niepusty listing 24/stronę, globalny total, filtr producenta i drzewo kategorii. FAIL przed poprawką: API early return items=[], total=0. Odczyt DB 2026-11-26: 133742 widoczne wg reguły FMIC, 3 własne widoczne. Test kontrolera z mockiem dodany, API produkcyjne NOT RUN.
+- PLP-ROOT-02: strona 2, producent RPM Custom (własne produkty), brak duplikatów, sort, cena, dostępność, wejście w PDP/wstecz; benchmark rozszerzony, NOT RUN. Admin bez kategorii pozostaje pusty. RWD 360/390/768/1024/1280/1920 NOT RUN.

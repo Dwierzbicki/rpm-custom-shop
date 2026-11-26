@@ -4,6 +4,9 @@ import assert from 'node:assert/strict';
 
 const origins=new Set(['https://rpmcustom.pl','https://www.rpmcustom.pl','https://rpm-custom-shop.onrender.com']);
 export const cases=[
+ {label:'All products / page 1',params:{category:'/sklep'},kind:'listing'},
+ {label:'All products / page 2',params:{category:'/sklep',page:'2'},kind:'listing'},
+ {label:'All products / RPM Custom',params:{category:'/sklep',producer:'RPM Custom'},kind:'listing'},
  {label:'Hamulce i koła / page 1',params:{category:'/sklep/hamulce-i-kola'},kind:'listing'},
  {label:'Hamulce i koła / page 2',params:{category:'/sklep/hamulce-i-kola',page:'2'},kind:'listing'},
  {label:'Hamulce i koła / page 100',params:{category:'/sklep/hamulce-i-kola',page:'100'},kind:'listing'},
@@ -33,6 +36,8 @@ export function validateResponse(s,data){
  if(s.kind==='listing'){
   assert.equal(data.page,Number(s.params.page??1));
   assert.ok(Array.isArray(data.facets));
+  if(s.params.category==='/sklep'&&!s.params.q){assert.ok(Array.isArray(data.categories)&&data.categories.length>0,'Missing root category counts');assert.equal(data.includesManual,true);}
+  if(s.params.producer==='RPM Custom')assert.ok(data.items.every(item=>item.brand==='RPM Custom'),'Wrong manufacturer');
   if(s.params.sort){
    const prices=data.items.map(x=>x.proposed_gross===null?null:Number(x.proposed_gross));
    for(let i=1;i<prices.length;i++){
