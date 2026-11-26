@@ -25,6 +25,16 @@ try{
     if(geometry.listing!==null)assert.ok(Math.abs(geometry.listing-geometry.header)<=2,'listing width');
     for(const w of [geometry.detail,geometry.cart])if(w!==null)assert.ok(w<=1601,'detail width');
    }
+   if(path==='/'){
+    const edges=await page.evaluate(()=>{
+     const brand=document.querySelector('.rpm-brand-carousel')?.getBoundingClientRect();
+     const windowBox=document.querySelector('.rpm-brand-carousel-window')?.getBoundingClientRect();
+     const lab=document.querySelector('.rpm-hp-v2 .rpm-motolab')?.getBoundingClientRect();
+     if(!brand||!windowBox||!lab)return null;
+     return [brand.left-lab.left,brand.right-lab.right,windowBox.left-lab.left,windowBox.right-lab.right];
+    });
+    assert.ok(edges&&edges.every(delta=>Math.abs(delta)<=1),'Brand carousel and MotoLab edges '+width+': '+JSON.stringify(edges));
+   }
    console.log('PASS',path,width,height);
   }
  }

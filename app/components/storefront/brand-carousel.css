@@ -1,5 +1,18 @@
 /* Compact dark supplier logo rail, with full-color hover. */
-.rpm-hp-v2 .rpm-brand-carousel{width:min(calc(100% - 2*var(--hp-gutter,24px)),1440px);margin:18px auto 24px;min-width:0}
+/* Match the adjacent homepage MotoLab panel's outer width at every breakpoint. */
+.rpm-hp-v2 .rpm-brand-carousel{width:calc(100% - 48px);max-width:1280px;margin:18px auto 24px;min-width:0;box-sizing:border-box}
+@media(min-width:761px) and (max-width:1100px){
+ .rpm-hp-v2 .rpm-brand-carousel{width:calc(100% - 36px)}
+}
+@media(max-width:760px){
+ .rpm-hp-v2 .rpm-brand-carousel{width:calc(100% - 24px);max-width:100%}
+}
+@media(min-width:1366px){
+ .rpm-hp-v2 .rpm-brand-carousel{
+  width:calc(100% - 2 * var(--rpm-desktop-gutter));
+  max-width:calc(var(--rpm-desktop-shell) - 2 * var(--rpm-desktop-gutter));
+ }
+}
 .rpm-brand-carousel-head{display:flex;align-items:center;padding:0 2px 12px;min-height:32px}
 .rpm-brand-carousel-head h2{font-size:12px;font-weight:800;letter-spacing:.14em;color:#c2c6cf;margin:0}
 .rpm-brand-carousel-window{overflow-x:auto;scrollbar-width:thin;background:#15181e;border:1px solid #30343d;border-radius:5px}
