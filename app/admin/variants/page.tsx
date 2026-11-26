@@ -5,6 +5,8 @@ import type {VariantScope,VariantFilter,VariantDecision,VariantFamily} from '../
 import {maxVariantBatch,variantPageSizes} from '../../lib/variant-batch';
 import {variantColor} from '../../lib/storefront-variants';
 import {productPath} from '../../lib/product-path';
+import VariantPublishQueue from './VariantPublishQueue';
+import {reviewPresets} from '../../lib/variant-review-presets';
 import '../../styles/admin-quality-center.css';
 import '../../styles/admin-variants.css';
 type Summary={status:VariantFilter;groups:number;skus:number;reduction:number;scanned_at:string};
@@ -16,6 +18,7 @@ export default function Variants(){
  const [scope,setScope]=useState<VariantScope>('colors'),[filter,setFilter]=useState<VariantFilter>('pending'),[q,setQ]=useState(''),[query,setQuery]=useState(''),[page,setPage]=useState(1),[revision,setRevision]=useState(0);
  const [data,setData]=useState<Result|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState(''),[actionError,setActionError]=useState(''),[expanded,setExpanded]=useState<string|null>(null);
  const lock=useRef(false);
+ const [queueBusy,setQueueBusy]=useState(false);
  const [category,setCategory]=useState(''),[size,setSize]=useState(20);
  const reverting=filter==='approved';
  const selectable=(f:VariantFamily)=>f.present&&f.status===(reverting?'approved':'pending');
@@ -41,9 +44,10 @@ export default function Variants(){
  function approveSelected(){if(!selected.length||loading||busy)return;const verb=reverting?'Cofnąć zatwierdzenie':'Opublikować';if(!window.confirm(verb+' '+selected.length+' wybranych rodzin ('+selectedSkus+' SKU)? Operacja jest wykonywana w całości albo wcale.'))return;void action({action:reverting?'revert-batch':'approve-batch',scope,items:selected.map(f=>({id:f.id,fingerprint:f.fingerprint}))})}
  const summary=data?.summary??[],sum=(key:'groups'|'skus'|'reduction')=>summary.reduce((n,s)=>n+s[key],0);
  const latest=summary.map(s=>s.scanned_at).sort().at(-1);
- const disabled=busy||loading;
+ const disabled=busy||loading||queueBusy;
  return <main className="admin-page rpm-settings-page rpm-quality-center rpm-variants"><header className="admin-top rpm-quality-heading"><div><span className="eyebrow">RPM CUSTOM / ZAAWANSOWANE</span><h1><Layers size={28}/> RPM Variant Manager</h1><p>Rodziny produktowe i kontrola zgodności wariantów z feedem FMIC.</p></div></header>
- <section className="rpm-settings-card"><h2>Zakres wykrywania</h2><div className="rpm-variant-toolbar"><label>Reguła<select value={scope} disabled={disabled} onChange={e=>{setScope(e.target.value as VariantScope);setCategory('');setPage(1);setLoading(true);setChecked([]);setExpanded(null);setData(null);setNotice('')}}><option value="colors">Kolory w nazwach (bez HEL)</option><option value="hel">Przewody HEL – hamulce i sprzęgło</option></select></label><button className="primary" disabled={disabled} onClick={()=>void action({action:'scan',scope})}><ScanSearch size={18}/> {busy?'Przetwarzanie…':'Wykryj / odśwież rodziny'}</button></div>
+ <VariantPublishQueue disabled={busy||loading||queueBusy} onRunning={setQueueBusy} onComplete={()=>{setLoading(true);setChecked([]);setExpanded(null);setPage(1);setRevision(v=>v+1)}}/>
+ <section className="rpm-settings-card"><h2>Zakres wykrywania</h2><div className="rpm-admin-quick-actions">{reviewPresets.map(p=><button key={p.id} className="outline" disabled={disabled} aria-pressed={scope===p.scope&&category===JSON.stringify(p.category)} onClick={()=>{setLoading(true);setScope(p.scope);setCategory(JSON.stringify(p.category));setFilter('pending');setQ('');setQuery('');setPage(1);setSize(100);setChecked([]);setExpanded(null);setRevision(v=>v+1)}}>{p.label}</button>)}</div><div className="rpm-variant-toolbar"><label>Reguła<select value={scope} disabled={disabled} onChange={e=>{setScope(e.target.value as VariantScope);setCategory('');setPage(1);setLoading(true);setChecked([]);setExpanded(null);setData(null);setNotice('')}}><option value="colors">Kolory w nazwach (bez HEL)</option><option value="hel">Przewody HEL – hamulce i sprzęgło</option></select></label><button className="primary" disabled={disabled} onClick={()=>void action({action:'scan',scope})}><ScanSearch size={18}/> {busy?'Przetwarzanie…':'Wykryj / odśwież rodziny'}</button></div>
  <p className="muted">Wykrywanie na żądanie oraz automatycznie po udanym imporcie XML. Nowe rodziny wymagają zatwierdzenia; zmiany składu oznaczamy jako konflikt. Ceny i dostępność poniżej pochodzą z ostatniej aktualizacji rodziny. Skan nie zmienia danych dostawcy.</p>{latest&&<small>Ostatnia zmiana danych rodzin: {new Date(latest).toLocaleString('pl-PL')}</small>}
  <div className="rpm-admin-supplier-kpis">{[['Rodziny',sum('groups')],['SKU w obecnych rodzinach',sum('skus')],['Potencjalnie mniej kart',sum('reduction')],['Rzeczywiście mniej kart',data?.active?.reduction??0],['Zatwierdzone',summary.find(s=>s.status==='approved')?.groups??0],['Konflikty',summary.find(s=>s.status==='conflict')?.groups??0]].map(([label,value])=><div key={String(label)}><small>{label}</small><strong>{data?fmt(Number(value)):'—'}</strong></div>)}</div>
  {notice&&<p role="status" className="rpm-settings-success">{notice}</p>}{error&&<p role="alert" className="rpm-settings-error">{error}</p>}{actionError&&<p role="alert" className="rpm-settings-error">{actionError}</p>}
