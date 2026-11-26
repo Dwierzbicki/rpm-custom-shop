@@ -2,7 +2,8 @@
 import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
 import FmicListingCard from './FmicListingCard';
 import type {ListingProduct} from '../../lib/listing-card-variants';
-import {useEffect,useState,type MouseEvent} from 'react';
+import {useEffect,useRef,useState,type MouseEvent} from 'react';
+import {listingScope,readListingSnapshot,withListingSnapshot,type ListingSnapshot} from '../../lib/listing-history';
 import {Search,SlidersHorizontal,ChevronLeft,ChevronRight,Package,Grid2X2,List} from 'lucide-react';
 import '../../styles/fmic-listing.css';
 import FmicProductPreview from './FmicProductPreview';
@@ -43,26 +44,55 @@ export default function FmicPreview({pathname,lang,sort,globalQuery='',onCategor
  const [facets,setFacets]=useState<Facet[]>([]),[selected,setSelected]=useState<Record<string,string>>({}),[min,setMin]=useState(''),[max,setMax]=useState(''),[price,setPrice]=useState({min:'',max:''});
  const [categories,setCategories]=useState<CategoryCount[]>([]),[treeOpen,setTreeOpen]=useState(true);
  const [sku,setSku]=useState('');
+ const [choices,setChoices]=useState<Record<string,string>>({}),[readyScope,setReadyScope]=useState<string|null>(null);
+ const scope=listingScope(pathname,globalQuery);
+ const restoreScroll=useRef<number|null>(null);
  useEffect(()=>{const sync=()=>setSku(new URLSearchParams(window.location.search).get('sku')??'');sync();window.addEventListener('popstate',sync);return()=>window.removeEventListener('popstate',sync)},[pathname]);
- function openProduct(next:string,name?:string){const item=data?.items.find(p=>p.sku===next);window.location.assign(productPath(name??item?.name??'czesc',next))}
+ function openProduct(next:string,name?:string){persistListing();const item=data?.items.find(p=>p.sku===next);window.location.assign(productPath(name??item?.name??'czesc',next))}
  function closeProduct(){const url=new URL(window.location.href);url.searchParams.delete('sku');window.history.pushState({},'',url.pathname+url.search);setSku('');window.scrollTo({top:0})}
  const path=resolveCategoryPath(pathname);
- useEffect(()=>{setPage(1);setSelected({});setFacets([]);setSku(new URLSearchParams(window.location.search).get('sku')??'')},[pathname]);
- useEffect(()=>{setPage(1);setQ(globalQuery);setSearch(globalQuery);setSelected({});setFacets([]);setCategories([]);setStock('all');setMin('');setMax('');setPrice({min:'',max:''})},[globalQuery]);
+ // Restore this history entry before issuing the first listing request.
+ useEffect(()=>{
+  if(!resolveCategoryPath(pathname)){setReadyScope(null);return}
+  const saved=readListingSnapshot(window.history.state,scope);
+  setData(null);setFacets([]);setCategories([]);setPage(saved?.page??1);
+  setQ(saved?.search??globalQuery);setSearch(saved?.search??globalQuery);
+  setStock(saved?.stock??'all');setOrder(saved?.order??sort);setLayout(saved?.layout??'grid');
+  setSelected(saved?.selected??{});setMin(saved?.price.min??'');setMax(saved?.price.max??'');setPrice(saved?.price??{min:'',max:''});
+  setChoices(saved?.choices??{});setTreeOpen(saved?.treeOpen??true);setFiltersOpen(false);
+  restoreScroll.current=saved?saved.scrollY:null;
+  setSku(new URLSearchParams(window.location.search).get('sku')??'');setReadyScope(scope);
+ },[scope]);
+ function persistListing(){
+  if(readyScope!==scope||!resolveCategoryPath(pathname)||window.location.pathname!==pathname||new URLSearchParams(window.location.search).get('sku'))return;
+  if((new URLSearchParams(window.location.search).get('q')??'')!==globalQuery)return;
+  const snapshot:ListingSnapshot={scope,page,search,stock,order,layout,selected,price,choices,treeOpen,scrollY:restoreScroll.current??window.scrollY};
+  try{window.history.replaceState(withListingSnapshot(window.history.state,snapshot),'')}catch{/* normal navigation still works */}
+ }
+ useEffect(()=>{
+  persistListing();window.addEventListener('pagehide',persistListing);
+  return()=>window.removeEventListener('pagehide',persistListing);
+ },[readyScope,scope,page,search,stock,order,layout,selected,price,choices,treeOpen,sku]);
+ useEffect(()=>{
+  if(!data||busy||readyScope!==scope||restoreScroll.current===null)return;
+  const target=restoreScroll.current;
+  const frame=requestAnimationFrame(()=>{window.scrollTo({top:target,behavior:'instant'});restoreScroll.current=null;persistListing()});
+  return()=>cancelAnimationFrame(frame);
+ },[data,busy,readyScope,scope]);
  function selectCategory(e:MouseEvent<HTMLAnchorElement>,next:string){if(e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||e.button!==0)return;e.preventDefault();if(next===pathname)return;setPage(1);setSelected({});setFacets([]);setData(null);setBusy(true);onCategorySelect(next,search)}
  useEffect(()=>{
- if(sku||new URLSearchParams(window.location.search).has('sku')||!resolveCategoryPath(pathname))return;
+ if(readyScope!==scope||sku||new URLSearchParams(window.location.search).has('sku')||!resolveCategoryPath(pathname))return;
  const controller=new AbortController();setBusy(true);setError('');setData(null);
  const params=new URLSearchParams({category:pathname,page:String(page),q:search,sort:order,stock,...selected,...price});
- fetch('/api/catalog/fmic?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted){setData(d);setFacets(d.facets??[]);setCategories(d.categories??[])}}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
+ fetch('/api/catalog/fmic?'+params,{cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error(r.status===401?'Zaloguj się do sklepu.':'Nie udało się pobrać produktów FMIC.');return r.json()}).then(d=>{if(!controller.signal.aborted){const last=Math.max(1,Math.ceil(Number(d.total)/Math.max(1,Number(d.size)||24)));if(page>last){setPage(last);return}setData(d);setFacets(d.facets??[]);setCategories(d.categories??[])}}).catch(e=>{if(!controller.signal.aborted)setError(e.message)}).finally(()=>{if(!controller.signal.aborted)setBusy(false)});
  return()=>controller.abort();
- },[pathname,page,search,order,stock,selected,price,sku]);
+ },[readyScope,scope,pathname,page,search,order,stock,selected,price,sku]);
  if(sku&&path)return <FmicProductPreview key={sku} sku={sku} onBack={closeProduct} onOpen={openProduct}/>;
  if(!path)return <p>{t("Wybierz kategorię z menu, aby zobaczyć produkty FMIC.")}</p>;
  const pages=Math.max(1,Math.ceil((data?.total??0)/(data?.size??24)));
  const title=search?'Wyniki wyszukiwania: '+search+(path.length?' · '+path.at(-1):''):(path.at(-1)??'Wszystkie produkty');
  const tree=buildSearchTree(categories);
- const go=(next:number)=>{setPage(next);window.scrollTo({top:0,behavior:'smooth'})};
+ const go=(next:number)=>{restoreScroll.current=null;setPage(next);window.scrollTo({top:0,behavior:'smooth'})};
  const reset=()=>{setQ(globalQuery);setSearch(globalQuery);setStock('all');setPage(1);setOrder('featured');setSelected({});setMin('');setMax('');setPrice({min:'',max:''})};
  const pageNumbers=Array.from(new Set([1,...Array.from({length:5},(_,i)=>page+i-2).filter(n=>n>1&&n<pages),pages])).sort((a,b)=>a-b);
  return <section className="fmic-plp">
@@ -83,7 +113,7 @@ export default function FmicPreview({pathname,lang,sort,globalQuery='',onCategor
  {stock!=='all'&&<button className="fplp-chip" onClick={()=>{setStock('all');setPage(1)}}>{stock==='available'?t('Dostępne'):t('Niedostępne')} ×</button>}{(price.min||price.max)&&<button className="fplp-chip" onClick={()=>{setMin('');setMax('');setPrice({min:'',max:''});setPage(1)}}>{t('Cena: ')}{price.min||'0'} – {price.max||t('bez limitu')} zł ×</button>}</div>
  {error&&<p role="alert">{t(error)}</p>}
  {busy&&<div className="fplp-grid" aria-label={t("Ładowanie produktów")}>{Array.from({length:8},(_,i)=><div key={i} className="fplp-skeleton"/>)}</div>}
- {data&&<><div className={'fplp-grid '+(layout==='list'?'fplp-list':'')}>{data.items.map(p=><FmicListingCard key={p.variant_family_id??p.sku} product={p} lang={lang} onOpen={openProduct}/>)}</div>
+ {data&&<><div className={'fplp-grid '+(layout==='list'?'fplp-list':'')}>{data.items.map(p=><FmicListingCard key={p.variant_family_id??p.sku} product={p} lang={lang} chosen={p.variant_family_id?choices[p.variant_family_id]:undefined} onChoose={next=>{if(p.variant_family_id){const id=p.variant_family_id;setChoices(old=>Object.fromEntries([...Object.entries(old).filter(([key])=>key!==id),[id,next]].slice(-200)))}}} onOpen={openProduct}/>)}</div>
  {!data.items.length&&<div className="fplp-empty"><Package size={32}/><h2>{t("Brak produktów")}</h2><p>{t("Zmień kryteria wyszukiwania.")}</p><button className="outline" onClick={reset}>{t("Wyczyść filtry")}</button></div>}
  {pages>1&&<nav className="fplp-pagination" aria-label={t("Paginacja")}><button aria-label={t("Poprzednia strona")} disabled={page<=1||busy} onClick={()=>go(page-1)}><ChevronLeft size={18}/></button>{pageNumbers.map((n,i)=><span key={n}>{i>0&&n-pageNumbers[i-1]>1&&<small>…</small>}<button aria-current={n===page?'page':undefined} disabled={busy} onClick={()=>go(n)}>{n}</button></span>)}<button aria-label={t("Następna strona")} disabled={page>=pages||busy} onClick={()=>go(page+1)}><ChevronRight size={18}/></button></nav>}</>}
  </div></div></section>

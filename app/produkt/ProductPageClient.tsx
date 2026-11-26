@@ -5,7 +5,8 @@ import StandaloneStorefrontHeader from '../components/storefront/StandaloneStore
 import StorefrontFooter from '../components/storefront/StorefrontFooter';
 import {productPath} from '../lib/product-path';
 import {categoryPath} from '../category-routing';
+import {listingReturnPath} from '../lib/listing-history';
 export default function ProductPageClient({data}:{data:Detail}){
  const {lang}=useStorefrontLanguage();
- return <><StandaloneStorefrontHeader/><main className="page rpm-shop-page" data-rpm-audit-sku={new URLSearchParams({sku:data.product.sku}).toString()}><FmicProductPreview sku={data.product.sku} initialData={data} onBack={()=>{try{const previous=new URL(document.referrer);if(previous.origin===location.origin&&previous.pathname.startsWith('/sklep')){location.assign(previous.pathname+previous.search);return}}catch{}location.assign(categoryPath(data.product.target_category))}} onOpen={(sku,name)=>location.assign(productPath(name??'czesc',sku))}/></main><StorefrontFooter lang={lang}/></>;
+ return <><StandaloneStorefrontHeader/><main className="page rpm-shop-page" data-rpm-audit-sku={new URLSearchParams({sku:data.product.sku}).toString()}><FmicProductPreview sku={data.product.sku} initialData={data} onBack={()=>{const previous=listingReturnPath(document.referrer,location.origin);if(previous){if(window.history.length>1){window.history.back();return}location.assign(previous);return}location.assign(categoryPath(data.product.target_category))}} onOpen={(sku,name)=>location.assign(productPath(name??'czesc',sku))}/></main><StorefrontFooter lang={lang}/></>;
 }

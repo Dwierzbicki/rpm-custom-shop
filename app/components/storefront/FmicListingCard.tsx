@@ -8,9 +8,9 @@ import {productPath} from '../../lib/product-path';
 import {variantColor} from '../../lib/storefront-variants';
 import {listingCardChoices,selectedListingProduct,type ListingProduct} from '../../lib/listing-card-variants';
 
-export default function FmicListingCard({product,lang,onOpen}:{product:ListingProduct;lang:string;onOpen:(sku:string,name?:string)=>void}){
+export default function FmicListingCard({product,lang,chosen,onChoose,onOpen}:{product:ListingProduct;lang:string;chosen?:string;onChoose:(sku:string)=>void;onOpen:(sku:string,name?:string)=>void}){
  const {t}=useStorefrontLanguage();
- const [chosen,setChosen]=useState<string>(),[expanded,setExpanded]=useState(false);
+ const [expanded,setExpanded]=useState(false);
  const options=listingCardChoices(product),p=selectedListingProduct(product,chosen);
  const selected=options.find(v=>v.sku===p.sku);
  const visible=expanded?options:options.length<=6?options:options.some((v,i)=>i<6&&v.sku===p.sku)?options.slice(0,6):[...options.slice(0,5),...options.filter(v=>v.sku===p.sku)];
@@ -27,7 +27,7 @@ export default function FmicListingCard({product,lang,onOpen}:{product:ListingPr
     <div className="fplp-variant-swatches" role="group" aria-label={label}>
      {visible.map(v=>{const color=variantColor(v.color,lang==='en'),active=v.sku===p.sku;
       const description=color.label+(!v.available?' · '+t('Niedostępny'):'')+' · '+Number(v.proposed_gross).toLocaleString('pl-PL',{style:'currency',currency:'PLN'});
-      return <button key={v.sku} type="button" className={'fplp-variant-swatch'+(!v.available?' is-unavailable':'')} aria-label={description} aria-pressed={active} title={description} data-variant-sku={v.sku} onClick={()=>setChosen(v.sku)}>
+      return <button key={v.sku} type="button" className={'fplp-variant-swatch'+(!v.available?' is-unavailable':'')} aria-label={description} aria-pressed={active} title={description} data-variant-sku={v.sku} onClick={()=>onChoose(v.sku)}>
        <span style={color.swatch?{backgroundColor:color.swatch}:undefined} aria-hidden="true">{active&&<Check size={13}/>}</span>
       </button>})}
      {options.length>6&&<button className="fplp-variant-more" type="button" aria-expanded={expanded} onClick={()=>setExpanded(x=>!x)}>{expanded?(lang==='en'?'Less':'Mniej'):'+'+(options.length-6)}</button>}
