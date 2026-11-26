@@ -57,3 +57,5 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - WG-01: wszystkie 5 flansz / wybór średnicy / T4 Single i Twin 2×, T3 Twin 2×, T3 Single i V-Band 1×; brak/nieznana średnica blokuje zakup. Test jednostkowy dodany, NOT RUN.
 - WG-02: rozmiary 38/44 mm, różne klucze koszyka, zachowanie istniejących dopłat i wymuszenie średnicy w obu szablonach. Testy jednostkowe dodane, NOT RUN.
 - WG-03: PDP, admin, Power Builder, koszyk i API zamówienia, PL/EN oraz RWD 360/390/768/1024/1280/1920 — NOT RUN. Nie składamy prawdziwego zamówienia.
+
+- WG-04: T3/T25/V-Band z wewnętrznym WG → 0 wyjść, bez średnicy; T4 z wewnętrznym WG → blokada; T25 zewnętrzny → 1 wyjście. Test jednostkowy dodany, NOT RUN. Zmiana flanszy na PDP czyści niedozwolony wybór; API oraz RWD NOT RUN.

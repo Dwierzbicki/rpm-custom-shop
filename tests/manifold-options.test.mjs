@@ -52,7 +52,7 @@ test('switching BMW template to 2JZ removes BMW-specific options',()=>{
 test('both single and dual outlets require catalog-derived WG diameter and retain distinct configurations',()=>{
  const product=withManifoldOptions({...base,optionGroups:manifoldPreset('bmw')});
  const group=product.optionGroups.find(g=>g.id==='rpm-wg-diameter');
- assert.deepEqual(group.options.map(o=>o.label),['35 mm','38 mm','40 mm','44 mm','45 mm','50 mm','54 mm','60 mm']);
+ assert.deepEqual(group.options.map(o=>o.label),['Wewnętrzny WG — bez wyjścia','35 mm','38 mm','40 mm','44 mm','45 mm','50 mm','54 mm','60 mm']);
  const choices={'rpm-engine':'m54','rpm-chassis':'e46','rpm-egt':'no'};
  for(const [flange,count] of [['t3-single','1× WG'],['t3-twin','2× WG'],['t4-single','2× WG'],['t4-twin','2× WG'],['vband-single','1× WG']]){
   const state={...choices,'rpm-flange':flange};
@@ -70,4 +70,18 @@ test('existing manifold pricing and WG diameter overrides remain unchanged',()=>
  assert.equal(item.optionGroups.find(g=>g.id==='rpm-flange').options.find(o=>o.id==='t4-single').price,500);
  item.optionGroups.find(g=>g.id==='rpm-wg-diameter').options.find(o=>o.id==='wg-44').price=75;
  assert.equal(withManifoldOptions(item).optionGroups.find(g=>g.id==='rpm-wg-diameter').options.find(o=>o.id==='wg-44').price,75);
+});
+
+test('internal WG is allowed on T3, T25 and V-band, never T4',()=>{
+ const product=withManifoldOptions({...base,optionGroups:manifoldPreset('bmw')});
+ const choices={'rpm-engine':'m54','rpm-chassis':'e46','rpm-egt':'no','rpm-wg-diameter':'internal'};
+ for(const flange of ['t3-single','t3-twin','t25-single','vband-single']){
+  const line=configuredCartLine(product,config({...choices,'rpm-flange':flange}));
+  assert.equal(line.options.Wastegate,'0× WG');
+  assert.equal(line.options['Średnica WG'],'Wewnętrzny WG — bez wyjścia');
+ }
+ for(const flange of ['t4-single','t4-twin'])assert.equal(configuredCartLine(product,config({...choices,'rpm-flange':flange})),null);
+ const external=configuredCartLine(product,config({...choices,'rpm-flange':'t25-single','rpm-wg-diameter':'wg-38'}));
+ assert.equal(external.options.Wastegate,'1× WG');
+ assert.equal(external.options['Średnica WG'],'38 mm');
 });

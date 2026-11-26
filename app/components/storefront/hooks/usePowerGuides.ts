@@ -4,7 +4,7 @@ import type {Product,CartLine} from '../../../data';
 import type {GuidePart} from '../../../lib/power-guides';
 import {POWER_ENGINES,powerRangesFor} from '../../../lib/storefront-config';
 import {openPowerGuidePdf} from '../../../lib/power-guide-pdf';
-import {automaticWastegate} from '../../../lib/product-configuration';
+import {automaticWastegate,allowedConfigurationGroups} from '../../../lib/product-configuration';
 type Options={enabled?:boolean;products:Product[];storageReady:boolean;setCart:Dispatch<SetStateAction<CartLine[]>>;onCart:()=>void;notify:(text:string)=>void};
 export function usePowerGuides({enabled=true,products,storageReady,setCart,onCart,notify}:Options){
  const [guideEngine,setGuideEngine]=useState('');
@@ -29,7 +29,7 @@ export function usePowerGuides({enabled=true,products,storageReady,setCart,onCar
  const guideEligibleProducts=selectedGuideProducts.filter(({product})=>(product as Product&{stockStatus?:string}).stockStatus!=='unavailable');
  const guideNeedsConfig=(product:Product)=>!!product.configurable||!!product.optionGroups?.some(g=>g.required);
  const guideConfigItems=guideEligibleProducts.filter(({product})=>guideNeedsConfig(product));
- const guideConfigGroups=(product:Product)=>product.optionGroups??[];
+ const guideConfigGroups=(product:Product)=>allowedConfigurationGroups(product.optionGroups??[],guideConfigValues[product.id+':rpm-flange']);
  const guideConfigKey=(product:Product,groupId:string)=>product.id+':'+groupId;
  const guideConfigFlange=(product:Product)=>guideConfigGroups(product).find(g=>/flange|flansz/i.test(g.id+' '+g.name));
  const normalizedFlange=(value:string)=>{const match=value.toUpperCase().match(/(?:T3|T4|V[- ]?BAND|T25|T28)/);return match?match[0].replace(/[- ]/g,''):''};
@@ -46,7 +46,7 @@ export function usePowerGuides({enabled=true,products,storageReady,setCart,onCar
     if(option){options[group.name]=option.label;extra+=option.price;}
    }
    const rpmFlange=groups.find(group=>group.id==='rpm-flange');
-   if(rpmFlange){const chosen=rpmFlange.options.find(option=>option.id===guideConfigValues[guideConfigKey(product,rpmFlange.id)]);if(chosen)options.Wastegate=automaticWastegate(chosen.id)}
+   if(rpmFlange){const chosen=rpmFlange.options.find(option=>option.id===guideConfigValues[guideConfigKey(product,rpmFlange.id)]);if(chosen)options.Wastegate=automaticWastegate(chosen.id,guideConfigValues[guideConfigKey(product,'rpm-wg-diameter')])}
    if(product.configurable&&!groups.length){
     const flange=guideConfigValues[guideConfigKey(product,'legacy-flange')];
     const wastegate=guideConfigValues[guideConfigKey(product,'legacy-wastegate')];

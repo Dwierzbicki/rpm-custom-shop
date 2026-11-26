@@ -5,7 +5,7 @@ import {isShippingMethod,shippingQuote} from '../../lib/shipping';
 import {NextResponse} from 'next/server';
 import {getDbPool} from '../../lib/db';
 import {getCatalog} from '../../lib/catalog-db';
-import {automaticWastegate} from '../../lib/product-configuration';
+import {automaticWastegate,allowedConfigurationGroups} from '../../lib/product-configuration';
 import {isValidIdempotencyKey,orderRequestHash} from '../../lib/order-idempotency';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -70,7 +70,10 @@ export async function POST(request:Request){
    if(!p)return NextResponse.json({error:'Produkt jest niedostępny'},{status:409});
    const supplied=line.options??{};
    if(typeof supplied!=='object'||Array.isArray(supplied))return NextResponse.json({error:'Niepoprawne opcje'},{status:400});
-   const groups=(p.optionGroups??[]).filter(g=>g.id!=='rpm-wastegate');
+   const rawGroups=(p.optionGroups??[]).filter(g=>g.id!=='rpm-wastegate');
+   const flangeGroup=rawGroups.find(g=>g.id==='rpm-flange');
+   const flangeId=flangeGroup?.options.find(opt=>opt.label===supplied[flangeGroup.name])?.id;
+   const groups=allowedConfigurationGroups(rawGroups,flangeId);
    let extra=0;
    const verified:Record<string,string>={};
    if(groups.length){
@@ -83,7 +86,7 @@ export async function POST(request:Request){
     const flange=groups.find(g=>g.id==='rpm-flange');
     if(flange){
      const chosen=flange.options.find(o=>o.label===supplied[flange.name]);
-     if(chosen)verified.Wastegate=automaticWastegate(chosen.id);
+     if(chosen){const wg=groups.find(g=>g.id==='rpm-wg-diameter');verified.Wastegate=automaticWastegate(chosen.id,wg?.options.find(opt=>opt.label===supplied[wg.name])?.id);}
     }
    }else if(p.configurable)return NextResponse.json({error:'Konfiguracja produktu wymaga potwierdzenia'},{status:409});
    items.push({productId:p.id,sku:p.sku,name:p.name,qty:line.qty,unitPrice:Math.round((p.price+extra)*100)/100,options:verified});

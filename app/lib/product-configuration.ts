@@ -1,14 +1,19 @@
-import type {Product,CartLine} from '../data';
+import type {Product,CartLine,ProductOptionGroup} from '../data';
 /** Keep count identical on PDP, legacy configurator, Power Builder and order validation. */
-export function automaticWastegate(flangeId:string|undefined):string{
+export function supportsInternalWastegate(flangeId:string|undefined):boolean{return /^(?:t3|t25|vband)(?:-|$)/i.test(flangeId??'')}
+export function automaticWastegate(flangeId:string|undefined,wgChoice?:string):string{
  if(!flangeId)return '';
+ if(wgChoice==='internal'&&supportsInternalWastegate(flangeId))return '0× WG';
  return /^t4(?:-|$)/i.test(flangeId)||flangeId.endsWith('-twin')?'2× WG':'1× WG';
+}
+export function allowedConfigurationGroups(groups:ProductOptionGroup[],flangeId:string|undefined):ProductOptionGroup[]{
+ return groups.map(g=>g.id==='rpm-wg-diameter'?{...g,options:g.options.filter(o=>o.id!=='internal'||supportsInternalWastegate(flangeId))}:g);
 }
 export type Configuration={chosenOptions:Record<string,string>;engine:string;flange:string;wg:string;egt:boolean;qty:number};
 export function describeConfiguration(selected:Product,{chosenOptions,engine,flange,wg,qty}:Configuration){
- const customGroups=(selected.optionGroups??[]).filter(g=>!(selected.optionGroups??[]).some(f=>f.id==='rpm-flange')||g.id!=='rpm-wastegate');
  const rpmFlange=chosenOptions['rpm-flange'];
- const automaticWg=automaticWastegate(rpmFlange);
+ const customGroups=allowedConfigurationGroups((selected.optionGroups??[]).filter(g=>!(selected.optionGroups??[]).some(f=>f.id==='rpm-flange')||g.id!=='rpm-wastegate'),rpmFlange);
+ const automaticWg=automaticWastegate(rpmFlange,chosenOptions['rpm-wg-diameter']);
  const usesCustom=customGroups.length>0;
  const customReady=customGroups.every(g=>chosenOptions[g.id]?g.options.some(o=>o.id===chosenOptions[g.id]):!g.required);
  const customExtra=customGroups.reduce((sum,g)=>sum+(g.options.find(o=>o.id===chosenOptions[g.id])?.price??0),0);

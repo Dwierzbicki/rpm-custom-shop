@@ -1,6 +1,7 @@
 /** Polish -> English UI labels; retained verbatim during refactor. */
 export const en:Record<string,string>={
- 'Średnica WG':'WG diameter',
+ 'Średnica WG':'WG size / internal',
+ 'Wewnętrzny WG — bez wyjścia':'Internal wastegate — no external outlet',
  'Wyjścia Wastegate':'Wastegate outlets',
  'Średnica nominalna zaworu. Przy dwóch wyjściach oba mają ten sam rozmiar. Typ flanszy WG wymaga potwierdzenia.':'Nominal valve diameter. Two outlets share the same size. Wastegate flange type must be confirmed.',
 

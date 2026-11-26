@@ -18,11 +18,11 @@ test('two distinct operator drafts with no price or public visibility',()=>{
   assert.ok(p.description.length>100);assert.ok(p.optionGroups.every(g=>g.required&&g.options.every(o=>o.price===0)));
  }
 });
-test('BMW has four chassis, Toyota has none; both have five flanges and EGT',()=>{
+test('BMW has four chassis, Toyota has none; both have six flanges and EGT',()=>{
  const [bmw,toyota]=manifoldDrafts().map(x=>x.input);
  assert.deepEqual(bmw.optionGroups.find(g=>g.id==='rpm-chassis').options.map(o=>o.label),['BMW E36','BMW E46','BMW E8x','BMW E9x']);
  assert.ok(!toyota.optionGroups.some(g=>g.id==='rpm-chassis'||g.id==='rpm-engine'));
- for(const p of [bmw,toyota]){assert.equal(p.optionGroups.find(g=>g.id==='rpm-flange').options.length,5);assert.equal(p.optionGroups.find(g=>g.id==='rpm-egt').options.length,2)}
+ for(const p of [bmw,toyota]){assert.equal(p.optionGroups.find(g=>g.id==='rpm-flange').options.length,6);assert.equal(p.optionGroups.find(g=>g.id==='rpm-egt').options.length,2)}
 });
 
-test('both new draft configurations require a WG diameter',()=>{for(const {input} of manifoldDrafts()){const group=input.optionGroups.find(g=>g.id==='rpm-wg-diameter');assert.equal(group.required,true);assert.equal(group.options.length,8)}});
+test('both new draft configurations require a WG diameter',()=>{for(const {input} of manifoldDrafts()){const group=input.optionGroups.find(g=>g.id==='rpm-wg-diameter');assert.equal(group.required,true);assert.equal(group.options.length,9)}});

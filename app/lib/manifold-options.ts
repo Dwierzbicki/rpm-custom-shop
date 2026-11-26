@@ -4,7 +4,7 @@ import type {Product,ProductOptionGroup} from '../data';
 // Diameter is not a guarantee of flange/mounting compatibility.
 export const wastegateDiameters=[35,38,40,44,45,50,54,60] as const;
 export function wastegateDiameterGroup():ProductOptionGroup{
- return {id:'rpm-wg-diameter',name:'Średnica WG',required:true,options:wastegateDiameters.map(mm=>({id:'wg-'+mm,label:mm+' mm',price:0}))};
+ return {id:'rpm-wg-diameter',name:'Średnica WG',required:true,options:[{id:'internal',label:'Wewnętrzny WG — bez wyjścia',price:0},...wastegateDiameters.map(mm=>({id:'wg-'+mm,label:mm+' mm',price:0}))]};
 }
 export function bmwChassisGroup():ProductOptionGroup{
  return {id:'rpm-chassis',name:'Nadwozie',required:true,options:['E36','E46','E8x','E9x'].map(label=>({id:label.toLowerCase(),label:'BMW '+label,price:0}))};
@@ -13,7 +13,7 @@ function flangeGroup(extended=false):ProductOptionGroup{
  return {id:'rpm-flange',name:'Flansza turbosprężarki',required:true,options:[
  {id:'t3-single',label:'T3 Single Scroll',price:0},{id:'t4-single',label:'T4 Single Scroll',price:0},
  {id:'t3-twin',label:'T3 Twin Scroll',price:0},{id:'t4-twin',label:'T4 Twin Scroll',price:0},
- ...(extended?[{id:'vband-single',label:'V-Band',price:0}]:[])]};
+ ...(extended?[{id:'vband-single',label:'V-Band',price:0},{id:'t25-single',label:'T25',price:0}]:[])]};
 }
 export function isBmwManifold(item:Pick<Product,'category'|'brand'|'engine'|'name'>){
  return item.category==='Kolektory'&&/^rpm custom$/i.test(item.brand.trim())&&/\bM(?:50|52|54)(?:B\d+|TU)?\b/i.test(item.engine+' '+item.name);
@@ -28,11 +28,14 @@ export function withManifoldOptions<T extends Product>(item:T):T{
   else groups[index]={...groups[index],required:true};
  }
  if(/^rpm custom$/i.test(item.brand.trim())){
+  const flangeIndex=groups.findIndex(g=>g.id==='rpm-flange');
+  const existing=groups[flangeIndex];
+  if(!existing.options.some(o=>o.id==='t25-single'))groups[flangeIndex]={...existing,options:[...existing.options,{id:'t25-single',label:'T25',price:0}]};
   const index=groups.findIndex(g=>g.id==='rpm-wg-diameter');
   if(index<0)groups.splice(groups.findIndex(g=>g.id==='rpm-flange')+1,0,wastegateDiameterGroup());
-  else groups[index]={...groups[index],required:true};
+  else {const existing=groups[index];groups[index]={...existing,required:true,options:existing.options.some(o=>o.id==='internal')?existing.options:[wastegateDiameterGroup().options[0],...existing.options]};}
   // Correct the original generated description without replacing operator-written content.
-  const description=item.description.replace('Liczba przyłączy wastegate wynika z wyboru flanszy: single scroll — jedno, twin scroll — dwa.','Każda flansza T4 i T3 Twin Scroll ma dwa wyjścia WG; T3 Single Scroll i V-Band mają jedno. Wybierz nominalną średnicę WG; przy dwóch wyjściach oba mają ten sam rozmiar.').replace('Liczba przyłączy wastegate jest dobierana automatycznie do flanszy.','Każda flansza T4 i T3 Twin Scroll ma dwa wyjścia WG; T3 Single Scroll i V-Band mają jedno. Wybierz nominalną średnicę WG; przy dwóch wyjściach oba mają ten sam rozmiar.');
+  const description=item.description.replace('Liczba przyłączy wastegate wynika z wyboru flanszy: single scroll — jedno, twin scroll — dwa.','Flansze T4 mają zawsze dwa wyjścia WG. Dla T3, T25 i V-Band można wybrać wewnętrzny WG (bez wyjść w kolektorze) lub zewnętrzny WG o wybranej średnicy. T3 Twin Scroll z zewnętrznym WG ma dwa wyjścia, pozostałe warianty jedno. Przy dwóch wyjściach oba mają ten sam rozmiar. Typ mocowania WG wymaga potwierdzenia.').replace('Liczba przyłączy wastegate jest dobierana automatycznie do flanszy.','Flansze T4 mają zawsze dwa wyjścia WG. Dla T3, T25 i V-Band można wybrać wewnętrzny WG (bez wyjść w kolektorze) lub zewnętrzny WG o wybranej średnicy. T3 Twin Scroll z zewnętrznym WG ma dwa wyjścia, pozostałe warianty jedno. Przy dwóch wyjściach oba mają ten sam rozmiar. Typ mocowania WG wymaga potwierdzenia.');
   return {...item,description,configurable:true,optionGroups:groups};
  }
  return {...item,configurable:true,optionGroups:groups};
