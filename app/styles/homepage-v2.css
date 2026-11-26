@@ -129,35 +129,30 @@
  .rpm-hp-about-actions>a{width:100%}
 }
 
-/* Authentic workshop photography: reversible cinematic grading, no AI alterations. */
-.rpm-hp-v2 .rpm-project-slider{position:relative;isolation:isolate;overflow:hidden;background:#15171c;min-width:0;touch-action:pan-y}
-.rpm-project-slides,.rpm-project-slide,.rpm-project-grade{position:absolute;inset:0}
-.rpm-project-slide{opacity:0;transition:opacity .85s ease-in-out;pointer-events:none}
-.rpm-project-slide.is-active{opacity:1}
-.rpm-project-slide img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;filter:contrast(1.09) saturate(.83) brightness(.93);transform:scale(1.015)}
-.rpm-project-slide.is-active img{animation:rpm-project-drift 6s ease-out both}
-@keyframes rpm-project-drift{from{transform:scale(1.015)}to{transform:scale(1.065)}}
-.rpm-project-grade{pointer-events:none;background:linear-gradient(180deg,rgba(8,10,16,.47),transparent 30%,transparent 65%,rgba(8,10,16,.78)),radial-gradient(ellipse at center,transparent 52%,rgba(9,12,20,.26) 100%);box-shadow:inset 0 0 80px #10141c26}
-.rpm-project-kicker{position:absolute;top:22px;left:24px;display:grid;gap:4px;text-shadow:0 2px 6px #000;pointer-events:none}
-.rpm-project-kicker span{font-size:10px;font-weight:850;letter-spacing:.18em;color:#ff6078}
-.rpm-project-kicker strong{font-size:14px;font-style:italic;letter-spacing:.08em;color:#fff}
-.rpm-project-controls{position:absolute;bottom:18px;left:20px;right:20px;display:flex;align-items:center;justify-content:space-between;gap:8px;color:#fff}
-.rpm-project-arrows,.rpm-project-end,.rpm-project-dots{display:flex;align-items:center;gap:5px}
-.rpm-project-controls button{display:grid;place-items:center;flex-shrink:0;border:1px solid #ffffff44;border-radius:4px;background:#11141acc;color:#fff;width:38px;height:38px;padding:0;cursor:pointer}
-.rpm-project-controls button:hover{border-color:#f44763;background:#292d35}
-.rpm-project-controls button:focus-visible{outline:2px solid #ff627c;outline-offset:2px}
-.rpm-project-count{font-size:11px;font-weight:800;letter-spacing:.07em;font-variant-numeric:tabular-nums;white-space:nowrap;text-shadow:0 1px 5px #000}
-.rpm-project-dots{gap:0}
-.rpm-project-dots button{width:24px;height:38px;border:0;background:transparent}
-.rpm-project-dots button:hover{background:transparent}
-.rpm-project-dots button span{width:7px;height:7px;border-radius:5px;background:#ffffff88;transition:width .25s,background .25s}
-.rpm-project-dots button[aria-current="true"] span{width:18px;background:#f44763}
-@media(max-width:780px){
- .rpm-hp-v2 .rpm-project-slider{min-height:clamp(280px,65vw,480px)}
- .rpm-project-kicker{top:16px;left:16px}
- .rpm-project-controls{bottom:12px;left:12px;right:12px}
- .rpm-project-controls button{width:34px;height:38px}
- .rpm-project-dots button{width:20px}
+/* Featured red Nissan: a continuous photo-to-copy transition. */
+.rpm-hp-v2 .rpm-hp-custom:has(>.rpm-project-photo){
+ gap:0;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);
+ background:#111216;overflow:hidden
 }
-@media(max-width:380px){.rpm-project-count{display:none}.rpm-project-dots button{width:18px}}
-@media(prefers-reduced-motion:reduce){.rpm-project-slide,.rpm-project-dots button span{transition:none}.rpm-project-slide.is-active img{animation:none;transform:none}}
+.rpm-hp-v2 .rpm-project-photo{
+ position:relative;isolation:isolate;overflow:hidden;
+ background:#111216;min-width:0;min-height:350px
+}
+.rpm-project-photo>img{
+ position:absolute;inset:0;display:block;width:100%;height:100%;
+ object-fit:cover;object-position:50% 50%;
+ filter:contrast(1.08) saturate(.94) brightness(.9)
+}
+.rpm-project-photo-grade{
+ position:absolute;inset:0;pointer-events:none;
+ background:linear-gradient(90deg,transparent 58%,#11121655 76%,#111216 100%),
+ linear-gradient(180deg,#0b0c1128,transparent 30%,transparent 75%,#0b0c1133),
+ radial-gradient(ellipse at center,transparent 65%,#0b0c1138)
+}
+.rpm-hp-v2 .rpm-hp-custom:has(>.rpm-project-photo) .rpm-hp-custom-copy{background:#111216}
+@media(max-width:780px){
+ .rpm-hp-v2 .rpm-hp-custom:has(>.rpm-project-photo){grid-template-columns:minmax(0,1fr)}
+ .rpm-hp-v2 .rpm-project-photo{min-height:clamp(290px,78vw,540px)}
+ .rpm-project-photo>img{object-position:50% 50%}
+ .rpm-project-photo-grade{background:linear-gradient(180deg,transparent 65%,#11121655 85%,#111216 100%),radial-gradient(ellipse at center,transparent 65%,#0b0c1130)}
+}
