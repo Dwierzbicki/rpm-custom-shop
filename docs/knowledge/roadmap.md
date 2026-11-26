@@ -20,3 +20,5 @@ Ostatni sprawdzony deploy: 83000d99 live 2026-11-26. Nie utożsamiaj z akceptacj
 - VAR PLP W KODZIE: grupowanie przed LIMIT, liczniki i filtry rodzin. Indeks materializowanego członkostwa/inkrementalna synchronizacja nadal PLAN; benchmark pełnej skali wymagany przed masową akceptacją HEL.
 
 - VAR PERF: root-local grouping activation in code, no migration yet. Next measure full public API, then design durable membership index and incremental refresh before bulk review. No mass approval.
+
+- VAR INDEX / SYNC W KODZIE: opcjonalny indeks członkostwa z migracją/rollback, automatyczne odświeżenie kandydatów po udanym ręcznym XML, przyrostowe zapisy (pełna detekcja). Uruchomienie migracji na kopii/produkcji po osobnej zgodzie, następnie benchmark i grupowe zatwierdzanie z kontrolą zakresu. Bez zmian decyzji istniejących rodzin.

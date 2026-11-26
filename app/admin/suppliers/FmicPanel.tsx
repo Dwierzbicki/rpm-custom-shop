@@ -38,7 +38,8 @@ export default function FmicPanel(){
  function handle(line:string){if(!line.trim())return;const d=JSON.parse(line);
  if(d.type==='progress')setImportState({phase:d.phase,count:d.count,bytes:d.bytes,percent:d.percent});
  if(d.type==='error')throw Error(d.error);
- if(d.type==='done'){completed=true;setImportState(old=>({phase:'done',count:d.imported,bytes:old?.bytes??0,percent:100}));setSaved('Zakończono import: '+d.imported+' produktów.')}
+ if(d.type==='variants')setImportState(old=>({phase:'variants',count:old?.count??0,bytes:old?.bytes??0,percent:99}));
+ if(d.type==='done'){completed=true;setImportState(old=>({phase:'done',count:d.imported,bytes:old?.bytes??0,percent:100}));setSaved('Zakończono import: '+d.imported+' produktów. '+(d.variantSync?.colors?.ok&&d.variantSync?.hel?.ok?'Rodziny wariantów odświeżone.':'Uwaga: synchronizacja wariantów niepełna — odśwież zakres w Variant Managerze.'))}
  }
  try{for(;;){const {done,value}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});const lines=buffer.split('\n');buffer=lines.pop()??'';for(const line of lines)handle(line)}buffer+=decoder.decode();if(buffer.trim())handle(buffer)}
  finally{await reader.cancel().catch(()=>{});reader.releaseLock()}
@@ -71,7 +72,7 @@ export default function FmicPanel(){
  {tab==='imports'&&<div role="tabpanel"><h2>Centrum importu</h2><p>Źródło: FMIC XML. Import aktualizuje katalog dostawcy używany przez sklep.</p><button type="button" className="primary" disabled={busy||!data} onClick={()=>void runImport()}>Pobierz XML i importuj produkty FMIC</button><p className="fc-note">Ostatnia aktualizacja: {data?.stats.updated_at?new Date(data.stats.updated_at).toLocaleString('pl-PL'):'Brak importu'}</p></div>}
  <dialog ref={modal} aria-labelledby="fmic-import-title" onCancel={e=>{e.preventDefault();if(!importing){modal.current?.close();setImportState(null)}}} style={{width:'min(520px,calc(100% - 32px))',border:'1px solid #444',borderRadius:16,padding:28,background:'#18191e',color:'#fff',boxShadow:'0 0 0 100vmax rgba(0,0,0,.7)',margin:'auto'}}>
  {importState&&<><span className="eyebrow">RPM CUSTOM / FMIC</span><h2 id="fmic-import-title">{importState.phase==='done'?'Import zakończony':importState.phase==='error'?'Błąd importu':'Import produktów FMIC'}</h2>
- <p role="status">{({download:'Łączenie i pobieranie XML…',processing:'Przetwarzanie produktów i zapis partii…',commit:'Zatwierdzanie transakcji PostgreSQL…',done:'Zapis katalogu zakończony.',error:importState.error} as Record<string,string|undefined>)[importState.phase]}</p>
+ <p role="status">{({download:'Łączenie i pobieranie XML…',processing:'Przetwarzanie produktów i zapis partii…',commit:'Zatwierdzanie transakcji PostgreSQL…',variants:'XML zapisany. Synchronizacja rodzin wariantów…',done:'Zapis katalogu zakończony.',error:importState.error} as Record<string,string|undefined>)[importState.phase]}</p>
  <div style={{fontSize:32,fontWeight:700,color:'var(--rpm-color-accent)'}}>{importState.percent===null?'…':importState.percent+'%'}</div>
  <progress aria-label="Postęp pobierania XML" max={100} value={importState.percent??undefined} style={{width:'100%',height:16,accentColor:'var(--rpm-color-accent)'}}/>
  <p style={{fontSize:13,color:'#bbb'}}>{importState.percent===null?'Rozmiar feeda nieznany — trwa przetwarzanie.':'Procent pobranych danych XML; 100% dopiero po zatwierdzeniu importu.'}</p>

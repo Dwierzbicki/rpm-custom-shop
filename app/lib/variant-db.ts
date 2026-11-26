@@ -16,14 +16,23 @@ export async function scanVariants(scope:VariantScope){
  await setupVariants();const c=await getDbPool().connect();
  try{
   await c.query('BEGIN');await c.query("SET LOCAL statement_timeout='25s'");await c.query("SET LOCAL lock_timeout='2s'");
-  const lock=await c.query('SELECT pg_try_advisory_xact_lock(9382862) AS ok');if(!lock.rows[0]?.ok)throw Error('Trwa inna operacja wariantów.');
-  // Scope-local snapshot. The feed tables are read only; prior decisions survive disappearance.
-  await c.query('UPDATE rpm_variant_families SET present=false WHERE scope=$1',[scope]);
-  const result=await c.query(`INSERT INTO rpm_variant_families(id,scope,rule,title,category,members,fingerprint)
- SELECT id,$1,rule,title,category,members,fingerprint FROM (${variantCandidateSql(scope)}) candidates
- ON CONFLICT(id) DO UPDATE SET rule=EXCLUDED.rule,title=EXCLUDED.title,category=EXCLUDED.category,members=EXCLUDED.members,fingerprint=EXCLUDED.fingerprint,present=true,scanned_at=now()`,[scope]);
+  const feedLock=await c.query('SELECT pg_try_advisory_xact_lock(27391,1) AS ok');if(!feedLock.rows[0]?.ok)throw Error('Trwa import XML lub zmiana mapowania.');
+ const lock=await c.query('SELECT pg_try_advisory_xact_lock(9382862) AS ok');if(!lock.rows[0]?.ok)throw Error('Trwa inna operacja wariantów.');
+  // Full candidate detection once, incremental writes only; keep approved/rejected snapshots.
+  const result=await c.query(`WITH candidates AS MATERIALIZED (${variantCandidateSql(scope)}),
+ written AS (
+ INSERT INTO rpm_variant_families(id,scope,rule,title,category,members,fingerprint)
+ SELECT id,$1,rule,title,category,members,fingerprint FROM candidates
+ ON CONFLICT(id) DO UPDATE SET rule=EXCLUDED.rule,title=EXCLUDED.title,category=EXCLUDED.category,members=EXCLUDED.members,fingerprint=EXCLUDED.fingerprint,present=true,scanned_at=now()
+ WHERE NOT rpm_variant_families.present OR (rpm_variant_families.rule,rpm_variant_families.title,rpm_variant_families.category,rpm_variant_families.members,rpm_variant_families.fingerprint)
+ IS DISTINCT FROM (EXCLUDED.rule,EXCLUDED.title,EXCLUDED.category,EXCLUDED.members,EXCLUDED.fingerprint)
+ RETURNING id
+ ), missing AS (
+ UPDATE rpm_variant_families f SET present=false,scanned_at=now()
+ WHERE scope=$1 AND present AND NOT EXISTS(SELECT 1 FROM candidates n WHERE n.id=f.id) RETURNING id
+ ) SELECT (SELECT count(*)::int FROM candidates) AS groups,(SELECT count(*)::int FROM written) AS changed,(SELECT count(*)::int FROM missing) AS missing`,[scope]);
   await c.query("DELETE FROM rpm_variant_families WHERE scope=$1 AND NOT present AND decision='pending'",[scope]);
-  await c.query('COMMIT');invalidateFmicSearchCache();return result.rowCount??0;
+  await c.query('COMMIT');invalidateFmicSearchCache();return Number(result.rows[0].groups);
  }catch(error){await c.query('ROLLBACK');throw error}finally{c.release()}
 }
 export async function listVariants(scope:VariantScope,filter:VariantFilter,q:string,page:number){
@@ -39,6 +48,7 @@ export async function reviewVariant(id:string,fingerprint:string,decision:Varian
  await setupVariants();const c=await getDbPool().connect();
  try{
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='2s'");
+  const feedLock=await c.query('SELECT pg_try_advisory_xact_lock(27391,1) AS ok');if(!feedLock.rows[0]?.ok)throw Error('Trwa import XML lub zmiana mapowania.');
   const lock=await c.query('SELECT pg_try_advisory_xact_lock(9382862) AS ok');if(!lock.rows[0]?.ok)throw Error('Trwa skan. Spróbuj ponownie po zakończeniu.');
   // Do not accept browser-supplied membership or prices. Approve the exact reviewed snapshot.
   // Recheck identity against the live feed before approval; newly discovered members require a new scan.
@@ -51,4 +61,13 @@ export async function reviewVariant(id:string,fingerprint:string,decision:Varian
   if(!result.rowCount){await c.query('ROLLBACK');return false}
   await c.query('COMMIT');invalidateFmicSearchCache();return true;
  }catch(error){await c.query('ROLLBACK');throw error}finally{c.release()}
+}
+
+/** Runs after successful XML commit, never rolls back the already committed feed. */
+export async function syncVariantsAfterImport(){
+ const results:Record<VariantScope,{ok:boolean;groups?:number}>={colors:{ok:false},hel:{ok:false}};
+ for(const scope of ['colors','hel'] as const){
+  try{results[scope]={ok:true,groups:await scanVariants(scope)}}catch(error){console.error('Variant sync failed for '+scope,error)}
+ }
+ return results;
 }
