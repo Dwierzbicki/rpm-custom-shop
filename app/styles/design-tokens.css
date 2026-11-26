@@ -1,5 +1,8 @@
 /* Shared RPM motorsport palette. Legacy aliases resolve to the same brand accent. */
 :root{
+ --rpm-desktop-shell:1800px;
+ --rpm-desktop-detail:1600px;
+ --rpm-desktop-gutter:24px;
  --rpm-color-background:#090a0d;
  --rpm-color-surface:#17191e;
  --rpm-color-surface-raised:#22252c;

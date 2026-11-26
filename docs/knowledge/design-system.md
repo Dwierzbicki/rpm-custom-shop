@@ -47,3 +47,5 @@
 - PLP: compact colour swatches under title, selected colour text, unavailable marker, max six initial choices plus expansion, 44 px touch targets; individual image/price/stock/SKU updates without leaving listing; opening product uses selected SKU. Unmatched colours accessible on PDP only. W KODZIE.
 
 - 2026-11-26 | PLP desktop wide: main container max 1800px (only .rpm-shop-page with direct .fmic-plp), 4 columns at 1151–1365px, 5 from 1366px, narrower unchanged; 240px filter sidebar, compact card spacing, CTA full width on narrower desktop cards. List mode, PDP, home, checkout unchanged. Page size remains 24. W KODZIE; RWD pending.
+
+- 2026-11-26 | Wspólny desktop shell: od 1366 px header, główne sekcje HP, MotoLab/community na HP, listing i stopka korzystają z limitu 1800 px oraz 24 px marginesu wewnętrznego; PDP, koszyk i Power Builder do 1600 px. Bez rozszerzania tekstów opisowych, formularzy konta/checkoutu, stron informacyjnych ani admina. Mniejsze ekrany bez nowych reguł. W KODZIE; weryfikacja wizualna do wykonania.

@@ -26,7 +26,7 @@
 
 /* Wide catalog only. PDP, checkout and home keep their existing container. */
 @media(min-width:1151px){
- .page.rpm-shop-page:has(> .fmic-plp){max-width:1800px}
+ .page.rpm-shop-page:has(> .fmic-plp){max-width:var(--rpm-desktop-shell,1800px)}
  .fmic-plp{max-width:none}
  .fmic-plp .fplp-layout{grid-template-columns:240px minmax(0,1fr);gap:20px}
  .fmic-plp .fplp-grid:not(.fplp-list){grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}

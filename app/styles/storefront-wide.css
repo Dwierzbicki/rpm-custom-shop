@@ -1,0 +1,21 @@
+/* Wider customer-facing desktop shell; narrow forms and reading widths stay unchanged. */
+@media(min-width:1366px){
+ .rpm-header-v2.rpm-header-product-first .rpm-header-main{
+  max-width:var(--rpm-desktop-shell);padding-inline:var(--rpm-desktop-gutter);
+  gap:clamp(20px,1.7vw,30px);
+ }
+ .rpm-header-v2.rpm-header-product-first .rpm-header-search{max-width:960px}
+ .rpm-store-footer .rpm-footer-inner{max-width:var(--rpm-desktop-shell);padding-inline:var(--rpm-desktop-gutter)}
+ .rpm-hp-v2{--hp-gutter:var(--rpm-desktop-gutter)}
+ .rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{width:100%;max-width:var(--rpm-desktop-shell)}
+ .rpm-hp-v2 .drift-section,.rpm-hp-v2 .rpm-hp-trust,.rpm-hp-v2 .rpm-hp-about{
+  max-width:var(--rpm-desktop-shell);padding-inline:var(--rpm-desktop-gutter)
+ }
+ .rpm-hp-v2 .rpm-motolab,.rpm-hp-v2 .rpm-community{
+  width:calc(100% - 2 * var(--rpm-desktop-gutter));max-width:calc(var(--rpm-desktop-shell) - 2 * var(--rpm-desktop-gutter));margin-inline:auto
+ }
+ .page.rpm-shop-page:has(> .fmic-pdp){max-width:var(--rpm-desktop-detail)}
+ .rpm-shop-page .fmic-pdp.rpm-pdp-premium{max-width:none}
+ .page.rpm-cart-page{max-width:var(--rpm-desktop-detail)}
+ .rpm-guide-page.rpm-builder{max-width:var(--rpm-desktop-detail)}
+}
