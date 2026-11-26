@@ -6,3 +6,45 @@
 @import './fmic-product-refinements.css';
 @import './fmic-product-purchase.css';
 @import './fmic-product-premium.css';
+
+/* Final responsive product layout, after legacy stylesheet rules. */
+.fmic-pdp.rpm-pdp-premium .fmic-pdp-gallery .fmic-pdp-placeholder{position:relative;display:block;width:100%;height:auto;aspect-ratio:5/4;min-height:220px;max-height:620px;padding:0}
+.fmic-pdp.rpm-pdp-premium .fmic-pdp-placeholder>.rpm-product-placeholder,.fmic-pdp.rpm-pdp-premium .detail-main-photo>.rpm-product-placeholder{position:absolute;inset:0;width:100%;height:100%;min-height:0}
+.fmic-pdp.rpm-pdp-premium .fmic-pdp-buy{background:transparent}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-heading{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-heading h2{font-size:20px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-heading>span{color:var(--rpm-color-muted);font-size:12px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-group{border:0;padding:0;margin:18px 0;min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-group legend{font-size:14px;font-weight:700;margin-bottom:9px;padding:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-engine .rpm-pdp-choice-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-chassis .rpm-pdp-choice-grid,.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-wg-diameter .rpm-pdp-choice-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label{position:relative;display:flex;flex-direction:row;align-items:center;justify-content:center;min-width:0;min-height:44px;padding:9px 7px;cursor:pointer;border:1px solid var(--rpm-color-border-strong);border-radius:6px;background:var(--rpm-color-surface);font-size:13px;line-height:1.4;text-align:center;overflow-wrap:anywhere}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label.is-wide{grid-column:1/-1}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label.is-selected{border-color:var(--rpm-color-accent);background:color-mix(in srgb,var(--rpm-color-accent) 13%,var(--rpm-color-surface));box-shadow:inset 0 0 0 1px var(--rpm-color-accent)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label:focus-within{outline:2px solid var(--rpm-color-accent-hover);outline-offset:2px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid input{position:absolute;opacity:0;inset:0;width:100%;height:100%;margin:0;cursor:pointer}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label>span{pointer-events:none;min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-grid label small{display:block;margin-top:3px;color:var(--rpm-color-muted);font-size:11px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-note{display:block;margin-top:9px;font-size:12px;line-height:1.5;color:var(--rpm-color-muted)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-other-option{display:grid;gap:7px;margin:16px 0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-wg-summary{display:block;padding:10px 12px;border-left:2px solid var(--rpm-color-accent);background:var(--rpm-color-surface);font-size:13px}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-add:disabled{background:var(--rpm-color-surface-raised);border-color:var(--rpm-color-border-strong);opacity:1;box-shadow:none;color:var(--rpm-color-muted)}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description{min-width:0;margin-top:clamp(28px,4vw,48px);padding:22px 24px;background:var(--rpm-color-surface);border-left:3px solid var(--rpm-color-accent);border-radius:0 8px 8px 0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description .rpm-pdp-section-head{background:transparent;padding:0 0 16px;border:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description .rpm-pdp-copy{font-size:15px;line-height:1.8;color:var(--rpm-color-text-cool);padding:0;max-width:85ch}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description .rpm-pdp-copy.is-collapsed::after{background:linear-gradient(transparent,var(--rpm-color-surface))}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-story{min-width:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-story .rpm-pdp-key-specs{margin:0}
+.fmic-pdp.rpm-pdp-premium .rpm-pdp-config-story .rpm-pdp-feature-description{margin-top:28px}
+@media(min-width:901px){
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-configured-grid{grid-template-areas:"gallery buy" "story buy";grid-template-rows:auto 1fr;column-gap:clamp(24px,3.5vw,54px);row-gap:28px;align-items:start}
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-configured-grid>.fmic-pdp-gallery{grid-area:gallery}
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-configured-grid>.fmic-pdp-info{grid-area:buy}
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-configured-grid>.rpm-pdp-config-story{grid-area:story}
+}
+@media(max-width:900px){
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-configured-grid{grid-template-columns:minmax(0,1fr);gap:24px}
+ .fmic-pdp.rpm-pdp-premium .rpm-pdp-feature-description{padding:18px 16px}
+}
+@media(max-width:380px){.fmic-pdp.rpm-pdp-premium .rpm-pdp-choice-rpm-chassis .rpm-pdp-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

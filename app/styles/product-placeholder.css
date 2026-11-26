@@ -6,7 +6,7 @@
 .rpm-product-placeholder .rpm-placeholder-icon{color:#525a66;width:clamp(19px,23cqh,58px);height:clamp(19px,23cqh,58px);flex-shrink:0}
 .rpm-product-placeholder strong{font-size:clamp(9px,6cqh,19px);line-height:1.2;color:#292d35}
 .rpm-product-placeholder small{font-size:clamp(8px,4.8cqh,13px);line-height:1.2;color:#646c78}
-.fmic-pdp-placeholder{padding:0!important;min-height:0!important;aspect-ratio:5/4;overflow:hidden;background:#fff;border-radius:10px}
+.fmic-pdp-placeholder{padding:0;aspect-ratio:5/4;overflow:hidden;background:#fff;border-radius:10px}
 .fmic-pdp-placeholder .rpm-product-placeholder{height:100%}
 .rpm-related-media{aspect-ratio:1;background:white;overflow:hidden}
 .rpm-related-media>img{display:block;width:100%;height:100%;object-fit:contain}

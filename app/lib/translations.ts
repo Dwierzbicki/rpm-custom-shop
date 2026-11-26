@@ -1,5 +1,8 @@
 /** Polish -> English UI labels; retained verbatim during refactor. */
 export const en:Record<string,string>={
+"Skonfiguruj produkt":"Configure product",
+"wybrano":"selected",
+"Uzupełnij konfigurację":"Complete configuration",
 "Najważniejsze parametry":"Key specifications",
 "Identyfikacja produktu":"Product identifiers",
 "Parametry produktu":"Product specifications",
