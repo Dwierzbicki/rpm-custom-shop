@@ -40,7 +40,7 @@ export async function addFmicToCart(sku:string,qty:number,displayedPrice:number,
 }
 
 /** Same cart, distinct source identity: manual offers never enter FMIC procurement. */
-export async function addManualToCart(sku:string,id:number,qty:number,displayedPrice:number,chosenOptions:Record<string,string>){
+export async function addManualToCart(sku:string,id:number,qty:number,displayedPrice:number,chosenOptions:Record<string,string>,target:'cart'|'garage'='cart'){
  if(!Number.isSafeInteger(qty)||qty<1||qty>50)throw Error('Wybierz ilość od 1 do 50');
  const response=await fetch('/api/catalog',{cache:'no-store'});
  if(!response.ok)throw Error('Nie udało się sprawdzić produktu.');
@@ -54,13 +54,14 @@ export async function addManualToCart(sku:string,id:number,qty:number,displayedP
  const line=configuredCartLine(p,{chosenOptions,qty,engine:'',flange:'',wg:'',egt:false});
  if(!line)throw Error('Wybierz wymagane opcje produktu.');
  if(line.unitPrice!==displayedPrice)throw Error('Cena produktu uległa zmianie. Odśwież kartę produktu.');
- const raw:unknown=JSON.parse(localStorage.getItem('rpm-cart')??'[]');
+ const storageKey=target==='garage'?'rpm-garage':'rpm-cart';
+ const raw:unknown=JSON.parse(localStorage.getItem(storageKey)??'[]');
  if(!Array.isArray(raw))throw Error('Nie udało się odczytać koszyka.');
  const lines=(raw as CartLine[]).filter(l=>l&&(l.fmicSku||!isRetiredDemoProductId(l.productId)));
  const current=lines.find(l=>l.key===line.key);
  if((current?.qty??0)+qty>50)throw Error('Maksymalnie 50 sztuk na pozycję.');
  if(!current&&lines.length>=30)throw Error('Koszyk może zawierać maksymalnie 30 pozycji.');
  const next=current?lines.map(l=>l.key===line.key?{...line,qty:l.qty+qty}:l):[...lines,line];
- localStorage.setItem('rpm-cart',JSON.stringify(next));window.dispatchEvent(new Event(CART_EVENT));
+ localStorage.setItem(storageKey,JSON.stringify(next));if(target==='cart')window.dispatchEvent(new Event(CART_EVENT));
  return line;
 }

@@ -13,3 +13,5 @@
 - 2026-11-26 | W KODZIE: pojedynczy wybór nadwozia w PDP przez natywne radio i siatkę dwóch kolumn, min. wysokość 44 px, focus, PL/EN. Szablony kolektorów w panelu produktów. Testy RWD wymagane.
 
 - 2026-11-26 | RPM Custom w karuzeli marek, z własnym istniejącym logo /optimized/logo.webp; filtr producenta pokazuje RPM Custom w pierwszych opcjach, również gdy jest jedyną marką kategorii. Bez duplikowania produktów i bez osobnego drzewa kategorii.
+
+- 2026-11-26 | Jeden PDP niezależnie od punktu wejścia; brak etykiety DEMO na prawdziwych kartach polecanych. Natywne linki pozwalają na kopiowanie URL, otwarcie w nowej karcie i nawigację wstecz.

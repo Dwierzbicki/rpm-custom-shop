@@ -63,3 +63,7 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 - WG-05: RPM-00032 i RPM-00033 / jednorazowa aktualizacja / 6 flansz, grupa WG (8 średnic + wewnętrzny), T4 +500 zł, EGT +350 zł, ceny 3000/3500 zł zachowane, pozostałe pola bez zmian, ponowny start nie nadpisuje edycji. Odczyt przed zmianą potwierdził brak zapisanych nowych grup; test po wdrożeniu NOT RUN.
 
 - WG-05 production 2026-11-26: FAIL on 1a04eac8 (live): log `[catalog] persisted manifold WG options []`, both DB rows have 5 flanges and no WG group, category `Kolektory wydechowe nierdzewne`. Fix: recognize canonical manifold categories in runtime and migration, new v2 marker, require exactly two rows and valid option groups before committing. Added regression across category forms. Post-fix production/RWD verification NOT RUN.
+
+- PDP-01: polecany RPM-00031 / kliknięcie karty / /produkt/kute-korbowody-prism-bmw-m50-m52-m54-135-mm/RPM-00031, wspólny PDP, cena 2100 zł brutto, brak DEMO. Obserwacja użytkownika: FAIL przed zmianą, stary widok pod /. Po zmianie E2E NOT RUN.
+- PDP-02: oba kolektory, wejścia z koszyka/Garage/Power Buildera, odświeżenie, nowa karta, stare ?product=31; jeden PDP, poprawne opcje i ceny. NOT RUN.
+- PDP-03: RWD 360/390/768/1024/1280/1920, PL/EN, focus, brak błędów konsoli i overflow; zapis do Garage i brak regresji koszyka. NOT RUN.

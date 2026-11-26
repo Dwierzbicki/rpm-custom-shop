@@ -61,3 +61,8 @@
 }
 @media(max-width:430px){.rpm-technical-filters{grid-template-columns:1fr}.rpm-products-modern .product-info strong{font-size:13px}.rpm-products-modern .product-info{padding:11px}}
 
+
+/* Native product links keep the previous card layout and support new tabs. */
+a.product-card{display:block;color:inherit;text-decoration:none;text-align:left;min-width:0}
+a.product-card:focus-visible,.rpm-cart-product-link:focus-visible,.fmic-pdp-related-card a:focus-visible{outline:2px solid #f05289;outline-offset:3px}
+.fmic-pdp-related-card a.outline{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
