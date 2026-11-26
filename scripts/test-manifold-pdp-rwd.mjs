@@ -20,6 +20,9 @@ try{
     const bounds=await gallery.boundingBox();
     assert.ok(bounds&&bounds.height>=200,'Collapsed gallery');
     assert.equal(await page.locator('#rpm-pdp-description-title').count(),1);
+    assert.equal(await page.locator('.rpm-pdp-key-specs').count(),0,'Manifold highlights should not render');
+    assert.equal(await page.locator('.rpm-pdp-section-nav').count(),0,'Redundant section navigation should not render');
+    assert.ok(await page.locator('#rpm-pdp-tech-title').isVisible(),'Full specification must remain');
     const add=page.locator('.rpm-pdp-add');
     assert.equal(await add.isDisabled(),true);
     const choose=async(group,value)=>page.locator('input[type=radio][name="'+sku+'-'+group+'"][value="'+value+'"]').check();
@@ -41,6 +44,13 @@ try{
     assert.deepEqual(errors,[]);
     console.log('PASS',width,height,sku);
    }
+   await page.goto(base+'/produkt/produkt/102130123');
+   await page.locator('.rpm-pdp-key-specs').waitFor();
+   assert.ok(await page.locator('.rpm-pdp-highlights>div').count()>0,'Turbo highlights must remain');
+   assert.equal(await page.locator('.rpm-pdp-section-nav').count(),0);
+   assert.ok(await page.locator('#rpm-pdp-tech-title').isVisible());
+   assert.deepEqual(errors,[]);
+   console.log('PASS',width,height,'102130123');
   }catch(e){failures++;console.error('FAIL/BLOCKED',width,height,e.message)}
   finally{await context.close()}
  }
