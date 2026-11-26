@@ -53,3 +53,5 @@
 - Variant Manager bulk review: checkbox beside pending family only, select current page, live count of selected families/SKU/reduction, clear and explicit confirm; 44px row selection target and wrapping toolbar, mobile stacked; no select-all catalogue or cross-page selection. W KODZIE, RWD pending.
 
 - VAR-BATCH UX: domyślny filtr Do zatwierdzenia; po udanym zatwierdzeniu paczki automatyczny powrót na pierwszą stronę oczekujących w tym samym zakresie i wyszukiwaniu. Toolbar nie znika na stronach bez oczekujących, działania nieaktywne, skrót Pokaż oczekujące. Bez automatycznego zaznaczenia lub publikacji kolejnej paczki.
+
+- VAR-BATCH v2: category path selector, 20/50/100 page size (default20), compact swatches using shared color mapping, active reduction KPI per rule, approved filter enables explicit bulk revert, selection stays page-local; no auto-approval. Responsive wrapping and existing touch targets. W KODZIE.

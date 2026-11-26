@@ -28,3 +28,7 @@
 .rpm-variants .rpm-variant-select-one{flex:0 0 44px;justify-content:center;align-self:stretch;padding:8px}
 .rpm-variants .rpm-variant-family-row .rpm-variant-family-head{flex:1;min-width:0;width:auto}
 @media(max-width:600px){.rpm-variants .rpm-variant-batch>button,.rpm-variants .rpm-variant-batch>.rpm-variant-select,.rpm-variants .rpm-variant-batch-summary{width:100%;flex-basis:100%}}
+
+.rpm-variants .rpm-variant-color-preview{display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-width:0;margin-top:3px}
+.rpm-variants .rpm-variant-color-dot{display:block;width:15px;height:15px;flex:0 0 15px;border:1px solid #888;border-radius:50%}
+.rpm-variants .rpm-variant-toolbar select{max-width:100%;text-overflow:ellipsis}
