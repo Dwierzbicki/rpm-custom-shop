@@ -2,7 +2,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {cases,scenarioUrl,validateResponse} from '../scripts/fmic-benchmark.mjs';
 test('Benchmark uses storefront read-only endpoints and fixed scenarios',()=>{
- assert.equal(cases.length,11);
+ assert.equal(cases.length,16);
+ assert.equal(new Set(cases.map(s=>s.label)).size,cases.length);
+ for(const label of ['All products / page 1','Approved variant family','Exact variant SKU','Hamulce i koła / page 100','Search E46','Product KBM23595-2E'])assert.ok(cases.some(s=>s.label===label),label);
  for(const s of cases)assert.match(scenarioUrl('https://rpmcustom.pl',s).pathname,/^\/api\/catalog\/fmic(?:\/suggest|\/product)?$/);
 });
 test('Benchmark rejects invalid payloads, duplicates and wrong price order',()=>{

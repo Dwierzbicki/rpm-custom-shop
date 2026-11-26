@@ -25,8 +25,10 @@ test('maximum five technical filters for turbo, unknown categories none',()=>{
  assert.deepEqual(fmicFacets(['Nieznana']),[]);
 });
 const sharpUrl=import.meta.resolve('sharp');
+const placeholderUrl='data:text/javascript;base64,'+Buffer.from(ts.transpileModule(readFileSync(new URL('../app/lib/fmic-placeholder.ts',import.meta.url),'utf8'),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText).toString('base64');
 const {inspectImage}=await load('app/lib/fmic-image-quality.ts',[
  ["from 'sharp'","from "+JSON.stringify(sharpUrl)],
+ ["from './fmic-placeholder'","from "+JSON.stringify(placeholderUrl)],
  ["import {getDbPool} from './db';","const getDbPool=()=>{throw new Error('Database not allowed in unit tests')};"]
 ]);
 test('image audit classifies fixtures without contacting supplier',async t=>{

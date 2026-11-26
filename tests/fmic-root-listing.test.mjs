@@ -13,9 +13,10 @@ const manual={id:31,sku:'RPM-00031',name:'Rods',brand:'RPM Custom',category:'Kor
 const calls=[];
 const db={query:async(sql,args)=>{
  calls.push({sql,args});
+ if(sql.includes("to_regclass('rpm_variant_families')"))return {rows:[{present:false}]};
  if(sql.includes('page_rows AS MATERIALIZED'))return {rows:[{sku:'RPM-00031',manual_id:31,brand:'RPM Custom'}]};
  if(sql.includes('SELECT count(*)::int AS total'))return {rows:[{total:2}]};
- if(sql.includes('AS facet'))return {rows:[{facet:'producer',value:'RPM Custom',count:1},{facet:'producer',value:'Supplier',count:1}]};
+ if(sql.includes(' AS facet,'))return {rows:[{facet:'producer',value:'RPM Custom',count:1},{facet:'producer',value:'Supplier',count:1}]};
  if(sql.includes('memberships.path AS path'))return {rows:[{path:['Silnik i turbo','Kute korbowody'],count:1}]};
  throw Error('Unexpected SQL '+sql);
 }};
@@ -24,7 +25,8 @@ const {GET}=load('app/api/admin/fmic-preview/route.ts',{
  'next/server':{NextResponse:{json:(data,init)=>Response.json(data,init)}},
  '../../../lib/brand-search':{brandSearchNames:()=>[]},
  '../../../lib/db':{getDbPool:()=>db},
- '../../../lib/fmic-facets':{fmicSearchFacets:()=>[{key:'producer',label:'Producent',expression:"data->>'brand'"}]},
+ '../../../lib/listing-variants':load('app/lib/listing-variants.ts'),
+ '../../../lib/fmic-facets':{explicitProducerFilter:()=>false,fmicSearchFacets:()=>[{key:'producer',label:'Producent',expression:"data->>'brand'"}]},
  '../../../lib/fmic-category-membership':{visibleCatalog:'TRUE',categoryExpansion:'',listingCategoryMembership:()=> 'cardinality($1::text[])>=0'},
  '../../../lib/catalog-db':{getCatalog:async()=>[manual]},
  '../../../lib/header-search':{matchesSearch:()=>true},

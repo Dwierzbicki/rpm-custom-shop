@@ -15,7 +15,10 @@ test('two distinct operator drafts with no price or public visibility',()=>{
  for(const {input:p} of drafts){
   assert.equal(p.visible,false);assert.equal(p.price,0);assert.equal(p.stockStatus,'order');assert.equal(p.configurable,true);
   assert.deepEqual(p.images,[]);assert.deepEqual(p.targetCategory,['Układ wydechowy','Kolektory wydechowe']);
-  assert.ok(p.description.length>100);assert.ok(p.optionGroups.every(g=>g.required&&g.options.every(o=>o.price===0)));
+  assert.ok(p.description.length>100);const insulation=p.optionGroups.find(g=>g.id==='rpm-thermal-insulation');
+  assert.equal(insulation.required,false);
+  assert.deepEqual(insulation.options.map(o=>[o.id,o.price]),[['none',0],['termshield',1600]]);
+  assert.ok(p.optionGroups.filter(g=>g.id!=='rpm-thermal-insulation').every(g=>g.required&&g.options.every(o=>o.price===0)));
  }
 });
 test('BMW has four chassis, Toyota has none; both have six flanges and EGT',()=>{
