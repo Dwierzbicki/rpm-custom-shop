@@ -12,3 +12,5 @@ const names=q=>Array.from(exports.brandSearchNames(q));
 test('brand metadata works for all library entries',()=>{for(const b of brands)assert.ok(names(b.name).includes(b.name.toLowerCase()))});
 test('manufacturer aliases resolve consistently',()=>{assert.deepEqual(names('Manley Performance'),names('Manley'));assert.deepEqual(names(' ECU MASTER '),names('ECUMaster'));assert.deepEqual(names('Garrett Motion'),names('Garrett'))});
 test('non-brand queries remain ordinary searches',()=>{for(const q of ['BMW E46','Pulsar 6266','compatible with Garrett',"Garrett' OR 1=1",'__proto__'])assert.deepEqual(names(q),[])});
+
+test('RPM Custom is a registered manufacturer',()=>{assert.deepEqual(names('RPM Custom'),['rpm custom']);assert.equal(brands.find(b=>b.slug==='rpm-custom').url,'/optimized/logo.webp')});

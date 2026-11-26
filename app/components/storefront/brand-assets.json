@@ -1,5 +1,10 @@
 [
   {
+    "name": "RPM Custom",
+    "slug": "rpm-custom",
+    "url": "/optimized/logo.webp"
+  },
+  {
     "name": "Pulsar",
     "slug": "pulsar",
     "url": "https://fmic.pl/media/catalog/product/P/u/Pulsar-PSR-Logo.png"

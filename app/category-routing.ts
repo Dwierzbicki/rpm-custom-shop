@@ -22,8 +22,16 @@ export function validCategoryPath(value:unknown):value is string[]{
  const resolved=resolveCategoryPath(categoryPath(value));
  return !!resolved&&resolved.length===value.length&&resolved.every((name,i)=>name===value[i]);
 }
-export function manualCategoryPath(product:{category:string;targetCategory?:string[]}):string[]{
- if(validCategoryPath(product.targetCategory))return product.targetCategory;
+const manifoldParent=['Układ wydechowy','Kolektory wydechowe'];
+export function manualCategoryPath(product:{category:string;targetCategory?:string[];brand?:string;attributes?:Record<string,string>}):string[]{
+ const explicit=validCategoryPath(product.targetCategory)?product.targetCategory:undefined;
+ // Promote only RPM manifolds with a recorded stainless material from the parent;
+ // never infer a material from the brand, or replace an explicitly chosen leaf.
+ if(product.brand?.trim().toLowerCase()==='rpm custom'&&product.category==='Kolektory'&&(!explicit||explicit.join(' > ')===manifoldParent.join(' > '))){
+  const material=product.attributes?.Materiał??product.attributes?.material??'';
+  if(/(?:nierdzew|kwasoodporn|kwas[oó]wka|stainless|\bAISI\s*316L?\b)/i.test(material)&&!/(?:żeliw|cast iron|alumini)/i.test(material))return [...manifoldParent,'Kolektory wydechowe nierdzewne'];
+ }
+ if(explicit)return explicit;
  const alias=manualCategoryAliases[product.category];if(alias)return [...alias];
  const matching=manualCategoryOptions.filter(p=>p.at(-1)===product.category);
  return matching.length===1?matching[0]:[];
@@ -33,6 +41,6 @@ function flattenCategories(nodes:typeof FMIC_CATEGORY_TREE,parent:string[]=[]):s
 }
 export const manualCategoryOptions=flattenCategories(FMIC_CATEGORY_TREE);
 export function legacyManualCategory(path:string[]):string{
- if(path.join(' > ')==='Układ wydechowy > Kolektory wydechowe')return 'Kolektory';
+ if(path[0]==='Układ wydechowy'&&path[1]==='Kolektory wydechowe'&&(path.length===2||['Kolektory wydechowe nierdzewne','Kolektory wydechowe żeliwne'].includes(path[2])))return 'Kolektory';
  return path.at(-1)??'Osprzęt';
 }

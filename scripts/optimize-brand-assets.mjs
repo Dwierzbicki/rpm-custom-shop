@@ -52,7 +52,7 @@ async function normalize(brand){
  display[brand.slug]='data:image/webp;base64,'+image.toString('base64');
 }
 for(let i=0;i<brands.length;i+=4){
- await Promise.all(brands.slice(i,i+4).map(async brand=>{try{await normalize(brand);console.log('Optimized brand: '+brand.name)}catch(e){console.warn('Brand fallback: '+brand.name+' — '+(e instanceof Error?e.message:String(e)))}}));
+ await Promise.all(brands.slice(i,i+4).map(async brand=>{try{if(brand.slug==='rpm-custom'&&brand.url==='/optimized/logo.webp')return;await normalize(brand);console.log('Optimized brand: '+brand.name)}catch(e){console.warn('Brand fallback: '+brand.name+' — '+(e instanceof Error?e.message:String(e)))}}));
 }
 
 // Embed small optimized logos in the storefront bundle: no per-logo HTTP requests or stale URLs.

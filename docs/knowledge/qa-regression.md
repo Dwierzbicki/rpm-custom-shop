@@ -48,3 +48,8 @@ Odczyt prod: 6 opublikowanych; 1 280 nieopublikowanych szkiców zgodnych z tekst
 2026-11-26: trzy testy jednostkowe manifold-options z wersji 97bd5b7 odtworzone lokalnie z treści plików repo na Node 22.16.0 — 3 PASS. Kolejny test zmiany szablonu BMW na 2JZ dodany; pełny build, testy rzeczywistego PDP/admin i RWD pozostają do potwierdzenia. Brak opublikowanego rzeczywistego kolektora z ceną ustaloną przez operatora.
 
 - MAN-06: import obu szkiców / start aplikacji / dokładnie dwa nowe rekordy, widoczność false, poprawne grupy, brak demo i zdjęć, brak zmian istniejących ofert. Test danych dodany; wykonanie importu i ponownego startu NOT RUN.
+
+- BRAND-01: RPM Custom w karuzeli, kliknięcie → wyszukiwanie marki; logo lokalne. NOT RUN E2E.
+- BRAND-02: kolektory nierdzewne, filtr Producent → RPM Custom → RPM-00032 i RPM-00033; filtr pozostaje dostępny także przy jednej marce. Test routingu dodany, test rzeczywistego API/UI NOT RUN.
+- BRAND-03: zapis liścia w adminie nie usuwa grup wariantów, bez duplikatów na rodzicu i liściu. Test jednostkowy dodany, API/RWD NOT RUN.
+- INC-001: 2026-11-26 użytkownik zgłosił wyjątek klienta na listingu kolektorów nierdzewnych; po odświeżeniu działał, konsola bez błędów. Intermittent / not reproducible; przyczyna nieustalona.

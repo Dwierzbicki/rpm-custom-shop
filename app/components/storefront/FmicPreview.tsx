@@ -30,7 +30,9 @@ function ProducerFilter({facet,value,onChange}:{facet:Facet;value:string;onChang
  const {t}=useStorefrontLanguage();
  const [query,setQuery]=useState(''),[expanded,setExpanded]=useState(false);
  const options=facet.options.filter(o=>o.value.toLocaleLowerCase('pl').includes(query.toLocaleLowerCase('pl')));
- const shown=expanded||query?options:options.slice(0,6);
+ const rpm=options.find(o=>o.value==='RPM Custom');
+ const prioritized=rpm?[rpm,...options.filter(o=>o!==rpm)]:options;
+ const shown=expanded||query?prioritized:prioritized.slice(0,6);
  return <details className="fplp-filter-section" open><summary>{t("Producent")}</summary><div className="fplp-brand-search"><Search size={15}/><input aria-label={t("Szukaj producenta")} placeholder={t("Szukaj producenta…")} value={query} onChange={e=>setQuery(e.target.value)}/></div><div className="fplp-brand-options"><label className="fplp-brand-option"><input type="radio" name="fplp-producer" checked={!value} onChange={()=>onChange('')}/>{t("Wszyscy producenci")}</label>{value&&!shown.some(o=>o.value===value)&&<label className="fplp-brand-option"><input type="radio" name="fplp-producer" checked readOnly/>{value}<small>{facet.options.find(o=>o.value===value)?.count??0}</small></label>}{shown.map(o=><label className="fplp-brand-option" key={o.value}><input type="radio" name="fplp-producer" checked={value===o.value} onChange={()=>onChange(o.value)}/><span>{o.value}</span><small>{o.count.toLocaleString('pl-PL')}</small></label>)}{!options.length&&<small>{t("Brak pasujących producentów")}</small>}</div>{!query&&options.length>6&&<button className="fplp-more-categories" type="button" onClick={()=>setExpanded(v=>!v)}>{expanded?t('Pokaż mniej'):t('Pokaż więcej (')+(options.length-6)+')'}</button>}</details>
 }
 type Result={includesManual?:boolean;categories?:CategoryCount[];facets?:Facet[];items:{sku:string;name:string;proposed_gross:string;available:boolean;image:string|null;brand?:string|null;manual_id?:number|null;manual_stock_status?:string|null}[];total:number;page:number;size:number;path:string[]};
