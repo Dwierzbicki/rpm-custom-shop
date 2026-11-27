@@ -256,7 +256,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
    if(slot.id==='manifold'&&manifoldSpec){
     const product=manifoldProduct?.name??tr('Kolektor RPM Custom','RPM Custom manifold');
     const configured=configuredManifold;const config=configured?configured.customGroups.flatMap(g=>{const option=g.options.find(o=>o.id===configured.chosenOptions[g.id]);return option?[g.name+': '+option.label]:[]}).join(' · '):'';
-    return {kind:blocked(slot.id)?'conflict':manifoldPrice>0?'purchase':'pending',label,product,sku:manifoldSpec.sku,qty:1,unitPrice:manifoldPrice>0?manifoldPrice:null,status:blocked(slot.id)?tr('Konflikt','Conflict'):manifoldReady?tr('Skonfigurowano','Configured'):tr('Wstępna wycena','Provisional'),note:[manifoldSpec.flangeLabel,manifoldSpec.wg==='internal'?'IWG':'EWG',config,!manifoldReady?tr('Nadwozie / konfiguracja do potwierdzenia','Chassis / configuration to confirm'):''].filter(Boolean).join(' · '),priced:!blocked(slot.id)&&manifoldPrice>0};
+    return {kind:blocked(slot.id)?'conflict':manifoldPrice>0?'purchase':'pending',label,product,sku:manifoldSpec.sku,qty:1,unitPrice:manifoldPrice>0?manifoldPrice:null,status:blocked(slot.id)?tr('Konflikt','Conflict'):manifoldReady?tr('Skonfigurowano','Configured'):tr('Wstępna wycena','Provisional'),note:[manifoldSpec.flangeLabel,manifoldSpec.wg==='internal'?'IWG':'EWG',config,!manifoldReady?tr('Nadwozie / konfiguracja do potwierdzenia','Chassis / configuration to confirm'):''].filter(Boolean).join(' · '),priced:!blocked(slot.id)&&manifoldReady&&manifoldPrice>0};
    }
    const key=selectedPart(slot,selection),candidate=key?candidates[key]:undefined,q=quoteForSlot(slot),qty=key?qtyFor(slot.id,key):0;
    const priced=!!q&&state==='ready'&&q.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0&&qty>0&&!blocked(slot.id);
@@ -275,8 +275,8 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
     {label:tr('Charakterystyka','Characteristics'),value:({response:tr('Szybka reakcja','Fast response'),power:tr('Maksymalna moc','Maximum power'),reliability:tr('Trwałość','Durability'),cost:tr('Cena / osiągi','Price / performance'),balanced:tr('Zbalansowana','Balanced')})[profile.priority]},
     {label:tr('Budżet','Budget'),value:profile.budgetPln===null?tr('Budżetu nie ustalono','Budget not set'):money(profile.budgetPln)}
    ],
-   groups:[...groups.map(g=>({label:g.label[en?1:0],rows:g.parts.filter(s=>slotState(s)!=='advice').map(rowFor)})),{label:tr('Zalecenia warsztatowe','Workshop advice'),rows:slots.filter(s=>slotState(s)==='advice').map(rowFor)}],
-   issues:issues.map(i=>(i.level==='conflict'?tr('Konflikt: ','Conflict: '):'')+i.message[en?1:0])
+   groups:groups.map(g=>({label:g.label[en?1:0],rows:g.parts.map(rowFor).filter(r=>r.priced)})).filter(g=>g.rows.length),
+   issues:[]
   };
   const popup=window.open('','_blank');if(!popup){setOfferError(tr('Zezwól na otwieranie nowego okna, aby wyświetlić ofertę.','Allow pop-ups to open the offer.'));return}
   popup.opener=null;popup.document.open();popup.document.write(renderBuildOffer(snapshot,window.location.origin));popup.document.close();
