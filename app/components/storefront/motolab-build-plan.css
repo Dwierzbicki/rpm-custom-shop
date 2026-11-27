@@ -375,3 +375,29 @@
 @media(max-width:760px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status{font-size:11px;padding:4px 6px}}
 
 .rpm-build-workspace .rpm-system-excluded{color:#93c5fd}
+
+
+/* Compact estimate panel: strong hierarchy and consistent project-state colours. */
+.rpm-build-workspace .rpm-build-summary-v2{gap:15px;padding:16px;min-width:0;background:linear-gradient(160deg,#292e38,#1c2028 65%);border:1px solid #444c59;border-radius:10px}
+.rpm-summary-top,.rpm-summary-completion>div:first-child{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rpm-summary-top .eyebrow{font-size:10px;letter-spacing:.07em;margin:0}
+.rpm-summary-tier{font-size:11px;font-weight:750;color:#fff;border:1px solid #596272;border-radius:4px;padding:3px 7px}
+.rpm-summary-total{display:grid;gap:5px;padding:4px 0 13px;border-bottom:1px solid #424955}
+.rpm-build-workspace .rpm-summary-total>strong{font-size:clamp(23px,2.1vw,32px);line-height:1.2;letter-spacing:-.045em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:#fff}
+.rpm-summary-completion{display:grid;gap:8px;font-size:12px}
+.rpm-summary-completion b{font-variant-numeric:tabular-nums;color:#e3e7ed}
+.rpm-summary-track{height:7px;display:flex;border-radius:8px;overflow:hidden;background:#3b424d}
+.rpm-summary-segment.matched{background:#35bc73}.rpm-summary-segment.owned{background:#4b9cf5}.rpm-summary-segment.pending{background:#ef5350}
+.rpm-summary-states{display:grid;gap:6px}
+.rpm-summary-states>div{display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:8px;padding:9px 10px;border:1px solid currentColor;border-radius:5px;font-size:12px;background:#1e242c}
+.rpm-summary-states>div.matched{color:#69e8a0;border-color:rgba(53,188,115,.35)}
+.rpm-summary-states>div.pending{color:#ff8585;border-color:rgba(239,83,80,.35)}
+.rpm-summary-states>div.owned{color:#93c5fd;border-color:rgba(75,156,245,.35)}
+.rpm-summary-states b{font-size:15px;font-variant-numeric:tabular-nums}
+.rpm-summary-extra{display:grid;gap:5px;font-size:11px;color:#b9c1ce}
+.rpm-summary-extra>span{display:flex;justify-content:space-between;gap:6px}
+.rpm-summary-actions{display:grid;gap:8px}
+.rpm-build-workspace .rpm-summary-actions>.rpm-build-cart-link{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;min-height:42px;text-align:center;padding:9px 8px;font-size:12px;line-height:1.3}
+.rpm-summary-notes{border-top:1px solid #424955;padding-top:10px;font-size:11px;color:#b9c1ce}
+.rpm-summary-notes summary{cursor:pointer;font-weight:650}
+.rpm-summary-notes small{display:block;margin-top:8px}
