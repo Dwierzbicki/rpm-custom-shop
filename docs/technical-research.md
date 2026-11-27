@@ -1,6 +1,6 @@
 # RPM Technical Research — phase 1
 
-The existing Power Builder's curated candidates, exact SKU/name checks, live prices and cart validation remain authoritative. New project selectors collect fuel, internals, priority and parts budget. Fuel feeds the existing estimation model; the budget is compared with the selected, priced subtotal. No AI inference or optimization is presented as active. NA, supercharger and Drag require distinct rules and are not enabled.
+The existing Power Builder's curated candidates, exact SKU/name checks, live prices and cart validation remain authoritative. New project selectors collect fuel, separate piston and connecting rod preferences, engine characteristics and parts budget. Fuel feeds the existing estimation model; the budget is compared with the selected, priced subtotal. No AI inference or optimization is presented as active. NA, supercharger and Drag require distinct rules and are not enabled.
 
 ## Prepared evidence storage
 
@@ -13,3 +13,5 @@ The existing Power Builder's curated candidates, exact SKU/name checks, live pri
 3. Extract structured evidence, normalize units, retain conditions and conflicting claims. Reject unsupported exact-variant claims and stale SKU identity. Do not equate catalogue marketing horsepower with verified capacity.
 4. Deterministic checks and ranking over real catalogue SKU pools; review unknowns. Start M54B30 turbo, expand only when validated. Recheck price, availability, geometry and required options before adding to cart.
 5. Link approved evidence to PDP and Power Builder; include provenance and freshness. No paid API or new Render resource is provisioned in this phase.
+
+BMW M50/M52/M54 rod preferences are stock, M50B25 NV and forged. Toyota cannot select M50B25 NV. These are recorded requirements, not verified interchangeability or an automatic change to curated SKU recommendations.
