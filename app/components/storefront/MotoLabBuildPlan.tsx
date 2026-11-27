@@ -12,7 +12,7 @@ import {addFmicToCart,quoteFmicCart,CART_EVENT,type FmicQuote} from '../../lib/f
 import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
 import './motolab-build-plan.css';
 const systems=[
- {id:'turbo',label:['Turbo i dolot','Turbo & intake'],icon:Wind,ids:['turbo','turbo-hot','turbo-cold','manifold','wastegate','bov','intercooler','intake-manifold','chargepipes','filter']},
+ {id:'turbo',label:['Turbo i dolot','Turbo & intake'],icon:Wind,ids:['turbo','turbo-hot','turbo-cold','turbo-insulation','exhaust-wrap','manifold','wastegate','bov','intercooler','intake-manifold','chargepipes','filter']},
  {id:'fuel',label:['Układ paliwowy','Fuel system'],icon:Droplets,ids:['injectors','pump','regulator','rail','fuel-lines']},
  {id:'engine',label:['Wnętrze silnika','Engine internals'],icon:Settings2,ids:['pistons','rods','bearings','bearings-rod','bearings-main','rings','gasket','fasteners','crank']},
  {id:'cooling',label:['Smarowanie i chłodzenie','Oil & cooling'],icon:Gauge,ids:['oil-feed','breather','oil-cooler','radiator']},
