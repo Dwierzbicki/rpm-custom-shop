@@ -8,7 +8,7 @@ export const ADMIN_GROUPS=[
  {id:'tools',label:'Narzędzia',links:[{href:'/admin/link-audit',label:'Audyt linków',icon:'link'},{href:'/admin/image-audit',label:'Audyt zdjęć',icon:'image'}]}
 ] as const;
 export type AdminLink=typeof ADMIN_GROUPS[number]['links'][number];
-export const ADMIN_LINKS:AdminLink[]=ADMIN_GROUPS.flatMap(g=>Array.from(g.links) as AdminLink[]);
+export const ADMIN_LINKS:AdminLink[]=ADMIN_GROUPS.flatMap(g=>[...g.links] as AdminLink[]);
 export function activeAdminLink(path:string):AdminLink|undefined{
  if(path==='/admin'||path==='/admin/overview')return ADMIN_LINKS.find(l=>l.href==='/admin');
  if(path==='/admin/motolab-dyno')return ADMIN_LINKS.find(l=>l.href==='/admin/settings/power-guides');
