@@ -307,3 +307,34 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 @media(max-width:1000px){.rpm-admin-shell .fmic-center .fc-product-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-admin-shell .fmic-center .fc-product-filters>.primary{justify-self:end}}
 @media(max-width:760px),(max-height:650px){.rpm-admin-shell .fmic-center .fc-product-table-wrap{flex:none;min-height:180px;height:clamp(180px,45dvh,520px)}.rpm-admin-shell .fmic-center .fc-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.rpm-admin-shell .fmic-center .fc-tabs button{flex-shrink:0}}
 @media(max-width:480px){.rpm-admin-shell .fmic-center .fc-product-filters{grid-template-columns:minmax(0,1fr)}.rpm-admin-shell .fmic-center .fc-product-filters>.primary{width:100%}.rpm-admin-shell .fmic-center .fc-product-pager{align-items:flex-start;flex-direction:column}.rpm-admin-shell .fc-pager-controls{width:100%;justify-content:space-between;gap:8px}.rpm-admin-shell .fc-pager-buttons button{min-width:88px}}
+
+/* Quality centre: shared filter alignment and stable result areas. */
+.rpm-admin-shell .rpm-variants .rpm-variant-toolbar,.rpm-admin-shell .rpm-quality-center .fc-toolbar,.rpm-admin-shell .rpm-link-audit-actions{align-items:flex-end;gap:12px}
+.rpm-admin-shell .rpm-variants .rpm-variant-toolbar label,.rpm-admin-shell .rpm-link-audit-actions label{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;font-size:12px;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-variants .rpm-variant-toolbar :is(input,select),.rpm-admin-shell .rpm-quality-center .fc-toolbar :is(input,select),.rpm-admin-shell .rpm-link-audit-actions select{height:var(--bo-control-height);margin:0;box-sizing:border-box}
+.rpm-admin-shell .rpm-variants .rpm-variant-toolbar button,.rpm-admin-shell .rpm-quality-center .fc-toolbar button,.rpm-admin-shell .rpm-link-audit-actions button{height:var(--bo-control-height);min-height:var(--bo-control-height);align-self:flex-end;margin:0}
+.rpm-admin-shell .rpm-variants .rpm-variant-filters{display:grid;grid-template-columns:minmax(240px,1.5fr) minmax(150px,.8fr) minmax(190px,1fr) minmax(110px,.5fr);margin:0 0 16px}
+.rpm-admin-shell .rpm-variants .rpm-variant-filters form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+.rpm-admin-shell .rpm-variants .rpm-variant-batch{padding:16px;min-height:76px;margin:0;box-sizing:border-box;align-items:center}
+.rpm-admin-shell .rpm-variants .rpm-variant-batch-hint{flex:1 1 100%;min-height:20px}
+.rpm-admin-shell .rpm-variants .rpm-variant-results{min-height:240px;display:grid;align-content:start;gap:10px}
+.rpm-admin-shell .rpm-variants .rpm-variant-results[aria-busy=true]{opacity:.65}
+.rpm-admin-shell .rpm-variants .rpm-variant-family{margin:0}
+.rpm-admin-shell .rpm-variants .rpm-variant-family-head{min-height:88px;padding:14px 18px;line-height:1.55}
+.rpm-admin-shell .rpm-variants .rpm-variant-family-body{padding:18px 20px}
+.rpm-admin-shell .rpm-variants .rpm-variant-placeholder{height:90px;padding:18px;display:grid;gap:12px;align-content:center}
+.rpm-admin-shell .rpm-variants .rpm-variant-pagination{margin:4px 0 0;min-height:48px}
+.rpm-admin-shell .rpm-variants .rpm-variant-pagination button{min-width:105px}
+.rpm-admin-shell .rpm-quality-center .rpm-quality-mode-tabs{margin:0 0 18px!important;align-items:center}
+.rpm-admin-shell .rpm-quality-center .fc-kpi,.rpm-admin-shell .rpm-audit-metrics>div{padding:16px;min-height:86px;box-sizing:border-box}
+.rpm-admin-shell .rpm-quality-center .rpm-image-review-grid article{padding:16px;min-width:0}
+.rpm-admin-shell .rpm-quality-center .rpm-image-review-grid[aria-busy=true]{opacity:.7}
+.rpm-admin-shell .rpm-quality-center .rpm-image-review-grid article img{aspect-ratio:4/3;width:100%;object-fit:contain}
+.rpm-admin-shell .rpm-quality-history{min-height:160px;overflow:auto;scrollbar-gutter:stable}
+.rpm-admin-shell .rpm-quality-history table{width:100%;table-layout:fixed;min-width:560px}
+.rpm-admin-shell .rpm-quality-history td,.rpm-admin-shell .rpm-quality-history th{padding:12px 16px;overflow-wrap:anywhere;line-height:1.5}
+.rpm-admin-shell .rpm-quality-history th:last-child{width:170px}
+.rpm-admin-shell .rpm-link-audit-current{min-height:42px;overflow-wrap:anywhere;margin:12px 0 0}
+.rpm-admin-shell .rpm-link-audit .rpm-quality-history th:last-child{width:180px}
+@media(max-width:1150px){.rpm-admin-shell .rpm-variants .rpm-variant-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.rpm-admin-shell .rpm-variants .rpm-variant-filters{grid-template-columns:minmax(0,1fr)}.rpm-admin-shell .rpm-variants .rpm-variant-family-head{padding:12px}.rpm-admin-shell .rpm-variants .rpm-variant-family-body{padding:14px}.rpm-admin-shell .rpm-variants .rpm-variant-pagination button{min-width:0}}
