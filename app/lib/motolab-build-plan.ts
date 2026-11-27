@@ -159,7 +159,19 @@ export function selectedPart(slot:PartsSlot,selection:Record<string,string>):str
 }
 
 export type BuildIssue={id:string;slots:string[];level:'conflict'|'review';message:[string,string]};
-export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel,ethanolPercent?:number):BuildIssue[]{
+const knownInjectorFlow:Record<string,number>={universal1500:1500,universal1200:1200,tuInjectors:750,injectors:1200,injectors1500:1500,geInjectors:1000};
+export function injectorNominalFlow(key:string,candidate?:BuildCandidate):number|null{
+ const value=candidate?.injectorFlowCc??knownInjectorFlow[key];
+ return typeof value==='number'&&Number.isFinite(value)&&value>0?value:null;
+}
+export function filterInjectorSlot(slot:PartsSlot,selection:Record<string,string>,minimum:number|null,candidateMap:Record<string,BuildCandidate>):PartsSlot{
+ if(slot.id!=='injectors'||minimum===null)return slot;
+ const allowed=(key:string)=>{const flow=injectorNominalFlow(key,candidateMap[key]);return flow!==null&&flow>=minimum};
+ const candidate=slot.candidate&&allowed(slot.candidate)?slot.candidate:undefined;
+ const alternatives=partOptions({...slot,rpmOptions:[]}).filter(k=>k!==candidate&&allowed(k));
+ return {...slot,candidate,alternatives,rpmOptions:(slot.rpmOptions??[]).filter(allowed),defaultNone:slot.defaultNone||!candidate||(!!selection[slot.id]&&selection[slot.id]!=='default'&&selection[slot.id]!=='own'&&!allowed(selection[slot.id]))};
+}
+export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel,ethanolPercent?:number,targetPower?:number|null):BuildIssue[]{
  const get=(id:string)=>{const s=slots.find(x=>x.id===id);return s?selectedPart(s,selection):undefined};
  const issues:BuildIssue[]=[];
  const turbo=get('turbo'),manifold=get('manifold');
@@ -167,8 +179,8 @@ export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,ve
  else if((turbo==='turbo'||turbo==='turboVband')&&manifold)issues.push({id:'flange-review',slots:['turbo','manifold'],level:'review',message:['Katalogowo oba elementy mają T4 Twin Scroll; rzeczywiste mocowanie i układ wastegate wymagają potwierdzenia.','Both are catalogued as T4 twin-scroll; actual mount and wastegate layout still require confirmation.']});
  const missing=turboAssemblySlots(slots,selection);
  if(missing.length)issues.push({id:'turbo-incomplete',slots:['turbo',...missing.map(s=>s.id)],level:'conflict',message:['Wybrana turbosprężarka jest niekompletna. Brakuje potwierdzonego zestawu obudów. Zakup z MotoLab zablokowany do czasu doboru.','Selected turbo is incomplete. A confirmed housing kit is missing. MotoLab purchase blocked until the assembly is matched.']});
- const demand=estimateFuel(version,range,fuel,undefined,ethanolPercent),injector=get('injectors');
- const flow=injector==='universal1500'?1500:injector==='universal1200'?1200:injector==='tuInjectors'?750:injector==='injectors'?1200:injector==='injectors1500'?1500:injector==='geInjectors'?1000:undefined;
+ const demand=estimateFuel(version,range,fuel,targetPower,ethanolPercent),injector=get('injectors');
+ const flow=injector?injectorNominalFlow(injector):null;
  if(flow&&demand&&flow<demand.injectorCc)issues.push({id:'injector-flow',slots:['injectors'],level:'conflict',message:['Nominalny przepływ wtryskiwacza jest niższy od szacowanego zapotrzebowania przy założeniach MotoLab. Dobierz wydajniejszy wariant.','Nominal injector flow is below estimated demand under MotoLab assumptions. Choose a higher-flow option.']});
  else if(flow)issues.push({id:'injector-review',slots:['injectors'],level:'review',message:['Przepływ katalogowy to nie potwierdzenie wydajności przy wybranym paliwie i ciśnieniu; sprawdź również geometrię i kalibrację.','Catalogue flow is not proof of performance with the selected fuel and pressure; geometry and calibration also require confirmation.']});
  const tu=slots.some(s=>s.dependency==='m52tu');
