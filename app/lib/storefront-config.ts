@@ -13,6 +13,14 @@ export const ENGINE_POWER_RANGES:Readonly<Record<string,readonly {min:number;max
  '2jz-ge':bands(250,400,550,700,850,1000),'2jz-gte':bands(250,400,550,700,850,1000)
 };
 export function powerRangesFor(version:string){return Object.prototype.hasOwnProperty.call(ENGINE_POWER_RANGES,version)?ENGINE_POWER_RANGES[version]:[]}
+/** Preserve stored range indexes. Shared boundaries use the lower band,
+ * except the explicit TU pilot covers both 350 and 400 PS. */
+export function rangeForPower(version:string,power:number):number{
+ const ranges=powerRangesFor(version);
+ if(!Number.isSafeInteger(power)||power%10!==0)return -1;
+ if(version==='m52b25tu'&&power>=350&&power<=400)return ranges.findIndex(r=>r.min===350&&r.max===400);
+ return ranges.findIndex(r=>power>=r.min&&power<=r.max);
+}
 export const approvedPowerRange=(version:string)=>['m54b30','2jz-ge','2jz-gte'].includes(version);
 
 export const categories=['Wszystkie','Kolektory','Turbo','Intercoolery','Wastegate','Osprzęt','Elektronika','Paliwo'];

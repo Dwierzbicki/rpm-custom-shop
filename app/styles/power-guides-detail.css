@@ -1,3 +1,20 @@
 @import './power-guides-pricing.css';
 @import './power-guides-recommendations.css';
 @import './power-guides-cart.css';
+
+/* Exact power target — independent from the persisted catalogue range IDs. */
+.rpm-builder .rpm-power-slider{display:grid;gap:14px;max-width:680px;margin:18px auto 24px;padding:clamp(16px,3vw,30px);border:1px solid var(--rpm-color-panel-border,#343943);border-radius:8px;background:var(--rpm-color-surface,#181c23);box-sizing:border-box}
+.rpm-builder .rpm-power-slider-label{text-align:center;color:var(--rpm-color-muted,#b8bdc6);font-size:13px;font-weight:650}
+.rpm-builder .rpm-power-slider-value{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:12px;max-width:300px;width:100%;margin:auto}
+.rpm-builder .rpm-power-slider-value button{width:44px;height:44px;min-height:44px;font-size:23px;padding:0;display:grid;place-items:center}
+.rpm-builder .rpm-power-slider-value output{font-size:clamp(36px,6vw,60px);font-weight:800;letter-spacing:-.05em;text-align:center;line-height:1.1;font-variant-numeric:tabular-nums;color:var(--rpm-color-text,#fff)}
+.rpm-builder .rpm-power-slider-value output small{font-size:16px;letter-spacing:0;font-weight:650;margin-left:6px;color:var(--rpm-color-muted,#b8bdc6)}
+.rpm-builder .rpm-power-slider input[type=range]{appearance:none;-webkit-appearance:none;display:block;width:100%;height:10px;border:0;border-radius:20px;margin:18px 0 8px;padding:0;cursor:pointer;accent-color:var(--rpm-color-accent,#c82c45)}
+.rpm-builder .rpm-power-slider input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:26px;height:26px;border:3px solid #fff;border-radius:50%;background:var(--rpm-color-accent,#c82c45)}
+.rpm-builder .rpm-power-slider input[type=range]::-moz-range-thumb{width:20px;height:20px;border:3px solid #fff;border-radius:50%;background:var(--rpm-color-accent,#c82c45)}
+.rpm-builder .rpm-power-slider input[type=range]:focus-visible{outline:2px solid var(--rpm-color-accent-hover,#f14860);outline-offset:8px}
+.rpm-builder .rpm-power-slider-bounds{display:flex;justify-content:space-between;font-size:12px;color:var(--rpm-color-muted,#b8bdc6)}
+.rpm-builder .rpm-power-slider-band{margin:0;text-align:center;font-size:13px;color:var(--rpm-color-muted,#b8bdc6)}
+.rpm-builder .rpm-power-slider-band strong{color:var(--rpm-color-text,#fff)}
+.rpm-builder .rpm-power-slider-confirm{display:flex;align-items:center;justify-content:center;gap:8px;justify-self:center;min-width:170px;min-height:44px;margin-top:8px}
+@media(max-width:480px){.rpm-builder .rpm-power-slider-confirm{width:100%}.rpm-builder .rpm-power-slider-value{max-width:260px}}

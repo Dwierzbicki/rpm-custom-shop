@@ -38,15 +38,17 @@ export function buildPlan(version:string,range:number,usage:string,tier:string,f
  * Not a pump flow curve or a calibration specification. E85 is an illustrative
  * assumption, not a model of every ethanol blend.
  */
-export function estimateFuel(version:string,range:number,fuel:Fuel){
+export function estimateFuel(version:string,range:number,fuel:Fuel,targetPower?:number|null){
  const band=powerRangesFor(version)[range];
  if(!band||fuel==='unknown')return null;
- const hp=band.max*0.98632007;
+ const powerPs=targetPower??band.max;
+ if(!Number.isFinite(powerPs)||powerPs<band.min||powerPs>band.max)return null;
+ const hp=powerPs*0.98632007;
  const bsfc=fuel==='ethanol'?0.85:0.65;
  const density=fuel==='ethanol'?0.78:0.745;
  const duty=0.80, reserve=1.20;
  const litres=hp*bsfc*0.45359237/density;
- return {powerPs:band.max,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
+ return {powerPs,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
 export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu'};
