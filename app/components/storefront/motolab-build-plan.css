@@ -335,3 +335,7 @@
 .rpm-manifold-config-summary{display:flex;flex-wrap:wrap;gap:5px}
 .rpm-manifold-config-summary>span{font-size:11px;padding:5px 8px;border:1px solid var(--rpm-color-panel-border);border-radius:4px;background:var(--rpm-color-background)}
 @media(max-width:540px){.rpm-manifold-actions>button,.rpm-manifold-inline>.primary{width:100%;justify-content:center}.rpm-manifold-inline{padding:10px}}
+
+.rpm-build-workspace .rpm-build-material-qty{display:grid;gap:4px;text-align:left;font-size:11px;width:100%;grid-column:1/-1}
+.rpm-build-workspace .rpm-build-material-qty input{width:100%;min-width:0;padding:7px 8px;box-sizing:border-box;border:1px solid #596272;border-radius:4px;background:#292d35;color:inherit;font:inherit}
+.rpm-build-workspace .rpm-build-material-qty small{font-size:11px;white-space:normal}
