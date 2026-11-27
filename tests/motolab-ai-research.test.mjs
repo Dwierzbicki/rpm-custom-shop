@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const load=(file,deps={})=>{const exports={};vm.runInNewContext(ts.transpileModule(read('app/lib/'+file+'.ts'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,URL,require:n=>deps[n]});return exports};
+const config=load('storefront-config'),k=load('motolab-knowledge',{'./storefront-config':config}),center=load('motolab-research-center',{'./storefront-config':config,'./motolab-knowledge':k}),ai=load('motolab-ai-research',{'./motolab-research-center':center});
+const req={version:'m50b25',topic:'hybrid',sourceIds:['turbobmw'],confirmPaid:true};
+test('AI is bounded and explicitly paid; source scope checked',()=>{assert.equal(ai.validAiRequest(req),true);assert.equal(ai.validAiRequest({...req,confirmPaid:false}),false);const b=ai.providerRequest(req,'gpt-5-mini');assert.equal(b.max_tool_calls,3);assert.equal(b.store,false);assert.equal(b.tools[0].filters.allowed_domains.join(','),'turbobmw.pl');assert.equal(ai.allowedSource('https://not-turbobmw.pl/a',req),false);assert.equal(ai.allowedSource('https://facebook.com/Other/posts/1',{...req,sourceIds:['public','turbo-familia']}),false)});
+test('AI results must match returned source URL and engine',()=>{const row=k.emptyKnowledge('engine','00000000-0000-4000-8000-000000000000');Object.assign(row,{sourceUrl:'https://turbobmw.pl/viewtopic.php?t=9422',sourceLocator:'post',excerpt:'summary'});Object.assign(row.entry,{version:'m50b25',variant:'NV',configuration:'hybrid'});const response={status:'completed',output:[{type:'web_search_call',status:'completed',action:{sources:[{url:row.sourceUrl}]}},{type:'message',content:[{type:'output_text',text:JSON.stringify({records:[row,{...row,sourceUrl:'https://turbobmw.pl/unseen'}]})}]}]};const out=ai.parseProvider(response,req);assert.equal(out.records.length,1);assert.equal(out.discarded,1);assert.equal(out.records[0].id,undefined);assert.throws(()=>ai.parseProvider({...response,status:'incomplete'},req));});
+test('quota reserved atomically before provider request',()=>{const s=read('app/lib/motolab-ai-research-server.ts');assert.match(s,/pg_advisory_xact_lock/);assert.match(s,/const c=await reserve\(\)/);assert.match(s,/RPM_RESEARCH_AI_ENABLED==='1'/);assert.match(s,/AbortSignal.timeout/);});
