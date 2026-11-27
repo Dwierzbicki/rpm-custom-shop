@@ -236,3 +236,43 @@
 @container (max-width:235px){
  .rpm-build-workspace .rpm-build-candidate.rpm-build-clean-card>.rpm-build-product-action{display:flex;flex-direction:column;align-items:stretch}
 }
+
+/* Result-first project workspace. The completed wizard stays mounted so
+   opening settings does not discard the customer's input. */
+#rpm-builder-editor[hidden]{display:none!important}
+.rpm-guide-page.rpm-builder .rpm-builder-project-bar{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ padding:18px 0 16px;border-bottom:1px solid var(--rpm-color-panel-border);
+}
+.rpm-guide-page.rpm-builder .rpm-builder-project-bar h1{
+ margin:6px 0 10px;font-size:clamp(24px,3vw,40px);line-height:1.15;
+}
+.rpm-builder-project-tags{display:flex;gap:6px;flex-wrap:wrap}
+.rpm-builder-project-tags>span{padding:5px 9px;border-radius:4px;background:var(--rpm-color-surface);border:1px solid var(--rpm-color-panel-border);font-size:12px;color:var(--rpm-color-text)}
+.rpm-builder-project-bar>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;flex-shrink:0}
+.rpm-build-workspace .rpm-build-workspace-heading{padding:5px 0 10px}
+.rpm-build-workspace .rpm-build-workspace-heading h2{font-size:20px;margin:0 0 4px}
+.rpm-build-workspace .rpm-build-workspace-heading p{margin:0}
+.rpm-tu-comparison>button{
+ display:grid;align-content:start;gap:6px;min-width:0;padding:14px;
+ border:1px solid var(--rpm-color-panel-border);border-radius:8px;
+ background:var(--rpm-color-surface);color:var(--rpm-color-text);
+ text-align:left;font:inherit;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.rpm-tu-comparison>button.active{border-color:var(--rpm-color-accent);box-shadow:inset 0 2px var(--rpm-color-accent);background:color-mix(in srgb,var(--rpm-color-accent) 5%,var(--rpm-color-surface))}
+.rpm-tu-comparison>button:hover:not(:disabled){border-color:var(--rpm-color-accent)}
+.rpm-tu-comparison>button:focus-visible{outline:2px solid var(--rpm-color-accent);outline-offset:3px}
+.rpm-tu-comparison>button:disabled{cursor:default}
+.rpm-tier-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.rpm-tier-card-top>svg{color:var(--rpm-color-accent);flex-shrink:0}
+.rpm-tier-card-top>small{font-size:10px}
+.rpm-tu-comparison>button>p{margin:0}
+@media(max-width:650px){
+ .rpm-guide-page.rpm-builder .rpm-builder-project-bar{align-items:flex-start;flex-wrap:wrap;padding:12px 0}
+ .rpm-builder-project-bar>button{min-height:36px}
+ .rpm-tu-comparison{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+ .rpm-tu-comparison>button{padding:9px 7px;gap:5px}
+ .rpm-tu-comparison b{font-size:clamp(13px,3.8vw,20px)}
+ .rpm-tu-comparison>button>small,.rpm-tu-comparison>button>p{font-size:10px;line-height:1.35}
+ .rpm-tier-card-top{flex-wrap:wrap;gap:3px}
+}
