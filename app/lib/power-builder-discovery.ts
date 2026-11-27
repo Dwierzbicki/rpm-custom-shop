@@ -113,7 +113,7 @@ export function compressorInletMm(technical:unknown,description:string):number|n
  const values=Array.isArray(fields)?fields.filter(f=>f.key==='compressor_inlet').map(f=>String(f.value??'')):[];
  if(!values.length){
   const found=description.match(/(?:wlot muszli ssącej|wlot kompresora|compressor inlet)\s*:\s*((?:przewód|hose|slip.on)\s*)?(\d+(?:[.,]\d+)?)\s*(mm|["″”]|inch(?:es)?|cala|cale|cal)\s*(przewód|hose|slip.on)?/gi);
-  if(found)values.push(...found.map(v=>v.slice(v.indexOf(':')+1).trim()));
+  if(found)values.push(...found.filter(v=>/\b(przewód|hose|slip.on)\b/i.test(v)).map(v=>v.slice(v.indexOf(':')+1).trim()));
  }
  const parsed=values.map(value=>{
   if(/v.band|flansz|flange|thread|gwint/i.test(value))return null;
