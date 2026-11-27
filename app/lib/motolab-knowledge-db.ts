@@ -36,11 +36,11 @@ export async function reviewKnowledge(kind:KnowledgeKind,id:string,revision:numb
 }
 
 /** Explicit operator import; stable IDs preserve all later edits and reviews. */
-export async function importResearchBatch(){
- const {researchBatchV1}=await import('./motolab-research-batch-v1');
+export async function importResearchBatch(batch:'v1'|'v2'='v1'){
+ const inputs=batch==='v2'?(await import('./motolab-research-batch-v2')).researchBatchV2:(await import('./motolab-research-batch-v1')).researchBatchV1;
  const {validKnowledgeInput}=await import('./motolab-knowledge');
  const now=new Date().toISOString();
- const entries=researchBatchV1.map(input=>{if(!validKnowledgeInput(input)||input.entry.kind!=='engine'||input.revision!==0)throw Error('Invalid research batch');const record:KnowledgeRecord={...cleanKnowledgeInput(input),revision:1,status:'draft',updatedAt:now,reviewedAt:null,reviewNote:'',identity:null};if(!validKnowledgeRecord(record))throw Error('Invalid research record');return {key:prefix('engine')+record.id,data:record}});
+ const entries=inputs.map(input=>{if(!validKnowledgeInput(input)||input.entry.kind!=='engine'||input.revision!==0)throw Error('Invalid research batch');const record:KnowledgeRecord={...cleanKnowledgeInput(input),revision:1,status:'draft',updatedAt:now,reviewedAt:null,reviewNote:'',identity:null};if(!validKnowledgeRecord(record))throw Error('Invalid research record');return {key:prefix('engine')+record.id,data:record}});
  const r=await getDbPool().query("INSERT INTO rpm_shop_settings(key,data,updated_at) SELECT x->>'key',x->'data',NOW() FROM jsonb_array_elements($1::jsonb) x ON CONFLICT(key) DO NOTHING RETURNING key",[JSON.stringify(entries)]);
  return {added:r.rowCount??0,total:entries.length};
 }
