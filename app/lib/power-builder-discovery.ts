@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:'bov'|'regulator'|'fuel-post-filter'|'fuel-pre-filter'|'intercooler';reason:[string,string]};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string]};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -58,4 +58,49 @@ export function intercoolerDimensionOptions(names:string[]):string[]{
  const unique=new Map<string,[number,number,number]>();
  for(const name of names){const d=intercoolerDimensions(name);if(d)unique.set(d.join('×'),d)}
  return [...unique.entries()].sort(([,a],[,b])=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]).map(([key])=>key);
+}
+
+
+/** On-demand discovery for catalogue gaps. Only approved category paths can
+ * be searched, and a candidate is never proof of application or suitability. */
+const sensorCategories=[['Elektronika','Ecumaster','Czujniki i akcesoria'],['Elektronika','Wskaźniki','Czujniki']];
+export const extraDiscoveryPaths:Record<string,string[][]>={
+ filter:[['Układ dolotowy','Filtry powietrza','Filtry stożkowe']],
+ throttle:[['Układ dolotowy','Przepustnice']],
+ 'fuel-surge':[['Układ paliwowy','Swirl Poty']],
+ wideband:[['Elektronika','Zestawy AFR']],
+ 'map-sensor':sensorCategories,'iat-sensor':sensorCategories,'oil-pressure-sensor':sensorCategories,'oil-temp-sensor':sensorCategories,'fuel-pressure-sensor':sensorCategories,'egt-probe':sensorCategories,
+ 'heat-shield-mat':[['Układ wydechowy','Termoizolacja','Maty i taśmy termoizolacyjne']],
+ 'heat-reflective-tape':[['Układ wydechowy','Termoizolacja','Maty i taśmy termoizolacyjne']]
+};
+export function airFilterDiameter(name:string):number|null{
+ const m=name.match(/(?:średnica montażowa|średnica przyłącza|inlet diameter|flange (?:id|diameter))\s*[:Øø]?\s*(\d{2,3}(?:[.,]\d+)?)\s*mm/i);
+ const n=m?Number(m[1].replace(',','.')):0;return n>0?n:null;
+}
+export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string):DiscoveredPart|null{
+ if(!Object.hasOwn(extraDiscoveryPaths,slot)||!extraDiscoveryPaths[slot].some(p=>p.join('/')===category.join('/')))return null;
+ const n=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
+ if(!sku||sku.length>120||!n||n.length>500)return null;
+ if(/\b(style|replica|replacement|adapter|bracket|plug|connector|wiring|cable)\b|uszczel|wtyczk|przewód|mocowanie|dystans|zestaw napraw|dedykowan/i.test(n))return null;
+ const brand=row.brand?.trim()||([[/fmic\.pro/i,'FMIC.Pro'],[/fmic\.eu/i,'FMIC.EU'],[/jrspec/i,'JRspec'],[/k&n|\bk\s*&\s*n\b/i,'K&N'],[/pipercross/i,'Pipercross'],[/ramair/i,'Ramair'],[/simota/i,'Simota'],[/aem/i,'AEM'],[/mishimoto/i,'Mishimoto'],[/nuke performance/i,'Nuke Performance'],[/deatschwerks/i,'DeatschWerks'],[/radium engineering/i,'Radium Engineering'],[/innovate/i,'Innovate'],[/ecumaster/i,'ECUMASTER'],[/bosch/i,'Bosch'],[/\bdei\b/i,'DEI'],[/thermo.?tec/i,'Thermo-Tec']] as [RegExp,string][]).find(([re])=>re.test(n))?.[1]||'';
+ const make=(pl:string,en:string):DiscoveredPart=>({sku,name:row.name,brand:brand||'—',slot,reason:[pl,en]});
+ if(slot==='filter'){
+  if(!/filtr powietrza|air filter|filtr stożkowy/.test(n))return null;
+  return make('Filtr stożkowy. Potwierdź średnicę przyłącza dolotu turbo, miejsce i wymagany przepływ; rozmiar montażowy nie oznacza wydajności.','Cone filter. Confirm turbo inlet connection diameter, clearance and required airflow; flange size does not establish capacity.');
+ }
+ if(slot==='throttle'&&(/^(?:przepustnica(?: jrspec)? \d+\s*mm)$/i.test(n)))return make('Potwierdź średnicę, typ sterowania, TPS, flanszę i zgodność ECU.','Confirm bore, actuation, TPS, flange and ECU support.');
+ if(slot==='fuel-surge'&&/swirl pot|surge tank|zbiornik wyrównawczy/.test(n)&&!/pick up pipe|install kit|fuel cell unit|sprzedawany oddzielnie/.test(n))return make('Potwierdź układ pomp, pojemność, porty, zgodność paliwową i zawartość zestawu.','Confirm pump layout, capacity, ports, fuel compatibility and kit contents.');
+ if(slot==='wideband'&&/innovat[e]/.test(n)&&/\b(lc-2|lm-2|mtx-l)\b/.test(n)&&/zestaw|kontroler|full kit|basic kit/.test(n))return make('Zestaw AFR: potwierdź sondę, kontroler i wejścia ECU; nie dubluj wyposażenia sterownika.','AFR kit: confirm sensor, controller and ECU inputs; avoid duplicating integrated equipment.');
+ const sensorRules:Record<string,RegExp>={
+ 'map-sensor':/czujnik ciśnienia bezwzględnego|map sensor|czujnik doładowania/,
+ 'iat-sensor':/czujnik iat|czujnik temperatury powietrza/,
+ 'oil-pressure-sensor':/czujnik ciśnienia oleju/,
+ 'oil-temp-sensor':/czujnik temperatury (?:wody )?oleju/,
+ 'fuel-pressure-sensor':/czujnik ciśnienia paliwa/,
+ 'egt-probe':/czujnik egt|termopara/
+ };
+ if(sensorRules[slot]?.test(n)&&!/\b(bmw|audi|vw|volkswagen|ford|nissan|toyota|volvo|opel|fiat|saab|kia|hyundai|renault|peugeot|porsche|mercedes|mitsubishi|subaru|skoda|seat|tdi|crdi|common rail)\b/.test(n))return make('Potwierdź zakres, charakterystykę kalibracji, gwint, złącze i zgodność ECU.','Confirm range, calibration curve, thread, connector and ECU compatibility.');
+ if(slot==='heat-shield-mat'&&/mata|mat |blacha|sheet/.test(n)&&!/taśma|tape/.test(n))return make('Dobierz powierzchnię, temperaturę pracy i sposób mocowania.','Confirm area, operating temperature and mounting.');
+ if(slot==='heat-reflective-tape'&&/taśma|tape/.test(n)&&/odbij|reflec|gold|złot|alumin/.test(n))return make('Osłona powierzchni przed promieniowaniem; sprawdź temperaturę pracy kleju.','Radiant heat protection; confirm adhesive operating temperature.');
+ return null;
 }
