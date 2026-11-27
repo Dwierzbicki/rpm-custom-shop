@@ -101,7 +101,7 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
  slot('clutch','Sprzęgło / elementy przeniesienia napędu','Clutch / drivetrain components',null,true)
  ];
  const parts=isTuPilot(version,range,usage,fuel,profile)?tuPilotSlots(result,tier,profile!):profile&&fuel!=='unknown'?globalBuildSlots(result,version,range,usage,tier,fuel,profile):result;
- return parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):thermalProtectionSlot(s,tier));
+ return [...parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):thermalProtectionSlot(s,tier)),...completionSlots(version)];
 }
 
 /** Catalog candidates, never a blanket compatibility certificate. */
@@ -241,7 +241,7 @@ function tuPilotSlots(slots:PartsSlot[],tier:string,profile:PilotProfile):PartsS
 export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,string>):PartsSlot[]{
  const turboSlot=slots.find(s=>s.id==='turbo');
  const turboKey=turboSlot?selectedPart(turboSlot,selection):undefined;
- const protectedSlots=slots.map(s=>s.id==='turbo-insulation'?resolveBlanketFitment(s,turboKey):s);
+ const protectedSlots=slots.map(s=>s.id==='turbo-insulation'?resolveBlanketFitment(s,turboKey):s).filter(s=>!(s.id==='heat-shield-wg'&&tuTurboSpec(turboKey)?.wg==='internal'));
  const turbo=protectedSlots.find(s=>s.dependency==='m52tu');if(!turbo)return protectedSlots;
  const spec=tuTurboSpec(selectedPart(turbo,selection));
  return protectedSlots.flatMap(s=>s.id==='wastegate'?(spec?.wg==='internal'?[]:[{...s,candidate:spec?.wg==='external'?'tuWastegate':undefined,alternatives:[],qty:spec?.wg==='external'?1:null}]):s.id==='downpipe'&&spec?[{...s,planNote:['Wylot turbo: '+spec.outlet+'; dopasuj do nadwozia.','Turbo outlet: '+spec.outlet+'; confirm chassis fitment.'] as [string,string]}]:[s]);
@@ -337,11 +337,64 @@ export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined):
  const sku=turboKey?allCandidates[turboKey]?.sku:undefined;
  const ref=sku?blanketReferences[sku]:undefined;
  const planNote:[string,string]=ref?[
-  'Producent wymienia wybraną obudowę turbo jako zgodną z dedykowanym kocem. '+ref.label+'. Brak powiązanego SKU koca w katalogu — do wyceny; potwierdź miejsce i swobodę pracy aktuatora.',
-  'Manufacturer lists the selected turbo housing for this dedicated blanket. '+ref.label+'. No linked blanket SKU — quote required; verify clearance and actuator movement.'
+  'Producent wymienia wybraną obudowę turbo jako zgodną z dedykowanym kocem. '+ref.label+'. Uwzględniono w projekcie — brak powiązanego SKU koca, do wyceny; potwierdź miejsce i swobodę pracy aktuatora.',
+  'Manufacturer lists the selected turbo housing for this dedicated blanket. '+ref.label+'. Included in the project — no linked blanket SKU, quote required; verify clearance and actuator movement.'
  ]:[
   'Brak potwierdzonego dopasowania koca do wybranej obudowy turbo. Nie proponujemy przypadkowych koców T25/T3/T4. Wymagana dokumentacja producenta lub pomiar muszli i potwierdzenie dopasowania.',
   'No confirmed blanket fitment for the selected turbo housing. Generic T25/T3/T4 blankets are not offered. Manufacturer documentation or housing measurements and fitment confirmation required.'
  ];
  return {...slot,candidate:undefined,alternatives:[],rpmOptions:[],defaultNone:true,fitmentReference:ref,planNote};
+}
+
+/** Complete planning checklist. Unresolved geometry/quantity stays visible
+ * and unpriced; never invent a SKU or assume a component is necessary on every car. */
+function completionSlots(version:string):PartsSlot[]{
+ const item=(id:string,pl:string,en:string,plNote:string,enNote:string):PartsSlot=>({id,label:[pl,en],qty:null,conditional:true,defaultNone:true,alternatives:[],planNote:[plNote,enNote]});
+ return [
+ item('throttle','Przepustnica i adapter','Throttle body and adapter','Sprawdź sterowanie ECU, średnicę i zawartość zestawu kolektora ssącego.','Check ECU control, bore and intake manifold kit contents.'),
+ item('boost-control','Elektrozawór sterowania boostem','Boost control solenoid','Dobierz do ECU, IWG/EWG i schematu pneumatycznego.','Match ECU, IWG/EWG and pneumatic layout.'),
+ item('vacuum-lines','Przewody podciśnienia i złączki','Vacuum lines and fittings','Dobierz średnice, długości, temperaturę i ciśnienie.','Match diameter, length, temperature and pressure.'),
+ item('turbo-support','Podpora turbo i mocowania','Turbo support and mounting','Sprawdź obciążenie kolektora, rozszerzalność i miejsce.','Check manifold loading, expansion and clearance.'),
+ item('fuel-fittings','Złączki paliwowe AN','Fuel AN fittings','Dobierz do średnic, gwintów, paliwa i ciśnienia.','Match diameters, threads, fuel and pressure.'),
+ item('fuel-surge','Surge tank / dodatkowe pompy','Surge tank / auxiliary pumps','Oceń odpływ paliwa przy przeciążeniach i wydajność przy ciśnieniu roboczym.','Assess fuel starvation under acceleration and flow at operating pressure.'),
+ item('pump-wiring','Zasilanie elektryczne pompy','Fuel pump electrical supply','Dobierz przewody, bezpiecznik i przekaźnik do poboru prądu.','Size wiring, fuse and relay for current draw.'),
+ item('thrust-bearings','Panewki oporowe','Thrust bearings','Sprawdź czy są w komplecie panewek głównych; dobierz po pomiarze.','Check main bearing kit contents and measure before selection.'),
+ item('main-fasteners','Mocowanie podpór wału','Main bearing fasteners','Sprawdź wymagania bloku, procedurę montażu i osiowanie.','Check block requirements, assembly procedure and alignment.'),
+ item('camshafts','Wałki rozrządu','Camshafts','Dobierz do charakterystyki i sprawdź kolizje oraz VANOS/VVT-i.','Match desired characteristics and verify clearance and VANOS/VVT-i.'),
+ item('valve-train','Sprężyny, talerzyki i zawory','Valve springs, retainers and valves','Oceń stan, wznios, obroty i siły sprężyn.','Assess condition, lift, RPM and spring forces.'),
+ item('timing-kit','Rozrząd i napinacze','Timing drive and tensioners','Dobierz do konkretnej wersji silnika; sprawdź stan.','Match exact engine variant and inspect condition.'),
+ item('engine-seals','Uszczelki i uszczelniacze silnika','Engine gaskets and seals','Sprawdź zawartość kompletu i nie dubluj uszczelki głowicy.','Check kit contents and avoid duplicating head gasket.'),
+ item('harmonic-damper','Tłumik drgań wału','Harmonic damper','Dobierz do wału, osprzętu i zakresu obrotów.','Match crank, accessories and RPM range.'),
+ item('turbo-oil-restrictor','Restriktor oleju turbo','Turbo oil restrictor','Tylko zgodnie z wymaganiami producenta CHRA i ciśnieniem oleju. Sprawdź czy jest w zestawie turbo.','Only per CHRA manufacturer requirements and oil pressure. Check turbo kit contents.'),
+ item('turbo-water','Przewody chłodzenia wodnego turbo','Turbo coolant lines','Tylko gdy dana CHRA wymaga chłodzenia wodą; dobierz gwinty i trasę.','Only when the CHRA requires water cooling; verify threads and routing.'),
+ item('oil-thermostat','Termostat i adapter chłodnicy oleju','Oil cooler thermostat and adapter','Sprawdź czy są w zestawie chłodnicy; dobierz gwinty i przepływ.','Check cooler kit contents, threads and flow.'),
+ item('oil-pump','Pompa oleju i jej napęd','Oil pump and drive','Oceń ciśnienie, stan pompy i specyficzne wymagania jednostki.','Assess pressure, pump condition and engine-specific requirements.'),
+ item('sump-baffle','Przegrody miski olejowej','Sump baffling','Oceń przeciążenia oraz konstrukcję miski.','Assess acceleration loads and sump design.'),
+ item('water-pump','Pompa wody i termostat','Water pump and thermostat','Dobierz do wersji silnika i oceń stan.','Match engine variant and inspect condition.'),
+ item('fluids','Oleje i płyny eksploatacyjne','Oil and service fluids','Dobierz specyfikację i ilości do silnika i osprzętu.','Match specifications and quantities to engine and equipment.'),
+ item('ignition-coils','Cewki zapłonowe i adaptery','Ignition coils and adapters','Sprawdź sterownik, dwell, mocowania i złącza.','Verify ECU, dwell, mounting and connectors.'),
+ item('spark-plugs','Świece zapłonowe','Spark plugs','Dobierz gwint, długość, zakres cieplny i odstęp elektrod.','Match thread, reach, heat range and gap.'),
+ item('wideband','Sonda szerokopasmowa lambda','Wideband lambda sensor','Sprawdź typ sondy, kontroler ECU i zawartość zestawu.','Check sensor type, ECU controller and kit contents.'),
+ item('map-sensor','Pomiar MAP','MAP sensing','Sprawdź zakres i czy ECU ma wbudowany MAP.','Check pressure range and integrated ECU MAP.'),
+ item('iat-sensor','Czujnik IAT','IAT sensor','Dobierz charakterystykę i miejsce za intercoolerem.','Match calibration and post-intercooler location.'),
+ item('oil-pressure-sensor','Czujnik ciśnienia oleju','Oil pressure sensor','Dobierz zakres, gwint i wejście ECU.','Match range, thread and ECU input.'),
+ item('oil-temp-sensor','Czujnik temperatury oleju','Oil temperature sensor','Dobierz charakterystykę, gwint i miejsce.','Match calibration, thread and location.'),
+ item('fuel-pressure-sensor','Czujnik ciśnienia paliwa','Fuel pressure sensor','Dobierz zakres, paliwo, gwint i wejście ECU.','Match range, fuel, thread and ECU input.'),
+ item('flex-sensor','Czujnik zawartości etanolu','Ethanol content sensor','Dla Flex Fuel lub pomiaru mieszanki; sprawdź zgodność ECU.','For Flex Fuel or blend monitoring; verify ECU support.'),
+ item('egt-probe','Pomiar EGT i termopary','EGT sensing and thermocouples','Sprawdź liczbę punktów i termopary już zawarte w kolektorze; dobierz wejścia i wiązkę.','Check measurement points and probes included with manifold; match inputs and wiring.'),
+ item('flywheel','Koło zamachowe','Flywheel','Dobierz do silnika, skrzyni i sprzęgła; sprawdź komplet.','Match engine, gearbox and clutch; check kit contents.'),
+ item('exhaust-hardware','Złącza, uszczelki i mocowania wydechu','Exhaust joints, seals and mounts','Sprawdź flansze, średnice, obejmy i elementy w zestawie turbo/downpipe.','Check flanges, diameters, clamps and turbo/downpipe kit contents.'),
+ item('exhaust-system','Pozostały układ wydechowy','Remaining exhaust system','Oceń średnicę, tłumiki, katalizator i wymagania użytkowania.','Assess diameter, mufflers, catalyst and use requirements.'),
+ item('drivetrain-review','Skrzynia, wał, dyferencjał i półosie','Gearbox, shaft, differential and axles','Dobierz po ustaleniu nadwozia, skrzyni i docelowego momentu.','Select after chassis, gearbox and target torque are known.'),
+ item('heat-sleeve-oil','Rękawy termiczne przewodów oleju','Oil line heat sleeves','Dobierz do średnicy zewnętrznej, długości i ekspozycji cieplnej.','Match outer diameter, length and heat exposure.'),
+ item('heat-sleeve-water','Rękawy termiczne przewodów wodnych','Coolant line heat sleeves','Tylko dla przewodów narażonych na ciepło; sprawdź średnicę i temperaturę.','For exposed lines only; verify diameter and temperature.'),
+ item('heat-sleeve-fuel','Rękawy termiczne przewodów paliwa','Fuel line heat sleeves','Najpierw bezpieczna trasa przewodów, następnie osłona do średnicy i temperatury.','Prioritize safe routing, then match sleeve diameter and temperature.'),
+ item('heat-sleeve-wiring','Rękawy termiczne wiązki','Wiring heat sleeves','Dobierz do średnicy wiązki, długości, temperatury i trasy.','Match loom diameter, length, temperature and routing.'),
+ item('heat-sleeve-vacuum','Osłony przewodów podciśnienia','Vacuum line heat sleeves','Dobierz do średnicy i temperatury; nie ograniczaj ruchu aktuatora.','Match diameter and temperature; do not obstruct actuator movement.'),
+ item('heat-shield-wg','Osłona termiczna wastegate','Wastegate heat shield','Wyłącznie dla zewnętrznego WG, po potwierdzeniu modelu i chłodzenia membrany.','External WG only, confirm model and diaphragm cooling.'),
+ item('heat-shield-ignition','Osłony zapłonu','Ignition heat shields','Oceń ekspozycję cieplną cewek i złączy.','Assess coil and connector heat exposure.'),
+ item('heat-shield-mat','Mata / blacha termoizolacyjna','Heat shield mat / sheet','Dobierz powierzchnię, temperaturę, szczelinę powietrzną i montaż.','Match area, temperature, air gap and mounting.'),
+ item('heat-reflective-tape','Taśma odbijająca ciepło','Heat reflective tape','Dobierz do chronionej powierzchni i temperatury, nie do bezpośredniego kontaktu z wydechem.','Match protected surface and temperature; not direct exhaust contact.'),
+ item('heat-wrap-ties','Opaski nierdzewne do bandaży','Stainless heat wrap ties','Sprawdź ilość, długość i zawartość zestawu bandaża.','Check quantity, length and wrap kit contents.')
+ ];
 }
