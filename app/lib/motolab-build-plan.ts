@@ -253,7 +253,14 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
  const pipeKey=pipeSlot?selectedPart(pipeSlot,selection):undefined;
  const pipeDiameter=pipeKey?allCandidates[pipeKey]?.variant?.diameterMm:undefined;
  const fuelLineSize=(id:string)=>{const slot=slots.find(s=>s.id===id);const key=slot?selectedPart(slot,selection):undefined;return key?allCandidates[key]?.anSize:undefined;};
+ const couplerSlot=slots.find(s=>s.id==='charge-couplers');
+ const couplerKey=couplerSlot?selectedPart(couplerSlot,selection):undefined;
+ const clampHint=chargeClampSuggestion(couplerKey);
  const protectedSlots=slots.map(s=>{
+  if(s.id==='charge-clamps'&&clampHint){
+   const all=intakeFabricationOptions[s.id]??[];
+   return {...s,candidate:undefined,alternatives:[clampHint.key,...all.filter(k=>k!==clampHint.key)],defaultNone:true,planNote:[`Silikon Ø${clampHint.inner} mm → sugerowana obejma SGB ${clampHint.range} mm (średnica zewnętrzna ok. ${clampHint.outer} mm). Po 2 obejmy na prosty łącznik. Potwierdź wymiar po montażu.`,`Ø${clampHint.inner} mm coupler → suggested SGB clamp ${clampHint.range} mm (outer diameter approx. ${clampHint.outer} mm). Two clamps per straight coupler. Confirm installed diameter.`] as [string,string]};
+  }
   if(s.id.startsWith('fuel-end-')){
    const side=s.id.includes('-return-')?'fuel-return':'fuel-lines';
    const size=fuelLineSize(side);
@@ -459,4 +466,14 @@ function fuelFabricationSlots():PartsSlot[]{
  ...(['feed','return'] as const).flatMap(side=>(['straight','45','90'] as const).map(angle=>row('fuel-end-'+side+'-'+angle,[('Końcówki PTFE '+(angle==='straight'?'proste':angle+'°')+' – '+(side==='feed'?'zasilanie':'powrót')),('PTFE '+angle+' hose ends – '+side)],'fitting-'+angle,null,fittingNote))),
  {id:'fuel-port-adapters',label:['Adaptery portów i korki paliwowe','Fuel port adapters and plugs'],qty:null,conditional:true,defaultNone:true,planNote:['Potwierdź typ portu AN/JIC, ORB lub NPT, gwint i uszczelnienie.','Confirm AN/JIC, ORB or NPT port type, thread and seal.']}
  ];
+}
+
+/** FMIC straight 4-ply couplers: nominal wall 5.5 mm. Supplier explicitly
+ * lists SGB 68–73 for 57 mm and 74–79 for 63 mm. Other sizes are estimates. */
+export function chargeClampSuggestion(couplerKey:string|undefined){
+ const c=couplerKey?intakeFabricationCandidates[couplerKey]:undefined;
+ if(c?.variant?.family!=='charge-couplers')return null;
+ const inner=c.variant.diameterMm,outer=inner+11;
+ const ranges:Record<number,[string,string]>={51:['intake_OBSGB6063','60–63'],57:['intake_OBSGB6873','68–73'],63:['intake_OBSGB7479','74–79'],70:['intake_OBSGB8085','80–85'],76:['intake_OBSGB8691','86–91']};
+ const match=ranges[inner];return match?{key:match[0],range:match[1],inner,outer}:null;
 }
