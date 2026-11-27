@@ -38,7 +38,7 @@ function MaterialVariants({options,picked,busy,en,onChoose}:{options:VariantChoi
 }
 const systems=[
  {id:'turbo',label:['Turbo i dolot','Turbo & intake'],icon:Wind,ids:['turbo','turbo-hot','turbo-cold','manifold','wastegate','bov','intercooler','intake-manifold','chargepipes','charge-bend-45','charge-bend-90','charge-couplers','charge-clamps','filter','throttle','boost-control','vacuum-lines','turbo-support']},
- {id:'fuel',label:['Układ paliwowy','Fuel system'],icon:Droplets,ids:['injectors','pump','regulator','rail','fuel-lines','fuel-fittings','fuel-surge','pump-wiring']},
+ {id:'fuel',label:['Układ paliwowy','Fuel system'],icon:Droplets,ids:['injectors','pump','regulator','rail','fuel-lines','fuel-return','fuel-pre-filter','fuel-post-filter','fuel-fittings','fuel-end-feed-straight','fuel-end-feed-45','fuel-end-feed-90','fuel-end-return-straight','fuel-end-return-45','fuel-end-return-90','fuel-port-adapters','fuel-surge','pump-wiring']},
  {id:'engine',label:['Wnętrze silnika','Engine internals'],icon:Settings2,ids:['pistons','rods','bearings','bearings-rod','bearings-main','rings','gasket','fasteners','crank','thrust-bearings','main-fasteners','camshafts','valve-train','timing-kit','engine-seals','harmonic-damper']},
  {id:'cooling',label:['Smarowanie i chłodzenie','Oil & cooling'],icon:Gauge,ids:['oil-feed','breather','oil-cooler','radiator','turbo-oil-restrictor','turbo-water','oil-thermostat','oil-pump','sump-baffle','water-pump','fluids']},
  {id:'electronics',label:['Elektronika','Electronics'],icon:Cpu,ids:['ecu','sensors','egt-expansion','ignition-coils','spark-plugs','wideband','map-sensor','iat-sensor','oil-pressure-sensor','oil-temp-sensor','fuel-pressure-sensor','flex-sensor','egt-probe']},
