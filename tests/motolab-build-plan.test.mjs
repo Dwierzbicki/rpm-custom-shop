@@ -129,3 +129,23 @@ test('build cards and alternative products link to exact catalog SKU, and purcha
  assert.ok(view.includes('Usuń z zestawu'));
  assert.ok(view.includes('Przywróć'));
 });
+
+test('dyno CSV uses explicit units and rejects duplicate, unordered or invalid samples',()=>{
+ const m=dyno.parseDynoCsv('rpm,power_ps,torque_nm\n3000,213.6,500\n3500,299,600\n4000,341.7,600');
+ assert.equal(dyno.validDynoMeasurement(m),true);
+ assert.equal(dyno.analyseDyno(m).powerPeak.rpm,4000);
+ assert.equal(dyno.analyseDyno(m).torquePeak.rpm,3500);
+ assert.equal(dyno.analyseDyno(m).torqueAt3000.torqueNm,500);
+ assert.equal(dyno.analyseDyno(m).inconsistentPoints,0);
+ assert.equal(dyno.parseDynoCsv('rpm;power_ps;torque_nm\n3000;213,6;500\n4000;341,7;600').points[0].powerPs,213.6);
+ for(const csv of ['rpm,hp,nm\n3000,1,2\n4000,2,3','rpm,power_ps,torque_nm\n3000,1,2\n3000,2,3','rpm,power_ps,torque_nm\n4000,1,2\n3000,2,3','rpm,power_ps,torque_nm\n3000,,2\n4000,2,3'])assert.throws(()=>dyno.parseDynoCsv(csv));
+});
+test('dyno interpolation is bounded and does not extrapolate or fill wide gaps',()=>{
+ const m=dyno.parseDynoCsv('rpm,power_ps,torque_nm\n2800,100,200\n3200,120,400\n4800,200,600','manual-transcription');
+ const a=dyno.analyseDyno(m);
+ assert.equal(a.torqueAt3000.torqueNm,300);assert.equal(a.torqueAt3000.interpolated,true);
+ assert.equal(a.torqueAt4000,null);assert.ok(a.inconsistentPoints>0);
+ assert.equal(m.source,'manual-transcription');
+ assert.equal(dyno.validDynoConditions({...dyno.emptyDynoConditions,boostBar:1.2,compressionRatio:9}),true);
+ assert.equal(dyno.validDynoConditions({...dyno.emptyDynoConditions,boostBar:-1}),false);
+});
