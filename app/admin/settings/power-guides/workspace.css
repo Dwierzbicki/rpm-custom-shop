@@ -11,3 +11,35 @@
 .rpm-power-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.rpm-power-section-heading h2,.rpm-power-section-heading h3{margin:0}.rpm-power-status{display:inline-block;font-size:11px;padding:4px 8px;border:1px solid var(--rpm-color-panel-border,#343943);border-radius:5px;white-space:nowrap}.rpm-power-status.approved{color:#56b986}.rpm-power-status.rejected{color:#ef7d89}
 .rpm-research-sources{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.rpm-research-sources>div{display:flex;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--rpm-color-panel-border,#343943);padding:8px 0}.rpm-research-sources a{font-size:12px}.rpm-power-results{margin-top:20px}.rpm-research-simple>.admin-toolbar{margin:16px 0}
 @media(max-width:650px){.rpm-research-sources{grid-template-columns:1fr}.rpm-power-admin-tabs button strong{font-size:12px}}
+
+/* Power Guides: one calm navigation strip, clearly separated work surfaces. */
+.rpm-admin-shell .rpm-power-admin-workspace .admin-top{margin-bottom:16px}
+.rpm-power-admin-tabs{display:flex;flex-wrap:wrap;gap:4px;padding:5px;border:1px solid var(--bo-border);border-radius:9px;background:var(--bo-nav);margin:0 0 22px}
+.rpm-power-admin-tabs button{flex:1 1 124px;justify-content:center;min-height:43px;align-items:center;background:transparent;color:var(--bo-muted);border:1px solid transparent;box-shadow:none;padding:10px 12px}
+.rpm-power-admin-tabs button.active{background:var(--bo-raised);color:var(--bo-text);border-color:#536175;box-shadow:inset 0 -3px var(--bo-accent)}
+.rpm-power-admin-tabs button:hover:not(.active){background:#222b39;color:var(--bo-text)}
+.rpm-admin-shell .rpm-power-admin-panels .rpm-settings-card{gap:16px;margin-bottom:20px}
+.rpm-power-section-heading{padding-bottom:14px;border-bottom:1px solid var(--bo-separator);margin-bottom:4px}
+.rpm-power-section-heading p{margin:5px 0 0;color:var(--bo-muted);font-size:13px}
+.rpm-admin-shell .rpm-power-fold{background:var(--bo-field);border-color:var(--bo-border);margin:8px 0;padding:14px 16px}
+.rpm-admin-shell .rpm-power-fold>summary{color:#e2eaf5}
+.rpm-admin-shell .rpm-power-fold[open]>summary{padding-bottom:12px;border-bottom:1px solid var(--bo-border)}
+.rpm-power-admin-table-wrap{border:1px solid var(--bo-border);border-radius:8px;background:var(--bo-field);margin:8px 0}
+.rpm-power-admin-table tbody tr:nth-child(even){background:#1b2330}
+.rpm-admin-shell .rpm-power-admin-table tbody tr:hover{background:#303b4b}
+.rpm-power-admin-table td{vertical-align:middle}
+.rpm-power-admin-table td small{color:var(--bo-muted)}
+.rpm-power-admin-table th:last-child,.rpm-power-admin-table td:last-child{text-align:right}
+.rpm-power-status{background:#151b25;color:#c6d0df;border-color:#566477}
+.rpm-power-status.approved{color:#90dfb3;background:#183629;border-color:#3e7458}
+.rpm-power-status.rejected{color:#ffb1ba;background:#3e252c;border-color:#80515e}
+.rpm-record-editor{border:0;min-width:0;margin:0;padding:0;display:grid;gap:16px}
+.rpm-record-editor h2,.rpm-record-editor h3{margin:0}
+.rpm-record-editor .rpm-settings-grid{padding:14px;background:var(--bo-field);border:1px solid var(--bo-border);border-radius:8px}
+.rpm-record-editor .rpm-settings-grid input,.rpm-record-editor .rpm-settings-grid select,.rpm-record-editor .rpm-settings-grid textarea{background:#273343;border-color:#526175}
+.rpm-record-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;padding:16px 0 0;border-top:1px solid var(--bo-separator)}
+.rpm-record-actions small{margin-right:auto;color:var(--bo-muted)}
+.rpm-record-search{max-width:520px}
+.rpm-record-empty{padding:18px;color:var(--bo-muted)}
+.rpm-record-counts{display:flex;gap:8px;flex-wrap:wrap}.rpm-record-counts button{color:var(--bo-text);background:var(--bo-field);border:1px solid var(--bo-border);padding:8px 12px;border-radius:6px;cursor:pointer}.rpm-record-counts button.active{background:var(--bo-raised);border-color:var(--bo-accent)}.rpm-record-counts strong{margin-left:6px}
+@media(max-width:650px){.rpm-power-admin-tabs button{flex-basis:110px}.rpm-record-editor .rpm-settings-grid{padding:10px}.rpm-record-actions{justify-content:stretch}.rpm-record-actions button{flex:1}}

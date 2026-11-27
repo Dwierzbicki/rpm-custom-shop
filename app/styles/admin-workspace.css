@@ -121,3 +121,28 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 .rpm-admin-automation-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.rpm-admin-automation-grid .rpm-overview-section{min-width:0}.rpm-operational-overview .rpm-overview-section-head h2{display:flex;align-items:center;gap:8px}.rpm-admin-progress{width:100%;accent-color:var(--rpm-color-accent);margin-top:12px}.rpm-admin-worker-info{display:grid;gap:5px;margin:12px 0;padding:12px;background:var(--rpm-color-surface);border:1px solid var(--rpm-color-border);border-radius:6px}.rpm-admin-worker-info small{color:var(--rpm-color-muted)}.rpm-admin-worker-info p{overflow-wrap:anywhere}.rpm-operational-overview .admin-toolbar{align-items:center}.rpm-admin-shell .rpm-admin-nav-item.active{border-color:var(--rpm-color-accent)}@media(max-width:950px){.rpm-admin-automation-grid{grid-template-columns:1fr}}
 
 .rpm-image-review{margin-top:20px}.rpm-image-review-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:12px}.rpm-image-review-grid article{display:grid;align-content:start;gap:8px;padding:12px;border:1px solid var(--rpm-color-panel-border);border-radius:8px;background:var(--rpm-color-surface)}.rpm-image-review-grid img{display:block;width:100%;height:180px;object-fit:contain;background:white;border-radius:6px}.rpm-image-review-grid p{margin:0}.rpm-image-review-grid small{overflow-wrap:anywhere;color:var(--rpm-color-muted)}
+
+/* Back-office contrast hierarchy. Scoped to authenticated admin, not storefront. */
+.rpm-admin-shell{
+ --bo-bg:#141922;--bo-panel:#232b37;--bo-field:#151b25;--bo-border:#414d5e;
+ --bo-text:#edf1f7;--bo-muted:#b1bdcd;--bo-accent:#e44058;--bo-radius:9px;
+ --bo-nav:#0e131b;--bo-raised:#303b4b;--bo-separator:#435064;
+}
+.rpm-admin-shell .rpm-admin-nav{background:var(--bo-nav);border-color:var(--bo-border);box-shadow:1px 0 0 #070b12}
+.rpm-admin-shell .rpm-admin-desktop-bar{background:var(--bo-nav);border-color:var(--bo-border)}
+.rpm-admin-shell .rpm-admin-main,.rpm-admin-shell .rpm-admin-workspace{background:var(--bo-bg)}
+.rpm-admin-shell .rpm-admin-nav-group>small{color:#8f9db0}
+.rpm-admin-shell .rpm-admin-nav-item{color:#bec9d8}
+.rpm-admin-shell .rpm-admin-nav-item:hover{background:#242d3b;color:#fff}
+.rpm-admin-shell .rpm-admin-nav-item.active{background:#30394a;color:#fff;box-shadow:inset 3px 0 var(--bo-accent)}
+.rpm-admin-shell .admin-top{border-bottom-color:var(--bo-separator)}
+.rpm-admin-shell :is(.rpm-settings-card,.admin-editor,.admin-sidebar,.rpm-overview-section,.rpm-order-card,.fc-kpi){background:var(--bo-panel);border-color:var(--bo-border)}
+.rpm-admin-shell .rpm-settings-card h2{color:#f5f7fb}
+.rpm-admin-shell .outline{background:var(--bo-raised);border-color:#536175;color:#e8eef6}
+.rpm-admin-shell .outline:hover:not(:disabled){background:#3a4658;border-color:#8b9bb1}
+.rpm-admin-shell .primary{background:#c82c45;border-color:#e44058}
+.rpm-admin-shell .primary:hover:not(:disabled){background:#df3650}
+.rpm-admin-shell table th{background:var(--bo-raised);color:#e5edf8}
+.rpm-admin-shell table td{border-color:var(--bo-separator)}
+.rpm-admin-shell table tbody tr:hover{background:#2c3747}
+.rpm-admin-shell .rpm-admin-settings-hub-link{background:var(--bo-field);border-color:var(--bo-border)}
