@@ -187,3 +187,5 @@
 .rpm-tu-comparison small,.rpm-tu-comparison p,.rpm-tu-manifold p{font-size:12px;line-height:1.55;color:var(--rpm-color-muted);margin:0}
 .rpm-tu-manifold a{justify-self:start}
 @media(max-width:650px){.rpm-tu-comparison{grid-template-columns:1fr}}
+
+.rpm-build-preferences-grid input[type=number]{width:100%;min-width:0;padding:12px;background:#20242c;color:#f1f3f5;border:1px solid #434955;border-radius:5px;font:inherit;box-sizing:border-box}.rpm-build-preferences-grid label>small{font-size:11px;font-weight:400;color:#b8bdc6}

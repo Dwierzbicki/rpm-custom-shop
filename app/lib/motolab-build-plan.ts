@@ -38,17 +38,21 @@ export function buildPlan(version:string,range:number,usage:string,tier:string,f
  * Not a pump flow curve or a calibration specification. E85 is an illustrative
  * assumption, not a model of every ethanol blend.
  */
-export function estimateFuel(version:string,range:number,fuel:Fuel,targetPower?:number|null){
+export function estimateFuel(version:string,range:number,fuel:Fuel,targetPower?:number|null,ethanolPercent?:number){
  const band=powerRangesFor(version)[range];
  if(!band||fuel==='unknown')return null;
  const powerPs=targetPower??band.max;
  if(!Number.isFinite(powerPs)||powerPs<band.min||powerPs>band.max)return null;
  const hp=powerPs*0.98632007;
- const bsfc=fuel==='ethanol'?0.85:0.65;
- const density=fuel==='ethanol'?0.78:0.745;
+ // Planning interpolation between existing petrol and E85 assumptions;
+ // extrapolation above E85 is indicative, not a measured BSFC or calibration.
+ const blend=fuel==='ethanol'?(ethanolPercent??85):0;
+ if(!Number.isFinite(blend)||blend<0||blend>100)return null;
+ const bsfc=0.65+(0.85-0.65)*blend/85;
+ const density=0.745+(0.78-0.745)*blend/85;
  const duty=0.80, reserve=1.20;
  const litres=hp*bsfc*0.45359237/density;
- return {powerPs,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
+ return {powerPs,bsfc,density,duty,reserve,ethanolPercent:blend,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
 export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu'};
@@ -129,7 +133,7 @@ export function selectedPart(slot:PartsSlot,selection:Record<string,string>):str
 }
 
 export type BuildIssue={id:string;slots:string[];level:'conflict'|'review';message:[string,string]};
-export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel):BuildIssue[]{
+export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel,ethanolPercent?:number):BuildIssue[]{
  const get=(id:string)=>{const s=slots.find(x=>x.id===id);return s?selectedPart(s,selection):undefined};
  const issues:BuildIssue[]=[];
  const turbo=get('turbo'),manifold=get('manifold');
@@ -137,7 +141,7 @@ export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,ve
  else if((turbo==='turbo'||turbo==='turboVband')&&manifold)issues.push({id:'flange-review',slots:['turbo','manifold'],level:'review',message:['Katalogowo oba elementy mają T4 Twin Scroll; rzeczywiste mocowanie i układ wastegate wymagają potwierdzenia.','Both are catalogued as T4 twin-scroll; actual mount and wastegate layout still require confirmation.']});
  const missing=turboAssemblySlots(slots,selection);
  if(missing.length)issues.push({id:'turbo-incomplete',slots:['turbo',...missing.map(s=>s.id)],level:'conflict',message:['Wybrana turbosprężarka jest niekompletna. Brakuje potwierdzonego zestawu obudów. Zakup z MotoLab zablokowany do czasu doboru.','Selected turbo is incomplete. A confirmed housing kit is missing. MotoLab purchase blocked until the assembly is matched.']});
- const demand=estimateFuel(version,range,fuel),injector=get('injectors');
+ const demand=estimateFuel(version,range,fuel,undefined,ethanolPercent),injector=get('injectors');
  const flow=injector==='tuInjectors'?750:injector==='injectors'?1200:injector==='injectors1500'?1500:injector==='geInjectors'?1000:undefined;
  if(flow&&demand&&flow<demand.injectorCc)issues.push({id:'injector-flow',slots:['injectors'],level:'conflict',message:['Nominalny przepływ wtryskiwacza jest niższy od szacowanego zapotrzebowania przy założeniach MotoLab. Dobierz wydajniejszy wariant.','Nominal injector flow is below estimated demand under MotoLab assumptions. Choose a higher-flow option.']});
  else if(flow)issues.push({id:'injector-review',slots:['injectors'],level:'review',message:['Przepływ katalogowy to nie potwierdzenie wydajności przy wybranym paliwie i ciśnieniu; sprawdź również geometrię i kalibrację.','Catalogue flow is not proof of performance with the selected fuel and pressure; geometry and calibration also require confirmation.']});

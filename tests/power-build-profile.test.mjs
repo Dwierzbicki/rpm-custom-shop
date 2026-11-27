@@ -7,15 +7,15 @@ const source=readFileSync(new URL('../app/lib/power-build-profile.ts',import.met
 const exports={};
 vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports});
 const {validBuildProfile,rodOptionsFor,fuelModel,budgetRemaining}=exports;
-const profile={induction:'turbo',fuel:'e85',internals:'forged',rods:'forged',priority:'response',budgetPln:30000};
+const profile={induction:'turbo',fuel:'ethanol',ethanolPercent:50,internals:'forged',rods:'forged',priority:'response',budgetPln:30000};
 test('only supported and explicitly selected project parameters pass',()=>{
  assert.equal(validBuildProfile(profile,'m54b30'),true);
  assert.equal(validBuildProfile({...profile,budgetPln:null},'m54b30'),true);
  for(const patch of [{induction:'na'},{induction:'supercharger'},{fuel:''},{internals:''},{priority:''},{budgetPln:undefined},{budgetPln:NaN},{budgetPln:-1},{budgetPln:1000.5}])assert.equal(validBuildProfile({...profile,...patch},'m54b30'),false);
 });
 test('fuel estimates use petrol or conservative E85 blend assumptions',()=>{
- assert.equal(fuelModel('pb95'),'petrol');assert.equal(fuelModel('pb98'),'petrol');assert.equal(fuelModel('pb100'),'petrol');assert.equal(validBuildProfile({...profile,fuel:'pb100'},'m54b30'),true);
- assert.equal(fuelModel('e85'),'ethanol');assert.equal(fuelModel('flex'),'ethanol');
+ assert.equal(fuelModel('pb95'),'petrol');assert.equal(fuelModel('pb98'),'petrol');assert.equal(fuelModel('pb100'),'petrol');assert.equal(validBuildProfile({...profile,fuel:'pb100',ethanolPercent:undefined},'m54b30'),true);
+ assert.equal(fuelModel('ethanol'),'ethanol');assert.equal(fuelModel('flex'),'ethanol');
 });
 test('budget delta is based on actual selected subtotal and never implies a full build',()=>{
  assert.equal(budgetRemaining(30000,25290),4710);
@@ -48,3 +48,5 @@ test('build tier is a preliminary result of submitted preferences, not a require
  assert.ok(view.includes('complete&&profile&&<PowerBuildTier'));
  assert.ok(view.includes("onDraftChange={()=>{setApplied(null);setGuideTier('')}}"));
 });
+
+test('ethanol blend requires explicit final percentage; petrol and flex reject stale blend data',()=>{for(const n of [1,30,50,85,100])assert.equal(validBuildProfile({...profile,ethanolPercent:n},'m54b30'),true);for(const n of [0,-1,101,NaN,50.5,undefined])assert.equal(validBuildProfile({...profile,ethanolPercent:n},'m54b30'),false);assert.equal(validBuildProfile({...profile,fuel:'pb98'},'m54b30'),false);assert.equal(validBuildProfile({...profile,fuel:'flex',ethanolPercent:undefined},'m54b30'),true);});
