@@ -339,3 +339,8 @@
 .rpm-build-workspace .rpm-build-material-qty{display:grid;gap:4px;text-align:left;font-size:11px;width:100%;grid-column:1/-1}
 .rpm-build-workspace .rpm-build-material-qty input{width:100%;min-width:0;padding:7px 8px;box-sizing:border-box;border:1px solid #596272;border-radius:4px;background:#292d35;color:inherit;font:inherit}
 .rpm-build-workspace .rpm-build-material-qty small{font-size:11px;white-space:normal}
+
+.rpm-build-workspace .rpm-build-material-variants{display:grid;gap:12px}
+.rpm-build-workspace .rpm-build-variant-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px}
+.rpm-build-workspace .rpm-build-variant-fields>label{display:grid;gap:6px;min-width:0;text-align:left;align-content:start}
+.rpm-build-workspace .rpm-build-variant-fields select{width:100%;min-width:0}
