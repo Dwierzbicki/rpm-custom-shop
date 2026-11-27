@@ -528,3 +528,19 @@
 .rpm-build-workspace .rpm-system-optional{color:#ffbc70}
 .rpm-build-workspace .rpm-lab-mini-track>.rpm-optional-segment,.rpm-build-workspace .rpm-summary-segment.optional{background:#e99a42}
 .rpm-build-workspace .rpm-summary-states>div.optional{color:#ffbc70;border-color:rgba(233,154,66,.55)}
+
+
+/* Single project hero: metadata, technical preferences, progress and settings. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero{grid-template-columns:minmax(0,1fr) minmax(150px,210px);align-items:center;gap:14px 24px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero h2{font-size:clamp(24px,3vw,36px);margin:7px 0 12px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero h1.rpm-lab-engine-title{font-size:clamp(27px,4vw,46px);letter-spacing:-.045em;line-height:1.12;margin:0 0 14px}
+.rpm-lab-engine-title em{font-style:normal;color:var(--rpm-color-accent)}
+.rpm-lab-unified-hero .rpm-lab-project-meta{margin:0;gap:7px}
+.rpm-lab-unified-hero .rpm-lab-project-meta>span{display:inline-flex;align-items:center;flex-wrap:wrap;gap:5px}
+.rpm-lab-unified-hero .rpm-project-tech-tag>small{font-size:11px;color:#b9c1ce;font-weight:500}
+.rpm-lab-unified-hero .rpm-project-tech-tag>b{font-size:12px}
+.rpm-lab-unified-hero .rpm-lab-tier-tag{color:#ff90ae;border-color:var(--rpm-color-accent)}
+.rpm-lab-unified-hero .rpm-lab-material-note{grid-column:1/-1;max-width:none;padding-top:12px;border-top:1px solid #444d5a;margin:0}
+.rpm-build-workspace .rpm-lab-edit-project{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;margin-top:5px;min-height:36px;font-size:12px}
+#rpm-builder-editor{scroll-margin-top:135px}
+@media(max-width:680px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero{grid-template-columns:minmax(0,1fr);gap:14px}.rpm-lab-unified-hero .rpm-lab-edit-project{grid-column:1/-1}.rpm-lab-unified-hero .rpm-lab-material-note{padding-top:10px}}
