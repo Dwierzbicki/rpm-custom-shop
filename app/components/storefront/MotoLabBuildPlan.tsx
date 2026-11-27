@@ -37,7 +37,7 @@ function MaterialVariants({options,picked,busy,en,onChoose}:{options:VariantChoi
  </div>;
 }
 const systems=[
- {id:'turbo',label:['Turbo i dolot','Turbo & intake'],icon:Wind,ids:['turbo','turbo-hot','turbo-cold','manifold','wastegate','bov','intercooler','intake-manifold','chargepipes','filter','throttle','boost-control','vacuum-lines','turbo-support']},
+ {id:'turbo',label:['Turbo i dolot','Turbo & intake'],icon:Wind,ids:['turbo','turbo-hot','turbo-cold','manifold','wastegate','bov','intercooler','intake-manifold','chargepipes','charge-bend-45','charge-bend-90','charge-couplers','charge-clamps','filter','throttle','boost-control','vacuum-lines','turbo-support']},
  {id:'fuel',label:['Układ paliwowy','Fuel system'],icon:Droplets,ids:['injectors','pump','regulator','rail','fuel-lines','fuel-fittings','fuel-surge','pump-wiring']},
  {id:'engine',label:['Wnętrze silnika','Engine internals'],icon:Settings2,ids:['pistons','rods','bearings','bearings-rod','bearings-main','rings','gasket','fasteners','crank','thrust-bearings','main-fasteners','camshafts','valve-train','timing-kit','engine-seals','harmonic-damper']},
  {id:'cooling',label:['Smarowanie i chłodzenie','Oil & cooling'],icon:Gauge,ids:['oil-feed','breather','oil-cooler','radiator','turbo-oil-restrictor','turbo-water','oil-thermostat','oil-pump','sump-baffle','water-pump','fluids']},
