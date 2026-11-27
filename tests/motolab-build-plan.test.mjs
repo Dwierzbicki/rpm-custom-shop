@@ -223,3 +223,19 @@ test('blanket compatibility is scoped to an exact turbo SKU and invalidated by s
   assert.equal(plan.selectedPart(switched,{'turbo-insulation':'turboBlanketT3'}),undefined);
  }
 });
+
+test('complete build keeps heat protection and installation requirements visible across tiers',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ for(const family of config.POWER_ENGINES)for(const v of family.versions)for(const tier of ['budget','recommended','premium']){
+  const slots=plan.buildParts(v.id,0,'drift',tier,'petrol',profile);
+  assert.equal(new Set(slots.map(s=>s.id)).size,slots.length);
+  for(const id of ['boost-control','fuel-fittings','turbo-water','wideband','spark-plugs','heat-sleeve-oil','heat-sleeve-fuel','heat-sleeve-wiring','heat-sleeve-vacuum','heat-wrap-ties']){
+   const slot=slots.find(s=>s.id===id);assert.ok(slot?.planNote,id);
+   assert.equal(plan.selectedPart(slot,{}),undefined);
+   assert.equal(plan.selectedPart(slot,{[id]:'own'}),undefined);
+  }
+ }
+ const slots=plan.buildParts('m52b25tu',1,'drift','recommended','petrol',profile);
+ assert.ok(!plan.resolveTuDependencies(slots,{turbo:'tuTurboSmart'}).some(s=>s.id==='heat-shield-wg'));
+ assert.ok(plan.resolveTuDependencies(slots,{turbo:'tuTurboT3'}).some(s=>s.id==='heat-shield-wg'));
+});
