@@ -10,6 +10,7 @@ export async function GET(request:Request){
   await setupFmicCatalog();await setupImageAudit();
   const db=getDbPool();
   const params=new URL(request.url).searchParams;
+  if(params.get('pricing')==='1'){const result=await db.query('SELECT discount FROM rpm_fmic_settings WHERE id=1');if(!result.rows[0])return NextResponse.json({error:'Brak reguły cenowej'},{status:503});return NextResponse.json({discount:Number(result.rows[0].discount)},{headers:{'Cache-Control':'private, no-store'}})}
   if(params.get('summary')==='1'){const stats=await db.query("SELECT count(*)::int AS total,count(*) FILTER (WHERE available)::int AS available,count(*) FILTER (WHERE mapping_status IN ('exact','normalized','manual'))::int AS mapped,max(updated_at) AS updated_at FROM rpm_fmic_catalog");return NextResponse.json({stats:stats.rows[0]},{headers:{'Cache-Control':'no-store'}})}
   const q=(params.get('q')??'').trim().slice(0,120);
   const size=[25,50,100].includes(Number(params.get('size')))?Number(params.get('size')):25;

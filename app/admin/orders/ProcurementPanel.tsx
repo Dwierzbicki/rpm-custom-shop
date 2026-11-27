@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
+import {useUnsavedChanges} from '../settings/power-guides/useUnsavedChanges';
 import type {ProcurementPlan} from '../../lib/procurement-plan';
 import {groupSupplierPurchases} from '../../lib/procurement-export';
 
@@ -25,6 +26,7 @@ export default function ProcurementPanel({orderId,orderStatus}:{orderId:string;o
  const [stock,setStock]=useState(false),[price,setPrice]=useState(false);
  const [variants,setVariants]=useState(false),[manualOnly,setManualOnly]=useState(false);
  const [manualPlaced,setManualPlaced]=useState(false),[reference,setReference]=useState('');
+ useUnsavedChanges(busy||stock||price||variants||manualOnly||manualPlaced);
  const [reloadKey,setReloadKey]=useState(0);
  const [queue,setQueue]=useState<B2BQueueData>({tasks:[],events:[],cartReviews:[]});
  const [queueError,setQueueError]=useState('');

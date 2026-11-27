@@ -5,9 +5,11 @@ export const runtime='nodejs';export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
 const reply=(body:unknown,status=200)=>NextResponse.json(body,{status,headers});
 export async function GET(r:Request){
- const kind=new URL(r.url).searchParams.get('kind');
+ const params=new URL(r.url).searchParams,kind=params.get('kind');
  if(!isKnowledgeKind(kind))return reply({error:'Nieznany moduł'},400);
- try{return reply(await listKnowledge(kind))}catch{return reply({error:'Błąd odczytu bazy wiedzy'},503)}
+ const page=Number(params.get('page')??1),query=(params.get('q')??'').trim().slice(0,120),status=params.get('status')??'all',version=(params.get('version')??'').slice(0,80);
+ if(!Number.isSafeInteger(page)||page<1||page>100000||!['all','draft','approved','rejected'].includes(status))return reply({error:'Niepoprawne filtry'},400);
+ try{return reply(await listKnowledge(kind,params.has('page')?{page,query,status,version}:undefined))}catch{return reply({error:'Błąd odczytu bazy wiedzy'},503)}
 }
 export async function PUT(r:Request){
  try{

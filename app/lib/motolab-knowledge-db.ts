@@ -2,10 +2,13 @@ import {getDbPool} from './db';
 import {cleanKnowledgeInput,validKnowledgeRecord,sameIdentity,type KnowledgeKind,type KnowledgeInput,type KnowledgeRecord,type TechnicalEntry,type ProductIdentity} from './motolab-knowledge';
 const prefix=(kind:KnowledgeKind)=>'motolab_knowledge_v1:'+kind+':';
 export class KnowledgeConflict extends Error{}
-export async function listKnowledge(kind:KnowledgeKind){
- const r=await getDbPool().query<{data:unknown}>('SELECT data FROM rpm_shop_settings WHERE key LIKE $1 ORDER BY updated_at DESC LIMIT 201',[prefix(kind)+'%']);
- const records=r.rows.slice(0,200).map(r=>r.data).filter(validKnowledgeRecord);
- return {records,truncated:r.rows.length>200};
+export async function listKnowledge(kind:KnowledgeKind,options?:{page:number;query:string;status:string;version:string}){
+ const page=options?.page??1,size=options?50:200,query=options?.query??'',status=options?.status??'all',version=options?.version??'';
+ const args=[prefix(kind)+'%',query,status,version] as const;
+ const where=" WHERE key LIKE $1 AND ($2='' OR strpos(lower((data->'entry')::text),lower($2))>0) AND ($3='all' OR data->>'status'=$3) AND ($4='' OR data->'entry'->>'version'=$4)";
+ const r=await getDbPool().query<{data:unknown}>("SELECT data FROM rpm_shop_settings"+where+" ORDER BY updated_at DESC,key ASC LIMIT $5 OFFSET $6",[...args,size+1,(page-1)*size]);
+ const records=r.rows.slice(0,size).map(r=>r.data).filter(validKnowledgeRecord);
+ return {records,truncated:r.rows.length>size,page,size,hasMore:r.rows.length>size};
 }
 type Queryable=Pick<ReturnType<typeof getDbPool>,'query'>;
 async function identity(db:Queryable,e:TechnicalEntry):Promise<ProductIdentity>{
