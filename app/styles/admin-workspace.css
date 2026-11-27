@@ -146,3 +146,29 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 .rpm-admin-shell table td{border-color:var(--bo-separator)}
 .rpm-admin-shell table tbody tr:hover{background:#2c3747}
 .rpm-admin-shell .rpm-admin-settings-hub-link{background:var(--bo-field);border-color:var(--bo-border)}
+
+/* Navigation hierarchy: compact operational groups, audits tucked away. */
+.rpm-admin-shell .rpm-admin-nav-group{display:block;gap:0;margin:0;padding:12px 0;border-top:1px solid #293342}
+.rpm-admin-shell .rpm-admin-nav-group-start{border-top:0;padding-top:0}
+.rpm-admin-shell .rpm-admin-nav-group>small,.rpm-admin-shell .rpm-admin-group-toggle{display:flex;align-items:center;justify-content:space-between;font-size:10px;font-weight:700;letter-spacing:.065em;text-transform:uppercase;color:#9eacbf;padding:0 10px 6px;margin:0;line-height:1.4}
+.rpm-admin-shell .rpm-admin-group-toggle{width:100%;border:0;background:transparent;cursor:pointer;text-align:left;min-height:26px}
+.rpm-admin-shell .rpm-admin-group-toggle:disabled{opacity:1;cursor:default}
+.rpm-admin-shell .rpm-admin-group-toggle svg{transition:transform .15s ease}
+.rpm-admin-shell .rpm-admin-group-toggle svg.is-open{transform:rotate(180deg)}
+.rpm-admin-shell .rpm-admin-group-links{display:grid;gap:2px}
+.rpm-admin-shell .rpm-admin-group-links[hidden]{display:none!important}
+.rpm-admin-shell .rpm-admin-nav-item{padding:9px 10px;min-height:36px;font-size:13px;gap:10px;line-height:1.35}
+.rpm-admin-shell .rpm-admin-nav-item svg{flex-shrink:0}
+.rpm-admin-shell .rpm-admin-nav-item span{min-width:0;overflow-wrap:anywhere}
+.rpm-admin-shell .rpm-admin-nav-item.active svg{color:#f06b80}
+.rpm-admin-shell .rpm-admin-nav-bottom{border-top:1px solid #344051;padding-top:10px}
+.rpm-admin-shell .rpm-admin-desktop-bar{min-height:44px}
+.rpm-admin-shell .rpm-admin-settings-list{display:grid;gap:0;border:1px solid var(--bo-border);border-radius:8px;overflow:hidden;background:var(--bo-field)}
+.rpm-admin-shell .rpm-admin-settings-list .rpm-admin-settings-hub-link{border:0;border-bottom:1px solid var(--bo-border);border-radius:0;background:transparent;padding:16px}
+.rpm-admin-shell .rpm-admin-settings-list .rpm-admin-settings-hub-link:last-child{border-bottom:0}
+.rpm-admin-shell .rpm-admin-settings-list .rpm-admin-settings-hub-link:hover{background:var(--bo-raised)}
+.rpm-admin-shell .rpm-admin-settings-list .rpm-admin-settings-hub-link>svg:first-child{color:#9eacbf}
+.rpm-admin-shell .rpm-admin-planned{margin-top:16px;background:var(--bo-field);border:1px solid var(--bo-border);border-radius:8px;padding:14px 16px}
+.rpm-admin-shell .rpm-admin-planned summary{cursor:pointer;font-weight:650;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-admin-planned[open] summary{margin-bottom:14px}
+@media(prefers-reduced-motion:reduce){.rpm-admin-shell .rpm-admin-group-toggle svg{transition:none}}
