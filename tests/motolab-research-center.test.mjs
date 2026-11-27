@@ -1,0 +1,14 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import vm from 'node:vm';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const load=(file,deps={})=>{const exports={};vm.runInNewContext(ts.transpileModule(read('app/lib/'+file+'.ts'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,URL,require:n=>deps[n]});return exports};
+const config=load('storefront-config'),knowledge=load('motolab-knowledge',{'./storefront-config':config}),r=load('motolab-research-center',{'./storefront-config':config,'./motolab-knowledge':knowledge});
+const input={...knowledge.emptyKnowledge('engine','00000000-0000-4000-8000-000000000000'),sourceUrl:'https://www.facebook.com/TurboFamiliaCrew/posts/123?utm_source=x',sourceLocator:'post',excerpt:'summary'};
+input.entry.variant='NV';input.entry.configuration='Hybrid';
+test('Turbo Familia Crew is a targeted source and research prompt preserves empty targets',()=>{assert.equal(r.RESEARCH_SOURCES.find(s=>s.id==='turbo-familia').url,'https://www.facebook.com/TurboFamiliaCrew');assert.ok(r.researchPrompt('m50b25','hybrid',['turbo-familia']).includes('Turbo Familia Crew'));assert.equal(r.researchPrompt('invalid','hybrid',['turbo-familia']),'');});
+test('research import validates explicit sources, strips approval and rejects claimed targets',()=>{const out=r.parseResearchRows([{...input,status:'approved',revision:4}])[0];assert.equal(out.status,undefined);assert.equal(out.id,undefined);assert.equal(out.revision,undefined);assert.equal(out.entry.targetPowerPs,null);assert.throws(()=>r.parseResearchRows([{...input,sourceUrl:''}]));assert.throws(()=>r.parseResearchRows([{...input,entry:{...input.entry,targetPowerPs:500}}]));assert.throws(()=>r.parseResearchRows(Array(26).fill(input)));});
+test('tracking URL and case changes deduplicate while different builds stay distinct',()=>{assert.equal(r.researchKey(input),r.researchKey({...input,sourceUrl:'https://facebook.com/TurboFamiliaCrew/posts/123',entry:{...input.entry,configuration:' hybrid '}}));assert.notEqual(r.researchKey(input),r.researchKey({...input,entry:{...input.entry,configuration:'Other build'}}));});
+test('batch storage creates drafts only, uses transaction and never overwrites',()=>{const db=read('app/lib/motolab-knowledge-db.ts').split('export async function importResearchRows')[1];assert.match(db,/status:'draft'/);assert.match(db,/ON CONFLICT\(key\) DO NOTHING/);assert.match(db,/pg_advisory_xact_lock/);});

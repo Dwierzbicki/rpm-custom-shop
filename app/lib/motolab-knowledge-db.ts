@@ -44,3 +44,30 @@ export async function importResearchBatch(batch:'v1'|'v2'='v1'){
  const r=await getDbPool().query("INSERT INTO rpm_shop_settings(key,data,updated_at) SELECT x->>'key',x->'data',NOW() FROM jsonb_array_elements($1::jsonb) x ON CONFLICT(key) DO NOTHING RETURNING key",[JSON.stringify(entries)]);
  return {added:r.rowCount??0,total:entries.length};
 }
+
+/** Operator-imported research only; same normalized source/build is never overwritten. */
+export async function importResearchRows(raw:unknown){
+ const {parseResearchRows,researchKey}=await import('./motolab-research-center');
+ const {createHash}=await import('node:crypto');
+ const inputs=parseResearchRows(raw);
+ const db=getDbPool(),client=await db.connect();
+ try{
+ await client.query('BEGIN');
+ await client.query('SELECT pg_advisory_xact_lock(27391, 13)');
+ const existing=await client.query<{data:unknown}>("SELECT data FROM rpm_shop_settings WHERE key LIKE 'motolab_knowledge_v1:engine:%'");
+ const seen=new Set<string>();
+ for(const row of existing.rows){if(validKnowledgeRecord(row.data)&&row.data.entry.kind==='engine'&&row.data.sourceUrl)seen.add(researchKey(row.data))}
+ const now=new Date().toISOString();
+ const entries=inputs.flatMap(input=>{
+  const k=researchKey(input);if(seen.has(k))return [];seen.add(k);
+  const hash=createHash('sha256').update(k).digest('hex');
+  const id=hash.slice(0,8)+'-'+hash.slice(8,12)+'-4'+hash.slice(13,16)+'-8'+hash.slice(17,20)+'-'+hash.slice(20,32);
+  const record:KnowledgeRecord={...input,id,revision:1,status:'draft',updatedAt:now,reviewedAt:null,reviewNote:'',identity:null};
+  if(!validKnowledgeRecord(record))throw Error('Niepoprawny szkic');
+  return [{key:prefix('engine')+id,data:record}];
+ });
+ const r=await client.query("INSERT INTO rpm_shop_settings(key,data,updated_at) SELECT x->>'key',x->'data',NOW() FROM jsonb_array_elements($1::jsonb) x ON CONFLICT(key) DO NOTHING RETURNING key",[JSON.stringify(entries)]);
+ await client.query('COMMIT');
+ return {added:r.rowCount??0,total:inputs.length,skipped:inputs.length-(r.rowCount??0)};
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}

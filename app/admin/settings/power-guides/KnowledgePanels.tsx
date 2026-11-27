@@ -1,6 +1,7 @@
 'use client';
 import {useState} from 'react';
 import KnowledgeEditor from './KnowledgeEditor';
+import ResearchCenter from './ResearchCenter';
 import {POWER_ENGINES,powerRangesFor,approvedPowerRange} from '../../../lib/storefront-config';
 import {rodOptionsFor} from '../../../lib/power-build-profile';
 import {allCandidates,candidateBrand} from '../../../lib/motolab-build-plan';
@@ -16,7 +17,7 @@ export function EngineDatabasePanel(){
 export function TechnicalResearchPanel(){
  const [query,setQuery]=useState(''),[onlyVerified,setOnlyVerified]=useState(false);
  const rows=Object.entries(allCandidates).filter(([key,c])=>(!onlyVerified||!!c.verification)&&[c.sku,c.expectedName,candidateBrand(key)??''].join(' ').toLowerCase().includes(query.trim().toLowerCase()));
- return <><KnowledgeEditor kind="technical"/><section className="rpm-settings-card"><h2>RPM Technical Research</h2><p>Aktualne dane źródłowe kandydatów Power Buildera. Status weryfikacji dotyczy tylko wskazanego parametru, nie pełnej zgodności części.</p>
+ return <><ResearchCenter/><KnowledgeEditor kind="technical"/><section className="rpm-settings-card"><h2>RPM Technical Research</h2><p>Aktualne dane źródłowe kandydatów Power Buildera. Status weryfikacji dotyczy tylko wskazanego parametru, nie pełnej zgodności części.</p>
  <div className="admin-toolbar"><label className="rpm-settings-field">Szukaj SKU, modelu lub marki<input value={query} onChange={e=>setQuery(e.target.value)}/></label><label><input type="checkbox" checked={onlyVerified} onChange={e=>setOnlyVerified(e.target.checked)}/> Tylko z weryfikacją producenta</label></div>
  <p>{rows.length} / {Object.keys(allCandidates).length} kandydatów · podgląd danych zapisanych w kodzie, nie sprawdzenie bieżącej dostępności</p>
  <div className="rpm-power-admin-table-wrap"><table className="rpm-power-admin-table"><thead><tr><th>Produkt / SKU</th><th>Parametry i uwagi</th><th>Źródło / status</th></tr></thead><tbody>{rows.map(([key,c])=><tr key={key}><td><strong>{c.expectedName}</strong><small>{c.sku} · {candidateBrand(key)}</small><a href={productPath(c.expectedName,c.sku)} target="_blank" rel="noopener noreferrer">Otwórz produkt</a></td><td>{c.note[0]}</td><td>{c.verification?<><strong>Zweryfikowany zakres</strong><small>{c.verification.scope[0]}</small><small>{c.verification.checkedOn}</small></>:<small>Do potwierdzenia</small>}{(c.verification?.url??c.source)&&<a href={c.verification?.url??c.source} target="_blank" rel="noopener noreferrer">Dokumentacja</a>}</td></tr>)}</tbody></table></div>
