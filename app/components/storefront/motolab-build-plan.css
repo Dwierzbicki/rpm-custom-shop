@@ -276,3 +276,47 @@
  .rpm-tu-comparison>button>small,.rpm-tu-comparison>button>p{font-size:10px;line-height:1.35}
  .rpm-tier-card-top{flex-wrap:wrap;gap:3px}
 }
+
+
+/* Dyno library: clear result counts, readable metrics and compact project cards. */
+.rpm-dyno-library>summary{display:flex;align-items:center;gap:10px;min-height:32px;font-size:14px}
+.rpm-dyno-library>summary>span{flex:1;min-width:0}
+.rpm-dyno-library>summary>small{font-size:11px;font-weight:600;color:var(--rpm-color-muted);white-space:nowrap}
+.rpm-dyno-library>summary>svg{flex-shrink:0}
+.rpm-dyno-library[open]>summary>svg:last-child,.rpm-dyno-subsection[open]>summary>svg{transform:rotate(180deg)}
+.rpm-dyno-library-body{display:grid;gap:12px;min-width:0}
+.rpm-dyno-state{display:flex;align-items:flex-start;gap:14px;background:var(--rpm-color-background);border:1px dashed var(--rpm-color-panel-border);border-radius:8px;padding:20px}
+.rpm-dyno-state>svg{color:var(--rpm-color-muted);flex-shrink:0}
+.rpm-dyno-state strong{font-size:15px}
+.rpm-dyno-state p{margin:5px 0 0;line-height:1.55}
+.rpm-dyno-state button{display:inline-flex;align-items:center;gap:7px;margin-top:12px}
+.rpm-dyno-intro{margin:0!important}
+.rpm-dyno-project{display:grid;gap:14px;background:var(--rpm-color-background);border:1px solid var(--rpm-color-panel-border);border-radius:8px;padding:clamp(12px,2vw,22px);min-width:0}
+.rpm-dyno-project header{display:block}
+.rpm-dyno-project h3{margin:0 0 10px;font-size:clamp(17px,2vw,22px);overflow-wrap:anywhere}
+.rpm-dyno-tags{display:flex;flex-wrap:wrap;gap:6px}
+.rpm-dyno-tags>span{font-size:12px;padding:4px 8px;border:1px solid var(--rpm-color-panel-border);border-radius:4px;color:var(--rpm-color-muted)}
+.rpm-dyno-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px}
+.rpm-dyno-metrics>div{display:grid;gap:5px;padding:14px;background:var(--rpm-color-surface);border:1px solid var(--rpm-color-panel-border);border-radius:6px}
+.rpm-dyno-metrics small{font-size:12px;color:var(--rpm-color-muted)}
+.rpm-dyno-metrics strong{font-size:clamp(23px,3vw,34px);line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rpm-dyno-metrics>div:first-child strong{color:var(--rpm-color-accent)}
+.rpm-dyno-metrics strong span{font-size:13px;font-weight:650;color:var(--rpm-color-muted)}
+.rpm-dyno-attestation{font-size:12px;color:var(--rpm-color-muted)}
+.rpm-dyno-graph{display:grid;gap:10px;min-width:0}
+.rpm-dyno-graph-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.rpm-dyno-graph-head a,.rpm-dyno-parts a{display:inline-flex;align-items:center;gap:6px;color:inherit;text-decoration:underline;font-size:12px}
+.rpm-dyno-graph .rpm-dyno-chart{display:block;margin:0 auto;width:100%;height:auto;max-height:520px;object-fit:contain}
+.rpm-dyno-subsection{padding:10px 12px;border:1px solid var(--rpm-color-panel-border);border-radius:6px;background:var(--rpm-color-surface);min-width:0}
+.rpm-dyno-subsection>summary{display:flex;align-items:center;justify-content:space-between;gap:8px;list-style:none;cursor:pointer;font-size:13px;font-weight:700}
+.rpm-dyno-subsection>summary::-webkit-details-marker{display:none}
+.rpm-dyno-subsection>summary svg{flex-shrink:0}
+.rpm-dyno-subsection[open]>summary{margin-bottom:10px}
+.rpm-dyno-specs{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:8px 16px;margin:0}
+.rpm-dyno-specs>div{display:grid;gap:3px;min-width:0;padding:7px 0;border-bottom:1px solid var(--rpm-color-panel-border)}
+.rpm-dyno-specs dt{font-size:11px;color:var(--rpm-color-muted)}
+.rpm-dyno-specs dd{margin:0;font-size:13px;font-weight:650;overflow-wrap:anywhere}
+.rpm-dyno-parts{display:grid;gap:8px}
+.rpm-dyno-parts>div{display:grid;gap:4px;padding:10px;border-bottom:1px solid var(--rpm-color-panel-border);min-width:0;overflow-wrap:anywhere}
+.rpm-dyno-parts small{color:var(--rpm-color-muted)}
+@media(max-width:540px){.rpm-dyno-library>summary{font-size:12px;gap:6px}.rpm-dyno-library>summary>small{font-size:10px;white-space:normal}.rpm-dyno-state{padding:12px}.rpm-dyno-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-dyno-metrics>div{padding:10px}.rpm-dyno-metrics strong{font-size:23px}.rpm-dyno-graph-head{font-size:13px}}
