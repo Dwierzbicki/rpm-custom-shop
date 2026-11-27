@@ -196,11 +196,30 @@ test('thermal protection is offered across engines and tiers but not charged by 
    assert.ok(slot?.conditional&&slot.planNote);
    assert.equal(plan.selectedPart(slot,{}),undefined);
    const keys=plan.partOptions(slot);
-   assert.ok(keys.length>=2);
-   assert.ok(keys.every(k=>plan.allCandidates[k]));
-   assert.equal(plan.selectedPart(slot,{[id]:keys[0]}),keys[0]);
+   if(id==='turbo-insulation'){assert.equal(keys.length,0);assert.equal(plan.selectedPart(slot,{[id]:'turboBlanketT3'}),undefined)}else{
+    assert.ok(keys.length>=2);
+    assert.ok(keys.every(k=>plan.allCandidates[k]));
+    assert.equal(plan.selectedPart(slot,{[id]:keys[0]}),keys[0]);
+   }
    assert.equal(plan.selectedPart(slot,{[id]:'own'}),undefined);
   }
   assert.ok(slots.some(s=>s.id==='manifold'));
+ }
+});
+
+test('blanket compatibility is scoped to an exact turbo SKU and invalidated by switching turbo',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ const slots=plan.buildParts('m52b25tu',1,'drift','recommended','petrol',profile);
+ const get=selection=>plan.resolveTuDependencies(slots,selection).find(s=>s.id==='turbo-insulation');
+ const known=get({turbo:'tuTurboSmart'});
+ assert.equal(known.fitmentReference.turboSku,'102128202');
+ assert.match(known.fitmentReference.label,/PTX28\/PTX30 IWG/);
+ assert.equal(plan.selectedPart(known,{'turbo-insulation':'turboBlanketT3'}),undefined);
+ assert.equal(plan.partOptions(known).length,0);
+ for(const turbo of ['tuTurboT3','tuTurboPremium','own']){
+  const switched=get({turbo,'turbo-insulation':'turboBlanketT3'});
+  assert.equal(switched.fitmentReference,undefined);
+  assert.equal(plan.partOptions(switched).length,0);
+  assert.equal(plan.selectedPart(switched,{'turbo-insulation':'turboBlanketT3'}),undefined);
  }
 });
