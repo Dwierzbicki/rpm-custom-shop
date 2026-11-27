@@ -43,3 +43,5 @@
 .rpm-record-empty{padding:18px;color:var(--bo-muted)}
 .rpm-record-counts{display:flex;gap:8px;flex-wrap:wrap}.rpm-record-counts button{color:var(--bo-text);background:var(--bo-field);border:1px solid var(--bo-border);padding:8px 12px;border-radius:6px;cursor:pointer}.rpm-record-counts button.active{background:var(--bo-raised);border-color:var(--bo-accent)}.rpm-record-counts strong{margin-left:6px}
 @media(max-width:650px){.rpm-power-admin-tabs button{flex-basis:110px}.rpm-record-editor .rpm-settings-grid{padding:10px}.rpm-record-actions{justify-content:stretch}.rpm-record-actions button{flex:1}}
+
+.rpm-admin-shell .rpm-record-actions .rpm-record-delete{margin-right:auto;background:transparent;color:#ffb1ba;border-color:#80515e}.rpm-admin-shell .rpm-record-actions .rpm-record-delete:hover:not(:disabled){background:#3e252c}.rpm-record-workspace .rpm-guide-mini-product{max-width:100%;padding:12px;background:var(--bo-field);border-radius:8px}.rpm-record-workspace .rpm-guide-mini-product img{width:64px;height:64px;object-fit:contain}
