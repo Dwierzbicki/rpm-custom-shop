@@ -12,3 +12,5 @@ Scope: 350–400 PS at crank, drift/track, PB98 profile. No extension to single 
 - MS43 in Budget is an unpriced option; explicit EMU selection is permitted. Bearing and internal choices remain subject to inspection.
 - No claimed spool RPM, validated power, durability or complete price. Pump flow at operating pressure, wiring, clutch, compression, cooling and fuel starvation remain open checks.
 - No paid AI API, no new prices or database writes. Browser verification still required.
+
+All TU manifold recommendations include one collector EGT point before the turbine (existing catalogue option yes, current surcharge PLN 350). Premium adds six runner points (seven total), thermocouples, measurement hardware and wiring to quote separately. Existing product option pricing is unchanged; Premium base estimate does not include six extra points. No seven-point cart option until actual commercial price is approved.
