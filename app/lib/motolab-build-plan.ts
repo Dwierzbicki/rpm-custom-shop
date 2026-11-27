@@ -386,7 +386,6 @@ export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined):
 function completionSlots():PartsSlot[]{
  const item=(id:string,pl:string,en:string,plNote:string,enNote:string):PartsSlot=>({id,label:[pl,en],qty:null,conditional:true,defaultNone:true,alternatives:[],planNote:[plNote,enNote]});
  return [
- item('throttle','Przepustnica i adapter','Throttle body and adapter','Sprawdź sterowanie ECU, średnicę i zawartość zestawu kolektora ssącego.','Check ECU control, bore and intake manifold kit contents.'),
  item('boost-control','Elektrozawór sterowania boostem','Boost control solenoid','Dobierz do ECU, IWG/EWG i schematu pneumatycznego.','Match ECU, IWG/EWG and pneumatic layout.'),
  item('vacuum-lines','Przewody podciśnienia i złączki','Vacuum lines and fittings','Dobierz średnice, długości, temperaturę i ciśnienie.','Match diameter, length, temperature and pressure.'),
  item('turbo-support','Podpora turbo i mocowania','Turbo support and mounting','Wskazówka RPM Custom: zalecamy wykonanie dodatkowej podpory turbosprężarki lub kolektora do bloku silnika. Ogranicza drgania i obciążenia kolektora, zmniejszając ryzyko pękania spoin i flansz. Podpora musi uwzględniać rozszerzalność cieplną oraz nie powodować naprężeń montażowych.','RPM Custom tip: we recommend an additional turbocharger or manifold support attached to the engine block. This reduces vibration and manifold loads, lowering the risk of cracked welds and flanges. Allow for thermal expansion and avoid installation preload.'),
