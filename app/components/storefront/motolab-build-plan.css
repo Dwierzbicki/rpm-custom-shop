@@ -437,3 +437,31 @@
 .rpm-premium-turbo-ref>div{display:grid;gap:3px;min-width:0}
 .rpm-premium-turbo-ref strong{font-size:13px}
 .rpm-premium-turbo-ref a{display:inline-flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap}
+
+
+/* PARTS LAB — motorsport editorial product catalogue. */
+.rpm-build-workspace .rpm-parts-picker{container-type:inline-size}
+.rpm-build-workspace .rpm-picker-heading{padding:8px 0 2px;align-items:end}
+.rpm-build-workspace .rpm-picker-heading h4{font-size:clamp(20px,2.4vw,27px);font-weight:850;letter-spacing:-.035em;line-height:1.15;margin:5px 0 0}
+.rpm-picker-kicker{display:block;color:var(--rpm-color-accent);font-size:10px;font-weight:800;letter-spacing:.16em}
+.rpm-build-workspace .rpm-picker-guidance{font-size:12px;line-height:1.5;color:#b9c1ce;margin:0}
+.rpm-build-workspace .rpm-picker-search{display:grid;gap:5px;align-items:stretch;text-align:left;font-size:11px}
+.rpm-picker-search input{width:100%;min-width:0;background:#101319;border:1px solid #49515e;border-radius:6px;color:var(--rpm-color-text);padding:11px 12px;font:inherit;font-size:13px}
+.rpm-picker-search input:focus-visible{outline:2px solid var(--rpm-color-accent);outline-offset:2px}
+.rpm-picker-magazine-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(205px,100%),1fr));gap:12px;align-items:stretch}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-parts-option.rpm-magazine-product{display:flex;flex-direction:column;align-items:stretch;gap:0;min-width:0;padding:0;overflow:hidden;border-radius:9px;border:1px solid #454e5c;background:#20242c;transition:box-shadow .18s,border-color .18s}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product:hover{border-color:#9ca8b8}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product.is-picked{border-color:#35bc73;box-shadow:0 0 12px rgba(34,197,94,.22)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product.is-recommended:not(.is-picked){border-color:var(--rpm-color-accent)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product>.rpm-magazine-photo{display:block;position:relative;aspect-ratio:4/3;background:#f4f4f5;overflow:hidden}
+.rpm-magazine-photo img{width:100%;height:100%;object-fit:contain;display:block;padding:12px;box-sizing:border-box}
+.rpm-magazine-photo .rpm-picker-placeholder{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#232933,#343c47);color:#9aa8b8}
+.rpm-magazine-recommendation,.rpm-magazine-selected{position:absolute;top:8px;left:8px;display:inline-flex;align-items:center;gap:4px;padding:5px 7px;background:#a71943;color:#fff;border-radius:3px;font-size:9px;font-weight:800;letter-spacing:.035em}
+.rpm-magazine-selected{top:auto;bottom:8px;background:#155b38;font-size:11px;letter-spacing:0}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product>.rpm-picker-info{display:flex;flex-direction:column;gap:6px;padding:12px;flex:1}
+.rpm-build-workspace .rpm-magazine-product .rpm-picker-info>.rpm-build-product-link{font-size:14px;line-height:1.35;font-weight:750}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product>.rpm-picker-action{display:grid;justify-items:stretch;gap:9px;padding:12px;margin:0 0 auto;align-content:end;border-top:1px solid #3b424d}
+.rpm-build-workspace .rpm-magazine-product .rpm-picker-action>strong{font-size:23px;line-height:1.15;font-weight:800;letter-spacing:-.045em;white-space:normal}
+.rpm-build-workspace .rpm-magazine-product .rpm-picker-action>button{width:100%;min-height:36px;font-size:12px}
+.rpm-build-workspace .rpm-magazine-product.is-picked .rpm-picker-action>button{background:#193c2a;color:#83e5a9;border:1px solid #35bc73;opacity:1}
+@container(max-width:440px){.rpm-picker-magazine-grid{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}}
