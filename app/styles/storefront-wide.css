@@ -4,7 +4,7 @@
   max-width:var(--rpm-desktop-shell);padding-inline:var(--rpm-desktop-gutter);
   gap:clamp(20px,1.7vw,30px);
  }
- .rpm-header-v2.rpm-header-product-first .rpm-header-search{max-width:960px}
+ .rpm-header-v2.rpm-header-product-first .rpm-header-search{max-width:600px;margin-inline:auto}
  .rpm-store-footer .rpm-footer-inner{max-width:var(--rpm-desktop-shell);padding-inline:var(--rpm-desktop-gutter)}
  .rpm-hp-v2{--hp-gutter:var(--rpm-desktop-gutter)}
  .rpm-hp-v2 .rpm-hp-hero .drift-hero-inner{width:100%;max-width:var(--rpm-desktop-shell)}
