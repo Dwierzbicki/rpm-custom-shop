@@ -69,6 +69,8 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
  const slot=(id:string,pl:string,en:string,qty:number|null,conditional=false,candidate?:string):PartsSlot=>({id,label:[pl,en],qty,conditional,candidate:pool[id]??(candidate&&assigned.has(candidate)?candidate:undefined)});
  const result=[
  slot('turbo','Turbosprężarka','Turbocharger',1,version==='2jz-gte','turbo'),
+ slot('turbo-insulation','Koc termiczny turbosprężarki','Turbo blanket',1,true),
+ slot('exhaust-wrap','Bandaż termiczny downpipe','Downpipe heat wrap',1,true),
  slot('manifold','Kolektor turbo','Turbo manifold',1,version==='2jz-gte'),
  slot('wastegate','Wastegate','Wastegate',null,true),
  slot('bov','Zawór upustowy BOV','Blow-off valve',1,true),
@@ -98,7 +100,7 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
  slot('clutch','Sprzęgło / elementy przeniesienia napędu','Clutch / drivetrain components',null,true)
  ];
  const parts=isTuPilot(version,range,usage,fuel,profile)?tuPilotSlots(result,tier,profile!):profile&&fuel!=='unknown'?globalBuildSlots(result,version,range,usage,tier,fuel,profile):result;
- return parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):s);
+ return parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):thermalProtectionSlot(s,tier));
 }
 
 /** Catalog candidates, never a blanket compatibility certificate. */
@@ -128,7 +130,15 @@ export const intakeCandidates:Record<string,BuildCandidate>={
  intakeGE:{sku:'FP-INTK-2JZGE',expectedName:'Kolektor ssący dolotowy FMIC.Pro Toyota 2JZ-GE',note:['Zestaw z przepustnicą i listwą; wejścia wtryskiwaczy 14 mm. Potwierdź wariant głowicy, geometrię wtrysków i miejsce.','Kit with throttle and fuel rail; 14 mm injector ports. Confirm head variant, injector geometry and packaging.'],source:'https://fmic.pl/166430-kolektor-ssacy-dolotowy-fmic-pro-toyota-2jz-ge-fp-intk-2jzge.html'},
  intakeGTE:{sku:'FP-INTK-2JZGTE',expectedName:'Kolektor ssący dolotowy FMIC.Pro Toyota 2JZ-GTE',note:['Zestaw z przepustnicą i listwą; wejścia wtryskiwaczy 14 mm. Potwierdź wariant głowicy, geometrię wtrysków i miejsce.','Kit with throttle and fuel rail; 14 mm injector ports. Confirm head variant, injector geometry and packaging.'],source:'https://fmic.pl/166429-kolektor-ssacy-dolotowy-fmic-pro-toyota-2jz-gte-fp-intk-2jzgte.html'}
 };
-export const allCandidates:Record<string,BuildCandidate>={...intakeCandidates,...candidates,...alternatives,...tuCandidates};
+export const thermalCandidates:Record<string,BuildCandidate>={
+ turboBlanketT25:{sku:'FMICPRO-TB-B1-T25',expectedName:'Koc termoizolacyjny na turbo FMIC.Pro Magma T25',note:['Potwierdź wymiary muszli gorącej, miejsce na siłownik IWG i zalecenia producenta turbo. Nie izoluj CHRA, przewodów ani strony zimnej.','Confirm turbine housing dimensions, actuator clearance and turbo manufacturer guidance. Do not cover CHRA, lines or compressor housing.'],source:'https://fmic.pl/182757-koc-termoizolacyjny-na-turbo-fmic-pro-magma-t25-fmicpro-tb-b1-t25.html'},
+ turboBlanketT3:{sku:'FMICPRO-TB-B1-T3',expectedName:'Koc termoizolacyjny na turbo FMIC.Pro Magma T3',note:['Potwierdź wymiary muszli gorącej i zalecenia producenta. Rozmiar koca nie wynika wyłącznie z flanszy.','Confirm turbine housing dimensions and manufacturer guidance. Blanket size is not determined solely by inlet flange.'],source:'https://fmic.pl/182758-koc-termoizolacyjny-na-turbo-fmic-pro-magma-t3-fmicpro-tb-b1-t3.html'},
+ turboBlanketT4:{sku:'FMICPRO-TB-C-T4',expectedName:'Koc Termoizolacyjny Na Turbo FMIC.Pro Carbon T4',note:['Potwierdź wymiary muszli gorącej i zalecenia producenta. Nie zakrywaj CHRA ani aktuatora.','Confirm turbine housing dimensions and manufacturer guidance. Do not cover CHRA or actuator.'],source:'https://fmic.pl/182765-koc-termoizolacyjny-na-turbo-fmic-pro-carbon-t4-fmicpro-tb-c-t4.html'},
+ turboBlanketInconelT3:{sku:'FMICPRO-TB-BS-T3',expectedName:'Koc Termoizolacyjny Na Turbo FMIC.Pro Inconel Magma T3',note:['Wariant wzmocniony Inconel; dobór po pomiarze muszli i potwierdzeniu dopuszczalnej izolacji.','Inconel reinforced option; confirm housing dimensions and permitted insulation.'],source:'https://fmic.pl/182767-koc-termoizolacyjny-na-turbo-fmic-pro-inconel-magma-t3-fmicpro-tb-bs-t3.html'},
+ downpipeWrap5:{sku:'FP-WRAP-MAG-5',expectedName:'Bandaż termoizolacyjny Fmic.Pro MAGMA 50mm 2mm 5m',note:['Rolka 5 m. Długość dobierz do średnicy, długości i zakładu owinięcia downpipe; sprawdź materiał i dopuszczenie izolacji. Unikaj wycieków oleju i paliwa.','5 m roll. Size for downpipe diameter, length and overlap; verify pipe material and permitted wrapping. Prevent oil and fuel contamination.'],source:'https://fmic.pl/351890-bandaz-termoizolacyjny-fmic-pro-magma-50mm-2mm-5m-fp-wrap-mag-5.html'},
+ downpipeWrap10:{sku:'FP-WRAP-MAG-10',expectedName:'Bandaż termoizolacyjny Fmic.Pro MAGMA 50mm 2mm 10m',note:['Rolka 10 m; długość i sposób montażu do potwierdzenia. Nie dubluj izolacji tego samego elementu.','10 m roll; verify required length and installation. Do not duplicate insulation on the same component.'],source:'https://fmic.pl/351892-bandaz-termoizolacyjny-fmic-pro-magma-50mm-2mm-10m-fp-wrap-mag-10.html'}
+};
+export const allCandidates:Record<string,BuildCandidate>={...thermalCandidates,...intakeCandidates,...candidates,...alternatives,...tuCandidates};
 const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband','garrett3076'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco'],pump:['pumpAem','pumpWalbro'],wastegate45:['wastegateTial']};
 export function partOptions(slot:PartsSlot):string[]{
  return [...(slot.candidate?[slot.candidate]:[]),...(slot.alternatives??(slot.candidate?optionKeys[slot.candidate]??[]:[])),...(slot.rpmOptions??[])];
@@ -159,7 +169,7 @@ export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,ve
  return issues;
 }
 
-const candidateBrands:Record<string,string>={intakeM50:'FMIC.Pro',intakeGE:'FMIC.Pro',intakeGTE:'FMIC.Pro',turbo2867T3:'Pulsar',turbo2867V:'Pulsar',turbo3076T3:'Pulsar',turbo3582T3:'Pulsar',turbo3582V:'Pulsar',turbo3584T3:'Pulsar',turbo3584V:'Pulsar',turbo7375V:'Pulsar',universal1200:'DeatschWerks',universal1500:'DeatschWerks',m54b25Rods:'ZRP',egtModule:'CANchecked',tuTurboT3:'Pulsar',tuTurboSmart:'Pulsar',tuTurboPremium:'Pulsar',tuPumpBudget:'DeatschWerks',tuPumpSmart:'DeatschWerks',tuInjectors:'DeatschWerks',tuRods:'K1',tuRodBearings:'ACL',tuMainBearings:'ACL',tuWastegate:'Turbosmart',
+const candidateBrands:Record<string,string>={turboBlanketT25:'FMIC.Pro',turboBlanketT3:'FMIC.Pro',turboBlanketT4:'FMIC.Pro',turboBlanketInconelT3:'FMIC.Pro',downpipeWrap5:'FMIC.Pro',downpipeWrap10:'FMIC.Pro',intakeM50:'FMIC.Pro',intakeGE:'FMIC.Pro',intakeGTE:'FMIC.Pro',turbo2867T3:'Pulsar',turbo2867V:'Pulsar',turbo3076T3:'Pulsar',turbo3582T3:'Pulsar',turbo3582V:'Pulsar',turbo3584T3:'Pulsar',turbo3584V:'Pulsar',turbo7375V:'Pulsar',universal1200:'DeatschWerks',universal1500:'DeatschWerks',m54b25Rods:'ZRP',egtModule:'CANchecked',tuTurboT3:'Pulsar',tuTurboSmart:'Pulsar',tuTurboPremium:'Pulsar',tuPumpBudget:'DeatschWerks',tuPumpSmart:'DeatschWerks',tuInjectors:'DeatschWerks',tuRods:'K1',tuRodBearings:'ACL',tuMainBearings:'ACL',tuWastegate:'Turbosmart',
  injectors:'DeatschWerks',injectors1500:'DeatschWerks',geInjectors:'DeatschWerks',
  pistons:'Wiseco',gtePistons:'Manley',gtePistonsWiseco:'Wiseco',
  turbo:'Pulsar',turboVband:'Pulsar',garrett3076:'Garrett',ecu:'ECUMaster',pump:'DeatschWerks',pumpAem:'AEM',pumpWalbro:'Walbro / TI Automotive',
@@ -299,4 +309,13 @@ function intakeManifoldSlot(slot:PartsSlot,version:string,tier:string):PartsSlot
  const custom=tu||m54?['Kolektor aluminiowy dopasowany do M52TU/M54 lub konwersja z adapterem — do indywidualnego doboru. Sprawdź DISA, przepustnicę, listwę, wtryski, podciśnienia i miejsce w nadwoziu.','Head-specific aluminium manifold or adapter conversion — individual selection. Check DISA, throttle, rail, injectors, vacuum ports and packaging.']:['Kolektor aluminiowy / plenum dobrane do głowicy i przepływu. Sprawdź rozkład powietrza, przepustnicę, listwę i wtryskiwacze.','Aluminium manifold/plenum matched to head and airflow. Verify distribution, throttle, rail and injectors.'];
  const planNote:[string,string]=tier==='premium'?[custom[0]+' '+stock[0],custom[1]+' '+stock[1]]:[stock[0]+' '+custom[0],stock[1]+' '+custom[1]];
  return {...slot,candidate:undefined,alternatives:key?[key]:[],defaultNone:true,planNote};
+}
+
+/** Optional thermal protection: offer sizes for manual verification, never infer
+ * blanket fitment from flange or power tier. Downpipe wrap is distinct from
+ * manifold TermShield and does not imply wrapping the turbine or CHRA. */
+function thermalProtectionSlot(slot:PartsSlot,tier:string):PartsSlot{
+ if(slot.id==='turbo-insulation')return {...slot,candidate:undefined,defaultNone:true,alternatives:tier==='premium'?['turboBlanketInconelT3','turboBlanketT3','turboBlanketT25','turboBlanketT4']:['turboBlanketT3','turboBlanketT25','turboBlanketT4','turboBlanketInconelT3'],planNote:[tier==='budget'?'Opcjonalny koc strony gorącej. Dobierz po pomiarze muszli; sprawdź dopuszczenie przez producenta turbo.':'Zalecane rozważenie osłony strony gorącej, szczególnie przy długim obciążeniu. Dobierz po pomiarze muszli, nie po samej flanszy. Sprawdź zalecenia producenta oraz chłodzenie CHRA.','Consider a turbine housing blanket; confirm dimensions, manufacturer guidance, CHRA cooling and actuator clearance before selecting.']};
+ if(slot.id==='exhaust-wrap')return {...slot,candidate:undefined,defaultNone:true,alternatives:['downpipeWrap5','downpipeWrap10'],planNote:['Opcjonalna izolacja downpipe: dobierz długość rolki do wymiarów i zakładu. Nie stosuj, jeżeli producent wydechu tego nie dopuszcza. TermShield kolektora pozostaje oddzielną opcją.','Optional downpipe insulation: size roll length for dimensions and overlap. Verify exhaust manufacturer permits wrapping. Manifold TermShield remains a separate option.']};
+ return slot;
 }
