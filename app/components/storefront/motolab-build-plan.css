@@ -344,3 +344,32 @@
 .rpm-build-workspace .rpm-build-variant-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px}
 .rpm-build-workspace .rpm-build-variant-fields>label{display:grid;gap:6px;min-width:0;text-align:left;align-content:start}
 .rpm-build-workspace .rpm-build-variant-fields select{width:100%;min-width:0}
+
+
+/* Project state is visible on the entire card, not only in a tiny label. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-matched{
+ border:1px solid #35bc73;box-shadow:0 0 12px rgba(34,197,94,.20),inset 4px 0 0 #35bc73;
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-pending{
+ border:1px solid #d99035;box-shadow:0 0 12px rgba(245,158,11,.17),inset 4px 0 0 #d99035;
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-conflict{
+ border:1px solid #ef5350;box-shadow:0 0 12px rgba(239,68,68,.22),inset 4px 0 0 #ef5350;
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-owned{
+ border:1px solid #596272;box-shadow:none;
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status{
+ display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border-radius:4px;
+ font-size:12px;line-height:1.4;font-weight:700;white-space:normal;
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.matched{color:#69e8a0;background:rgba(34,197,94,.13)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.pending{color:#ffb85b;background:rgba(245,158,11,.13)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.conflict{color:#ff8585;background:rgba(239,68,68,.13)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.owned{color:#bbc3cf;background:rgba(148,163,184,.12)}
+.rpm-build-workspace .rpm-build-systems .rpm-system-status-line{display:flex;flex-wrap:wrap;column-gap:8px;row-gap:2px}
+.rpm-build-workspace .rpm-build-systems .rpm-system-status-line b{font-weight:600;white-space:normal}
+.rpm-build-workspace .rpm-system-ready{color:#69e8a0}
+.rpm-build-workspace .rpm-system-pending{color:#ffb85b}
+.rpm-build-workspace .rpm-system-conflict{color:#ff8585}
+@media(max-width:760px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status{font-size:11px;padding:4px 6px}}
