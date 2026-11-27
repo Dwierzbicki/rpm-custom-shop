@@ -601,3 +601,71 @@
 .rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button:not(:disabled):hover{background:#e72d56;border-color:#ff7398}
 .rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button:focus-visible{outline:2px solid #ff7398;outline-offset:2px}
 @container(max-width:440px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button{width:44px;height:44px;min-width:44px;min-height:44px}}
+
+
+/* RPM Builder — calm automotive workspace. Accent is reserved for actions;
+   normal incomplete states are neutral, only real technical conflicts are red. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero{background:#1b1e24;border:1px solid #343943;border-radius:10px;padding:24px;box-shadow:none}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero h2{color:#aab1bc;font-size:13px;font-weight:750;letter-spacing:.13em;margin:8px 0 10px}
+.rpm-build-workspace .rpm-lab-title-accent{color:inherit}
+.rpm-build-workspace .rpm-lab-kicker{color:#aab1bc;letter-spacing:.09em}
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-material-note{color:#aab1bc;border-color:#343943}
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-project-meta>span{background:#242830;border-color:#383e48;color:#e3e6eb}
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-tier-tag{color:#b4bdc8;border-color:#424955}
+.rpm-build-workspace .rpm-lab-mini-track,.rpm-build-workspace .rpm-summary-track{background:#343943}
+.rpm-build-workspace .rpm-lab-mini-track>span,.rpm-build-workspace .rpm-summary-segment.matched{background:var(--rpm-color-accent)}
+.rpm-build-workspace .rpm-summary-segment.pending{background:#343943}
+.rpm-build-workspace .rpm-summary-segment.owned{background:#69717e}
+.rpm-build-workspace .rpm-build-systems{gap:4px}
+.rpm-build-workspace .rpm-build-systems button{background:transparent;border:1px solid transparent;box-shadow:none;border-radius:6px;min-height:60px;padding:10px;transition:background .15s}
+.rpm-build-workspace .rpm-build-systems button:hover{background:#20242b;border-color:#303640}
+.rpm-build-workspace .rpm-build-systems button.active{background:#23272f;border:1px solid #393e48;box-shadow:inset 3px 0 0 var(--rpm-color-accent)}
+.rpm-build-workspace .rpm-build-systems button.active .rpm-lab-system-icon,.rpm-build-workspace .rpm-lab-system-icon{background:transparent;color:#aab1bc}
+.rpm-build-workspace .rpm-build-systems button.active .rpm-lab-system-icon{color:#f2f3f5}
+.rpm-build-workspace .rpm-build-systems .rpm-system-status-line{color:#aab1bc;font-size:11px}
+.rpm-build-workspace .rpm-system-conflict{color:#ff8585}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group:is(.is-status-matched,.is-status-pending,.is-status-owned,.is-status-optional,.is-status-advice){background:#181b20;border:1px solid #333842;box-shadow:none;border-radius:9px;padding:16px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-conflict{background:#1e1b20;border:1px solid #6d3e48;box-shadow:none;border-radius:9px;padding:16px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status{font-size:11px;font-weight:650;padding:4px 7px;border-radius:4px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status:is(.pending,.owned,.optional,.advice){color:#b8c0cc;background:transparent}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.matched{color:#b9d8c5;background:transparent}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-slot-status.conflict{color:#ff8585;background:#3a232b}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-clean-card,.rpm-build-workspace .rpm-lab-manifold{background:#22262d;border:1px solid #353b45;box-shadow:none;border-radius:7px}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-name{font-size:14px;line-height:1.5}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-price{font-size:clamp(20px,2vw,25px)}
+.rpm-build-workspace .rpm-parts-slot-head{gap:8px;align-items:center}
+.rpm-build-workspace .rpm-parts-slot-head h3{font-size:15px;line-height:1.4}
+.rpm-build-workspace .rpm-parts-slot-head .rpm-build-exclude{background:transparent;border-color:transparent;color:#abb3be;font-weight:500;box-shadow:none}
+.rpm-build-workspace .rpm-parts-slot-head .rpm-build-exclude:hover{background:#30353e;color:#fff}
+.rpm-build-workspace .rpm-build-task-list{gap:12px}
+.rpm-build-workspace .rpm-build-summary-v2{background:#1c2026;border:1px solid #363b45;box-shadow:none;padding:17px}
+.rpm-build-workspace .rpm-summary-top .eyebrow{color:#b9c1cc;letter-spacing:.08em}
+.rpm-build-workspace .rpm-summary-tier{display:none}
+.rpm-build-workspace .rpm-summary-states{gap:0}
+.rpm-build-workspace .rpm-summary-states>div:is(.matched,.pending,.optional,.advice,.owned,.conflict){color:#c7cdd6;background:transparent;border:0;border-bottom:1px solid #333943;border-radius:0;padding:8px 0;font-size:12px;gap:8px}
+.rpm-build-workspace .rpm-summary-states>div.matched svg{color:#a8cbb7}
+.rpm-build-workspace .rpm-summary-states>div.conflict{color:#ff8585}
+.rpm-build-workspace .rpm-summary-states b{color:#edf0f4;font-size:13px}
+.rpm-build-workspace .rpm-build-fold{display:block;background:#191c22;border:1px solid #353b45;border-radius:8px;padding:0 14px;margin-top:12px}
+.rpm-build-workspace .rpm-build-fold>summary{display:flex;align-items:center;gap:9px;min-height:52px;cursor:pointer;list-style:none;color:#e4e8ee;font-weight:700;font-size:13px}
+.rpm-build-workspace .rpm-build-fold>summary::-webkit-details-marker{display:none}
+.rpm-build-workspace .rpm-build-fold>summary>span{flex:1}
+.rpm-build-workspace .rpm-build-fold>summary>small{font-variant-numeric:tabular-nums;color:#b6bec9;font-weight:600}
+.rpm-build-workspace .rpm-build-fold>summary>svg{color:#aab1bc;flex-shrink:0}
+.rpm-build-workspace .rpm-build-fold[open]>summary>svg:last-child{transform:rotate(180deg)}
+.rpm-build-workspace .rpm-build-fold[open]{padding-bottom:14px}
+.rpm-build-workspace .rpm-build-fold>p{margin:0 0 12px}
+.rpm-build-workspace .rpm-build-fold .rpm-build-workshop-advice{background:transparent;border:0;box-shadow:none;padding:0;color:#e4e8ee;margin:0}
+.rpm-build-workspace .rpm-build-fold .rpm-build-workshop-advice>div{border-color:#343943}
+.rpm-build-workspace .rpm-build-fold .rpm-build-workshop-advice>div>p{color:#b6bec9}
+.rpm-build-workspace .rpm-build-step-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid #343943}
+.rpm-build-workspace .rpm-build-step-actions>button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:42px}
+.rpm-build-workspace .rpm-build-side-detail{display:block;background:#1a1e24;border:1px solid #343943;border-radius:8px;padding:12px}
+.rpm-build-workspace .rpm-build-side-detail>summary{font-size:12px;font-weight:700;line-height:1.4;cursor:pointer;color:#e5e8ed}
+.rpm-build-workspace .rpm-build-side-detail[open]>summary{margin-bottom:10px}
+.rpm-build-workspace .rpm-build-side-detail>span{display:block;font-size:12px;margin:6px 0}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product.is-picked,.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-magazine-product.is-recommended:not(.is-picked){border-color:#727b87;box-shadow:none}
+.rpm-build-workspace .rpm-magazine-selected,.rpm-build-workspace .rpm-magazine-recommendation{background:#303740;color:#f1f3f5;box-shadow:none}
+.rpm-build-workspace .rpm-build-risk-inline{color:#aab1bc}
+@media(min-width:1201px){.rpm-build-workspace .rpm-build-systems button>small:last-child{display:none}}
+@media(max-width:760px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero{padding:16px}.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group:is(.is-status-matched,.is-status-pending,.is-status-owned,.is-status-optional,.is-status-advice,.is-status-conflict){padding:12px}.rpm-build-workspace .rpm-build-step-actions{flex-wrap:wrap}.rpm-build-workspace .rpm-build-step-actions>button{flex:1;white-space:normal}.rpm-build-workspace .rpm-build-systems button{min-height:54px}.rpm-build-workspace .rpm-build-side-price{padding:14px}}
