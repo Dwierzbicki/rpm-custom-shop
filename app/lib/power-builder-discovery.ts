@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string]};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -66,6 +66,7 @@ export function intercoolerDimensionOptions(names:string[]):string[]{
 const sensorCategories=[['Elektronika','Ecumaster','Czujniki i akcesoria'],['Elektronika','Wskaźniki','Czujniki']];
 export const extraDiscoveryPaths:Record<string,string[][]>={
  filter:[['Układ dolotowy','Filtry powietrza','Filtry stożkowe']],
+ injectors:[['Układ paliwowy','Wtryskiwacze','Wtryskiwacze uniwersalne']],
  throttle:[['Układ dolotowy','Przepustnice']],
  'fuel-surge':[['Układ paliwowy','Swirl Poty']],
  wideband:[['Elektronika','Zestawy AFR']],
@@ -84,6 +85,17 @@ export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string
  if(/\b(style|replica|replacement|adapter|bracket|plug|connector|wiring|cable)\b|uszczel|wtyczk|przewód|mocowanie|dystans|zestaw napraw|dedykowan/i.test(n))return null;
  const brand=row.brand?.trim()||([[/fmic\.pro/i,'FMIC.Pro'],[/fmic\.eu/i,'FMIC.EU'],[/jrspec/i,'JRspec'],[/k&n|\bk\s*&\s*n\b/i,'K&N'],[/pipercross/i,'Pipercross'],[/ramair/i,'Ramair'],[/simota/i,'Simota'],[/aem/i,'AEM'],[/mishimoto/i,'Mishimoto'],[/nuke performance/i,'Nuke Performance'],[/deatschwerks/i,'DeatschWerks'],[/radium engineering/i,'Radium Engineering'],[/innovate/i,'Innovate'],[/ecumaster/i,'ECUMASTER'],[/bosch/i,'Bosch'],[/\bdei\b/i,'DEI'],[/thermo.?tec/i,'Thermo-Tec']] as [RegExp,string][]).find(([re])=>re.test(n))?.[1]||'';
  const make=(pl:string,en:string):DiscoveredPart=>({sku,name:row.name,brand:brand||'—',slot,reason:[pl,en]});
+ if(slot==='injectors'){
+  // Supplier singles: explicit singular title and known individual SKU family.
+  // Never infer package quantity from flow or price.
+  const bosch=/^BOSCH\d+CC(?:-EV[16])?$/i.test(sku)&&/^wtrysk(?:iwacz)? bosch\b/.test(n);
+  const nuke=/^NP-130-01-\d+$/.test(sku)&&/nuke performance.*(?:wtryskiwacz bosch|bosch injector)/.test(n);
+  const pack=/\b6\s*szt\b|\bset of 6\b/.test(n)&&/zestaw wtryskiwaczy|matched set|komplet/.test(n);
+  const flow=n.match(/\b(\d{3,4})\s*cc(?:\/min)?\b/)?.[1];
+  if(!flow||(!bosch&&!nuke&&!pack)||/bezpośredni|direct injection|\b(?:4|8)\s*szt\b|o-ring/.test(n))return null;
+  const product=make('Nominalny przepływ z nazwy katalogowej. Potwierdź jednostkę sprzedaży, ciśnienie referencyjne, długość, złącze, impedancję, paliwo i kalibrację; pojedyncze wtryski warto dobrać przepływowo.','Nominal flow from catalogue title. Verify sales unit, reference pressure, length, connector, impedance, fuel and calibration; flow-match individual injectors.');
+  return {...product,brand:bosch?'Bosch':nuke?'Nuke Performance':brand||'—',injectorPackSize:pack?6:1,injectorFlowCc:Number(flow)};
+ }
  if(slot==='filter'){
   if(!/filtr powietrza|air filter|filtr stożkowy/.test(n))return null;
   return make('Filtr stożkowy. Potwierdź średnicę przyłącza dolotu turbo, miejsce i wymagany przepływ; rozmiar montażowy nie oznacza wydajności.','Cone filter. Confirm turbo inlet connection diameter, clearance and required airflow; flange size does not establish capacity.');
