@@ -67,7 +67,7 @@ test('alternative selection is scoped to slot and engine; choosing own part remo
  assert.equal(plan.selectedPart(ic,{intercooler:'own'}),undefined);
  assert.equal(plan.partOptions(inj).length,2);
  assert.equal(plan.selectedPart(inj,{injectors:'injectors1500'}),'injectors1500');
- for(const s of plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol'))assert.equal(plan.partOptions(s).length,0);
+ for(const s of plan.buildParts('m50b30-stroker',1,'drift','recommended','petrol').filter(s=>!['intake-manifold','turbo-insulation','exhaust-wrap'].includes(s.id)))assert.equal(plan.partOptions(s).length,0);
  assert.equal(plan.alternatives.injectors1500.verification,undefined);
 });
 
@@ -184,5 +184,23 @@ test('intake manifold is visible and engine-specific in every Power Builder scen
    if(options.length)assert.equal(plan.selectedPart(intake,{'intake-manifold':options[0]}),options[0]);
    assert.equal(plan.selectedPart(intake,{'intake-manifold':'own'}),undefined);
   }
+ }
+});
+
+test('thermal protection is offered across engines and tiers but not charged by default',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ for(const family of config.POWER_ENGINES)for(const v of family.versions)for(const tier of ['budget','recommended','premium']){
+  const slots=plan.buildParts(v.id,0,'drift',tier,'petrol',profile);
+  for(const id of ['turbo-insulation','exhaust-wrap']){
+   const slot=slots.find(s=>s.id===id);
+   assert.ok(slot?.conditional&&slot.planNote);
+   assert.equal(plan.selectedPart(slot,{}),undefined);
+   const keys=plan.partOptions(slot);
+   assert.ok(keys.length>=2);
+   assert.ok(keys.every(k=>plan.allCandidates[k]));
+   assert.equal(plan.selectedPart(slot,{[id]:keys[0]}),keys[0]);
+   assert.equal(plan.selectedPart(slot,{[id]:'own'}),undefined);
+  }
+  assert.ok(slots.some(s=>s.id==='manifold'));
  }
 });
