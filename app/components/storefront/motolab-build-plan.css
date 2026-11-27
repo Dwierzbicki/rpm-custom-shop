@@ -576,3 +576,16 @@
 .rpm-build-workshop-advice>div>p{font-size:12px;line-height:1.55;color:#c5d5e7;margin:5px 0 0}
 .rpm-build-workspace .rpm-system-advice{color:#93c5fd}
 .rpm-build-workspace .rpm-summary-states>div.advice{color:#93c5fd;border-color:rgba(111,170,241,.4)}
+
+
+/* Read-only manifold specifications are data, not disabled choice cards. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-manifold-auto-summary{display:grid;gap:7px;min-width:0;background:#141a22;border-left:3px solid #7999bb;padding:12px 14px;border-radius:4px}
+.rpm-manifold-auto-heading{display:flex;align-items:center;gap:7px;color:#a9c5e1;font-size:12px}
+.rpm-build-workspace .rpm-manifold-auto-summary>p{margin:0;color:#aeb9c7;font-size:11px;line-height:1.5}
+.rpm-manifold-auto-summary dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:10px 18px;margin:6px 0 0;padding-top:10px;border-top:1px solid #343f4c}
+.rpm-manifold-auto-summary dl>div{display:grid;gap:4px;min-width:0}
+.rpm-manifold-auto-summary dt{font-size:11px;color:#aeb9c7;font-weight:500}
+.rpm-manifold-auto-summary dd{font-size:14px;font-weight:750;color:#edf2f7;margin:0;overflow-wrap:anywhere;cursor:default}
+.rpm-manifold-auto-summary dd small{color:#aeb9c7}
+.rpm-build-workspace .rpm-manifold-editable-heading{font-size:15px;font-weight:750;margin:3px 0 0;padding-top:10px;border-top:1px solid #414a57}
+@media(max-width:480px){.rpm-manifold-auto-summary dl{grid-template-columns:1fr}}
