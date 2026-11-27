@@ -1,6 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState,useRef} from 'react';
 import Link from 'next/link';
+import {useUnsavedChanges} from '../settings/power-guides/useUnsavedChanges';
 import {POWER_ENGINES} from '../../lib/storefront-config';
 import {RPM_PART_SLOTS,type RpmMotoLabFitment} from '../../lib/motolab-rpm-parts';
 import {Product,money} from '../../data';
@@ -27,6 +28,7 @@ export default function Admin(){
  const item=items.find(p=>p.id===active)??items[0];
  const patchFitment=(p:Partial<RpmMotoLabFitment>)=>update({motolab:{slot:'rods',versions:[],maxPowerPs:700,note:'',noteEn:'',enabled:false,...item?.motolab,...p}});
  const dirty=!!item&&JSON.stringify(item)!==(baseline.current[item.id]??'');
+ useUnsavedChanges(dirty||!!busy);
  const switchProduct=(id:number)=>{if(id===active)return;if(dirty&&!window.confirm('Masz niezapisane zmiany. Przejść do innego produktu bez zapisywania?'))return;setActive(id);setSaved(false);setCreating(id===-1)};
  const visible=useMemo(()=>items.filter(p=>(categoryFilter==='Wszystkie'||p.category===categoryFilter)&&[p.name,p.sku,p.category].join(' ').toLowerCase().includes(search.toLowerCase())),[items,search,categoryFilter]);
  const update=(patch:Partial<Draft>)=>{setItems(old=>old.map(p=>p.id===active?{...p,...patch}:p));setSaved(false)};

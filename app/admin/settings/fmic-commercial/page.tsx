@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
+import {useUnsavedChanges} from '../power-guides/useUnsavedChanges';
 import Link from 'next/link';
 import {DEFAULT_FMIC_COMMERCIAL,validFmicCommercial,previewFmicPrice,previewFmicDelivery,type FmicCommercialSettings} from '../../../lib/fmic-commercial';
 import {money} from '../../../data';
@@ -7,11 +8,12 @@ type Product={sku:string;name:string;source_price:number;proposed_gross:number;p
 export default function FmicCommercialPage(){
  const [settings,setSettings]=useState<FmicCommercialSettings>(DEFAULT_FMIC_COMMERCIAL);
  const [sku,setSku]=useState(''),[product,setProduct]=useState<Product|null>(null),[qty,setQty]=useState(1);
- const [ready,setReady]=useState(false);
+ const [ready,setReady]=useState(false),[baseline,setBaseline]=useState('');
+ useUnsavedChanges(ready&&JSON.stringify(settings)!==baseline);
  const [loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[searching,setSearching]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
- useEffect(()=>{fetch('/api/admin/settings/fmic-commercial',{cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error);setSettings(d.settings);setReady(true)}).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[]);
+ useEffect(()=>{fetch('/api/admin/settings/fmic-commercial',{cache:'no-store'}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error);setSettings(d.settings);setBaseline(JSON.stringify(d.settings));setReady(true)}).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[]);
  const update=(patch:Partial<FmicCommercialSettings>)=>{setSettings(old=>({...old,...patch}));setMessage('')};
- async function save(){if(!ready||!validFmicCommercial(settings)||busy)return;setBusy(true);setError('');setMessage('');try{const r=await fetch('/api/admin/settings/fmic-commercial',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings})});const d=await r.json();if(!r.ok)throw Error(d.error);setSettings(d.settings);setMessage('Zapisano konfigurację do zatwierdzenia. Ceny sklepu nie zostały zmienione.')}catch(e){setError(e instanceof Error?e.message:'Błąd zapisu')}finally{setBusy(false)}}
+ async function save(){if(!ready||!validFmicCommercial(settings)||busy)return;setBusy(true);setError('');setMessage('');try{const r=await fetch('/api/admin/settings/fmic-commercial',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({settings})});const d=await r.json();if(!r.ok)throw Error(d.error);setSettings(d.settings);setBaseline(JSON.stringify(d.settings));setMessage('Zapisano konfigurację do zatwierdzenia. Ceny sklepu nie zostały zmienione.')}catch(e){setError(e instanceof Error?e.message:'Błąd zapisu')}finally{setBusy(false)}}
  async function find(){setSearching(true);setError('');setProduct(null);try{const r=await fetch('/api/admin/settings/fmic-commercial?'+new URLSearchParams({sku:sku.trim()}),{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);setProduct(d.product)}catch(e){setError(e instanceof Error?e.message:'Błąd pobierania')}finally{setSearching(false)}}
  const price=product?previewFmicPrice(product.source_price,settings):null;
  const shipping=product?previewFmicDelivery([{weight:product.weight,qty}],settings):null;

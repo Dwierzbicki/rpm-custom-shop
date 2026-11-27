@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useState} from 'react';
+import {useUnsavedChanges} from './useUnsavedChanges';
 import {Search,ChevronRight,Copy} from 'lucide-react';
 import {POWER_ENGINES} from '../../../lib/storefront-config';
 import {RESEARCH_SOURCES,RESEARCH_TOPICS,RESEARCH_MAX_CHARS,parseResearchRows,researchPrompt,type ResearchDraft} from '../../../lib/motolab-research-center';
@@ -9,6 +10,7 @@ export default function ResearchCenter(){
  const [version,setVersion]=useState('m50b25'),[topic,setTopic]=useState('hybrid'),[sources,setSources]=useState<string[]>(['turbobmw','zgrywus','turbo-familia','public']);
  const [raw,setRaw]=useState(''),[preview,setPreview]=useState<ResearchDraft[]|null>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState('');
  const [quota,setQuota]=useState<Quota|null>(null),[quotaError,setQuotaError]=useState(false),[usage,setUsage]=useState<{inputTokens:number|null;outputTokens:number|null;searchCalls:number}|null>(null);
+ useUnsavedChanges(busy||!!preview?.length);
  const prompt=researchPrompt(version,topic,sources);
  const name=POWER_ENGINES.flatMap(g=>g.versions.map(v=>({id:v.id,name:v.name}))).find(v=>v.id===version)?.name??version;
  const terms=RESEARCH_TOPICS.find(t=>t.id===topic)?.query??'';

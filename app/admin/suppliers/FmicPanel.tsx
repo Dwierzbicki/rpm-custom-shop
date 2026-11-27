@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {useUnsavedChanges} from '../settings/power-guides/useUnsavedChanges';
 import {Fragment,useEffect,useRef,useState} from 'react';
 type Catalog={pagination?:{page:number;size:number;total:number};discount:number;stats:{total:number;available:number;mapped:number;updated_at:string|null};groups:{source_category:string;target_category:string[]|null;mapping_status:string;total:number}[];products:{sku:string;name:string;source_price:string;proposed_gross:string;available:boolean;mapping_status:string;image?:string;feed_availability?:string;supplier_url?:string}[]};
 export default function FmicPanel(){
@@ -20,6 +21,7 @@ export default function FmicPanel(){
  catch(e){setError(String(e))}finally{setBusy(false)}
  }
  const [discount,setDiscount]=useState('5'),[saved,setSaved]=useState('');
+ useUnsavedChanges(importing||busy||!!data&&discount!==String(data.discount));
  async function load(query=appliedQuery,page=1,limit=size,stock=availability,order=sort){setBusy(true);setError('');try{const r=await fetch('/api/admin/suppliers/fmic?'+new URLSearchParams({q:query,page:String(page),size:String(limit),availability:stock,sort:order}),{cache:'no-store'});if(!r.ok)throw Error('Nie udało się pobrać katalogu FMIC');const next:Catalog=await r.json();setData(next);setAppliedQuery(query);setDiscount(String(next.discount))}catch(e){setError(String(e))}finally{setBusy(false)}}
  async function saveDiscount(){
  const value=Number(discount);

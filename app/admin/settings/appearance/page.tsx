@@ -1,12 +1,15 @@
 'use client';
 import {useEffect,useState} from 'react';
+import {useUnsavedChanges} from '../power-guides/useUnsavedChanges';
 import Link from 'next/link';
 import {LogoLaser} from '../../../components/storefront/LogoLaser';
 export default function AppearancePage(){
+ const [baseline,setBaseline]=useState<boolean|null>(null);
  const [enabled,setEnabled]=useState(false),[loaded,setLoaded]=useState(false),[loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(''),[success,setSuccess]=useState('');
+ useUnsavedChanges(baseline!==null&&baseline!==enabled);
  useEffect(()=>{
   const c=new AbortController();
-  fetch('/api/admin/settings/appearance',{cache:'no-store',signal:c.signal}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd pobierania');if(!c.signal.aborted){setEnabled(d.appearance.logoLaserEnabled===true);setLoaded(true)}}).catch(e=>{if(!c.signal.aborted)setError(e.message)}).finally(()=>{if(!c.signal.aborted)setLoading(false)});
+  fetch('/api/admin/settings/appearance',{cache:'no-store',signal:c.signal}).then(async r=>{const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd pobierania');if(!c.signal.aborted){setEnabled(d.appearance.logoLaserEnabled===true);setBaseline(d.appearance.logoLaserEnabled===true);setLoaded(true)}}).catch(e=>{if(!c.signal.aborted)setError(e.message)}).finally(()=>{if(!c.signal.aborted)setLoading(false)});
   return()=>c.abort();
  },[]);
  async function save(e:React.FormEvent){
@@ -15,7 +18,7 @@ export default function AppearancePage(){
   try{
    const r=await fetch('/api/admin/settings/appearance',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({appearance:{logoLaserEnabled:enabled}})});
    const d=await r.json();if(!r.ok)throw Error(d.error||'Błąd zapisu');
-   setEnabled(d.appearance.logoLaserEnabled===true);setSuccess('Zapisano. Zmiana będzie widoczna po odświeżeniu sklepu.');
+   setEnabled(d.appearance.logoLaserEnabled===true);setBaseline(d.appearance.logoLaserEnabled===true);setSuccess('Zapisano. Zmiana będzie widoczna po odświeżeniu sklepu.');
   }catch(e){setError(e instanceof Error?e.message:'Błąd zapisu')}finally{setSaving(false)}
  }
  return <main className="admin-page rpm-settings-page"><div className="admin-top"><div><Link href="/admin/settings" className="admin-back">← Wszystkie ustawienia</Link><span className="eyebrow">RPM CUSTOM / USTAWIENIA</span><h1>Wygląd sklepu</h1><p>Zarządzaj efektami wizualnymi sklepu bez ponownego wdrożenia.</p></div></div>

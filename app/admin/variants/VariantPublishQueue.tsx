@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import {useUnsavedChanges} from '../settings/power-guides/useUnsavedChanges';
 import {reviewPresets} from '../../lib/variant-review-presets';
 import {maxVariantBatch} from '../../lib/variant-batch';
 type Item={id:string;fingerprint:string;skus:number;scope:'colors'|'hel'};
@@ -11,6 +12,7 @@ const batches=(queue:Queue)=>{
 export default function VariantPublishQueue({disabled,onRunning,onComplete}:{disabled:boolean;onRunning:(v:boolean)=>void;onComplete:()=>void}){
  const [preset,setPreset]=useState<string>('all-pending'),[preview,setPreview]=useState<Queue|null>(null),[loading,setLoading]=useState(false),[running,setRunning]=useState(false),[message,setMessage]=useState(''),[error,setError]=useState(''),[done,setDone]=useState(0);
  const stop=useRef(false),lock=useRef(false);
+ useUnsavedChanges(running);
  useEffect(()=>()=>{stop.current=true},[]);
  useEffect(()=>{if(!running)return;const warn=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue=''};window.addEventListener('beforeunload',warn);return()=>window.removeEventListener('beforeunload',warn)},[running]);
  async function inspect(){
