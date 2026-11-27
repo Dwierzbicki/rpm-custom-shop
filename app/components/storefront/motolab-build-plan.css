@@ -465,3 +465,51 @@
 .rpm-build-workspace .rpm-magazine-product .rpm-picker-action>button{width:100%;min-height:36px;font-size:12px}
 .rpm-build-workspace .rpm-magazine-product.is-picked .rpm-picker-action>button{background:#193c2a;color:#83e5a9;border:1px solid #35bc73;opacity:1}
 @container(max-width:440px){.rpm-picker-magazine-grid{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}}
+
+
+/* POWER BUILDER / Motorsport editorial identity */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-hero{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,185px);align-items:end;gap:22px;padding:24px;border:1px solid #444d5a;border-top:3px solid var(--rpm-color-accent);border-radius:10px;background:linear-gradient(115deg,#171b22 10%,#282d38 100%);overflow:hidden}
+.rpm-lab-kicker{display:block;color:#ff7398;font-size:10px;line-height:1.4;font-weight:800;letter-spacing:.13em}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-hero h2{display:block;font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-.055em;line-height:1;margin:8px 0 14px}
+.rpm-lab-title-accent{color:var(--rpm-color-accent)}
+.rpm-lab-project-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.rpm-lab-project-meta>span{padding:5px 9px;background:#141820;border:1px solid #4a5361;border-radius:4px;font-size:12px;font-weight:750;color:#f2f3f5}
+.rpm-lab-project-meta>span:last-child{border-color:var(--rpm-color-accent)}
+.rpm-build-workspace .rpm-lab-hero p{max-width:65ch;color:#b9c1ce;font-size:12px;line-height:1.55}
+.rpm-lab-hero-progress{display:grid;gap:7px;min-width:0}
+.rpm-lab-hero-progress>strong{font-size:clamp(35px,4vw,52px);font-weight:850;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
+.rpm-lab-hero-progress>strong small{font-size:.52em;color:#a6afbd;margin-left:4px}
+.rpm-lab-hero-progress>small{font-size:11px;color:#b9c1ce}
+.rpm-lab-mini-track{display:flex;height:5px;border-radius:9px;overflow:hidden;background:#4b3038;width:100%}
+.rpm-lab-mini-track>span{display:block;background:#35bc73;flex-shrink:0;height:100%}
+.rpm-lab-mini-track>i{display:block;background:#4b9cf5;flex-shrink:0;height:100%}
+.rpm-build-workspace .rpm-build-systems button{grid-template-columns:30px minmax(0,1fr);gap:9px;min-height:74px;background:#20252d;border:1px solid #3c4653;border-radius:7px;align-items:center;text-align:left}
+.rpm-lab-system-icon{width:30px;height:30px;display:grid;place-items:center;background:#141921;border-radius:5px;color:#b9c1ce}
+.rpm-build-workspace .rpm-build-systems button.active .rpm-lab-system-icon{color:#ff7398;background:#482735}
+.rpm-lab-system-info{display:grid;gap:6px;min-width:0}
+.rpm-build-workspace .rpm-lab-system-info .rpm-system-status-line{font-size:10px;line-height:1.4}
+.rpm-build-workspace .rpm-build-systems button.active{border-color:var(--rpm-color-accent);background:#30242e}
+.rpm-build-workspace .rpm-build-systems .rpm-lab-mini-track{height:3px}
+.rpm-build-workspace .rpm-lab-system-head{padding:16px 0 12px;border-bottom:1px solid #444d5a;margin-bottom:10px}
+.rpm-build-workspace .rpm-lab-system-head h3{font-size:clamp(23px,3vw,32px);font-weight:850;letter-spacing:-.035em;margin:4px 0}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-clean-card{background:#20252d;border:1px solid #3c4653;border-radius:7px}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-name{font-weight:750;line-height:1.4}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-price{font-size:clamp(20px,2vw,25px);letter-spacing:-.04em}
+.rpm-build-workspace .rpm-lab-manifold{background:#20252d;border:1px solid #444d5a;padding:14px;gap:12px}
+.rpm-lab-manifold-hero{display:flex;align-items:center;gap:14px}
+.rpm-lab-manifold-hero>img{width:100px;height:90px;object-fit:contain;background:#f4f4f5;border-radius:5px}
+.rpm-lab-manifold-hero>div{min-width:0}
+.rpm-lab-manifold-hero h4{font-size:21px;letter-spacing:-.035em;margin:5px 0}
+.rpm-lab-manifold-hero strong{font-size:12px;color:#bbc4d0}
+.rpm-build-workspace .rpm-lab-manifold>b{font-size:19px;letter-spacing:-.025em}
+.rpm-build-workspace .rpm-manifold-inline{background:#161b22;padding:12px}
+.rpm-build-workspace .rpm-manifold-fields{grid-template-columns:minmax(0,1fr);gap:14px}
+.rpm-lab-manifold-field{min-width:0;margin:0;padding:0;border:0}
+.rpm-lab-manifold-field legend{font-size:12px;font-weight:750;padding:0;margin-bottom:6px}
+.rpm-lab-manifold-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:7px}
+.rpm-build-workspace .rpm-lab-manifold-options>button{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:5px;min-width:0;text-align:left;padding:10px 12px;border:1px solid #4a5361;border-radius:6px;background:#222933;color:#edf0f4;font-size:12px;font-weight:650;line-height:1.35;min-height:44px}
+.rpm-lab-manifold-options>button b{font-size:11px;color:#b9c1ce}
+.rpm-build-workspace .rpm-lab-manifold-options>button.selected{border-color:var(--rpm-color-accent);background:#3d2936;box-shadow:none}
+.rpm-build-workspace .rpm-lab-manifold-options>button:disabled.selected{opacity:1;border-color:#617084;background:#262e39}
+.rpm-lab-manifold-options>button:focus-visible{outline:2px solid #ff7398;outline-offset:2px}
+@media(max-width:600px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-hero{grid-template-columns:1fr;padding:16px;gap:16px}.rpm-lab-hero-progress{grid-template-columns:1fr auto;align-items:center}.rpm-lab-hero-progress .rpm-lab-mini-track{grid-column:1/-1}.rpm-lab-hero-progress>small{grid-column:1/-1}.rpm-lab-manifold-hero>img{width:76px;height:76px}}
