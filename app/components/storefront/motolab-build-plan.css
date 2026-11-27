@@ -589,3 +589,15 @@
 .rpm-manifold-auto-summary dd small{color:#aeb9c7}
 .rpm-build-workspace .rpm-manifold-editable-heading{font-size:15px;font-weight:750;margin:3px 0 0;padding-top:10px;border-top:1px solid #414a57}
 @media(max-width:480px){.rpm-manifold-auto-summary dl{grid-template-columns:1fr}}
+
+
+/* Side navigation: centred over the outer edges of the product row. */
+.rpm-build-workspace .rpm-carousel-stage{position:relative;min-width:0;width:100%}
+.rpm-build-workspace .rpm-carousel-stage>.rpm-carousel-buttons{position:absolute;inset:0;pointer-events:none;z-index:2;display:block}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button{position:absolute;top:calc(50% - 5px);transform:translateY(-50%);pointer-events:auto;display:grid;place-items:center;width:42px;height:42px;min-width:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid #8794a7;background:#141a22;color:#fff;box-shadow:0 3px 14px #0008}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-prev{left:4px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-next{right:4px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button:disabled{opacity:.35;pointer-events:none}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button:not(:disabled):hover{background:#e72d56;border-color:#ff7398}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button:focus-visible{outline:2px solid #ff7398;outline-offset:2px}
+@container(max-width:440px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-stage .rpm-carousel-buttons>button{width:44px;height:44px;min-width:44px;min-height:44px}}
