@@ -5,6 +5,7 @@ export const BUILD_RODS=['stock','m50b25nv','forged','auto'] as const;
 export type BuildRods=typeof BUILD_RODS[number];
 /** M50B25 NV is a requested build option, not confirmed interchangeable fitment. */
 export function rodOptionsFor(version:string):readonly BuildRods[]{
+ if(version==='m52b25tu')return ['stock','m50b25nv','forged','auto'];
  if(/^(m50b20|m50b25|m50b30-stroker|m52b20|m52b25|m52b28|m54b22|m54b25|m54b30)$/.test(version))return ['stock','m50b25nv','forged'];
  if(version==='2jz-ge'||version==='2jz-gte')return ['stock','forged','auto'];
  return [];

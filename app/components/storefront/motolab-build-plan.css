@@ -179,3 +179,11 @@
 .rpm-build-budget{border-top:1px solid #3b414c;padding-top:12px;display:grid;gap:7px}
 @media(max-width:850px){.rpm-build-preferences-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.rpm-build-preferences-grid{grid-template-columns:1fr}.rpm-build-preferences button{width:100%;justify-content:center}}
+
+.rpm-tu-comparison{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rpm-tu-comparison article,.rpm-tu-manifold{display:grid;align-content:start;gap:8px;min-width:0;padding:16px;border:1px solid var(--rpm-color-panel-border);border-radius:8px;background:var(--rpm-color-surface)}
+.rpm-tu-comparison article.active{border-color:var(--rpm-color-accent);box-shadow:inset 0 2px var(--rpm-color-accent)}
+.rpm-tu-comparison b{font-size:clamp(18px,2vw,24px);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.rpm-tu-comparison small,.rpm-tu-comparison p,.rpm-tu-manifold p{font-size:12px;line-height:1.55;color:var(--rpm-color-muted);margin:0}
+.rpm-tu-manifold a{justify-self:start}
+@media(max-width:650px){.rpm-tu-comparison{grid-template-columns:1fr}}
