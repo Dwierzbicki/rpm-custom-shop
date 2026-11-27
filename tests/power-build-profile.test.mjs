@@ -14,7 +14,7 @@ test('only supported and explicitly selected project parameters pass',()=>{
  for(const patch of [{induction:'na'},{induction:'supercharger'},{fuel:''},{internals:''},{priority:''},{budgetPln:undefined},{budgetPln:NaN},{budgetPln:-1},{budgetPln:1000.5}])assert.equal(validBuildProfile({...profile,...patch},'m54b30'),false);
 });
 test('fuel estimates use petrol or conservative E85 blend assumptions',()=>{
- assert.equal(fuelModel('pb95'),'petrol');assert.equal(fuelModel('pb98'),'petrol');
+ assert.equal(fuelModel('pb95'),'petrol');assert.equal(fuelModel('pb98'),'petrol');assert.equal(fuelModel('pb100'),'petrol');assert.equal(validBuildProfile({...profile,fuel:'pb100'},'m54b30'),true);
  assert.equal(fuelModel('e85'),'ethanol');assert.equal(fuelModel('flex'),'ethanol');
 });
 test('budget delta is based on actual selected subtotal and never implies a full build',()=>{

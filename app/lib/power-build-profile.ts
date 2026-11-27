@@ -1,5 +1,5 @@
 /** Explicit customer preferences, not a certificate of technical compatibility. */
-export const BUILD_FUELS=['pb95','pb98','e85','flex'] as const;
+export const BUILD_FUELS=['pb95','pb98','pb100','e85','flex'] as const;
 export const BUILD_INTERNALS=['stock','forged','auto'] as const;
 export const BUILD_RODS=['stock','m50b25nv','forged','auto'] as const;
 export type BuildRods=typeof BUILD_RODS[number];

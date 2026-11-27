@@ -7,7 +7,7 @@ Scope: 350–400 PS at crank, drift/track, PB98 profile. No extension to single 
 - Rod candidate K1-305AX17140: https://fmic.eu/348976-forged-rods-h-beam-billet-k1-for-bmw-m50b25tu-m52b25tu-lenght-140-pin-22mm-k1-305ax17140.html . Manufacturer lists 005AX17140 (different identifier): https://www.k1technologies.com/shop/connecting-rods/connecting-rod-kits/connecting-rod-kits-european/005AX17140/ . Do not treat this as verified identity or installed fitment.
 - RPM-00032 is configurable. Actual options and prices must be present in public catalogue; no cart line is generated without chassis. Changing turbo does not modify existing cart items.
 ## Acceptance cases
-- Budget T25 IWG, Smart V-band IWG: no external WG line; Premium V-band EWG: one WG45 line.
+- Budget and Smart V-band IWG: same cost-effective turbo, different pump and ECU defaults; no external WG line. Premium V-band EWG and optional T3 EWG SKU 102128198: one WG45 line. T25 is not a curated recommendation. PB100 is a separate fuel preference using the petrol estimation model; the PB98 pilot is not automatically extended to PB100.
 - Switch any tier's turbo: recompute flange, WG and downpipe; unknown/owned turbo is unresolved. Clear previous WG selection.
 - MS43 in Budget is an unpriced option; explicit EMU selection is permitted. Bearing and internal choices remain subject to inspection.
 - No claimed spool RPM, validated power, durability or complete price. Pump flow at operating pressure, wiring, clutch, compression, cooling and fuel starvation remain open checks.
