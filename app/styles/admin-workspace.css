@@ -188,3 +188,87 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 .rpm-admin-shell .rpm-admin-fold{border:1px solid var(--bo-border);background:var(--bo-field);border-radius:8px;padding:13px 15px;margin:8px 0}.rpm-admin-fold>summary{cursor:pointer;font-weight:650}.rpm-admin-fold[open]>summary{margin-bottom:14px}.rpm-admin-list-filters{display:flex;flex-wrap:wrap;align-items:end;gap:12px;margin-bottom:16px}.rpm-admin-list-filters label{min-width:160px}.rpm-admin-table{overflow:auto;border:1px solid var(--bo-border);border-radius:8px}.rpm-admin-table table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}.rpm-admin-table :is(td,th){padding:12px;border-bottom:1px solid var(--bo-border);vertical-align:middle}.rpm-admin-table td small{display:block;color:var(--bo-muted);margin-top:4px}.rpm-admin-table td:last-child{text-align:right}.rpm-admin-card-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}.rpm-admin-card-tabs :is(a,span){padding:10px 12px;border:1px solid var(--bo-border);border-radius:6px;color:var(--bo-text);text-decoration:none}.rpm-admin-card-tabs [aria-current]{background:var(--bo-raised);border-color:var(--bo-accent)}.rpm-admin-product-facts{margin:0}.rpm-admin-product-facts>div{display:grid;grid-template-columns: minmax(100px,1fr) 2fr;gap:12px;padding:12px;border-bottom:1px solid var(--bo-border)}.rpm-admin-product-facts dt{color:var(--bo-muted)}.rpm-admin-product-facts dd{margin:0;overflow-wrap:anywhere}
 
 .rpm-admin-card-tabs button[aria-pressed=true]{border-color:var(--bo-accent);background:var(--bo-raised);color:var(--bo-text)}.rpm-admin-table>p{padding:16px}.rpm-admin-list-filters input{min-width:160px}.rpm-admin-shell .rpm-product-admin-workspace .admin-editor{width:100%;max-width:none}.rpm-admin-shell .rpm-admin-fold .rpm-options-header{flex-wrap:wrap}
+
+/* Final spacing and stability pass. Only authenticated back office. */
+.rpm-admin-shell{
+ --bo-card-pad:20px;--bo-section-gap:24px;--bo-control-height:42px;--bo-filter-gap:14px;
+ line-height:1.55;
+}
+.rpm-admin-shell .rpm-admin-workspace{scrollbar-gutter:stable;scroll-behavior:auto}
+.rpm-admin-shell .admin-top{min-height:84px;box-sizing:border-box;align-items:center;margin-bottom:24px;padding-bottom:18px}
+.rpm-admin-shell .admin-top h1{overflow-wrap:anywhere}
+.rpm-admin-shell .admin-top .admin-toolbar{flex-shrink:0}
+.rpm-admin-shell .rpm-settings-card:not(.fmic-center),.rpm-admin-shell .rpm-overview-section,.rpm-admin-shell .admin-editor{padding:var(--bo-card-pad);margin-bottom:var(--bo-section-gap)}
+.rpm-admin-shell :is(.rpm-settings-card,.rpm-overview-section,.admin-editor)>h2{margin:0 0 16px;line-height:1.4}
+.rpm-admin-shell :is(.rpm-power-section-heading,.rpm-overview-section-head){gap:14px;padding-bottom:12px;margin-bottom:12px}
+.rpm-admin-shell :is(.rpm-power-section-heading,.rpm-overview-section-head) h2{margin:0}
+.rpm-admin-shell .rpm-admin-price-map{gap:14px}
+.rpm-admin-shell .rpm-admin-price-map article{padding:18px 20px;gap:8px;align-content:start;line-height:1.55}
+.rpm-admin-shell .rpm-admin-price-map article>strong{font-size:14px;line-height:1.5}
+.rpm-admin-shell .rpm-admin-price-map article>p{margin:0;line-height:1.6;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-admin-price-map article>a{justify-self:start;margin-top:4px}
+.rpm-admin-shell .rpm-dashboard-attention{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.rpm-admin-shell .rpm-dashboard-attention article{min-height:146px;grid-template-rows:auto 1fr auto}
+.rpm-admin-shell .rpm-dashboard-attention .rpm-dashboard-count{font-size:26px;font-weight:700;line-height:1.25;color:var(--bo-text);font-variant-numeric:tabular-nums}
+.rpm-admin-shell .rpm-dashboard-status{min-height:22px;margin:0 0 10px;color:var(--bo-muted);font-size:12px}
+.rpm-admin-shell .rpm-overview-stat>strong{line-height:1.25;min-height:1.25em}
+.rpm-admin-shell .rpm-admin-fold{padding:16px 18px}
+.rpm-admin-shell .rpm-admin-fold>summary,.rpm-admin-shell .rpm-power-fold>summary{line-height:1.5;min-height:22px;overflow-wrap:anywhere}
+.rpm-admin-shell .rpm-admin-fold[open]>summary{margin-bottom:16px}
+.rpm-admin-shell .rpm-admin-list-filters{display:flex;align-items:flex-end;gap:var(--bo-filter-gap);margin:0 0 20px;padding:0;min-height:64px}
+.rpm-admin-shell .rpm-admin-list-filters>label{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-width:0;flex:0 1 270px;color:var(--bo-muted);font-size:12px;font-weight:600;line-height:1.5}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0;border:0;min-width:0;flex:0 1 330px}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search svg{position:absolute;left:12px;bottom:13px;pointer-events:none;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search input{padding-left:36px;width:100%;min-width:0}
+.rpm-admin-shell .rpm-admin-list-filters :is(input,select){width:100%;min-width:0}
+.rpm-admin-shell .rpm-admin-list-filters>select,.rpm-admin-shell .rpm-admin-list-filters>input{flex:0 1 270px}
+.rpm-admin-shell :is(.rpm-settings-field,.rpm-settings-grid label,.admin-fields label){gap:7px;line-height:1.5}
+.rpm-admin-shell :is(input:not([type=checkbox]):not([type=radio]):not([type=file]),select){min-height:var(--bo-control-height);line-height:1.4;padding-top:9px;padding-bottom:9px}
+.rpm-admin-shell :is(.primary,.outline,.reset){min-height:var(--bo-control-height);line-height:1.4;padding:9px 14px}
+.rpm-admin-shell .admin-toolbar{min-height:var(--bo-control-height);gap:10px}
+.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs,.rpm-admin-card-tabs,.rpm-power-admin-tabs,.fc-tabs){align-items:center}
+.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs) a{min-height:40px;box-sizing:border-box}
+.rpm-admin-shell .rpm-admin-table{background:var(--bo-field);min-height:230px;scrollbar-gutter:stable}
+.rpm-admin-shell .rpm-admin-table table{table-layout:fixed;width:100%;min-width:620px}
+.rpm-admin-shell :is(.rpm-admin-table,.rpm-power-admin-table-wrap,.fc-table-wrap) :is(td,th){padding:12px 16px;line-height:1.5;vertical-align:middle;overflow-wrap:anywhere}
+.rpm-admin-shell .rpm-admin-table th{height:44px;box-sizing:border-box;font-size:12px}
+.rpm-admin-shell .rpm-admin-table td{height:56px;box-sizing:border-box}
+.rpm-admin-shell .rpm-admin-table td>strong{display:block;font-weight:650}
+.rpm-admin-shell .rpm-admin-table td>small{margin-top:5px;line-height:1.5}
+.rpm-admin-shell .rpm-admin-table tbody tr:nth-child(even){background:rgba(255,255,255,.025)}
+.rpm-admin-shell .rpm-admin-table tbody tr:hover{background:#2c3747}
+.rpm-admin-shell .rpm-admin-table td:last-child .outline{min-width:88px;white-space:nowrap}
+.rpm-admin-shell .rpm-admin-table>p{margin:0;padding:16px 20px}
+.rpm-admin-shell .rpm-admin-table .rpm-table-empty{height:104px;text-align:center;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-admin-table .rpm-table-action{width:112px}
+.rpm-admin-shell .rpm-admin-table .rpm-table-name{width:45%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-money{width:16%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-stock{width:16%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-visibility{width:13%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-number{width:24%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-customer{width:32%}
+.rpm-admin-shell .rpm-admin-table .rpm-table-state{width:17%}
+.rpm-admin-shell .rpm-admin-table td:nth-child(2){font-variant-numeric:tabular-nums}
+.rpm-admin-shell .rpm-admin-table[data-loading=true],.rpm-admin-shell .rpm-power-admin-table-wrap[data-loading=true]{opacity:.72}
+.rpm-admin-shell .rpm-power-admin-table-wrap{min-height:210px;scrollbar-gutter:stable}
+.rpm-admin-shell .rpm-power-admin-table{table-layout:fixed}
+.rpm-admin-shell .rpm-power-admin-table th:last-child{width:110px}
+.rpm-admin-shell .rpm-power-admin-table td:last-child button{min-width:84px;white-space:nowrap}
+.rpm-admin-shell .rpm-admin-table :is(td,th):first-child{padding-left:18px}
+.rpm-admin-shell .rpm-admin-table :is(td,th):last-child{padding-right:18px}
+.rpm-admin-shell .rpm-admin-list-status{min-height:22px;margin:0 0 12px;color:var(--bo-muted);font-size:12px;line-height:1.5}
+.rpm-admin-shell .rpm-admin-table .rpm-table-loading td{height:56px}
+.rpm-admin-shell .rpm-table-skeleton{display:block;height:12px;max-width:92%;background:#394657;border-radius:4px}
+.rpm-admin-shell .rpm-table-loading td:last-child .rpm-table-skeleton{height:32px;width:80px;margin-left:auto}
+.rpm-admin-shell .fc-table{table-layout:fixed;min-width:860px}
+.rpm-admin-shell .fc-table th:nth-child(1){width:72px}
+.rpm-admin-shell .fc-table th:nth-child(2){width:37%}
+.rpm-admin-shell .fc-table th:nth-child(3),.rpm-admin-shell .fc-table th:nth-child(4){width:110px}
+.rpm-admin-shell .fc-table th:nth-child(5){width:120px}
+.rpm-admin-shell .fc-table th:nth-child(6){width:160px}
+.rpm-admin-shell .fc-table-wrap{scrollbar-gutter:stable}
+.rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer{position:sticky;bottom:0;background:var(--bo-panel);padding:14px 0;margin-top:24px;z-index:2;min-height:70px}
+.rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer>div{flex-wrap:wrap}
+.rpm-admin-shell [hidden]{display:none!important}
+@media(min-width:751px){.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs){flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs)>a{flex-shrink:0}}
+@media(max-width:750px){.rpm-admin-shell{--bo-card-pad:16px;--bo-section-gap:18px}.rpm-admin-shell .admin-top{min-height:0;align-items:flex-start}.rpm-admin-shell .rpm-admin-list-filters{align-items:stretch}.rpm-admin-shell .rpm-admin-list-filters>label,.rpm-admin-shell .rpm-admin-list-filters>.admin-search,.rpm-admin-shell .rpm-admin-list-filters>select,.rpm-admin-shell .rpm-admin-list-filters>input{flex:1 1 180px}.rpm-admin-shell .rpm-admin-table :is(td,th){padding:10px 12px}.rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer{position:static}}

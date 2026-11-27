@@ -24,6 +24,6 @@ export default function AdminLayout({children}:{children:React.ReactNode}){
  <div className="rpm-admin-main"><div className="rpm-admin-mobile-bar"><button type="button" onClick={()=>setOpen(true)} aria-label="Otwórz menu" aria-expanded={open} aria-controls="rpm-admin-navigation"><Menu size={23}/></button><strong>{group?.label??pageLabel}</strong></div><div className="rpm-admin-desktop-bar"><span>Back Office / <strong>{group?.label??pageLabel}</strong>{group&&group.label!==pageLabel?' / '+pageLabel:''}</span></div>
  {tabs.length>0&&<nav className="rpm-admin-workspace-tabs" aria-label="Sekcje modułu">{tabs.map(t=>{const selected=(active?.tab??active?.href)===t.href;return <Link key={t.href} href={t.href} aria-current={selected?'page':undefined} className={selected?'active':''}>{t.label}</Link>})}</nav>}
  {details.length>0&&<nav className="rpm-admin-detail-tabs" aria-label="Podsekcje modułu">{details.map(t=><Link key={t.href} href={t.href} aria-current={active?.href===t.href?'page':undefined} className={active?.href===t.href?'active':''}>{t.label}</Link>)}</nav>}
- <div className="rpm-admin-workspace" key={path}>{children}</div></div>
+ <div className="rpm-admin-workspace" key={path} tabIndex={-1}>{children}</div></div>
  </div>;
 }
