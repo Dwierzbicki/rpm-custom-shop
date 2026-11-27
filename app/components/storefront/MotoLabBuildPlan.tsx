@@ -164,7 +164,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
     {label:tr('Tłoki','Pistons'),value:({stock:tr('Seryjne','Stock'),forged:tr('Kute','Forged'),auto:tr('Do oceny','To assess')})[profile.internals]},
     {label:tr('Korbowody','Connecting rods'),value:({stock:tr('Seryjne','Stock'),m50b25nv:'M50B25 NV',forged:tr('Kute','Forged'),auto:tr('Do oceny','To assess')})[profile.rods]},
     {label:tr('Charakterystyka','Characteristics'),value:({response:tr('Szybka reakcja','Fast response'),power:tr('Maksymalna moc','Maximum power'),reliability:tr('Trwałość','Durability'),cost:tr('Cena / osiągi','Price / performance'),balanced:tr('Zbalansowana','Balanced')})[profile.priority]},
-    {label:tr('Budżet','Budget'),value:profile.budgetPln===null?tr('Bez limitu','No fixed limit'):money(profile.budgetPln)}
+    {label:tr('Budżet','Budget'),value:profile.budgetPln===null?tr('Budżetu nie ustalono','Budget not set'):money(profile.budgetPln)}
    ],
    groups:groups.map(g=>({label:g.label[en?1:0],rows:g.parts.map(rowFor)})),
    issues:issues.map(i=>(i.level==='conflict'?tr('Konflikt: ','Conflict: '):'')+i.message[en?1:0])
