@@ -26,3 +26,5 @@ test('non-catalog routes clear search and unknown paths are not redirected',()=>
  assert.deepEqual(storefrontLocation('/','?q=BMW'),{view:'home',query:'',category:null});
  assert.equal(storefrontLocation('/produkt/test/SKU','').view,null);
 });
+
+test('Power Builder resets on leaving any storefront route and never restores legacy selections',()=>{const s=readFileSync(new URL('../app/components/storefront/hooks/usePowerGuides.ts',import.meta.url),'utf8');assert.ok(s.includes('if(!enabled)resetGuide()'));assert.ok(s.includes('if(event.persisted)resetGuide()'));assert.ok(s.includes("localStorage.removeItem('rpm-power-guide-form-v2')"));assert.ok(s.includes("startsWith('rpm-power-guide-selection-v2:')"));assert.ok(s.includes('selectionByConfiguration.current={}'));assert.ok(!s.includes('localStorage.getItem('));assert.ok(!s.includes('localStorage.setItem('));assert.ok(!s.includes("localStorage.clear("));const page=readFileSync(new URL('../app/page.tsx',import.meta.url),'utf8');assert.ok(page.includes("enabled:view==='guides'"));});

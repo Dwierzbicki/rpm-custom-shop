@@ -59,7 +59,7 @@ type Props={
 };
 
 /** Controlled MotoLab / Power Guides view.
- * The Shop controller owns guide selection, local storage, PDF generation
+ * The Shop controller owns session-local guide selection, PDF generation
  * and cart validation; only rendering lives here.
  */
 export default function PowerGuidesView({
