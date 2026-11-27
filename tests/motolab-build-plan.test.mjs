@@ -166,3 +166,23 @@ test('all TU tiers include EGT; Premium uses a single priced seven-point manifol
 
 test('global catalogue selection covers all engines, bands, uses, fuels and tiers without borrowing engine internals',()=>{for(const family of config.POWER_ENGINES)for(const v of family.versions)for(const [range] of config.powerRangesFor(v.id).entries())for(const usage of ['street','drift','track'])for(const tier of ['budget','recommended','premium'])for(const [fuel,choice] of [['petrol','pb98'],['petrol','pb100'],['ethanol','ethanol'],['ethanol','flex']]){const p={fuel:choice,internals:'stock',rods:'stock',priority:'balanced',...(choice==='ethanol'?{ethanolPercent:50}:{})};const slots=plan.buildParts(v.id,range,usage,tier,fuel,p);assert.ok(slots.find(s=>s.id==='turbo').candidate);assert.equal(slots.find(s=>s.id==='rods').candidate,undefined);assert.equal(slots.find(s=>s.id==='pistons').candidate,undefined);for(const s of slots)for(const key of plan.partOptions(s))assert.ok(plan.allCandidates[key],key);const spec=plan.tuManifoldSpec(slots,{},tier);if(v.id==='2jz-gte')assert.equal(spec,null);else {assert.equal(spec.options['rpm-egt'],tier==='premium'?'seven':'yes');assert.equal(spec.sku,v.id==='2jz-ge'?'RPM-00033':'RPM-00032');if(v.id.startsWith('m'))assert.equal(spec.options['rpm-engine'],family.id);}}});
 test('M54B25 customer receives a live candidate pool without forged parts forced on stock preference',()=>{const p={fuel:'pb98',internals:'stock',rods:'stock',priority:'balanced'},s=plan.buildParts('m54b25',0,'drift','recommended','petrol',p);assert.equal(s.find(x=>x.id==='turbo').candidate,'tuTurboSmart');assert.equal(s.find(x=>x.id==='injectors').candidate,'tuInjectors');assert.equal(s.find(x=>x.id==='ecu').candidate,'ecu');assert.equal(plan.tuManifoldSpec(s,{},'recommended').options['rpm-engine'],'m54');assert.ok(!plan.resolveTuDependencies(s,{}).some(x=>x.id==='wastegate'));assert.equal(plan.tuManifoldSpec(s,{turbo:'tuTurboT3'},'recommended').options['rpm-flange'],'t3-single');assert.equal(plan.buildParts('m54b25',0,'drift','recommended','petrol',{...p,rods:'forged'}).find(x=>x.id==='rods').candidate,'m54b25Rods');});
+
+test('intake manifold is visible and engine-specific in every Power Builder scenario',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ for(const family of config.POWER_ENGINES)for(const v of family.versions)for(const tier of ['budget','recommended','premium']){
+  for(const [range] of config.powerRangesFor(v.id).entries()){
+   const slots=plan.buildParts(v.id,range,'drift',tier,'petrol',profile);
+   const intake=slots.find(s=>s.id==='intake-manifold');
+   assert.ok(intake?.planNote);
+   assert.ok(slots.some(s=>s.id==='manifold'));
+   assert.equal(plan.selectedPart(intake,{}),undefined);
+   const options=plan.partOptions(intake);
+   if(v.id==='m52b25tu'||family.id==='m54')assert.equal(options.length,0);
+   else if(v.id==='2jz-ge')assert.equal(options.join(','),'intakeGE');
+   else if(v.id==='2jz-gte')assert.equal(options.join(','),'intakeGTE');
+   else assert.equal(options.join(','),'intakeM50');
+   if(options.length)assert.equal(plan.selectedPart(intake,{'intake-manifold':options[0]}),options[0]);
+   assert.equal(plan.selectedPart(intake,{'intake-manifold':'own'}),undefined);
+  }
+ }
+});
