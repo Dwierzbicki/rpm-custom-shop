@@ -23,3 +23,14 @@ test('offer uses A4 print layout and escapes all user or supplier text',()=>{
  assert.ok(html.includes('Niepełny kosztorys'));
  assert.ok(html.includes('Konflikt'));
 });
+
+test('real storefront logo and explicit offer sections preserve selected totals',()=>{
+ const rows=[{...row,kind:'purchase'},{...row,label:'Optional rail',kind:'optional',priced:false,qty:null,unitPrice:null},{...row,label:'Workshop mount',kind:'advice',priced:false,qty:null,unitPrice:null},{...row,label:'Excluded part',kind:'excluded',priced:false,qty:null,unitPrice:null},{...row,label:'Conflicting part',kind:'conflict',priced:false,qty:1,unitPrice:200}];
+ const model={...snapshot,groups:[{label:'Fuel',rows}]};
+ const html=renderBuildOffer(model);
+ assert.equal(offerTotal(model),36150);
+ assert.ok(html.includes('/optimized/logo.webp'));
+ for(const title of ['Wycenione części','Opcjonalne modernizacje','Zalecenia warsztatowe','Pominięte w zakupach','Konflikty techniczne'])assert.ok(html.includes(title),title);
+ assert.ok(html.includes('361,50'));
+ assert.ok(html.indexOf('Wycenione części')<html.indexOf('Opcjonalne modernizacje'));
+});
