@@ -156,3 +156,10 @@
  .rpm-build-workspace .rpm-build-clean-card .rpm-build-photo{width:76px;height:76px}
  .rpm-build-workspace .rpm-build-clean-card .rpm-build-product-action{grid-column:3;display:flex;flex-direction:column;align-items:stretch;text-align:right}
 }
+
+/* Actual catalogue PDP links and explicit purchase exclusion. */
+.rpm-build-workspace .rpm-build-product-link{color:inherit;text-decoration:none;font-weight:750;overflow-wrap:anywhere}
+.rpm-build-workspace .rpm-build-product-link:hover{text-decoration:underline;color:var(--rpm-color-accent,#f12748)}
+.rpm-build-workspace .rpm-build-product-link:focus-visible{outline:2px solid #f12748;outline-offset:3px}
+.rpm-build-workspace .rpm-parts-slot-head{flex-wrap:wrap}
+.rpm-build-workspace .rpm-build-exclude{font-size:11px;white-space:normal}

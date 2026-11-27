@@ -119,3 +119,13 @@ test('manual catalog part is eligible only for explicitly assigned versions and 
  assert.equal(plan.selectedPart(slot,{rods:'rpm:31'}),'rpm:31');
  assert.equal(plan.selectedPart({...slot,rpmOptions:[]},{rods:'rpm:31'}),'rods');
 });
+
+
+test('build cards and alternative products link to exact catalog SKU, and purchase exclusion is explicit',()=>{
+ const view=readFileSync(new URL('../app/components/storefront/MotoLabBuildPlan.tsx',import.meta.url),'utf8');
+ assert.ok(view.includes('href={productPath(q.name,q.sku)}'));
+ assert.ok(view.includes('href={productPath(p.name,p.sku)}'));
+ assert.ok(view.includes("choose(slot.id,'own')"));
+ assert.ok(view.includes('Usuń z zestawu'));
+ assert.ok(view.includes('Przywróć'));
+});
