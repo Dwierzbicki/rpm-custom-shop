@@ -263,15 +263,47 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 .rpm-admin-shell .rpm-admin-table .rpm-table-loading td{height:56px}
 .rpm-admin-shell .rpm-table-skeleton{display:block;height:12px;max-width:92%;background:#394657;border-radius:4px}
 .rpm-admin-shell .rpm-table-loading td:last-child .rpm-table-skeleton{height:32px;width:80px;margin-left:auto}
-.rpm-admin-shell .fc-table{table-layout:fixed;min-width:860px}
-.rpm-admin-shell .fc-table th:nth-child(1){width:72px}
-.rpm-admin-shell .fc-table th:nth-child(2){width:37%}
-.rpm-admin-shell .fc-table th:nth-child(3),.rpm-admin-shell .fc-table th:nth-child(4){width:110px}
-.rpm-admin-shell .fc-table th:nth-child(5){width:120px}
-.rpm-admin-shell .fc-table th:nth-child(6){width:160px}
+.rpm-admin-shell .fc-product-table{table-layout:fixed;min-width:880px}
+.rpm-admin-shell .fc-product-table .fc-col-image{width:80px}
+.rpm-admin-shell .fc-product-table .fc-col-price{width:130px}
+.rpm-admin-shell .fc-product-table .fc-col-status{width:132px}
+.rpm-admin-shell .fc-product-table .fc-col-actions{width:190px}
+.rpm-admin-shell .fc-categories-panel .fc-table{table-layout:fixed;min-width:640px}
+.rpm-admin-shell .fc-categories-panel .fc-table th:first-child{width:52%}
+.rpm-admin-shell .fc-categories-panel .fc-table th:last-child{width:110px}
 .rpm-admin-shell .fc-table-wrap{scrollbar-gutter:stable}
 .rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer{position:sticky;bottom:0;background:var(--bo-panel);padding:14px 0;margin-top:24px;z-index:2;min-height:70px}
 .rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer>div{flex-wrap:wrap}
 .rpm-admin-shell [hidden]{display:none!important}
 @media(min-width:751px){.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs){flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.rpm-admin-shell :is(.rpm-admin-workspace-tabs,.rpm-admin-detail-tabs)>a{flex-shrink:0}}
 @media(max-width:750px){.rpm-admin-shell{--bo-card-pad:16px;--bo-section-gap:18px}.rpm-admin-shell .admin-top{min-height:0;align-items:flex-start}.rpm-admin-shell .rpm-admin-list-filters{align-items:stretch}.rpm-admin-shell .rpm-admin-list-filters>label,.rpm-admin-shell .rpm-admin-list-filters>.admin-search,.rpm-admin-shell .rpm-admin-list-filters>select,.rpm-admin-shell .rpm-admin-list-filters>input{flex:1 1 180px}.rpm-admin-shell .rpm-admin-table :is(td,th){padding:10px 12px}.rpm-admin-shell .rpm-product-admin-workspace .admin-editor-footer{position:static}}
+
+/* FMIC: aligned controls, fixed toolbar position and independent table scrolling. */
+.rpm-admin-shell .fmic-workspace>.fmic-center{padding:var(--bo-card-pad);gap:14px}
+.rpm-admin-shell .fmic-center>.fc-tabs{padding:6px;gap:6px;min-height:48px;box-sizing:border-box;margin:0!important;align-items:center}
+.rpm-admin-shell .fmic-center>.fc-tabs button{min-height:36px;padding:8px 14px;line-height:1.4;white-space:nowrap;box-sizing:border-box}
+.rpm-admin-shell .fmic-center>[role=tabpanel]{gap:12px}
+.rpm-admin-shell .fmic-center>[role=tabpanel]>h2{margin:0;line-height:1.4;padding:2px 0}
+.rpm-admin-shell .fmic-center>[role=tabpanel]>.fc-note{margin:0;line-height:1.55}
+.rpm-admin-shell .fmic-center .fc-toolbar{align-items:flex-end;gap:12px;margin:4px 0}
+.rpm-admin-shell .fmic-center .fc-toolbar>label,.rpm-admin-shell .fmic-center .fc-edit>label{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0;line-height:1.5}
+.rpm-admin-shell .fmic-center .fc-toolbar>label>:is(input,select),.rpm-admin-shell .fmic-center .fc-edit>label>select{width:100%;height:var(--bo-control-height);margin:0;box-sizing:border-box}
+.rpm-admin-shell .fmic-center .fc-product-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;align-items:end}
+.rpm-admin-shell .fmic-center .fc-product-filters>.primary{height:var(--bo-control-height);align-self:end;margin:0;min-width:88px}
+.rpm-admin-shell .fmic-center .fc-product-table-wrap{flex:1 1 0;min-height:100px;max-height:none;scrollbar-gutter:stable;background:var(--bo-field);overscroll-behavior:contain}
+.rpm-admin-shell .fc-product-table th{height:44px;box-sizing:border-box}
+.rpm-admin-shell .fc-product-table td{height:68px;box-sizing:border-box}
+.rpm-admin-shell .fc-product-table td:first-child .fc-thumb{display:block;width:44px;height:44px;object-fit:contain}
+.rpm-admin-shell .fc-product-table .rpm-admin-product-links{gap:8px;align-items:center;flex-wrap:wrap}
+.rpm-admin-shell .fc-product-table .rpm-admin-product-links a{white-space:nowrap}
+.rpm-admin-shell .fc-product-table-wrap[aria-busy=true]{opacity:.75}
+.rpm-admin-shell .fmic-center .fc-product-pager{display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:64px;margin:0;padding:10px 0 0;border-top:1px solid var(--bo-border);box-sizing:border-box;flex-shrink:0}
+.rpm-admin-shell .fc-result-count{color:var(--bo-muted);font-variant-numeric:tabular-nums;line-height:1.5}
+.rpm-admin-shell .fc-pager-controls,.rpm-admin-shell .fc-pager-buttons{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rpm-admin-shell .fc-pager-controls{gap:16px}
+.rpm-admin-shell .fc-pager-controls>label{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:12px;color:var(--bo-muted)}
+.rpm-admin-shell .fc-pager-controls select{width:76px;height:var(--bo-control-height);margin:0}
+.rpm-admin-shell .fc-pager-buttons button{min-width:104px;white-space:nowrap}
+@media(max-width:1000px){.rpm-admin-shell .fmic-center .fc-product-filters{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-admin-shell .fmic-center .fc-product-filters>.primary{justify-self:end}}
+@media(max-width:760px),(max-height:650px){.rpm-admin-shell .fmic-center .fc-product-table-wrap{flex:none;min-height:180px;height:clamp(180px,45dvh,520px)}.rpm-admin-shell .fmic-center .fc-tabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}.rpm-admin-shell .fmic-center .fc-tabs button{flex-shrink:0}}
+@media(max-width:480px){.rpm-admin-shell .fmic-center .fc-product-filters{grid-template-columns:minmax(0,1fr)}.rpm-admin-shell .fmic-center .fc-product-filters>.primary{width:100%}.rpm-admin-shell .fmic-center .fc-product-pager{align-items:flex-start;flex-direction:column}.rpm-admin-shell .fc-pager-controls{width:100%;justify-content:space-between;gap:8px}.rpm-admin-shell .fc-pager-buttons button{min-width:88px}}
