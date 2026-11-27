@@ -164,3 +164,18 @@
   color:#fff;
  }
 }
+
+
+/* Compact desktop category strip; keep the full-width clickable segments
+   and anchor the cascade to the actual bottom of each category. */
+@media(min-width:1001px) and (hover:hover) and (pointer:fine){
+ .rpm-header-v2.rpm-header-product-first.rpm-header-wide .rpm-classic-navigation{
+  min-height:46px!important;
+ }
+ .rpm-header-v2.rpm-header-product-first.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root{
+  min-height:44px!important;
+ }
+ .rpm-header-v2.rpm-header-product-first.rpm-header-wide .rpm-classic-navigation>.rpm-desktop-root>.rpm-desktop-root-button{
+  height:44px!important;min-height:44px!important;padding-block:5px!important;
+ }
+}
