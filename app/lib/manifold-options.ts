@@ -65,3 +65,12 @@ export function manifoldPreset(kind:'bmw'|'2jz-ge',existing:ProductOptionGroup[]
   return old?{...old,required:g.required,options:[...old.options,...g.options.filter(o=>!old.options.some(x=>x.id===o.id))]}:g;
  }),...existing.filter(g=>g.id!=='rpm-wastegate'&&!(kind==='2jz-ge'&&['rpm-chassis','rpm-engine'].includes(g.id))&&!groups.some(x=>x.id===g.id))];
 }
+
+/** Approved package for existing six-cylinder RPM manifolds. Preserve old IDs,
+ * labels and prices so existing configurations and carts remain valid. */
+export function withEgtSevenOption(groups:ProductOptionGroup[]):ProductOptionGroup[]{
+ const g=groups.find(g=>g.id==='rpm-egt');
+ if(!g||!g.options.some(o=>o.id==='yes')||!g.options.some(o=>o.id==='no'))throw Error('Missing existing EGT options');
+ if(g.options.some(o=>o.id==='seven'))return groups;
+ return groups.map(x=>x===g?{...x,options:[...x.options,{id:'seven',label:'7× EGT (6 runnerów + 1 zbiorczy) z termoparami',price:2450}]}:x);
+}

@@ -206,7 +206,7 @@ function tuPilotSlots(slots:PartsSlot[],tier:string,profile:PilotProfile):PartsS
  const out:PartsSlot[]=slots.map(s=>({...s,candidate:map[s.id],alternatives:s.id==='turbo'?tuTurboKeys.filter(k=>k!==turbo):s.id==='pump'?tuPumpKeys.filter(k=>k!==pump):s.id==='ecu'?(budget?['ecu']:[]):s.id==='rods'?(!map.rods&&profile.rods!=='m50b25nv'?['tuRods']:[]):s.id==='injectors'||s.id==='intercooler'?[]:undefined,defaultNone:(s.id==='ecu'&&budget)||(s.id==='rods'&&!map.rods),planNote:notes[s.id],...(s.id==='turbo'?{dependency:'m52tu' as const}:{}),...(s.id==='pump'?{qty:1}:{})}));
  const idx=out.findIndex(s=>s.id==='bearings');
  out.splice(idx,1,{id:'bearings-rod',label:['Panewki korbowodowe','Rod bearings'],qty:1,conditional:true,candidate:'tuRodBearings',alternatives:[],planNote:['Dobór po pomiarach.','Select after measurements.']},{id:'bearings-main',label:['Panewki główne','Main bearings'],qty:1,conditional:true,candidate:'tuMainBearings',alternatives:[],planNote:['Dobór po pomiarach.','Select after measurements.']});
- if(premium)out.push({id:'egt-expansion',label:['EGT — 6 dodatkowych punktów na runnerach','EGT — 6 additional runner points'],qty:null,conditional:false,planNote:['Premium: 6 króćców i termopar (po jednym na runner) + zbiorczy przed turbiną w kolektorze. Dodatkowe 6 punktów, moduł pomiarowy i wiązka do indywidualnej wyceny. Potwierdź 7 kanałów, typ termopar oraz zgodność ECU/CAN.','Premium: six runner bungs and thermocouples plus one pre-turbine collector point included in the manifold. Additional six points, measurement module and wiring require a separate quote. Confirm seven channels, thermocouple type and ECU/CAN compatibility.']});
+ if(premium)out.push({id:'egt-expansion',label:['Moduł pomiarowy EGT i wiązka','EGT measurement module and harness'],qty:null,conditional:false,planNote:['7 punktów z termoparami w cenie skonfigurowanego kolektora. Moduł pomiarowy i wiązka osobno — dobierz co najmniej 7 kanałów, typ termopar i zgodność ECU/CAN.','Seven points with thermocouples included in the configured manifold price. Measurement module and wiring separately — confirm at least seven channels, thermocouple type and ECU/CAN compatibility.']});
  return out;
 }
 /** Recalculate dependencies from current turbo; never preserve an external WG
@@ -219,7 +219,7 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
 export function tuManifoldSpec(slots:PartsSlot[],selection:Record<string,string>,tier:string){
  const slot=slots.find(s=>s.dependency==='m52tu');const spec=slot?tuTurboSpec(selectedPart(slot,selection)):null;
  if(!spec||selection.manifold==='own')return null;
- return {...spec,egtPoints:tier==='premium'?7:1,options:{'rpm-engine':'m52','rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45','rpm-egt':'yes','rpm-thermal-insulation':tier==='premium'?'termshield':'none'} as Record<string,string>};
+ return {...spec,egtPoints:tier==='premium'?7:1,options:{'rpm-engine':'m52','rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45','rpm-egt':tier==='premium'?'seven':'yes','rpm-thermal-insulation':tier==='premium'?'termshield':'none'} as Record<string,string>};
 }
 type ManifoldCatalog={id:number;sku:string;name:string;price:number;visible?:boolean;stockStatus?:string;configurable?:boolean;optionGroups?:{id:string;required?:boolean;options:{id:string;price:number}[]}[]};
 export function tuManifoldEstimate(products:ManifoldCatalog[],spec:ReturnType<typeof tuManifoldSpec>){

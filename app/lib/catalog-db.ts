@@ -1,6 +1,6 @@
 import {getDbPool} from './db';
 import {products,Product,RETIRED_DEMO_MAX_ID,isRetiredDemoProductId} from '../data';
-import {withManifoldOptions,withTermShieldOption} from './manifold-options';
+import {withManifoldOptions,withTermShieldOption,withEgtSevenOption} from './manifold-options';
 import {manifoldDrafts,manifoldDraftMarker} from './manifold-drafts';
 export type CatalogItem=Product&{stockStatus:'available'|'order'|'unavailable';leadTime:string;visible?:boolean;vatPercent?:number};
 const defaults:CatalogItem[]=products.map(p=>({...p,stockStatus:p.configurable?'order':'available',leadTime:p.configurable?'Do potwierdzenia':'',visible:true}));
@@ -122,5 +122,33 @@ export async function persistManifoldTermShield(){
   await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[marker,JSON.stringify({skus:result.rows.map(r=>r.data.sku),field:'optionGroups',surcharge:1600})]);
   await client.query('COMMIT');
   console.info('[catalog] persisted TermShield option on manifold offers');
+ }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
+}
+
+/** Operator-approved 6+1 EGT package on the two existing real manifold offers. */
+export async function persistManifoldEgtSeven(){
+ await ensure();
+ const client=await getDbPool().connect();
+ const marker='manual_catalog_update:rpm_manifold_egt_seven:v1:2026-11-27';
+ try{
+  await client.query('BEGIN');
+  await client.query('SELECT pg_advisory_xact_lock(9382761)');
+  const previous=await client.query('SELECT 1 FROM rpm_shop_settings WHERE key=$1',[marker]);
+  if(previous.rowCount){await client.query('COMMIT');return}
+  const result=await client.query<{id:number;data:CatalogItem}>(`SELECT id,data FROM rpm_catalog c
+   WHERE ((id=32 AND data->>'sku'='RPM-00032') OR (id=33 AND data->>'sku'='RPM-00033'))
+   AND lower(trim(data->>'brand'))='rpm custom' AND data->>'category' IN ('Kolektory','Kolektory wydechowe','Kolektory wydechowe nierdzewne','Kolektory wydechowe żeliwne')
+   AND NOT EXISTS(SELECT 1 FROM rpm_catalog_deleted d WHERE d.id=c.id)
+   ORDER BY id FOR UPDATE`);
+  if(result.rows.length!==2)throw Error('Expected two existing RPM manifold offers; got '+result.rows.length);
+  for(const row of result.rows){
+   const old=row.data.optionGroups??[];
+   if(!old.some(g=>g.id==='rpm-flange')||!old.some(g=>g.id==='rpm-wg-diameter'))throw Error('Manifold configuration incomplete: '+row.data.sku);
+   const next=withEgtSevenOption(old);
+   if(next!==old)await client.query('UPDATE rpm_catalog SET data=data||$2::jsonb,updated_at=NOW() WHERE id=$1',[row.id,JSON.stringify({optionGroups:next})]);
+  }
+  await client.query('INSERT INTO rpm_shop_settings(key,data,updated_at) VALUES($1,$2::jsonb,NOW())',[marker,JSON.stringify({skus:result.rows.map(r=>r.data.sku),field:'optionGroups',surcharge:2450})]);
+  await client.query('COMMIT');
+  console.info('[catalog] persisted 7-point EGT option on manifold offers');
  }catch(e){await client.query('ROLLBACK');throw e}finally{client.release()}
 }

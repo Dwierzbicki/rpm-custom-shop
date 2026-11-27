@@ -8,7 +8,7 @@ function load(name){
  new Function('exports','module',ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText)(mod.exports,mod);
  return mod.exports;
 }
-const {manifoldPreset,withManifoldOptions,withTermShieldOption}=load('manifold-options');
+const {manifoldPreset,withManifoldOptions,withTermShieldOption,withEgtSevenOption}=load('manifold-options');
 const {configuredCartLine}=load('product-configuration');
 const base={id:99,sku:'TEST-99',name:'Kolektor turbo BMW M50/M52/M54',engine:'BMW M50/M52/M54',category:'Kolektory',brand:'RPM Custom',price:2500,description:'Fixture'};
 const config=chosenOptions=>({chosenOptions,engine:'',flange:'',wg:'',egt:false,qty:1});
@@ -132,3 +132,5 @@ test('optional TermShield adds 1600 per manifold, preserves existing uninsulated
   assert.equal(manifoldPreset(kind,groups).find(g=>g.id==='rpm-thermal-insulation').required,false);
  }
 });
+
+test('seven-point EGT is a single 2450 PLN package, preserves existing option prices and separate cart identity',()=>{for(const kind of ['bmw','2jz-ge']){const groups=manifoldPreset(kind);const g=groups.find(g=>g.id==='rpm-egt');g.options.find(o=>o.id==='yes').price=350;const next=withEgtSevenOption(groups);assert.equal(withEgtSevenOption(next),next);assert.deepEqual(next.find(g=>g.id==='rpm-egt').options.slice(0,2),g.options);assert.equal(next.find(g=>g.id==='rpm-egt').options.find(o=>o.id==='seven').price,2450);assert.equal(g.options.length,2);const product={...base,price:3000,configurable:true,optionGroups:next};const choices={'rpm-flange':'vband-single','rpm-wg-diameter':'internal','rpm-thermal-insulation':'termshield',...(kind==='bmw'?{'rpm-engine':'m52','rpm-chassis':'e46'}:{})};const seven=configuredCartLine(product,config({...choices,'rpm-egt':'seven'}));const one=configuredCartLine(product,config({...choices,'rpm-egt':'yes'}));assert.equal(seven.unitPrice,7050);assert.equal(one.unitPrice,4950);assert.notEqual(seven.key,one.key);}});
