@@ -50,3 +50,26 @@ test('intercooler dimensions are unique and sorted numerically, not by text or p
  assert.equal(JSON.stringify(exports.intercoolerDimensionOptions(names)),JSON.stringify(['450×180×65','600×180×90','600×300×76','600×300×100']));
  assert.equal(exports.intercoolerDimensions('Intercooler Mishimoto G-Line 63.5mm'),null);
 });
+
+test('on-demand air filter lookup uses the exact category and mounting diameter',()=>{
+ const path=['Układ dolotowy','Filtry powietrza','Filtry stożkowe'];
+ const row={sku:'FP-AF-150-76-B',name:'Stożkowy filtr powietrza FMIC.Pro dł. 150mm średnica montażowa 76mm'};
+ assert.equal(exports.discoverExtraPart(row,path,'filter')?.brand,'FMIC.Pro');
+ assert.equal(exports.airFilterDiameter(row.name),76);
+ assert.equal(exports.airFilterDiameter('Stożkowy filtr powietrza dł. 150mm'),null);
+ assert.equal(exports.discoverExtraPart(row,path,'throttle'),null);
+ assert.equal(exports.discoverExtraPart(row,path,'__proto__'),null);
+ assert.equal(exports.discoverExtraPart({sku:'10042',name:'Filtr powietrza Blitz style'},path,'filter'),null);
+});
+test('catalogue discovery separates sensor purposes and rejects connectors',()=>{
+ const path=['Elektronika','Ecumaster','Czujniki i akcesoria'];
+ const row={sku:'ECU-1T1CZU0003',name:'Ecumaster 10 barowy czujnik ciśnienia oleju'};
+ assert.equal(exports.discoverExtraPart(row,path,'oil-pressure-sensor')?.sku,row.sku);
+ assert.equal(exports.discoverExtraPart(row,path,'fuel-pressure-sensor'),null);
+ assert.equal(exports.discoverExtraPart({sku:'ECU-1T2WTY0108',name:'Wtyczka czujnika ciśnienia oleju 10BAR Ecumaster'},path,'oil-pressure-sensor'),null);
+});
+test('throttle candidates do not include vehicle-specific adapters',()=>{
+ const path=['Układ dolotowy','Przepustnice'];
+ assert.equal(exports.discoverExtraPart({sku:'JRSPEC-THROTTLE-70',name:'Przepustnica JRspec 70mm'},path,'throttle')?.brand,'JRspec');
+ assert.equal(exports.discoverExtraPart({sku:'MZR-DBW-60-CA',name:'Adapter do Elektronicznej Przepustnicy Bosch 60mm MZR Garage dla Nissan S13 CA18'},path,'throttle'),null);
+});
