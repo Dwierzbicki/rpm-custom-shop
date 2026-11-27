@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -67,6 +67,7 @@ const sensorCategories=[['Elektronika','Ecumaster','Czujniki i akcesoria'],['Ele
 export const extraDiscoveryPaths:Record<string,string[][]>={
  filter:[['Układ dolotowy','Filtry powietrza','Filtry stożkowe']],
  injectors:[['Układ paliwowy','Wtryskiwacze','Wtryskiwacze uniwersalne']],
+ pump:[['Układ paliwowy','Pompy paliwa','Uniwersalne pompy paliwa']],
  throttle:[['Układ dolotowy','Przepustnice']],
  'fuel-surge':[['Układ paliwowy','Swirl Poty']],
  wideband:[['Elektronika','Zestawy AFR']],
@@ -85,6 +86,13 @@ export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string
  if(/\b(style|replica|replacement|adapter|bracket|plug|connector|wiring|cable)\b|uszczel|wtyczk|przewód|mocowanie|dystans|zestaw napraw|dedykowan/i.test(n))return null;
  const brand=row.brand?.trim()||([[/fmic\.pro/i,'FMIC.Pro'],[/fmic\.eu/i,'FMIC.EU'],[/jrspec/i,'JRspec'],[/k&n|\bk\s*&\s*n\b/i,'K&N'],[/pipercross/i,'Pipercross'],[/ramair/i,'Ramair'],[/simota/i,'Simota'],[/aem/i,'AEM'],[/mishimoto/i,'Mishimoto'],[/nuke performance/i,'Nuke Performance'],[/deatschwerks/i,'DeatschWerks'],[/radium engineering/i,'Radium Engineering'],[/innovate/i,'Innovate'],[/ecumaster/i,'ECUMASTER'],[/bosch/i,'Bosch'],[/\bdei\b/i,'DEI'],[/thermo.?tec/i,'Thermo-Tec']] as [RegExp,string][]).find(([re])=>re.test(n))?.[1]||'';
  const make=(pl:string,en:string):DiscoveredPart=>({sku,name:row.name,brand:brand||'—',slot,reason:[pl,en]});
+ if(slot==='pump'){
+  if(!/pompa paliwa|fuel pump/.test(n)||/niskie ciśnienie|low pressure|lift pump|transfer pump|gaźnik|carburetor|diesel|wtrysk bezpośredni|direct injection|\b(bmw|audi|vw|volkswagen|ford|nissan|toyota|volvo|opel|fiat|saab|kia|hyundai|renault|peugeot|porsche|mercedes|mitsubishi|subaru|skoda|seat|harley|gm)\b/.test(n))return null;
+  const flow=n.match(/\b(\d{2,4})\s*(?:lph|l\s*\/\s*h)\b/)?.[1];
+  if(!flow)return null;
+  const pbrand=/deatschwerks/.test(n)?'DeatschWerks':/aeromotive/.test(n)?'Aeromotive':/\baem\b/.test(n)?'AEM':/bosch/.test(n)?'Bosch':/walbro|ti automotive/.test(n)?'Walbro / TI Automotive':brand||'—';
+  return {...make('Pompa uniwersalna EFI. Przepływ katalogowy nie potwierdza wydajności przy ciśnieniu roboczym. Sprawdź krzywą przepływu, paliwo, napięcie, pobór prądu oraz montaż wewnętrzny lub zewnętrzny.','Universal EFI pump. Catalogue flow does not establish flow at operating pressure. Verify flow curve, fuel, voltage, current and in-tank or external mounting.'),brand:pbrand,pumpFlowLph:Number(flow)};
+ }
  if(slot==='injectors'){
   // Supplier singles: explicit singular title and known individual SKU family.
   // Never infer package quantity from flow or price.
