@@ -247,7 +247,7 @@ export function buildGlobalParts(version:string,range:number,usage:string,tier:s
  // Turbo candidates from the existing catalogue only; no inferred high-power SKU.
  const low=power<=400,mid=power>400&&power<=550;
  const turboKeys=low?(premium?['tuTurboPremium','tuTurboT3','tuTurboSmart']:['tuTurboSmart','tuTurboT3','tuTurboPremium']):mid?(profile.priority==='response'||profile.priority==='cost'?['turboVband','turbo']:['turbo','turboVband']):[];
- const pumpKeys=demand?(fuel==='ethanol'?['pumpAem','pumpWalbro']:budget?['pumpAem','pump','pumpWalbro']:['pump','pumpWalbro','pumpAem']).filter(k=>({pump:415,pumpAem:340,pumpWalbro:450}[k]??0)>=demand.pumpLph):[];
+ const pumpKeys=demand?(fuel==='ethanol'?['pumpAem','pumpWalbro']:budget?['pumpAem','pump','pumpWalbro']:['pump','pumpWalbro','pumpAem']).filter(k=>(({pump:415,pumpAem:340,pumpWalbro:450} as Record<string,number>)[k]??0)>=demand.pumpLph):[];
  const notes:Record<string,[string,string]>={
   turbo:['Dobór wstępny: potwierdź mapę sprężarki, pojemność, A/R, przeciwciśnienie i docelowy moment. Brak przypisania oznacza indywidualny dobór.','Provisional selection: confirm compressor map, displacement, A/R, backpressure and torque target. No match means individual selection.'],
   manifold:premium?['Premium: 7× EGT (6 runnerów + 1 zbiorczy), TermShield. Cena tylko dla zgodnego kolektora z katalogu RPM.','Premium: 7 EGT points (6 runners + collector), TermShield. Price only for a matching RPM catalogue manifold.']:['Rekomendowany 1× EGT zbiorczy przed turbiną. Flansza i WG zależą od turbo.','Recommend one pre-turbine collector EGT. Flange and WG depend on turbo.'],
@@ -276,7 +276,7 @@ export function buildGlobalParts(version:string,range:number,usage:string,tier:s
    return {...next,candidate:defer?undefined:candidate,alternatives:defer&&pref!=='m50b25nv'&&candidate?[candidate]:defer?[]:undefined,defaultNone:defer};
   }
   if(s.id==='injectors'){
-   const keys=(version==='m54b30'?['injectors','injectors1500']:version==='2jz-ge'?['geInjectors']:[]).filter(k=>demand&&({injectors:1200,injectors1500:1500,geInjectors:1000}[k]??0)>=demand.injectorCc);
+   const keys=(version==='m54b30'?['injectors','injectors1500']:version==='2jz-ge'?['geInjectors']:[]).filter(k=>demand&&(({injectors:1200,injectors1500:1500,geInjectors:1000} as Record<string,number>)[k]??0)>=demand.injectorCc);
    return {...next,candidate:keys[0],alternatives:keys.slice(1),planNote:['Dobierz przepływ, listwę, złącza i dane kalibracyjne do dokładnej wersji.','Match flow, rail, connectors and calibration data to exact version.']};
   }
   return next;
