@@ -104,3 +104,29 @@ export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string
  if(slot==='heat-reflective-tape'&&/taśma|tape/.test(n)&&/odbij|reflec|gold|złot|alumin/.test(n))return make('Osłona powierzchni przed promieniowaniem; sprawdź temperaturę pracy kleju.','Radiant heat protection; confirm adhesive operating temperature.');
  return null;
 }
+
+
+/** Only explicit compressor-side hose/spigot inlet dimensions. Never use
+ * turbine flange/outlet, compressor wheel diameter or an ambiguous title. */
+export function compressorInletMm(technical:unknown,description:string):number|null{
+ const fields=(technical as {fields?:{key?:string;value?:string}[]}|null)?.fields;
+ const values=Array.isArray(fields)?fields.filter(f=>f.key==='compressor_inlet').map(f=>String(f.value??'')):[];
+ if(!values.length){
+  const found=description.match(/(?:wlot muszli ssącej|wlot kompresora|compressor inlet)\s*:\s*((?:przewód|hose|slip.on)\s*)?(\d+(?:[.,]\d+)?)\s*(mm|["″”]|inch(?:es)?|cala|cale|cal)\s*(przewód|hose|slip.on)?/gi);
+  if(found)values.push(...found.map(v=>v.slice(v.indexOf(':')+1).trim()));
+ }
+ const parsed=values.map(value=>{
+  if(/v.band|flansz|flange|thread|gwint/i.test(value))return null;
+  const m=value.trim().match(/^(?:(?:przewód|hose|slip.on)\s*)?(\d+(?:[.,]\d+)?)\s*(mm|["″”]|inch(?:es)?|cala|cale|cal)(?:\s*(?:przewód|hose|slip.on))?$/i);
+  if(!m)return null;
+  const size=Number(m[1].replace(',','.'))*(m[2].toLowerCase()==='mm'?1:25.4);
+  return size>=30&&size<=200?Math.round(size*10)/10:null;
+ });
+ if(!parsed.length||parsed.some(v=>v===null)||new Set(parsed).size!==1)return null;
+ return parsed[0];
+}
+/** Catalogue nominal match, not a physical mounting approval. */
+export function suggestedFilterDiameter(inlet:number|null,sizes:number[]):number|null{
+ if(inlet===null)return null;
+ return [...sizes].filter(n=>Number.isFinite(n)&&Math.abs(n-inlet)<=0.5).sort((a,b)=>Math.abs(a-inlet)-Math.abs(b-inlet)||a-b)[0]??null;
+}
