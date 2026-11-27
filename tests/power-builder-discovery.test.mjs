@@ -73,3 +73,14 @@ test('throttle candidates do not include vehicle-specific adapters',()=>{
  assert.equal(exports.discoverExtraPart({sku:'JRSPEC-THROTTLE-70',name:'Przepustnica JRspec 70mm'},path,'throttle')?.brand,'JRspec');
  assert.equal(exports.discoverExtraPart({sku:'MZR-DBW-60-CA',name:'Adapter do Elektronicznej Przepustnicy Bosch 60mm MZR Garage dla Nissan S13 CA18'},path,'throttle'),null);
 });
+
+test('compressor inlet uses cold side dimensions, not turbine or wheel',()=>{
+ assert.equal(exports.compressorInletMm({fields:[{key:'compressor_inlet',value:'3″ Przewód'},{key:'turbine_inlet',value:'2.5″ V-Band'}]},''),76.2);
+ assert.equal(exports.compressorInletMm({fields:[]},'Wlot kompresora: Przewód 3″ Wylot kompresora: Przewód 2″'),76.2);
+ assert.equal(exports.compressorInletMm({fields:[{key:'compressor_inlet',value:'4″ Przewód'}]},''),101.6);
+ assert.equal(exports.compressorInletMm({fields:[{key:'turbine_inlet',value:'2.5″ V-Band'}]},'Wirnik kompresora: 45.64/60.07/62mm'),null);
+ assert.equal(exports.compressorInletMm({fields:[{key:'compressor_inlet',value:'3″ V-Band'}]},''),null);
+ assert.equal(exports.suggestedFilterDiameter(76.2,[70,76,80,89]),76);
+ assert.equal(exports.suggestedFilterDiameter(101.6,[89,100,102]),102);
+ assert.equal(exports.suggestedFilterDiameter(76.2,[70,80]),null);
+});
