@@ -3,11 +3,11 @@ import {useState} from 'react';
 import {Settings2,ArrowRight} from 'lucide-react';
 import {validBuildProfile,rodOptionsFor,type BuildProfile} from '../../lib/power-build-profile';
 import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
-export default function PowerBuildPreferences({version,onApply}:{version:string;onApply:(profile:BuildProfile)=>void}){
+export default function PowerBuildPreferences({version,onApply,onDraftChange}:{version:string;onApply:(profile:BuildProfile)=>void;onDraftChange:()=>void}){
  const {lang}=useStorefrontLanguage();const tr=(pl:string,en:string)=>lang==='en'?en:pl;
  const [fuel,setFuel]=useState(''),[internals,setInternals]=useState(''),[rods,setRods]=useState(''),[priority,setPriority]=useState(''),[budget,setBudget]=useState('');
  const profile={induction:'turbo',fuel,internals,rods,priority,budgetPln:budget==='none'?null:budget?Number(budget):undefined};
- return <form className="rpm-build-preferences" onSubmit={e=>{e.preventDefault();if(validBuildProfile(profile,version))onApply(profile)}}>
+ return <form className="rpm-build-preferences" onChange={onDraftChange} onSubmit={e=>{e.preventDefault();if(validBuildProfile(profile,version))onApply(profile)}}>
   <header><span className="eyebrow">RPM CUSTOM / PROJECT PARAMETERS</span><h2><Settings2 size={22}/> {tr('Parametry techniczne projektu','Technical project parameters')}</h2><p>{tr('Uzupełnij wymagania przed doborem części. Na tym etapie pracujemy na istniejących regułach i katalogu, bez aktywnego AI.','Complete the requirements before selecting parts. This stage uses existing rules and catalogue data; AI is not active yet.')}</p></header>
   <div className="rpm-build-preferences-grid">
    <label>{tr('Typ modyfikacji','Induction')}<select value="turbo" onChange={()=>{}}><option value="turbo">Turbo</option><option disabled value="na">{tr('Wolnossący — w przygotowaniu','Naturally aspirated — planned')}</option><option disabled value="supercharger">{tr('Kompresor — w przygotowaniu','Supercharger — planned')}</option></select></label>
@@ -19,6 +19,6 @@ export default function PowerBuildPreferences({version,onApply}:{version:string;
   </div>
   <p>{tr('Budżet jest porównywany z sumą wybranych produktów. Charakterystyka silnika, tłoki i korbowody są wymaganiami projektu, a nie automatycznym potwierdzeniem doboru.','Budget is compared with the selected product subtotal. Engine characteristics, pistons and rods are project requirements, not automatic compatibility approval.')}</p>
   {rods==='m50b25nv'&&<p role="status">{tr('Korbowody M50B25 NV: przed zastosowaniem potwierdź długość, średnicę sworznia, stopę korbowodu, geometrię tłoka i wału. Wybór nie potwierdza zamienności.','M50B25 NV rods: confirm length, pin and big-end dimensions, piston and crank geometry before installation. Selection does not confirm interchangeability.')}</p>}
-  <button className="primary" type="submit" disabled={!validBuildProfile(profile,version)}>{tr('Przygotuj konfigurację','Prepare configuration')} <ArrowRight size={17}/></button>
+  <button className="primary" type="submit" disabled={!validBuildProfile(profile,version)}>{tr('Przeanalizuj potrzeby','Analyse requirements')} <ArrowRight size={17}/></button>
  </form>;
 }

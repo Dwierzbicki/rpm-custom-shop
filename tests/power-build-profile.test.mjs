@@ -37,3 +37,14 @@ test('BMW M50/M52/M54 support three explicit rod options, Toyota never accepts M
  }
  assert.equal(validBuildProfile(profile,'unknown'),false);
 });
+
+test('build tier is a preliminary result of submitted preferences, not a required input',()=>{
+ assert.equal(exports.proposeBuildTier({...profile,priority:'cost'}),'budget');
+ for(const priority of ['response','power','reliability','balanced'])assert.equal(exports.proposeBuildTier({...profile,priority}),'recommended');
+ const wizard=readFileSync(new URL('../app/components/storefront/PowerGuideSteps.tsx',import.meta.url),'utf8');
+ const view=readFileSync(new URL('../app/components/storefront/PowerGuidesView.tsx',import.meta.url),'utf8');
+ assert.ok(!wizard.includes('onTier'));
+ assert.ok(view.includes('setGuideTier(proposeBuildTier(profile))'));
+ assert.ok(view.includes('complete&&profile&&<PowerBuildTier'));
+ assert.ok(view.includes("onDraftChange={()=>{setApplied(null);setGuideTier('')}}"));
+});

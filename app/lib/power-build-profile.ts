@@ -27,3 +27,9 @@ export function fuelModel(fuel:BuildProfile['fuel']):'petrol'|'ethanol'{
 export function budgetRemaining(budgetPln:number|null,subtotal:number):number|null{
  return budgetPln===null||!Number.isFinite(subtotal)||subtotal<0?null:Math.round((budgetPln-subtotal)*100)/100;
 }
+
+export type BuildTier='budget'|'recommended'|'premium';
+/** Preliminary preference only: no price or performance ranking until evidence-based comparison exists. */
+export function proposeBuildTier(profile:BuildProfile):BuildTier{
+ return profile.priority==='cost'?'budget':'recommended';
+}
