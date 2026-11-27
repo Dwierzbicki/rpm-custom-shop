@@ -24,7 +24,7 @@
 .rpm-pref-choice:hover{border-color:var(--rpm-color-accent)}
 .rpm-pref-choice.selected{border-color:var(--rpm-color-accent);background:color-mix(in srgb,var(--rpm-color-accent) 8%,var(--rpm-color-surface))}
 .rpm-pref-choice input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-.rpm-pref-choice:focus-within{outline:2px solid var(--rpm-color-accent);outline-offset:3px}
+.rpm-pref-choice:has(input:focus-visible){outline:2px dashed var(--rpm-color-accent);outline-offset:3px}
 .rpm-pref-choice-content{display:grid;gap:5px;flex:1;min-width:0}
 .rpm-pref-choice-content strong{font-size:14px;line-height:1.3;overflow-wrap:anywhere}
 .rpm-pref-choice-content small{font-size:11px;line-height:1.4;color:var(--rpm-color-muted)}
@@ -75,13 +75,13 @@
 .rpm-pref-studio .rpm-pref-section:nth-child(3) .rpm-pref-choice-grid>.rpm-pref-choice:last-child{grid-column:1/-1}
 .rpm-pref-studio .rpm-pref-internals .rpm-pref-choice-grid:has(>.rpm-pref-choice:nth-child(4):last-child)>.rpm-pref-choice{grid-column:span 3}
 .rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice{
- display:grid;grid-template-columns:minmax(0,1fr) 17px;align-items:center;
+ display:grid;grid-template-columns:minmax(0,1fr);align-items:center;
  gap:8px;min-height:54px;padding:10px 11px;text-align:left;
 }
 .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content{display:grid;align-content:center;gap:4px;min-width:0}
 .rpm-pref-studio .rpm-pref-choice-content strong{font-size:13px;font-weight:700;letter-spacing:normal}
 .rpm-pref-studio .rpm-pref-choice-content small{font-size:11px;font-weight:500;letter-spacing:normal}
-.rpm-pref-studio .rpm-pref-radio-mark{grid-column:2;grid-row:1;align-self:center;justify-self:end}
+.rpm-pref-studio .rpm-pref-radio-mark{display:none}
 .rpm-pref-studio .rpm-pref-internals{gap:12px}
 .rpm-pref-studio .rpm-pref-budget-presets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
 .rpm-pref-studio .rpm-pref-budget-presets>button{width:100%;min-height:38px;padding:8px 6px}
@@ -100,3 +100,7 @@
  .rpm-pref-studio .rpm-pref-choice-content small{font-size:10px}
  .rpm-pref-studio .rpm-pref-section{padding:12px}
 }
+
+/* A single selection indicator; keyboard focus remains distinct. */
+.rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice.selected{border-color:var(--rpm-color-accent);box-shadow:none}
+.rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice:not(:has(input:focus-visible)){outline:none}
