@@ -8,7 +8,7 @@ const groups=[
   {href:'/admin/settings/payments',title:'Płatności',desc:'Przelew i płatność przy odbiorze',icon:CreditCard},
   {href:'/admin/settings/appearance',title:'Wygląd sklepu',desc:'Animacja lasera na logo i efekty wizualne',icon:Settings2},
   {href:'/admin/settings/company',title:'Dane firmy',desc:'Dane kontaktowe, NIP i adres',icon:Building2},
-  {href:'/admin/settings/power-guides',title:'POWER GUIDES',desc:'Rekomendacje, powiązania produktów i ceny',icon:Wrench},
+  {href:'/admin/settings/power-guides',title:'POWER GUIDES',desc:'Rekomendacje, baza silników, Technical Research, Dyno Intelligence i Power Builder AI',icon:Wrench},
   {href:'/admin/suppliers',title:'Dostawcy i deduplikacja',desc:'FMIC, MTuning, oferty i wybór najtańszego źródła',icon:PlugZap}
  ]},
  {title:'Rozwój platformy',description:'Planowane moduły — jeszcze bez aktywnej konfiguracji.',items:[]}
