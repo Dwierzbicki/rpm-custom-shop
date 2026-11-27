@@ -11,6 +11,7 @@ export default function KnowledgeEditor({kind}:{kind:KnowledgeKind}){
  function close(){if(busy||dirty&&!window.confirm('Porzucić niezapisane zmiany?'))return;setDraft(null);setSaved(null);setDirty(false);setNote('');setError('');setMessage('')}
  const load=async()=>{setLoading(true);setError('');try{const r=await fetch('/api/admin/motolab-knowledge?kind='+kind,{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);setRows(d.records);setTruncated(d.truncated)}catch(e){setError(e instanceof Error?e.message:'Błąd odczytu')}finally{setLoading(false)}};
  useEffect(()=>{void load()},[kind]);
+ useEffect(()=>{const refresh=()=>{if(kind==='engine'&&!dirty&&!draft)void load()};window.addEventListener('rpm-knowledge-imported',refresh);return()=>window.removeEventListener('rpm-knowledge-imported',refresh)},[kind,dirty,draft]);
  const patch=(p:Partial<KnowledgeInput>)=>{setDraft(d=>d?{...d,...p}:d);setDirty(true);setMessage('')};
  const entryPatch=(p:Partial<EngineEntry>|Partial<TechnicalEntry>)=>{if(draft)patch({entry:{...draft.entry,...p} as EngineEntry|TechnicalEntry})};
  const open=(r:KnowledgeRecord|null)=>{if(dirty&&!window.confirm('Porzucić niezapisane zmiany?'))return;setSaved(r);setDraft(r??emptyKnowledge(kind,crypto.randomUUID()));setDirty(!r);setNote('');setError('');setMessage('')};

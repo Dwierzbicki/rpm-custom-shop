@@ -4,11 +4,12 @@ import Link from 'next/link';
 import {Wrench,Gauge,Database,Search,BrainCircuit,ExternalLink} from 'lucide-react';
 import GuideRecommendations from './GuideRecommendations';
 import DynoAdmin from '../../motolab-dyno/DynoAdmin';
-import {EngineDatabasePanel,TechnicalResearchPanel,PowerBuilderPanel} from './KnowledgePanels';
+import {EngineDatabasePanel,TechnicalResearchPanel,TechnicalPartsPanel,PowerBuilderPanel} from './KnowledgePanels';
 import './workspace.css';
 const tabs=[
  {id:'research',label:'Research',icon:Search},
  {id:'engines',label:'Baza silników',icon:Database},
+ {id:'technical',label:'Baza części',icon:Database},
  {id:'dyno',label:'Hamownia',icon:Gauge},
  {id:'recommendations',label:'Rekomendacje',icon:Wrench},
  {id:'builder',label:'Status AI',icon:BrainCircuit}
@@ -26,6 +27,7 @@ export default function PowerGuidesWorkspace({initialTab}:{initialTab:string}){
    {visited.includes('recommendations')&&<div hidden={active!=='recommendations'}><GuideRecommendations/></div>}
    {visited.includes('engines')&&<div hidden={active!=='engines'}><EngineDatabasePanel/></div>}
    {visited.includes('research')&&<div hidden={active!=='research'}><TechnicalResearchPanel/><details className="rpm-power-fold rpm-settings-card"><summary>Status i możliwości AI</summary><PowerBuilderPanel/></details></div>}
+   {visited.includes('technical')&&<div hidden={active!=='technical'}><TechnicalPartsPanel/></div>}
    {visited.includes('dyno')&&<div hidden={active!=='dyno'}><DynoAdmin/></div>}
    {visited.includes('builder')&&<div hidden={active!=='builder'}><PowerBuilderPanel/></div>}
   </div>
