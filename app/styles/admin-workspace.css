@@ -218,8 +218,11 @@ html:has(.rpm-admin-shell),body:has(.rpm-admin-shell){overflow:hidden}
 .rpm-admin-shell .rpm-admin-list-filters{display:flex;align-items:flex-end;gap:var(--bo-filter-gap);margin:0 0 20px;padding:0;min-height:64px}
 .rpm-admin-shell .rpm-admin-list-filters>label{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;min-width:0;flex:0 1 270px;color:var(--bo-muted);font-size:12px;font-weight:600;line-height:1.5}
 .rpm-admin-shell .rpm-admin-list-filters>.admin-search{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0;border:0;min-width:0;flex:0 1 330px}
-.rpm-admin-shell .rpm-admin-list-filters>.admin-search svg{position:absolute;left:12px;bottom:13px;pointer-events:none;color:var(--bo-muted)}
-.rpm-admin-shell .rpm-admin-list-filters>.admin-search input{padding-left:36px;width:100%;min-width:0}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search .rpm-admin-search-control{display:grid;grid-template-columns:16px minmax(0,1fr);align-items:center;gap:10px;padding:0 12px;min-height:var(--bo-control-height);box-sizing:border-box;border:1px solid var(--bo-border);border-radius:7px;background:var(--bo-field);cursor:text}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search .rpm-admin-search-control>svg{position:static;display:block;width:16px;height:16px;pointer-events:none;color:var(--bo-muted)}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search .rpm-admin-search-control>input{width:100%;min-width:0;min-height:calc(var(--bo-control-height) - 2px);padding:8px 0;border:0;border-radius:0;background:transparent;box-shadow:none;outline:none}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search .rpm-admin-search-control:focus-within{outline:2px solid var(--bo-accent);outline-offset:2px}
+.rpm-admin-shell .rpm-admin-list-filters>.admin-search .rpm-admin-search-control>input:focus-visible{outline:none}
 .rpm-admin-shell .rpm-admin-list-filters :is(input,select){width:100%;min-width:0}
 .rpm-admin-shell .rpm-admin-list-filters>select,.rpm-admin-shell .rpm-admin-list-filters>input{flex:0 1 270px}
 .rpm-admin-shell :is(.rpm-settings-field,.rpm-settings-grid label,.admin-fields label){gap:7px;line-height:1.5}
