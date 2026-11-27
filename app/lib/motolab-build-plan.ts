@@ -232,3 +232,101 @@ export function tuManifoldEstimate(products:ManifoldCatalog[],spec:ReturnType<ty
  if(!p.optionGroups.find(g=>g.id==='rpm-chassis')?.options.length||p.optionGroups.some(g=>g.required&&g.id!=='rpm-chassis'&&!(g.id in spec.options)))return null;
  return {product:p,price:Math.round(price*100)/100};
 }
+
+
+/** Shared recommendation layer. Existing curated scenarios remain the evidence base;
+ * generic matches are provisional, and unsupported combinations stay unresolved. */
+export function buildGlobalParts(version:string,range:number,usage:string,tier:string,fuel:Fuel,profile: PilotProfile & {ethanolPercent?:number},targetPower?:number|null):PartsSlot[]{
+ const base=buildParts(version,range,usage,tier,fuel,profile);
+ if(!base.length)return [];
+ if(isTuPilot(version,range,usage,fuel,profile))return base;
+ const band=powerRangesFor(version)[range],power=targetPower??band.max;
+ if(!Number.isFinite(power)||power<band.min||power>band.max)return [];
+ const premium=tier==='premium',budget=tier==='budget';
+ const demand=estimateFuel(version,range,fuel,undefined,profile.ethanolPercent);
+ // Turbo candidates from the existing catalogue only; no inferred high-power SKU.
+ const low=power<=400,mid=power>400&&power<=550;
+ const turboKeys=low?(premium?['tuTurboPremium','tuTurboT3','tuTurboSmart']:['tuTurboSmart','tuTurboT3','tuTurboPremium']):mid?(profile.priority==='response'||profile.priority==='cost'?['turboVband','turbo']:['turbo','turboVband']):[];
+ const pumpKeys=demand?(fuel==='ethanol'?['pumpAem','pumpWalbro']:budget?['pumpAem','pump','pumpWalbro']:['pump','pumpWalbro','pumpAem']).filter(k=>({pump:415,pumpAem:340,pumpWalbro:450}[k]??0)>=demand.pumpLph):[];
+ const notes:Record<string,[string,string]>={
+  turbo:['Dobór wstępny: potwierdź mapę sprężarki, pojemność, A/R, przeciwciśnienie i docelowy moment. Brak przypisania oznacza indywidualny dobór.','Provisional selection: confirm compressor map, displacement, A/R, backpressure and torque target. No match means individual selection.'],
+  manifold:premium?['Premium: 7× EGT (6 runnerów + 1 zbiorczy), TermShield. Cena tylko dla zgodnego kolektora z katalogu RPM.','Premium: 7 EGT points (6 runners + collector), TermShield. Price only for a matching RPM catalogue manifold.']:['Rekomendowany 1× EGT zbiorczy przed turbiną. Flansza i WG zależą od turbo.','Recommend one pre-turbine collector EGT. Flange and WG depend on turbo.'],
+  pump:['Przepływ nominalny nie zastępuje krzywej pompy przy ciśnieniu roboczym; potwierdź paliwo, napięcie i montaż.','Nominal flow is not a pump curve at operating pressure; confirm fuel, voltage and installation.'],
+  pistons:['Dobierz po pomiarze cylindra, geometrii i CR; preferencja seryjna nie potwierdza wytrzymałości.','Select after bore, geometry and CR measurements; stock preference does not establish strength.'],
+  rods:['Dobierz wyłącznie do potwierdzonej wersji i geometrii; preferencja seryjna nie potwierdza wytrzymałości.','Match exact engine version and geometry; stock preference does not establish strength.'],
+  ecu:budget?['Seryjne ECU lub konwersja do indywidualnej oceny; EMU Black jako alternatywa.','Stock ECU or conversion to assess individually; EMU Black as an alternative.']:['EMU Black: potwierdź wiązkę, czujniki, liczbę kanałów oraz obsługę przepustnicy i rozrządu.','EMU Black: verify harness, sensors, channel count, throttle and cam control.']
+ };
+ const out=base.map(s=>{
+  const note=notes[s.id];
+  const next:PartsSlot={...s,...(note?{planNote:note}:{})};
+  if(s.id==='turbo')return {...next,candidate:turboKeys[0],alternatives:turboKeys.slice(1)};
+  if(s.id==='manifold'||s.id==='wastegate')return {...next,candidate:undefined,alternatives:[]};
+  if(s.id==='pump')return {...next,candidate:pumpKeys[0],alternatives:pumpKeys.slice(1),qty:1};
+  if(s.id==='ecu')return {...next,candidate:budget?undefined:'ecu',alternatives:budget?['ecu']:[],defaultNone:budget};
+  if(s.id==='intercooler')return {...next,candidate:power<=550?'intercooler':undefined,alternatives:power<=550?['intercoolerJr','intercoolerPsr','intercoolerBlack']:[]};
+  if(s.id==='rods'||s.id==='pistons'){
+   let candidate=s.candidate;
+   if(s.id==='rods'&&['m50b25','m52b25','m52b28','m54b30'].includes(version))candidate='rods';
+   if(s.id==='rods'&&version==='m52b25tu')candidate='tuRods';
+   if(s.id==='rods'&&version==='2jz-gte')candidate='gteRods';
+   if(s.id==='pistons'&&version==='m54b30')candidate='pistons';
+   if(s.id==='pistons'&&version==='2jz-gte')candidate='gtePistons';
+   const pref=s.id==='rods'?profile.rods:profile.internals;
+   const defer=pref==='stock'||pref==='m50b25nv'||(pref==='auto'&&budget);
+   return {...next,candidate:defer?undefined:candidate,alternatives:defer&&pref!=='m50b25nv'&&candidate?[candidate]:defer?[]:undefined,defaultNone:defer};
+  }
+  if(s.id==='injectors'){
+   const keys=(version==='m54b30'?['injectors','injectors1500']:version==='2jz-ge'?['geInjectors']:[]).filter(k=>demand&&({injectors:1200,injectors1500:1500,geInjectors:1000}[k]??0)>=demand.injectorCc);
+   return {...next,candidate:keys[0],alternatives:keys.slice(1),planNote:['Dobierz przepływ, listwę, złącza i dane kalibracyjne do dokładnej wersji.','Match flow, rail, connectors and calibration data to exact version.']};
+  }
+  return next;
+ });
+ if(premium)out.push({id:'egt-expansion',label:['Moduł pomiarowy EGT i wiązka','EGT measurement module and harness'],qty:null,conditional:false,planNote:['7 kanałów, termopary oraz zgodność ECU/CAN. Moduł i wiązka do osobnej wyceny; termopary w pakiecie tylko gdy potwierdza to katalog kolektora.','Seven channels, thermocouples and ECU/CAN compatibility. Module and harness separately quoted; probes included only when confirmed by manifold catalogue.']});
+ return out;
+}
+
+export function globalTurboSpec(key:string|undefined){
+ const tu=tuTurboSpec(key);
+ if(tu)return {...tu,wgCount:tu.wg==='internal'?0:1};
+ if(key==='turbo')return {flange:'t4-twin',flangeLabel:'T4 Twin Scroll',wg:'external',outlet:'3" V-Band',wgCount:2} as const;
+ if(key==='turboVband')return {flange:'vband-single',flangeLabel:'V-Band',wg:'external',outlet:'3" V-Band',wgCount:1} as const;
+ return null;
+}
+export function resolveGlobalDependencies(slots:PartsSlot[],selection:Record<string,string>,version:string):PartsSlot[]{
+ if(slots.some(s=>s.dependency==='m52tu'))return resolveTuDependencies(slots,selection);
+ const turbo=slots.find(s=>s.id==='turbo'),spec=turbo?globalTurboSpec(selectedPart(turbo,selection)):null;
+ return slots.flatMap(s=>{
+  if(s.id==='wastegate'){
+   if(spec?.wg==='internal')return [];
+   if(spec?.wgCount===1)return [{...s,candidate:'tuWastegate',alternatives:[],qty:1,planNote:['WG45: wstępny dobór; potwierdź średnicę i przepływ.','WG45: provisional selection; confirm diameter and flow.'] as [string,string]}];
+   return [{...s,candidate:undefined,alternatives:[],qty:spec?.wgCount??null,planNote:spec?.wgCount===2?['Dwa zewnętrzne WG — rozmiar i komplet do indywidualnego doboru.','Two external wastegates — size and set to be selected individually.']:['Ustal typ i liczbę WG po wyborze turbo.','Confirm wastegate type and count after turbo selection.']} as PartsSlot];
+  }
+  if(s.id==='downpipe'&&spec)return [{...s,planNote:['Wylot turbo: '+spec.outlet+'; dopasuj do nadwozia.','Turbo outlet: '+spec.outlet+'; confirm chassis fitment.'] as [string,string]}];
+  if(s.id==='manifold'&&version==='2jz-gte'&&spec?.flange==='t4-twin')return [{...s,candidate:'gteManifold',alternatives:[]}];
+  return [s];
+ });
+}
+export function globalManifoldSpec(slots:PartsSlot[],selection:Record<string,string>,tier:string,version:string){
+ if(selection.manifold==='own')return null;
+ const family=POWER_ENGINES.find(e=>e.versions.some(v=>v.id===version));
+ const sku=family?.make==='BMW'?'RPM-00032':version==='2jz-ge'?'RPM-00033':null;
+ const turbo=slots.find(s=>s.id==='turbo'),spec=turbo?globalTurboSpec(selectedPart(turbo,selection)):null;
+ if(!sku||!spec||!family)return null;
+ const options:Record<string,string>={'rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45','rpm-egt':tier==='premium'?'seven':'yes','rpm-thermal-insulation':tier==='premium'?'termshield':'none'};
+ if(family.make==='BMW')options['rpm-engine']=family.id;
+ return {...spec,sku,egtPoints:tier==='premium'?7:1,options};
+}
+export function globalManifoldEstimate(products:ManifoldCatalog[],spec:ReturnType<typeof globalManifoldSpec>){
+ if(!spec)return null;
+ const p=products.find(x=>x.sku===spec.sku&&x.visible===true&&x.configurable&&['available','order'].includes(x.stockStatus??'')&&Number.isFinite(x.price)&&x.price>0);
+ if(!p?.optionGroups)return null;
+ let price=p.price;
+ for(const [id,value] of Object.entries(spec.options)){
+  const option=p.optionGroups.find(g=>g.id===id)?.options.find(o=>o.id===value);
+  if(!option||!Number.isFinite(option.price))return null;
+  price+=option.price;
+ }
+ if(p.optionGroups.some(g=>g.required&&!(g.id in spec.options)&&!(g.id==='rpm-chassis'&&spec.sku==='RPM-00032'&&g.options.length)))return null;
+ if(spec.sku==='RPM-00032'&&!p.optionGroups.find(g=>g.id==='rpm-chassis')?.options.length)return null;
+ return {product:p,price:Math.round(price*100)/100};
+}
