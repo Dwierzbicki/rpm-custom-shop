@@ -1,3 +1,4 @@
+import '../../../styles/power-guides-detail.css';
 import PowerGuidesWorkspace from './PowerGuidesWorkspace';
 export default async function Page({searchParams}:{searchParams:Promise<{tab?:string|string[]}>}){
  const {tab}=await searchParams;

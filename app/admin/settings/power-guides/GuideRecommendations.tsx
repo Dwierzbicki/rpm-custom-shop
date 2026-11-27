@@ -1,5 +1,4 @@
 'use client';
-import '../../../styles/power-guides-detail.css';
 import {useEffect,useState} from 'react';
 import {powerRangesFor,POWER_ENGINES} from '../../../lib/storefront-config';
 import type {Product} from '../../../data';
