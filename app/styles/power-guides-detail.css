@@ -1,3 +1,10 @@
 @import './power-guides-pricing.css';
 @import './power-guides-recommendations.css';
 @import './power-guides-cart.css';
+
+
+/* Completed configuration steps retain a distinct success state. */
+.rpm-guide-page.rpm-builder .rpm-builder-progress>button.complete>span{
+ color:#4ade80;border-color:#22c55e;background:rgba(34,197,94,.12);
+ box-shadow:0 0 12px rgba(34,197,94,.45),0 0 0 3px rgba(34,197,94,.10);
+}
