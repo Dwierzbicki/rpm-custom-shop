@@ -18,14 +18,14 @@ export const researchBatchV1:KnowledgeInput[]=[
       "rods": "M50B25 NV",
       "pistons": "M44B19",
       "head": "M50B25 VANOS",
-      "boreMm": null,
-      "strokeMm": null,
+      "boreMm": 85,
+      "strokeMm": 84,
       "rodLengthMm": null,
       "compressionRatio": null,
       "targetPowerPs": null,
       "targetTorqueNm": null,
       "fuel": "",
-      "notes": "Research 2026-11-27. Trop z wcześniejszego researchu: 502 KM / 618 Nm deklarowane. Obecnie 403; ponownie sprawdzić pełny wątek, wykres i skład. Bez zatwierdzenia wymiarów."
+      "notes": "Research 2026-11-27: ponownie odczytano pełny wpis autora z 13.03.2020. Blok M50B25 rozwiercony pod M44, wał M52B28, korbowody M50 NV, głowica M50B25 VANOS, uszczelka Reinz 1,75 mm, GT3071R. 85 mm i 84 mm to nominalna geometria komponentów (ok. 2860 cm³), nie pomiar złożonego silnika. Deklarowane 442 KM / 580 Nm przy 0,9 bar oraz 502 KM / 618 Nm przy 1,3 bar w tytule wątku; nie zatwierdzono wykresu ani limitu trwałości. Zmierz wysokość bloku, deck, CR, kolizje, sworzeń, grubość ścian i luzy; długość korbowodu nie została podana w źródle. Nie utożsamiać z wałem B30."
     }
   },
   {
