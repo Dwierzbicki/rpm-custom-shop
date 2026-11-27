@@ -44,3 +44,18 @@ export function discoverPart(row:DiscoveryRow,category:string[]):DiscoveredPart|
  }
  return null;
 }
+
+
+/** Nominal catalogue dimensions in the order written by the supplier.
+ * Never infer dimensions from SKU, a model name or an unrelated port size. */
+export function intercoolerDimensions(name:string):[number,number,number]|null{
+ const match=name.match(/\b(\d{2,4})\s*[x×]\s*(\d{2,4})\s*[x×]\s*(\d{2,4})\s*mm\b/i);
+ if(!match)return null;
+ const dimensions:[number,number,number]=[Number(match[1]),Number(match[2]),Number(match[3])];
+ return dimensions.every(n=>n>0)?dimensions:null;
+}
+export function intercoolerDimensionOptions(names:string[]):string[]{
+ const unique=new Map<string,[number,number,number]>();
+ for(const name of names){const d=intercoolerDimensions(name);if(d)unique.set(d.join('×'),d)}
+ return [...unique.entries()].sort(([,a],[,b])=>a[0]-b[0]||a[1]-b[1]||a[2]-b[2]).map(([key])=>key);
+}
