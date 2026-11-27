@@ -25,3 +25,22 @@ test('rejects accessories, replicas, diesel and named vehicle applications',()=>
  ['EBOV','Regulowany zawór blow off do silników turbodiesel']
  ])assert.equal(discoverBov({sku,name}),null);
 });
+
+test('live discovery distinguishes pre-filter and post-filter and rejects dedicated parts',()=>{
+ const category=['Układ paliwowy','Filtry paliwa'];
+ assert.equal(exports.discoverPart({sku:'DW-8-03-110-010K-8',name:'DeatschWerks In-Line Fuel Filter Kit -8AN 10 Micron 110mm'},category)?.slot,'fuel-post-filter');
+ assert.equal(exports.discoverPart({sku:'DW-8-03-160-100K-8',name:'DeatschWerks In-Line Fuel Filter Kit -8AN 100 Micron 160mm'},category)?.slot,'fuel-pre-filter');
+ assert.equal(exports.discoverPart({sku:'USA-RAD-20-0475-03',name:'Dedykowany filtr paliwa z wkładem stalowym 10um BMW E90 Radium Engineering'},category),null);
+ assert.equal(exports.discoverPart({sku:'DW-8-03-110-040K-8',name:'DeatschWerks In-Line Fuel Filter Kit -8AN 40 Micron 110mm'},category),null);
+});
+test('EFI regulator discovery includes other brands but rejects low pressure regulators',()=>{
+ const category=['Układ paliwowy','Regulatory ciśnienia paliwa','Regulatory ciśnienia paliwa'];
+ assert.equal(exports.discoverPart({sku:'USA-ARE-13109',name:'Regulator ciśnienia paliwa Aeromotive A1000-6, Performance EFI'},category)?.brand,'Aeromotive');
+ assert.equal(exports.discoverPart({sku:'NP-300-02-203',name:'Nuke Performance Fuel Pressure Regulator FPR100m AN-8'},category)?.brand,'Nuke Performance');
+ assert.equal(exports.discoverPart({sku:'TS-0404-1122',name:'Regulator ciśnienia paliwa Turbosmart FPR6 AN6 niskie ciśnienie'},category),null);
+});
+test('universal intercooler discovery requires the correct category',()=>{
+ const row={sku:'MMINT-UGB',name:'Intercooler uniwersalny Mishimoto G-Line Czarny'};
+ assert.equal(exports.discoverPart(row,['Układ dolotowy','Intercooler','Uniwersalne'])?.slot,'intercooler');
+ assert.equal(exports.discoverPart(row,['Układ dolotowy','Intercooler','Intercoolery dedykowane']),null);
+});
