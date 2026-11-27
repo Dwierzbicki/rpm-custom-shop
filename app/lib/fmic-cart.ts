@@ -2,12 +2,19 @@ import {isRetiredDemoProductId,type CartLine} from '../data';
 export const CART_EVENT='rpm-cart-change';
 export type FmicQuote={sku:string;name:string;unitPrice:number;available:boolean;image:string|null;updatedAt:string};
 export async function quoteFmicCart(skus:string[],signal?:AbortSignal):Promise<FmicQuote[]>{
- if(!skus.length)return [];
- const response=await fetch('/api/catalog/fmic/cart-quote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skus:[...new Set(skus)]}),cache:'no-store',signal});
- if(!response.ok)throw Error('Nie udało się sprawdzić ceny i dostępności. Spróbuj ponownie.');
- const data=await response.json();
- if(!Array.isArray(data.items))throw Error('Niepoprawna odpowiedź katalogu');
- return data.items;
+ const unique=[...new Set(skus)];
+ if(!unique.length)return [];
+ const items:FmicQuote[]=[];
+ // The quote API accepts at most 30 SKU per request. Keep requests bounded
+ // as complete build plans include many material variants.
+ for(let offset=0;offset<unique.length;offset+=30){
+  const response=await fetch('/api/catalog/fmic/cart-quote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({skus:unique.slice(offset,offset+30)}),cache:'no-store',signal});
+  if(!response.ok)throw Error('Nie udało się sprawdzić ceny i dostępności. Spróbuj ponownie.');
+  const data=await response.json();
+  if(!Array.isArray(data.items))throw Error('Niepoprawna odpowiedź katalogu');
+  items.push(...data.items);
+ }
+ return items;
 }
 export function mergeFmicQuotes(lines:CartLine[],quotes:FmicQuote[]):CartLine[]{
  const bySku=new Map(quotes.map(q=>[q.sku,q]));
