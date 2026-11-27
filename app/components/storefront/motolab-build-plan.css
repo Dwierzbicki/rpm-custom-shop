@@ -564,3 +564,15 @@
 @container(max-width:850px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-track{--rpm-card-width:calc((100% - 24px)/3)}}
 @container(max-width:620px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-track{--rpm-card-width:calc((100% - 12px)/2)}}
 @container(max-width:440px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-track{--rpm-card-width:82%}.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-buttons>button{min-width:44px;min-height:44px}}
+
+
+/* Workshop guidance is a distinct, compact information block, never a missing purchase. */
+.rpm-build-workspace .rpm-build-workshop-advice{display:grid;gap:12px;padding:16px;border:1px solid #456b94;border-left:3px solid #6faaf1;border-radius:8px;background:#1a2532;color:#edf4fd;margin-top:12px}
+.rpm-build-workshop-advice>header{display:flex;align-items:center;gap:12px;color:#93c5fd}
+.rpm-build-workshop-advice>header .rpm-lab-kicker{color:#93c5fd}
+.rpm-build-workshop-advice h3{margin:4px 0 0;font-size:17px}
+.rpm-build-workshop-advice>div{border-top:1px solid #395169;padding-top:10px}
+.rpm-build-workshop-advice>div>strong{font-size:13px}
+.rpm-build-workshop-advice>div>p{font-size:12px;line-height:1.55;color:#c5d5e7;margin:5px 0 0}
+.rpm-build-workspace .rpm-system-advice{color:#93c5fd}
+.rpm-build-workspace .rpm-summary-states>div.advice{color:#93c5fd;border-color:rgba(111,170,241,.4)}
