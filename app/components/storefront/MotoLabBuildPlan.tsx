@@ -146,7 +146,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
    if(selection[slot.id]==='own')return {label,product:tr('Pominięta w zakupach','Excluded from purchases'),qty:null,unitPrice:null,status:tr('Poza wyceną','Excluded'),priced:false};
    if(slot.id==='manifold'&&manifoldSpec){
     const product=manifoldProduct?.name??tr('Kolektor RPM Custom','RPM Custom manifold');
-    const config=configuredManifold?.customGroups.flatMap(g=>{const option=g.options.find(o=>o.id===configuredManifold.chosenOptions[g.id]);return option?[g.name+': '+option.label]:[]}).join(' · ');
+    const configured=configuredManifold;const config=configured?configured.customGroups.flatMap(g=>{const option=g.options.find(o=>o.id===configured.chosenOptions[g.id]);return option?[g.name+': '+option.label]:[]}).join(' · '):'';
     return {label,product,sku:manifoldSpec.sku,qty:1,unitPrice:manifoldPrice>0?manifoldPrice:null,status:blocked(slot.id)?tr('Konflikt','Conflict'):manifoldReady?tr('Skonfigurowano','Configured'):tr('Wstępna wycena','Provisional'),note:[manifoldSpec.flangeLabel,manifoldSpec.wg==='internal'?'IWG':'EWG',config,!manifoldReady?tr('Nadwozie / konfiguracja do potwierdzenia','Chassis / configuration to confirm'):''].filter(Boolean).join(' · '),priced:!blocked(slot.id)&&manifoldPrice>0};
    }
    const key=selectedPart(slot,selection),candidate=key?candidates[key]:undefined,q=quoteForSlot(slot),qty=key?qtyFor(slot.id,key):0;
@@ -156,7 +156,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
    const status=blocked(slot.id)?tr('Konflikt','Conflict'):priced?tr('Wycena wstępna','Provisional'):q&&!qty?tr('Ustal ilość','Set quantity'):q&&!q.available?tr('Niedostępny','Unavailable'):tr('Do doboru / wyceny','Select / quote');
    return {label,product,sku:candidate?.sku,qty:qty||null,unitPrice:q?.unitPrice??null,status,note,priced};
   };
-  const engine=POWER_ENGINES.flatMap(e=>e.versions).find(v=>v.id===version)?.name??version;
+  let engine:string=version;for(const family of POWER_ENGINES)for(const v of family.versions)if(v.id===version)engine=v.name;
   const snapshot:OfferSnapshot={
    language:en?'en':'pl',engine,power:targetPower??null,usage:usage==='street'?tr('Ulica','Street'):usage==='track'?tr('Tor','Track'):'Drift',tier:tier==='recommended'?'Smart':tier==='premium'?'Premium':'Budget',date:new Date().toLocaleDateString(en?'en-GB':'pl-PL',{timeZone:'Europe/Warsaw'}),
    parameters:[
