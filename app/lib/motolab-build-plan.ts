@@ -55,7 +55,7 @@ export function estimateFuel(version:string,range:number,fuel:Fuel,targetPower?:
  return {powerPs,bsfc,density,duty,reserve,ethanolPercent:blend,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
-export type FitmentReference={turboSku:string;label:string;url:string;checkedOn:string};
+export type FitmentReference={turboSku:string;label:string;url:string;checkedOn:string;catalogCandidate?:string};
 export type PartsSlot={fitmentReference?:FitmentReference;id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu';manifoldEngine?:'m50'|'m52'|'m54'|'2jz-ge'|'2jz-gte'};
 export type PilotProfile={fuel:string;internals:string;rods:string;priority:string;ethanolPercent?:number};
 export function isTuPilot(version:string,range:number,usage:string,fuel:Fuel,profile?:PilotProfile){return version==='m52b25tu'&&powerRangesFor(version)[range]?.min===350&&powerRangesFor(version)[range]?.max===400&&['drift','track'].includes(usage)&&fuel==='petrol'&&profile?.fuel==='pb98'}
@@ -101,7 +101,7 @@ export function buildParts(version:string,range:number,usage:string,tier:string,
  slot('clutch','Sprzęgło / elementy przeniesienia napędu','Clutch / drivetrain components',null,true)
  ];
  const parts=isTuPilot(version,range,usage,fuel,profile)?tuPilotSlots(result,tier,profile!):profile&&fuel!=='unknown'?globalBuildSlots(result,version,range,usage,tier,fuel,profile):result;
- return [...parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):thermalProtectionSlot(s,tier)),...completionSlots(version)];
+ return [...parts.map(s=>s.id==='intake-manifold'?intakeManifoldSlot(s,version,tier):thermalProtectionSlot(s,tier)),...completionSlots()];
 }
 
 /** Catalog candidates, never a blanket compatibility certificate. */
@@ -343,12 +343,13 @@ export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined):
   'Brak potwierdzonego dopasowania koca do wybranej obudowy turbo. Nie proponujemy przypadkowych koców T25/T3/T4. Wymagana dokumentacja producenta lub pomiar muszli i potwierdzenie dopasowania.',
   'No confirmed blanket fitment for the selected turbo housing. Generic T25/T3/T4 blankets are not offered. Manufacturer documentation or housing measurements and fitment confirmation required.'
  ];
- return {...slot,candidate:undefined,alternatives:[],rpmOptions:[],defaultNone:true,fitmentReference:ref,planNote};
+ const candidate=ref?.catalogCandidate&&allCandidates[ref.catalogCandidate]?ref.catalogCandidate:undefined;
+ return {...slot,candidate,alternatives:[],rpmOptions:[],defaultNone:!candidate,fitmentReference:ref,planNote:candidate?['Dedykowany koc uwzględniony automatycznie. Sprawdź miejsce montażu i ruch aktuatora.','Dedicated blanket included automatically. Check mounting clearance and actuator movement.']:planNote};
 }
 
 /** Complete planning checklist. Unresolved geometry/quantity stays visible
  * and unpriced; never invent a SKU or assume a component is necessary on every car. */
-function completionSlots(version:string):PartsSlot[]{
+function completionSlots():PartsSlot[]{
  const item=(id:string,pl:string,en:string,plNote:string,enNote:string):PartsSlot=>({id,label:[pl,en],qty:null,conditional:true,defaultNone:true,alternatives:[],planNote:[plNote,enNote]});
  return [
  item('throttle','Przepustnica i adapter','Throttle body and adapter','Sprawdź sterowanie ECU, średnicę i zawartość zestawu kolektora ssącego.','Check ECU control, bore and intake manifold kit contents.'),
