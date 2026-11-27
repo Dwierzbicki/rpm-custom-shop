@@ -44,3 +44,9 @@ test('universal intercooler discovery requires the correct category',()=>{
  assert.equal(exports.discoverPart(row,['Układ dolotowy','Intercooler','Uniwersalne'])?.slot,'intercooler');
  assert.equal(exports.discoverPart(row,['Układ dolotowy','Intercooler','Intercoolery dedykowane']),null);
 });
+
+test('intercooler dimensions are unique and sorted numerically, not by text or price',()=>{
+ const names=['Intercooler 600x300x100mm FMIC.EU','Intercooler 600x300x76mm FMIC.EU','Intercooler 450x180x65mm FMIC.EU','Intercooler JRspec 600x300x76mm','Intercooler 600×180×90 mm','Intercooler uniwersalny Mishimoto G-Line'];
+ assert.equal(JSON.stringify(exports.intercoolerDimensionOptions(names)),JSON.stringify(['450×180×65','600×180×90','600×300×76','600×300×100']));
+ assert.equal(exports.intercoolerDimensions('Intercooler Mishimoto G-Line 63.5mm'),null);
+});
