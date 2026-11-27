@@ -239,3 +239,20 @@ test('complete build keeps heat protection and installation requirements visible
  assert.ok(!plan.resolveTuDependencies(slots,{turbo:'tuTurboSmart'}).some(s=>s.id==='heat-shield-wg'));
  assert.ok(plan.resolveTuDependencies(slots,{turbo:'tuTurboT3'}).some(s=>s.id==='heat-shield-wg'));
 });
+
+test('exhaust fabrication variants use explicit catalogue dimensions and quantities',()=>{
+ const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ const raw=plan.buildParts('m52b25tu',1,'drift','recommended','petrol',p);
+ const get=(selection,id)=>plan.resolveTuDependencies(raw,selection).find(s=>s.id===id);
+ const pipe=get({},'exhaust-pipes');
+ assert.ok(plan.partOptions(pipe).includes('pipe76m'));
+ assert.equal(plan.allCandidates.pipe76m.materialUnitMm,1000);
+ assert.equal(plan.allCandidates.pipe76half.materialUnitMm,500);
+ assert.equal(plan.allCandidates.bend76.quantityRequired,true);
+ const selection={'exhaust-pipes':'pipe76m','exhaust-bends':'bend63'};
+ const bend=get(selection,'exhaust-bends');
+ assert.deepEqual(Array.from(plan.partOptions(bend)),['bend76']);
+ assert.equal(plan.selectedPart(bend,selection),undefined);
+ assert.ok(plan.partOptions(get(selection,'exhaust-flex')).every(k=>plan.allCandidates[k].variant.diameterMm===76));
+ assert.equal(plan.partOptions(get({'exhaust-pipes':'pipe89half'},'exhaust-flex')).length,0);
+});
