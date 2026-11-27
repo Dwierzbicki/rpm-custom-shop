@@ -1,6 +1,8 @@
 import {canRunFmicWorker,fmicWorkerMemoryBudget} from './fmic-worker-mode';
 import {verifiedSupplierIdentitySql,publishLegacyWorkerDrafts} from './fmic-description-publication';
-import {processCachedDescriptions} from './fmic-description-local';
+import {drainCachedDescriptions} from './fmic-description-local';
+import {allCandidates} from './motolab-build-plan';
+const builderPrioritySkus=[...new Set(Object.values(allCandidates).map(c=>c.sku))];
 import {parseProductTechnical} from './fmic-technical';
 import {getDbPool} from './db';
 import {refreshSupplierDescription} from './fmic-description-refresh';
@@ -65,18 +67,19 @@ export function startDescriptionWorker(){
  // Local publication is independent of upstream request pacing.
  const published=await publishLegacyWorkerDrafts(client,10);
  if(published)console.info('FMIC verified legacy drafts published:',published);
- const local=await processCachedDescriptions(client,sku=>completeCachedDescription(client!,sku));
+ const local=await drainCachedDescriptions(client,sku=>completeCachedDescription(client!,sku),builderPrioritySkus,async()=>!g.rpmDescriptionStop&&process.memoryUsage().rss<fmicWorkerMemoryBudget()&&!!(await client!.query('SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW())')).rows[0]?.enabled);
  if(local.some(result=>result.status==='rejected'))console.error('FMIC local description batch failed',local.filter(result=>result.status==='rejected').length);
  // A pause, manual reservation or other control change during local work must be respected.
  const fetchState=await client.query("SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())");
  if(!g.rpmDescriptionStop&&fetchState.rows[0]?.enabled){
- const refresh=(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
+ const priorityRow=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE q.status='pending' AND q.sku=ANY($1::text[]) ORDER BY q.sku LIMIT 1",[builderPrioritySkus])).rows[0];
+ const refresh=priorityRow?undefined:(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
  if(refresh){
   await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
   try{await refreshSupplierDescription(refresh.sku);await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW(),last_error=NULL WHERE id=1')}
   catch(e){const msg=String(e).slice(0,400);if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg])}else{await client.query("INSERT INTO rpm_fmic_description_queue(sku,status,detail,updated_at) VALUES($1,'review',$2,NOW()) ON CONFLICT(sku) DO UPDATE SET status='review',detail=EXCLUDED.detail,updated_at=NOW()",[refresh.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg])}}
  }else{
- const row=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' ORDER BY sku LIMIT 1")).rows[0];
+ const row=priorityRow??(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' ORDER BY sku LIMIT 1")).rows[0];
  if(!row)await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '1 hour' WHERE id=1");
  else {
  try{
