@@ -55,7 +55,8 @@ export function estimateFuel(version:string,range:number,fuel:Fuel,targetPower?:
  return {powerPs,bsfc,density,duty,reserve,ethanolPercent:blend,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
-export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu';manifoldEngine?:'m50'|'m52'|'m54'|'2jz-ge'|'2jz-gte'};
+export type FitmentReference={turboSku:string;label:string;url:string;checkedOn:string};
+export type PartsSlot={fitmentReference?:FitmentReference;id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu';manifoldEngine?:'m50'|'m52'|'m54'|'2jz-ge'|'2jz-gte'};
 export type PilotProfile={fuel:string;internals:string;rods:string;priority:string;ethanolPercent?:number};
 export function isTuPilot(version:string,range:number,usage:string,fuel:Fuel,profile?:PilotProfile){return version==='m52b25tu'&&powerRangesFor(version)[range]?.min===350&&powerRangesFor(version)[range]?.max===400&&['drift','track'].includes(usage)&&fuel==='petrol'&&profile?.fuel==='pb98'}
 export function buildParts(version:string,range:number,usage:string,tier:string,fuel:Fuel,profile?:PilotProfile):PartsSlot[]{
@@ -238,9 +239,12 @@ function tuPilotSlots(slots:PartsSlot[],tier:string,profile:PilotProfile):PartsS
 /** Recalculate dependencies from current turbo; never preserve an external WG
  * when switching to an internal actuator. Unknown/owned turbo remains unresolved. */
 export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,string>):PartsSlot[]{
- const turbo=slots.find(s=>s.dependency==='m52tu');if(!turbo)return slots;
+ const turboSlot=slots.find(s=>s.id==='turbo');
+ const turboKey=turboSlot?selectedPart(turboSlot,selection):undefined;
+ const protectedSlots=slots.map(s=>s.id==='turbo-insulation'?resolveBlanketFitment(s,turboKey):s);
+ const turbo=protectedSlots.find(s=>s.dependency==='m52tu');if(!turbo)return protectedSlots;
  const spec=tuTurboSpec(selectedPart(turbo,selection));
- return slots.flatMap(s=>s.id==='wastegate'?(spec?.wg==='internal'?[]:[{...s,candidate:spec?.wg==='external'?'tuWastegate':undefined,alternatives:[],qty:spec?.wg==='external'?1:null}]):s.id==='downpipe'&&spec?[{...s,planNote:['Wylot turbo: '+spec.outlet+'; dopasuj do nadwozia.','Turbo outlet: '+spec.outlet+'; confirm chassis fitment.'] as [string,string]}]:[s]);
+ return protectedSlots.flatMap(s=>s.id==='wastegate'?(spec?.wg==='internal'?[]:[{...s,candidate:spec?.wg==='external'?'tuWastegate':undefined,alternatives:[],qty:spec?.wg==='external'?1:null}]):s.id==='downpipe'&&spec?[{...s,planNote:['Wylot turbo: '+spec.outlet+'; dopasuj do nadwozia.','Turbo outlet: '+spec.outlet+'; confirm chassis fitment.'] as [string,string]}]:[s]);
 }
 export function tuManifoldSpec(slots:PartsSlot[],selection:Record<string,string>,tier:string){
  const slot=slots.find(s=>s.dependency==='m52tu');const spec=slot?tuTurboSpec(selectedPart(slot,selection)):null;
@@ -315,7 +319,29 @@ function intakeManifoldSlot(slot:PartsSlot,version:string,tier:string):PartsSlot
  * blanket fitment from flange or power tier. Downpipe wrap is distinct from
  * manifold TermShield and does not imply wrapping the turbine or CHRA. */
 function thermalProtectionSlot(slot:PartsSlot,tier:string):PartsSlot{
- if(slot.id==='turbo-insulation')return {...slot,candidate:undefined,defaultNone:true,alternatives:tier==='premium'?['turboBlanketInconelT3','turboBlanketT3','turboBlanketT25','turboBlanketT4']:['turboBlanketT3','turboBlanketT25','turboBlanketT4','turboBlanketInconelT3'],planNote:[tier==='budget'?'Opcjonalny koc strony gorącej. Dobierz po pomiarze muszli; sprawdź dopuszczenie przez producenta turbo.':'Zalecane rozważenie osłony strony gorącej, szczególnie przy długim obciążeniu. Dobierz po pomiarze muszli, nie po samej flanszy. Sprawdź zalecenia producenta oraz chłodzenie CHRA.','Consider a turbine housing blanket; confirm dimensions, manufacturer guidance, CHRA cooling and actuator clearance before selecting.']};
+ if(slot.id==='turbo-insulation')return {...slot,candidate:undefined,defaultNone:true,alternatives:[],rpmOptions:[],planNote:[tier==='budget'?'Opcjonalny koc strony gorącej. Dobierz po pomiarze muszli; sprawdź dopuszczenie przez producenta turbo.':'Zalecane rozważenie osłony strony gorącej, szczególnie przy długim obciążeniu. Dobierz po pomiarze muszli, nie po samej flanszy. Sprawdź zalecenia producenta oraz chłodzenie CHRA.','Consider a turbine housing blanket; confirm dimensions, manufacturer guidance, CHRA cooling and actuator clearance before selecting.']};
  if(slot.id==='exhaust-wrap')return {...slot,candidate:undefined,defaultNone:true,alternatives:['downpipeWrap5','downpipeWrap10'],planNote:['Opcjonalna izolacja downpipe: dobierz długość rolki do wymiarów i zakładu. Nie stosuj, jeżeli producent wydechu tego nie dopuszcza. TermShield kolektora pozostaje oddzielną opcją.','Optional downpipe insulation: size roll length for dimensions and overlap. Verify exhaust manufacturer permits wrapping. Manifold TermShield remains a separate option.']};
  return slot;
+}
+
+/** Exact catalog identity -> manufacturer-listed housing variant.
+ * A reference is not an available catalog SKU. Never substitute a generic
+ * blanket by flange label, nominal power, or turbo family alone. */
+const blanketReferences:Readonly<Record<string,FitmentReference>>={
+ '102128202':{
+  turboSku:'102128202',label:'Pulsar Gen2 Turbo Blanket — PTX28/PTX30 IWG Housing: V-BAND Inlet',
+  url:'https://pulsarturbo.com/product/pulsar-gen2-turbo-blanket-for-ptg-ptx-iwg-turbos/',checkedOn:'2026-11-27'
+ }
+};
+export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined):PartsSlot{
+ const sku=turboKey?allCandidates[turboKey]?.sku:undefined;
+ const ref=sku?blanketReferences[sku]:undefined;
+ const planNote:[string,string]=ref?[
+  'Producent wymienia wybraną obudowę turbo jako zgodną z dedykowanym kocem. '+ref.label+'. Brak powiązanego SKU koca w katalogu — do wyceny; potwierdź miejsce i swobodę pracy aktuatora.',
+  'Manufacturer lists the selected turbo housing for this dedicated blanket. '+ref.label+'. No linked blanket SKU — quote required; verify clearance and actuator movement.'
+ ]:[
+  'Brak potwierdzonego dopasowania koca do wybranej obudowy turbo. Nie proponujemy przypadkowych koców T25/T3/T4. Wymagana dokumentacja producenta lub pomiar muszli i potwierdzenie dopasowania.',
+  'No confirmed blanket fitment for the selected turbo housing. Generic T25/T3/T4 blankets are not offered. Manufacturer documentation or housing measurements and fitment confirmation required.'
+ ];
+ return {...slot,candidate:undefined,alternatives:[],rpmOptions:[],defaultNone:true,fitmentReference:ref,planNote};
 }
