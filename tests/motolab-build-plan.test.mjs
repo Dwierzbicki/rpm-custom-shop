@@ -154,7 +154,7 @@ test('M52B25TU pilot is distinct, scoped to PB98 350–400 PS drift or track; ti
 test('switching turbo derives manifold flange, outlet and WG and removes external WG from IWG configurations',()=>{const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'response'},s=plan.buildParts('m52b25tu',1,'track','premium','petrol',p);assert.equal(plan.resolveTuDependencies(s,{}).find(x=>x.id==='wastegate').candidate,'tuWastegate');for(const turbo of ['tuTurboSmart']){assert.ok(!plan.resolveTuDependencies(s,{turbo,wastegate:'tuWastegate'}).some(x=>x.id==='wastegate'));assert.equal(plan.tuManifoldSpec(s,{turbo},'premium').options['rpm-wg-diameter'],'internal');}assert.equal(plan.tuManifoldSpec(s,{turbo:'tuTurboT3'},'premium').options['rpm-flange'],'t3-single');assert.equal(plan.tuManifoldSpec(s,{turbo:'tuTurboT3'},'premium').options['rpm-wg-diameter'],'wg-45');assert.equal(plan.resolveTuDependencies(s,{turbo:'tuTurboT3'}).find(x=>x.id==='wastegate').candidate,'tuWastegate');assert.ok(plan.partOptions(s.find(x=>x.id==='turbo')).includes('tuTurboT3'));assert.ok(!plan.partOptions(s.find(x=>x.id==='turbo')).some(k=>plan.tuTurboSpec(k)?.flangeLabel==='T25'));assert.equal(plan.tuManifoldSpec(s,{},'premium').options['rpm-wg-diameter'],'wg-45');assert.equal(plan.tuManifoldSpec(s,{turbo:'own'},'premium'),null);assert.equal(plan.resolveTuDependencies(s,{turbo:'own'}).find(x=>x.id==='wastegate').candidate,undefined);});
 test('manifold estimate validates actual catalog options, omits unspecified chassis and never claims complete fitment',()=>{const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'response'},s=plan.buildParts('m52b25tu',1,'drift','premium','petrol',p),spec=plan.tuManifoldSpec(s,{},'premium');const product={sku:'RPM-00032',id:32,name:'Fixture',price:3000,visible:true,stockStatus:'order',configurable:true,optionGroups:[...Object.entries(spec.options).map(([id,value])=>({id,required:true,options:[{id:value,price:id==='rpm-egt'?2450:id==='rpm-thermal-insulation'?1600:0}]})),{id:'rpm-chassis',required:true,options:[{id:'e46',price:0}]}]};assert.equal(plan.tuManifoldEstimate([product],spec).price,7050);assert.equal(plan.tuManifoldEstimate([{...product,visible:false}],spec),null);assert.equal(plan.tuManifoldEstimate([{...product,optionGroups:product.optionGroups.slice(1)}],spec),null);});
 
-test('unpriced base MS43 stays unresolved until the customer explicitly selects EMU Black; all tier choices remain independently editable',()=>{const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'response'},s=plan.buildParts('m52b25tu',1,'drift','budget','petrol',p);const ecu=s.find(x=>x.id==='ecu');assert.equal(plan.selectedPart(ecu,{}),undefined);assert.equal(plan.partOptions(ecu).join(','),'ecu');assert.equal(plan.selectedPart(ecu,{ecu:'ecu'}),'ecu');const rods=s.find(x=>x.id==='rods');assert.equal(plan.selectedPart(rods,{}),undefined);assert.equal(plan.selectedPart(rods,{rods:'tuRods'}),'tuRods');const view=readFileSync(new URL('../app/components/storefront/MotoLabBuildPlan.tsx',import.meta.url),'utf8');assert.ok(view.includes('selections[tier]'));assert.ok(view.includes(".sort().join('|')"));});
+test('unpriced base MS43 stays unresolved until the customer explicitly selects EMU Black; all tier choices remain independently editable',()=>{const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'response'},s=plan.buildParts('m52b25tu',1,'drift','budget','petrol',p);const ecu=s.find(x=>x.id==='ecu');assert.equal(plan.selectedPart(ecu,{}),undefined);assert.equal(plan.partOptions(ecu).join(','),'ecu');assert.equal(plan.selectedPart(ecu,{ecu:'ecu'}),'ecu');const rods=s.find(x=>x.id==='rods');assert.equal(plan.selectedPart(rods,{}),undefined);assert.equal(plan.selectedPart(rods,{rods:'tuRods'}),'tuRods');const view=readFileSync(new URL('../app/components/storefront/MotoLabBuildPlan.tsx',import.meta.url),'utf8');assert.ok(view.includes("selections[scope+'|'+tier]"));assert.ok(view.includes(".sort().join('|')"));});
 test('exact power slider keeps original range IDs and explicit TU pilot boundaries',()=>{assert.equal(config.rangeForPower('m52b25tu',350),1);assert.equal(config.rangeForPower('m52b25tu',380),1);assert.equal(config.rangeForPower('m52b25tu',400),1);assert.equal(config.rangeForPower('m52b25tu',410),2);assert.equal(config.rangeForPower('m52b25tu',340),0);assert.equal(config.rangeForPower('m54b30',510),1);assert.equal(config.rangeForPower('m54b30',400),0);for(const n of [NaN,249,381,510])assert.equal(config.rangeForPower('m52b25tu',n),-1);assert.equal(config.rangeForPower('unknown',350),-1);});
 test('target fuel estimate uses exact power while the default assessment retains band maximum',()=>{const exact=plan.estimateFuel('m52b25tu',1,'petrol',380),max=plan.estimateFuel('m52b25tu',1,'petrol');assert.equal(exact.powerPs,380);assert.equal(max.powerPs,400);assert.ok(exact.injectorCc<max.injectorCc);assert.ok(exact.pumpLph<max.pumpLph);assert.equal(plan.estimateFuel('m52b25tu',1,'petrol',410),null);assert.equal(plan.estimateFuel('m52b25tu',1,'petrol',NaN),null);const s=readFileSync(new URL('../app/components/storefront/PowerGuideSteps.tsx',import.meta.url),'utf8');assert.ok(s.includes('type="range"'));assert.ok(s.includes('step={10}'));assert.ok(s.includes('onConfirm(power,index)'));});
 
@@ -163,3 +163,42 @@ test('PB100 is a distinct valid fuel choice but does not silently activate the P
 test('fuel estimate changes with final ethanol percentage and retains E85 default for flex',()=>{const p=plan.estimateFuel('m52b25tu',1,'petrol',350),e30=plan.estimateFuel('m52b25tu',1,'ethanol',350,30),e50=plan.estimateFuel('m52b25tu',1,'ethanol',350,50),e85=plan.estimateFuel('m52b25tu',1,'ethanol',350,85);assert.ok(p.injectorCc<e30.injectorCc&&e30.injectorCc<e50.injectorCc&&e50.injectorCc<e85.injectorCc);assert.ok(e30.pumpLph<e85.pumpLph);assert.equal(plan.estimateFuel('m52b25tu',1,'ethanol',350).injectorCc,e85.injectorCc);assert.equal(plan.estimateFuel('m52b25tu',1,'ethanol',350,101),null);});
 
 test('all TU tiers include EGT; Premium uses a single priced seven-point manifold option and separately quotes hardware',()=>{const p={fuel:'pb98',internals:'auto',rods:'auto',priority:'response'};for(const tier of ['budget','recommended','premium']){const slots=plan.buildParts('m52b25tu',1,'drift',tier,'petrol',p),spec=plan.tuManifoldSpec(slots,{},tier);assert.equal(spec.options['rpm-egt'],tier==='premium'?'seven':'yes');assert.equal(spec.egtPoints,tier==='premium'?7:1);assert.equal(slots.some(s=>s.id==='egt-expansion'),tier==='premium');if(tier==='premium')assert.equal(slots.find(s=>s.id==='egt-expansion').candidate,undefined);}});
+
+test('global builder supplies EGT rules and tier choices across all twelve engines and power bands',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ for(const family of config.POWER_ENGINES)for(const v of family.versions)for(const [range,band] of config.powerRangesFor(v.id).entries())for(const tier of ['budget','recommended','premium']){
+  const slots=plan.buildGlobalParts(v.id,range,'street',tier,'petrol',profile,band.max);
+  assert.ok(slots.length);
+  assert.ok(slots.find(s=>s.id==='manifold').planNote[0].includes('EGT'));
+  assert.equal(slots.some(s=>s.id==='egt-expansion'),tier==='premium');
+  assert.equal(slots.find(s=>s.id==='ecu').candidate,tier==='budget'?undefined:'ecu');
+  if(family.id==='2jz')assert.ok(!slots.some(s=>['tuRods','rods','pistons'].includes(s.candidate)));
+  if(band.max>550)assert.equal(slots.find(s=>s.id==='turbo').candidate,undefined);
+ }
+});
+test('global manifold uses correct engine family and catalogue SKU, respects unknown fitment and tier',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ for(const v of ['m50b25','m52b28','m54b30','2jz-ge','2jz-gte']){
+  const slots=plan.buildGlobalParts(v,0,'street','premium','petrol',profile,350);
+  const spec=plan.globalManifoldSpec(slots,{},'premium',v);
+  if(v==='2jz-gte'){assert.equal(spec,null);continue;}
+  assert.equal(spec.sku,v==='2jz-ge'?'RPM-00033':'RPM-00032');
+  assert.equal(spec.options['rpm-engine'],v==='2jz-ge'?undefined:v.slice(0,3));
+  assert.equal(spec.options['rpm-egt'],'seven');
+  const iwg=plan.resolveGlobalDependencies(slots,{turbo:'tuTurboSmart'},v);
+  assert.ok(!iwg.some(s=>s.id==='wastegate'));
+  assert.equal(plan.globalManifoldSpec(slots,{turbo:'own'},'premium',v),null);
+  const fixture={id:99,sku:spec.sku,name:'Fixture',price:3000,visible:true,stockStatus:'order',configurable:true,optionGroups:[...Object.entries(spec.options).map(([id,value])=>({id,required:true,options:[{id:value,price:id==='rpm-egt'?2450:id==='rpm-thermal-insulation'?1600:0}]})),...(v==='2jz-ge'?[]:[{id:'rpm-chassis',required:true,options:[{id:'e46',price:0}]}])]};
+  assert.equal(plan.globalManifoldEstimate([fixture],spec).price,7050);
+  assert.equal(plan.globalManifoldEstimate([{...fixture,sku:'OTHER'}],spec),null);
+ }
+});
+test('global T4 retains two unresolved WG and never counts one as a complete kit',()=>{
+ const profile={fuel:'pb98',internals:'auto',rods:'auto',priority:'balanced'};
+ const slots=plan.buildGlobalParts('2jz-gte',1,'street','premium','petrol',profile,500);
+ const resolved=plan.resolveGlobalDependencies(slots,{turbo:'turbo'},'2jz-gte');
+ assert.equal(resolved.find(s=>s.id==='wastegate').qty,2);
+ assert.equal(resolved.find(s=>s.id==='wastegate').candidate,undefined);
+ assert.equal(resolved.find(s=>s.id==='manifold').candidate,'gteManifold');
+ assert.equal(plan.resolveGlobalDependencies(slots,{turbo:'turboVband'},'2jz-gte').find(s=>s.id==='manifold').candidate,undefined);
+});
