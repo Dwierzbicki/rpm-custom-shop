@@ -61,7 +61,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
  const ownByKey=new Map(eligible.map(p=>['rpm:'+p.id,p]));
  const [discovered,setDiscovered]=useState<DiscoveredPart[]>([]);
  useEffect(()=>{const ctrl=new AbortController();fetch('/api/catalog/fmic/build-discovery',{cache:'no-store',signal:ctrl.signal}).then(async r=>{if(!r.ok)return;const d=await r.json();if(!ctrl.signal.aborted&&Array.isArray(d.items))setDiscovered(d.items)}).catch(()=>{});return()=>ctrl.abort()},[]);
- const discoveries=useMemo(()=>{const known=new Set(Object.values(supplierCandidates).map(c=>c.sku));return discovered.filter(d=>d.slot==='bov'&&!known.has(d.sku));},[discovered]);
+ const discoveries=useMemo(()=>{const known=new Set(Object.values(supplierCandidates).map(c=>c.sku));return discovered.filter(d=>!known.has(d.sku));},[discovered]);
  const candidates:Record<string,BuildCandidate>={...supplierCandidates,...Object.fromEntries(discoveries.map(d=>['discover:'+d.sku,{sku:d.sku,expectedName:d.name,note:d.reason} as BuildCandidate])),...Object.fromEntries(eligible.map(p=>['rpm:'+p.id,{sku:p.sku,expectedName:p.name,note:[p.motolab!.note,p.motolab!.noteEn||'Workshop recommendation; exact fitment and geometry require confirmation.'] as [string,string]}]))};
  const brandFor=(k:string)=>ownByKey.get(k)?.brand??candidateBrand(k)??discoveries.find(d=>'discover:'+d.sku===k)?.brand;
  const tuPilot=isTuPilot(version,range,usage,fuel,profile);
@@ -73,7 +73,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
  const materialKey=(slotId:string,candidateKey:string)=>tier+':'+slotId+':'+candidateKey;
  const qtyFor=(slotId:string,candidateKey:string)=>{if(!candidates[candidateKey]?.materialUnitMm&&!candidates[candidateKey]?.quantityRequired)return 1;const n=Number(materialQty[materialKey(slotId,candidateKey)]);return Number.isSafeInteger(n)&&n>=1&&n<=50?n:0};
  const [expanded,setExpanded]=useState<string[]>([]),[sort,setSort]=useState<'recommended'|'low'|'high'>('recommended');
- const slots=useMemo(()=>{const resolved=resolveTuDependencies(baseSlots,selection).map(s=>s.id==='bov'?{...s,alternatives:[...(s.alternatives??[]),...discoveries.map(d=>'discover:'+d.sku)],defaultNone:s.defaultNone}:s);const extra=turboAssemblySlots(resolved,selection);return resolved.flatMap(s=>s.id==='turbo'?[s,...extra]:[s])},[baseSlots,selection,discoveries]);
+ const slots=useMemo(()=>{const resolved=resolveTuDependencies(baseSlots,selection).map(s=>{const extra=discoveries.filter(d=>d.slot===s.id).map(d=>'discover:'+d.sku);if(!extra.length)return s;const existing=partOptions({...s,rpmOptions:[]}).filter(k=>k!==s.candidate);return {...s,alternatives:[...existing,...extra],defaultNone:s.defaultNone??!s.candidate};});const extra=turboAssemblySlots(resolved,selection);return resolved.flatMap(s=>s.id==='turbo'?[s,...extra]:[s])},[baseSlots,selection,discoveries]);
  const [activeSystem,setActiveSystem]=useState<string>('turbo');
  const [onlyAssigned,setOnlyAssigned]=useState(false);
  const [brandFilters,setBrandFilters]=useState<Record<string,string>>({});
