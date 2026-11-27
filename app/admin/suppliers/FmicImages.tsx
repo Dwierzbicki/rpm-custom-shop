@@ -9,6 +9,7 @@ export default function FmicImages(){
  async function loadImages(key:string){const r=await fetch(endpoint+'?'+new URLSearchParams({sku:key}),{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);setProductImages(d)}
  async function findImages(){setReviewBusy(true);setReviewError('');setProductImages(null);try{await loadImages(sku.trim())}catch(e){setReviewError(String(e))}finally{setReviewBusy(false)}}
  async function classify(url:string,status:'ok'|'watermarked'|'pending'){if(!productImages||reviewBusy)return;setReviewBusy(true);setReviewError('');try{const key=productImages.product.sku;const r=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'classify',sku:key,url,status})});const d=await r.json();if(!r.ok)throw Error(d.error);await loadImages(key);await read()}catch(e){setReviewError(String(e))}finally{setReviewBusy(false)}}
+ useEffect(()=>{const key=(new URLSearchParams(window.location.search).get('sku')??'').slice(0,120);if(key){setSku(key);setReviewBusy(true);void loadImages(key).catch(e=>setReviewError(String(e))).finally(()=>setReviewBusy(false))}},[]);
  const running=!!report?.control?.enabled;
  const samples=useRef<{at:number;processed:number}[]>([]);
  const [rate,setRate]=useState<number|null>(null);

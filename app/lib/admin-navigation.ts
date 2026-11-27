@@ -2,7 +2,7 @@
 export const ADMIN_GROUPS=[
  {id:'start',label:'Pulpit',href:'/admin',icon:'dashboard',links:[{href:'/admin',label:'Pulpit'}]},
  {id:'sales',label:'Sprzedaż',href:'/admin/orders',icon:'orders',links:[{href:'/admin/orders',label:'Zamówienia'},{href:'/admin/quote-requests',label:'Zapytania ofertowe'},{href:'/admin/emails',label:'Podgląd wiadomości',tab:'/admin/orders'}]},
- {id:'catalog',label:'Katalog',href:'/admin/products',icon:'package',links:[{href:'/admin/products',label:'Produkty RPM'},{href:'/admin/suppliers/fmic',label:'Katalog FMIC'},{href:'/admin/variants',label:'Warianty'},{href:'/admin/product-descriptions',label:'Opisy i parametry',tab:'/admin/product-descriptions'},{href:'/admin/image-audit',label:'Audyt zdjęć',tab:'/admin/product-descriptions'},{href:'/admin/link-audit',label:'Audyt linków',tab:'/admin/product-descriptions'}]},
+ {id:'catalog',label:'Katalog',href:'/admin/products',icon:'package',links:[{href:'/admin/products',label:'Produkty RPM'},{href:'/admin/suppliers/fmic',label:'Katalog FMIC'},{href:'/admin/fmic-product',label:'Karta produktu',tab:'/admin/suppliers/fmic'},{href:'/admin/variants',label:'Warianty'},{href:'/admin/product-descriptions',label:'Opisy i parametry',tab:'/admin/product-descriptions'},{href:'/admin/image-audit',label:'Audyt zdjęć',tab:'/admin/product-descriptions'},{href:'/admin/link-audit',label:'Audyt linków',tab:'/admin/product-descriptions'}]},
  {id:'suppliers',label:'Dostawcy',href:'/admin/suppliers',icon:'truck',links:[{href:'/admin/suppliers',label:'Integracje i oferty'},{href:'/admin/suppliers/pricing',label:'Ceny i marże'},{href:'/admin/settings/fmic-commercial',label:'Symulacja FMIC',tab:'/admin/suppliers/pricing'},{href:'/admin/b2b-monitor',label:'Automatyzacja B2B'}]},
  {id:'motolab',label:'MotoLab',href:'/admin/settings/power-guides',icon:'wrench',links:[{href:'/admin/settings/power-guides',label:'Power Guides'}]},
  {id:'settings',label:'Ustawienia',href:'/admin/settings',icon:'settings',links:[{href:'/admin/settings',label:'Ustawienia sklepu'},{href:'/admin/settings/company',label:'Dane firmy'},{href:'/admin/settings/payments',label:'Płatności'},{href:'/admin/settings/shipping',label:'Dostawa'},{href:'/admin/settings/appearance',label:'Wygląd',tab:'/admin/settings/appearance'},{href:'/admin/community',label:'Treści strony głównej',tab:'/admin/settings/appearance'}]}
@@ -25,5 +25,5 @@ export function workspaceTabs(group:AdminGroup|undefined):AdminLink[]{
 }
 export function detailTabs(path:string):AdminLink[]{
  const group=activeAdminGroup(path),active=activeAdminLink(path);if(!group||!active?.tab)return [];
- return (group.links as readonly AdminLink[]).filter(l=>l.tab===active.tab&&active.tab!=='/admin/orders'&&active.tab!=='/admin/suppliers/pricing');
+ return (group.links as readonly AdminLink[]).filter(l=>l.tab===active.tab&&active.tab!=='/admin/suppliers/fmic'&&active.tab!=='/admin/orders'&&active.tab!=='/admin/suppliers/pricing');
 }
