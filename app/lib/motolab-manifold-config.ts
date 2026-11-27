@@ -9,7 +9,7 @@ export function manifoldConfiguration(product:Product,spec:Spec,choices:Record<s
  const chosenOptions={...spec.options};
  for(const group of product.optionGroups){
   const value=choices[group.id];
-  if(!fixed.has(group.id)&&value&&group.options.some(o=>o.id===value))chosenOptions[group.id]=value;
+  if(!fixed.has(group.id)&&value){if(!group.options.some(o=>o.id===value))return null;chosenOptions[group.id]=value;}
  }
  if(Object.entries(spec.options).some(([id,value])=>!product.optionGroups?.some(g=>g.id===id&&g.options.some(o=>o.id===value))))return null;
  const configuration={chosenOptions,engine:'',flange:'',wg:'',egt:false,qty:1};
