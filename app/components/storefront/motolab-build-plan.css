@@ -320,3 +320,18 @@
 .rpm-dyno-parts>div{display:grid;gap:4px;padding:10px;border-bottom:1px solid var(--rpm-color-panel-border);min-width:0;overflow-wrap:anywhere}
 .rpm-dyno-parts small{color:var(--rpm-color-muted)}
 @media(max-width:540px){.rpm-dyno-library>summary{font-size:12px;gap:6px}.rpm-dyno-library>summary>small{font-size:10px;white-space:normal}.rpm-dyno-state{padding:12px}.rpm-dyno-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-dyno-metrics>div{padding:10px}.rpm-dyno-metrics strong{font-size:23px}.rpm-dyno-graph-head{font-size:13px}}
+
+
+/* Inline manifold configuration, no navigation away from the build. */
+.rpm-manifold-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rpm-manifold-actions>button{display:inline-flex;align-items:center;gap:7px;min-height:36px;margin:0}
+.rpm-manifold-inline{display:grid;gap:12px;padding:14px;background:var(--rpm-color-background);border:1px solid var(--rpm-color-panel-border);border-radius:6px;min-width:0}
+.rpm-manifold-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr));gap:12px}
+.rpm-manifold-fields label{display:grid;gap:6px;align-content:start;font-size:12px;font-weight:650;min-width:0}
+.rpm-manifold-fields select{width:100%;min-width:0;padding:9px 10px;background:var(--rpm-color-surface);border:1px solid var(--rpm-color-panel-border);color:var(--rpm-color-text);border-radius:5px;font:inherit}
+.rpm-manifold-fields select:disabled{opacity:.75;cursor:default}
+.rpm-manifold-fields small{font-size:10px;font-weight:400;color:var(--rpm-color-muted)}
+.rpm-manifold-inline>.primary{justify-self:start;display:inline-flex;align-items:center;gap:7px}
+.rpm-manifold-config-summary{display:flex;flex-wrap:wrap;gap:5px}
+.rpm-manifold-config-summary>span{font-size:11px;padding:5px 8px;border:1px solid var(--rpm-color-panel-border);border-radius:4px;background:var(--rpm-color-background)}
+@media(max-width:540px){.rpm-manifold-actions>button,.rpm-manifold-inline>.primary{width:100%;justify-content:center}.rpm-manifold-inline{padding:10px}}
