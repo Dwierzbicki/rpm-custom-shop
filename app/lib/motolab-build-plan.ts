@@ -49,7 +49,7 @@ export function estimateFuel(version:string,range:number,fuel:Fuel){
  return {powerPs:band.max,bsfc,density,duty,reserve,injectorCc:Math.ceil(litres*1000/60/6/duty),pumpLph:Math.ceil(litres*reserve)};
 }
 
-export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];planNote?:[string,string];dependency?:'m52tu'};
+export type PartsSlot={id:string;label:[string,string];qty:number|null;conditional:boolean;candidate?:string;rpmOptions?:string[];alternatives?:string[];defaultNone?:boolean;planNote?:[string,string];dependency?:'m52tu'};
 export type PilotProfile={fuel:string;internals:string;rods:string;priority:string};
 export function isTuPilot(version:string,range:number,usage:string,fuel:Fuel,profile?:PilotProfile){return version==='m52b25tu'&&powerRangesFor(version)[range]?.min===350&&powerRangesFor(version)[range]?.max===400&&['drift','track'].includes(usage)&&fuel==='petrol'&&profile?.fuel==='pb98'}
 export function buildParts(version:string,range:number,usage:string,tier:string,fuel:Fuel,profile?:PilotProfile):PartsSlot[]{
@@ -118,12 +118,12 @@ export const tuCandidates:Record<string,BuildCandidate>={"tuTurboBudget":{"sku":
 export const allCandidates:Record<string,BuildCandidate>={...candidates,...alternatives,...tuCandidates};
 const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['intercoolerJr','intercoolerPsr','intercoolerBlack'],injectors:['injectors1500'],turbo:['turboVband','garrett3076'],gteRods:['gteRodsFmic'],gtePistons:['gtePistonsWiseco'],pump:['pumpAem','pumpWalbro'],wastegate45:['wastegateTial']};
 export function partOptions(slot:PartsSlot):string[]{
- return [...(slot.candidate?[slot.candidate,...(slot.alternatives??optionKeys[slot.candidate]??[])]:[]),...(slot.rpmOptions??[])];
+ return [...(slot.candidate?[slot.candidate]:[]),...(slot.alternatives??(slot.candidate?optionKeys[slot.candidate]??[]:[])),...(slot.rpmOptions??[])];
 }
 export function selectedPart(slot:PartsSlot,selection:Record<string,string>):string|undefined{
  const options=partOptions(slot),choice=selection[slot.id];
  if(choice==='own')return undefined;
- return options.includes(choice)?choice:options[0];
+ return options.includes(choice)?choice:slot.defaultNone?undefined:options[0];
 }
 
 export type BuildIssue={id:string;slots:string[];level:'conflict'|'review';message:[string,string]};
@@ -197,7 +197,7 @@ function tuPilotSlots(slots:PartsSlot[],tier:string,profile:PilotProfile):PartsS
  downpipe:['Wylot zależny od turbo; dopasowanie do nadwozia i ochrona termiczna.','Outlet depends on turbo; chassis fitment and heat shielding.'],
  };
  const map:Record<string,string|undefined>={turbo,pump,injectors:'tuInjectors',intercooler:'intercooler',ecu:budget?undefined:'ecu',rods:profile.rods==='forged'||(profile.rods==='auto'&&!budget)?'tuRods':undefined};
- const out=slots.map(s=>({...s,candidate:map[s.id],alternatives:s.id==='turbo'?tuTurboKeys.filter(k=>k!==turbo):s.id==='pump'?tuPumpKeys.filter(k=>k!==pump):s.id==='injectors'||s.id==='rods'||s.id==='intercooler'?[]:undefined,planNote:notes[s.id],...(s.id==='turbo'?{dependency:'m52tu' as const}:{}),...(s.id==='pump'?{qty:1}:{})}));
+ const out:PartsSlot[]=slots.map(s=>({...s,candidate:map[s.id],alternatives:s.id==='turbo'?tuTurboKeys.filter(k=>k!==turbo):s.id==='pump'?tuPumpKeys.filter(k=>k!==pump):s.id==='ecu'?(budget?['ecu']:[]):s.id==='rods'?(!map.rods&&profile.rods!=='m50b25nv'?['tuRods']:[]):s.id==='injectors'||s.id==='intercooler'?[]:undefined,defaultNone:(s.id==='ecu'&&budget)||(s.id==='rods'&&!map.rods),planNote:notes[s.id],...(s.id==='turbo'?{dependency:'m52tu' as const}:{}),...(s.id==='pump'?{qty:1}:{})}));
  const idx=out.findIndex(s=>s.id==='bearings');
  out.splice(idx,1,{id:'bearings-rod',label:['Panewki korbowodowe','Rod bearings'],qty:1,conditional:true,candidate:'tuRodBearings',alternatives:[],planNote:['Dobór po pomiarach.','Select after measurements.']},{id:'bearings-main',label:['Panewki główne','Main bearings'],qty:1,conditional:true,candidate:'tuMainBearings',alternatives:[],planNote:['Dobór po pomiarach.','Select after measurements.']});
  return out;

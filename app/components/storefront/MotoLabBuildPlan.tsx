@@ -31,7 +31,9 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile}:{ver
  const brandFor=(k:string)=>ownByKey.get(k)?.brand??candidateBrand(k);
  const pilot=isTuPilot(version,range,usage,fuel,profile);
  const baseSlots=useMemo(()=>buildParts(version,range,usage,tier,fuel,profile).map(s=>({...s,rpmOptions:pilot?[]:eligible.filter(p=>p.motolab?.slot===s.id).map(p=>'rpm:'+p.id)})),[version,range,usage,tier,fuel,profile,eligible,pilot]);
- const [selection,setSelection]=useState<Record<string,string>>({}),[expanded,setExpanded]=useState<string[]>([]),[sort,setSort]=useState<'recommended'|'low'|'high'>('recommended');
+ const [selections,setSelections]=useState<Record<string,Record<string,string>>>({});
+ const selection=selections[tier]??{};
+ const [expanded,setExpanded]=useState<string[]>([]),[sort,setSort]=useState<'recommended'|'low'|'high'>('recommended');
  const slots=useMemo(()=>{const resolved=resolveTuDependencies(baseSlots,selection);const extra=turboAssemblySlots(resolved,selection);return resolved.flatMap(s=>s.id==='turbo'?[s,...extra]:[s])},[baseSlots,selection]);
  const [activeSystem,setActiveSystem]=useState<string>('turbo');
  const [onlyAssigned,setOnlyAssigned]=useState(true);
@@ -42,7 +44,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile}:{ver
  const tierPlans=pilot?TU_TIERS.map(t=>({tier:t,slots:resolveTuDependencies(buildParts(version,range,usage,t,fuel,profile),{})})):[];
  const keys=Array.from(new Set([...slots.flatMap(partOptions),...tierPlans.flatMap(p=>p.slots.flatMap(partOptions))]));
  const manifoldSpec=tuManifoldSpec(baseSlots,selection,tier),manifold=tuManifoldEstimate(rpmProducts,manifoldSpec);
- const skuKey=keys.filter(k=>!ownByKey.has(k)).map(k=>candidates[k].sku).join('|');
+ const skuKey=[...new Set(keys.filter(k=>!ownByKey.has(k)).map(k=>candidates[k].sku))].sort().join('|');
  useEffect(()=>{const controller=new AbortController();setQuotes([]);if(!skuKey){setState('ready');return}setState('loading');quoteFmicCart(skuKey.split('|'),controller.signal).then(q=>{if(!controller.signal.aborted){setQuotes(q);setState('ready')}}).catch(()=>{if(!controller.signal.aborted)setState('error')});return()=>controller.abort()},[skuKey]);
  const matched=keys.flatMap(k=>{const c=candidates[k],p=ownByKey.get(k);const q:FmicQuote|undefined=p?{sku:p.sku,name:p.name,unitPrice:p.price,available:true,image:p.images?.[0]??null,updatedAt:''}:quotes.find(q=>q.sku===c.sku&&q.name===c.expectedName);return q?[q]:[]});
  const chosen=slots.flatMap(slot=>{const k=selectedPart(slot,selection);const q=k?matched.find(q=>q.sku===candidates[k].sku):undefined;return q?[q]:[]});
@@ -50,10 +52,11 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile}:{ver
  const total=purchasable.reduce((sum,q)=>sum+q.unitPrice,0)+(manifold?.price??0);
  const comparisons=tierPlans.map(p=>{const priced=p.slots.flatMap(s=>{const k=selectedPart(s,{});const q=k?matched.find(q=>q.sku===candidates[k].sku&&q.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0):undefined;return q?[q.unitPrice]:[]});const m=tuManifoldEstimate(rpmProducts,tuManifoldSpec(p.slots,{},p.tier));return {tier:p.tier,total:priced.reduce((a,b)=>a+b,0)+(m?.price??0),count:priced.length+(m?1:0),slots:p.slots.length}});
  const remaining=budgetRemaining(profile.budgetPln,total);
- const choose=(id:string,key:string)=>{setSelection(s=>{const next={...s,[id]:key};if(pilot&&id==='turbo'){delete next.wastegate}return next});setExpanded(s=>s.filter(x=>x!==id));setCartStatus('');setCartError('')};
+ const choose=(id:string,key:string)=>{setSelections(s=>{const next={...s[tier],[id]:key};if(pilot&&id==='turbo'){delete next.wastegate}return {...s,[tier]:next}});setExpanded(s=>s.filter(x=>x!==id));setCartStatus('');setCartError('')};
  const money=(n:number)=>n.toLocaleString(en?'en-GB':'pl-PL',{style:'currency',currency:'PLN'});
  const [busy,setBusy]=useState(''),[cartStatus,setCartStatus]=useState(''),[cartError,setCartError]=useState('');
  const lock=useRef(false);
+ useEffect(()=>{setExpanded([]);setCartStatus('');setCartError('')},[tier]);
  async function add(q:FmicQuote){if(lock.current||slots.some(s=>{const k=selectedPart(s,selection);return k&&candidates[k].sku===q.sku&&conflicts.some(i=>i.slots.includes(s.id))}))return;lock.current=true;setBusy(q.sku);setCartStatus('');setCartError('');try{const p=eligible.find(p=>p.sku===q.sku);if(p){
  const r=await fetch('/api/catalog',{cache:'no-store'});if(!r.ok)throw Error();const d=await r.json();if(!Array.isArray(d.products))throw Error();
  const fresh=eligibleRpmParts(d.products,version,range).find(x=>x.id===p.id&&x.sku===p.sku&&x.name===q.name&&x.price===q.unitPrice&&JSON.stringify(x.motolab)===JSON.stringify(p.motolab));if(!fresh){setRpmProducts(d.products);throw Error()}
