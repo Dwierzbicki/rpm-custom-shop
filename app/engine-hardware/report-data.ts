@@ -14,7 +14,8 @@ export function buildHardwareReport({engine,profileId,revision,profiles,parts,di
  const all=groups.flatMap(g=>g.rows);
  const gaps=!revision?m54Breakdown.map(g=>({id:g.id,title:g.title,items:g.connections.filter(c=>needsReference(c,selected))})).filter(g=>g.items.length):[];
  const reviewed=!revision?m54Breakdown.flatMap(g=>g.connections.filter(c=>c.review).map(c=>({id:c.id,title:c.title,review:c.review!}))):[];
- return {engine,profile,revision,groups,gaps,reviewed,usageCount:all.length,uniqueOem:new Set(all.map(r=>r.usage.partKey??r.usage.oem)).size,unresolvedPartCount:all.filter(r=>!r.part).length};
+ const missingDimensions=groups.flatMap(({diagram,rows})=>rows.filter(r=>!r.part?.dimension.trim()).map(r=>({...r,diagramId:diagram.id,source:diagram.source,vehicle:diagram.vehicle}))); 
+ return {engine,profile,revision,groups,gaps,reviewed,missingDimensions,usageCount:all.length,uniqueOem:new Set(all.map(r=>r.usage.partKey??r.usage.oem)).size,unresolvedPartCount:all.filter(r=>!r.part).length};
 }
 export function hardwareReportHref(engine:string,profileId:string,language:'pl'|'en'){
  const q=new URLSearchParams({engine,lang:language});

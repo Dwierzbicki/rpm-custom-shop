@@ -32,7 +32,6 @@ export const m54Breakdown:ConnectionGroup[]=[
     "diagramId": "11_9905",
     "positions": [
      "03",
-     "04",
      "11"
     ]
    },
@@ -115,14 +114,11 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Korek spustowy płynu w bloku",
      "en": "Block coolant drain"
     },
-    "review": {
-     "kind": "pending",
-     "note": {
-      "pl": "W grupie korków bloku istnieje M14×1,5 (07119904539); tożsamość dokładnego otworu do potwierdzenia, nie dodano drugi raz.",
-      "en": "M14×1.5 (07119904539) already listed in block plugs; exact opening pending, not duplicated."
-     },
-     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9905&id=AV51-EUR-08-2001-E46-BMW-330i"
-    }
+    "diagramId": "11_9905",
+    "positions": [
+     "04",
+     "05"
+    ]
    },
    {
     "id": "block-studs",
