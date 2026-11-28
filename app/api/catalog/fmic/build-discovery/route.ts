@@ -1,4 +1,5 @@
 import {NextResponse} from 'next/server';
+import {imageOrderSql} from '../../../../lib/fmic-image-ranking';
 import {getDbPool} from '../../../../lib/db';
 import {visibleCatalog} from '../../../../lib/fmic-category-membership';
 import {discoverPart,discoverExtraPart,extraDiscoveryPaths,compressorInletMm,discoverTurbo,turboDiscoveryCategory,type DiscoveryRow} from '../../../../lib/power-builder-discovery';
@@ -24,7 +25,12 @@ export async function GET(request:Request){
    // Scan the whole eligible category; never truncate by SKU before sizing.
    const rows=await getDbPool().query<DiscoveryRow>("SELECT sku,name,data->>'brand' AS brand,proposed_gross FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=$1::text[] ORDER BY sku",[turboDiscoveryCategory]);
    const items=rows.rows.flatMap(row=>{const part=discoverTurbo(row,target);return part?[part]:[]});
-   return NextResponse.json({items,scanned:rows.rows.length,targetPs:target},{headers});
+   // Quote the screened result in one local DB query, rather than issuing
+   // dozens of browser cart-quote requests. Cart additions still revalidate.
+   const matched=items.length?await getDbPool().query("SELECT sku,name,proposed_gross,available,updated_at,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM rpm_fmic_catalog WHERE sku=ANY($1::text[]) AND "+visibleCatalog,[items.map(p=>p.sku)]):{rows:[]};
+   const quotes=matched.rows.map(p=>({sku:p.sku,name:p.name,unitPrice:Number(p.proposed_gross),available:p.available===true,image:p.image,updatedAt:p.updated_at}));
+   const current=new Set(quotes.filter(q=>q.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0).map(q=>q.sku+'|'+q.name));
+   return NextResponse.json({items:items.filter(p=>current.has(p.sku+'|'+p.name)),quotes,scanned:rows.rows.length,targetPs:target},{headers});
   }
   if(slot&&!Object.hasOwn(extraDiscoveryPaths,slot))return NextResponse.json({error:'Nieobsługiwana grupa'},{status:400,headers});
   const categories=slot?extraDiscoveryPaths[slot]:[['Układ dolotowy','Blow off','Blow offy uniwersalne'],['Układ paliwowy','Regulatory ciśnienia paliwa','Regulatory ciśnienia paliwa'],['Układ paliwowy','Filtry paliwa'],['Układ dolotowy','Intercooler','Uniwersalne']];
