@@ -730,3 +730,13 @@
 .rpm-build-workspace .rpm-builder-load-warning{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid #8a6743;background:#25231f;border-radius:7px;padding:12px;color:#edce9f;font-size:12px}
 .rpm-builder-load-warning>span{flex:1;min-width:160px}
 .rpm-builder-load-warning>button{font-size:12px;min-height:32px}
+
+/* Selected product: rationale explains the choice; specifications stay in the detail area. */
+.rpm-build-workspace .rpm-build-clean-card .rpm-product-rationale{margin:8px 0 2px;padding:5px 0 5px 10px;gap:3px;border-left:2px solid #59616d}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-details{border-top:1px solid #383e48;padding-top:5px;margin-top:4px}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-details>p{font-size:12px;line-height:1.55;margin:6px 0;color:#bfc7d2}
+.rpm-build-workspace .rpm-build-tech-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,115px),1fr));gap:5px;margin:6px 0 8px;padding:0}
+.rpm-build-workspace .rpm-build-tech-facts>div{background:#1b1f26;border:1px solid #383e48;border-radius:5px;padding:7px 8px;min-width:0}
+.rpm-build-workspace .rpm-build-tech-facts dt{color:#aab1bc;font-size:10px;line-height:1.3}
+.rpm-build-workspace .rpm-build-tech-facts dd{margin:3px 0 0;color:#f0f2f5;font-weight:700;font-size:12px;line-height:1.4;overflow-wrap:anywhere}
+.rpm-build-workspace .rpm-build-clean-card .rpm-build-product-details>p.rpm-build-tech-source{color:#aab1bc;font-size:10px}
