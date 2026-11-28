@@ -12,7 +12,7 @@ export const families = [
 ] as const;
 export type Localized={pl:string;en:string};
 const l=(pl:string,en:string):Localized=>({pl,en});
-export type Part={catalogStatus?:'discontinued';key?:string;unavailableReason?:Localized;unit?:'piece'|'set';oem:string;dimension:string;name:Localized;sku?:string;technicalEvidence?:string};
+export type Part={catalogStatus?:'discontinued';key?:string;unavailableReason?:Localized;unit?:'piece'|'set';oem:string;dimension:string;dimensionStatus?:'partial';name:Localized;sku?:string;technicalEvidence?:string};
 export type Usage={partKey?:string;quantityUnit?:'piece'|'set';position:string;oem:string;quantity:number;location:Localized;mountingEvidence?:string;torque?:string;torqueSource?:string;replacement?:'always'|'inspect'|'not-applicable';hotspots?:{x:number;y:number}[]};
 export type Diagram={profileId?:string;sourceId?:string;id:string;engine:string;vehicle:string;title:Localized;source:string;image?:{path:string;rightsEvidence:string};usages:Usage[]};
 export const M54_REFERENCE_INDEX='https://www.realoem.com/bmw/en/partgrp?id=ET56-EUR-11-2001-E46-BMW-330i&mg=11';
@@ -44,7 +44,7 @@ const referenceParts:Part[]=[
  {oem:'11121738607',dimension:'M6',name:l('Nakrętka pokrywy zaworów','Valve cover cap nut')},
  {oem:'11121738608',dimension:'M6',name:l('Nakrętka pokrywy zaworów','Valve cover cap nut')},
  {oem:'11127838077',dimension:'',name:l('Podkładka mocowania pokrywy','Valve cover mounting washer')},
- {oem:'11131740000',dimension:'',name:l('Śruba miski olejowej','Oil pan bolt')},
+ {oem:'11131740000',dimension:'M6; L do pomiaru / length pending',dimensionStatus:'partial',name:l('Śruba miski olejowej','Oil pan bolt'),technicalEvidence:'E46 330Ci M54 TIS 11 13 2AZ identifies oil-pan-to-block thread M6 and class 8.8; exact OEM bolt length not listed, verify specific position 05: https://workshop-manuals.com/bmw/3_series_e46/330ci_m54_conver/4_tightening_torques/11__engine_%28m54%29/13__oil_sump/2_azd__oil_pan/ ; 21 pieces with blank dimension: https://www.realoem.com/bmw/enUS/showparts?diagId=11_9918&id=AN56-EUR-03_2000_E46_BMW_330i'},
  {oem:'11131435807',dimension:'M6 × 64',name:l('Śruba z podkładką','Bolt with washer')},
  {oem:'11131435806',dimension:'M6 × 100',name:l('Śruba z podkładką','Bolt with washer')},
  {oem:'07119904992',dimension:'M8 × 20-U1-8.8',name:l('Śruba z podkładką','Bolt with washer')},
@@ -56,7 +56,7 @@ const referenceParts:Part[]=[
  {oem:'07129903135',dimension:'M10 × 40',name:l('Szpilka','Stud')},
  {oem:'11111703836',dimension:'M24 × 1,5',name:l('Korek gwintowany','Threaded plug')},
  {"oem":"07119934460","dimension":"C22 × 1,5","name":{"pl":"Pierścień zabezpieczający sworzeń","en":"Piston pin circlip"}},
- {"oem":"11211720633","dimension":"","name":{"pl":"Centralna śruba wału","en":"Crankshaft central bolt"}},
+ {"oem":"11211720633","dimension":"M18 × 1,5; L do pomiaru / length pending","name":{"pl":"Centralna śruba wału","en":"Crankshaft central bolt"},"dimensionStatus":"partial","technicalEvidence":"BMW TIS E46 330i M54, 11 23 2AZ: M18×1.5, replace screw. https://workshop-manuals.com/bmw/3_series_e46/330i_m54_sal/4_tightening_torques/11__engine_%28m54%29/23__vibration_damper/1_azd__vibration_damper/ ; OEM identity and qty: https://www.realoem.com/bmw/enUS/showparts?diagId=11_9954&id=AN56-EUR-09-2001-E46-BMW-330i ; aftermarket FEBI 33619 listing gives overall length 138 mm and thread length 109 mm, not a confirmed OEM under-head length: https://www.auto-doc.ie/car-parts/oem/11211720633"},
  {"oem":"11231288660","dimension":"","name":{"pl":"Podkładka śruby centralnej","en":"Crankshaft bolt washer"}},
  {"oem":"11617545279","dimension":"M7","name":{"pl":"Nakrętka kołnierzowa","en":"Flange nut"}},
  {"oem":"07129901481","dimension":"M7 × 95","name":{"pl":"Szpilka łoża wałka","en":"Camshaft bearing ledge stud"}},
@@ -77,10 +77,10 @@ const referenceParts:Part[]=[
  {"oem":"11111714541","dimension":"Ø 11,5 mm","name":{"pl":"Zaślepka bloku","en":"Block blind plug"}},
  {"oem":"07119904525","dimension":"M6 × 40-ZNNIV SI","name":{"pl":"Śruba z podkładką","en":"Bolt with washer"}},
  {"oem":"11311736326","dimension":"M6 × 20","name":{"pl":"Śruba Torx","en":"Torx bolt"}},
- {"oem":"11361436675","dimension":"","name":{"pl":"Szpilka koła wałka ssącego","en":"Intake sprocket stud"}},
+ {"oem":"11361436675","dimension":"M7×1 × 16 / M6×1 × 8 (ref.)","name":{"pl":"Szpilka koła wałka ssącego","en":"Intake sprocket stud"},"dimensionStatus":"partial","technicalEvidence":"OEM identity/3 pieces: https://www.realoem.com/bmw/enUS/showparts?diagId=11_9910&id=AW51-EUR---E46-BMW-330i ; supplier listing by exact OEM gives two threaded lengths and 10 mm hex but calls part exhaust rather than intake; dimensions provisional, verify actual OEM: https://www.pantritrading.com/bmw/bmw-m52-m54-engine-exhaust-vanos-timing-gear-stud-bolt-11361436675.html"},
  {"oem":"07119900910","dimension":"M6-10-PHR","name":{"pl":"Nakrętka sześciokątna","en":"Hex nut"}},
  {"oem":"07119904526","dimension":"M6 × 55-Z1","name":{"pl":"Śruba z podkładką","en":"Bolt with washer"}},
- {"oem":"11361432373","dimension":"","name":{"pl":"Szpilka koła wałka wydechowego","en":"Exhaust sprocket stud"}},
+ {"oem":"11361432373","dimension":"M7 / M6; L do pomiaru / length pending","name":{"pl":"Szpilka koła wałka wydechowego","en":"Exhaust sprocket stud"},"dimensionStatus":"partial","technicalEvidence":"Supplier reproduction describes M7 cam end and M6 nut end; lengths and pitch not independently verified. https://www.probsten-tech.de/produkt/orig-m52tum54-stiftschraube-11361432373/ ; identity: https://www.realoem.com/bmw/enUS/showparts?diagId=11_9916&id=AW51-EUR---E46-BMW-330i"},
  {"oem":"11361432752","dimension":"M7 × 18","name":{"pl":"Śruba Torx","en":"Torx bolt"}},
  {"oem":"11341461405","dimension":"Ø 6 mm","name":{"pl":"Zamek zaworu","en":"Valve collet"}},
  {"oem":"11121713264","dimension":"Ø9,5 mm","name":{"pl":"Kołek ustalający","en":"Locating dowel"}},
