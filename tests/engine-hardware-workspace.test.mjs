@@ -15,3 +15,18 @@ test('compact workspace retains accessible selection, original source, and hones
  assert.ok(tree.includes('aria-pressed={selected===c.id}'));
  assert.ok(tree.includes('[selected]);'));
 });
+
+test('initial catalogue state never implicitly selects an assembly or a part',()=>{
+ const ui=read('app/engine-hardware/HardwareCatalog.tsx'),tree=read('app/engine-hardware/M54Breakdown.tsx');
+ assert.ok(ui.includes('[connectionId,setConnectionId]=useState<string|null>(null)'));
+ assert.ok(ui.includes("[diagramId,setDiagramId]=useState(''),[position,setPosition]=useState('')"));
+ assert.ok(tree.includes('useState<string[]>([])'));
+ assert.ok(!ui.includes('??diagrams[0]'));
+ assert.ok(!ui.includes('??rows[0]'));
+ assert.ok(ui.includes("const u=rows.find(x=>x.position===position)"));
+ assert.ok(ui.includes("setDiagramId(diagram?.id??'');setPosition('');setQty(1)"));
+ assert.ok(ui.includes("setDiagramId(next);setCopyStatus('');setPosition('');setQty(1)"));
+ assert.ok(ui.includes('!connection&&!d&&'));
+});
+
+test('engine header reflects active engine and selected vehicle profile',()=>{const ui=read('app/engine-hardware/HardwareCatalog.tsx');assert.ok(ui.includes('<span>{engine}</span></h1>'));assert.ok(ui.includes("engine.startsWith('2JZ')?'Toyota':'BMW'"));assert.ok(ui.includes('effectiveProfile.vehicle,effectiveProfile.market,effectiveProfile.production'));assert.ok(!ui.includes('<h1>Engine <span>Hardware.'));});
