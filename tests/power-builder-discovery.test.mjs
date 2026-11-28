@@ -197,3 +197,25 @@ test('stock-stroke 2JZ profiles exclude explicit stroker rotating assemblies',()
   assert.ok(exports.enginePartData('Connecting rods '+code+' 142mm',version,'rods'));
  }
 });
+
+
+test('boost control discovers MBC, standalone EBC and ECU solenoids without accessories',()=>{
+ const manual=['Układ dolotowy','MBC i akcesoria'],electronic=['Elektronika','Zawory EBC i N75','Zawory'];
+ for(const [sku,name,category] of [
+  ['VV-MBCPROP','MBC Properfekt',manual],
+  ['MMBC-MNL-BK','MBC Manual Boost Controler Mishimoto czarny',manual],
+  ['TS-0101-1101','MBC Manual Boost Controller Turbosmart TS-0101-1101',manual],
+  ['TS-0106-1002','In-Cabin boost controller - Black',manual],
+  ['TS-0105-1101','Dual Stage Boost Controller V2 Turbosmart TS-0105-1101',manual],
+  ['TS-0301-1003','EBC Turbosmart e-Boost2 60PSI 60mm Black face/Black bezel',electronic],
+  ['USA-INO-3882','Elektroniczny Boost Controler SCG-1, Innovate 3882 EBC z funkcją odczytu AFR',['Elektronika','Zestawy AFR']],
+  ['SEN-EBCMAC','Elektrozawór EBC MAC Solenoid',['Elektronika','Ecumaster','Czujniki i akcesoria']]
+ ])assert.equal(exports.discoverExtraPart({sku,name},category,'boost-control')?.sku,sku);
+ for(const [sku,name,category] of [
+  ['FMIC-RV-004','Uniwersalny zawór kierunkowy podciśnienia 4 mm FMIC.E',manual],
+  ['TS-0101-3001','Replacement Mounting Bracket for Manual Boost Controllers',manual],
+  ['VLV-N75-18T','Zawór regulacji ciśnienia N75 1.8T, 2.0T',electronic],
+  ['TS-0301-2003','Elektroniczny Boost kontroler Turbosmart TS-0301-2003 solenoid eB2',['Elektronika','Zawory EBC i N75']],
+  ['DP1003','EBC Brakes Klocki hamulcowe',['Hamulce i koła','Klocki hamulcowe']]
+ ])assert.equal(exports.discoverExtraPart({sku,name},category,'boost-control'),null,sku);
+});
