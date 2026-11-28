@@ -192,7 +192,7 @@ export function searchEngineParts(diagrams:Diagram[],parts:Part[],query:string){
  return diagrams.flatMap(diagram=>diagram.usages.flatMap(usage=>{const part=map.get(usage.partKey??usage.oem);return part&&matches(part,usage,query)?[{diagram,usage,part}]:[]}));
 }
 export function canSell(p:Part,u:Usage){
- return Boolean(p.sku&&p.technicalEvidence?.trim()&&u.mountingEvidence?.trim()&&Boolean(u.torque?.trim())===Boolean(u.torqueSource?.trim())&&u.replacement);
+ return Boolean(p.dimension.trim()&&p.dimensionStatus!=='partial'&&p.sku&&p.technicalEvidence?.trim()&&u.mountingEvidence?.trim()&&Boolean(u.torque?.trim())===Boolean(u.torqueSource?.trim())&&u.replacement);
 }
 export function hasLicensedImage(d:Diagram){
  return Boolean(d.image?.rightsEvidence.trim()&&/^\/engine-hardware\/licensed\/[a-zA-Z0-9._-]+\.(png|webp|jpg|jpeg)$/.test(d.image.path));

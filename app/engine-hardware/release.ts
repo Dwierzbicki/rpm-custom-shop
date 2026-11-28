@@ -34,7 +34,7 @@ export function validateRelease(value:unknown):ReleaseCheck{
  }
  for(const engine of engineIds)if(!engines.has(engine))fail('Brak profilu silnika '+engine);
  for(const p of value.parts){
-  if(!obj(p)||!id(p.key)||!id(p.oem)||!['BMW','Toyota'].includes(String(p.manufacturer))||p.key!==p.manufacturer+':'+p.oem||!loc(p.name)||!str(p.dimension)||!str(p.technicalEvidence)||!['piece','set'].includes(String(p.unit))){fail('Niepoprawna część lub brak specyfikacji technicznej.');continue}
+  if(!obj(p)||!id(p.key)||!id(p.oem)||!['BMW','Toyota'].includes(String(p.manufacturer))||p.key!==p.manufacturer+':'+p.oem||!loc(p.name)||!str(p.dimension)||p.dimensionStatus!==undefined||!str(p.technicalEvidence)||!['piece','set'].includes(String(p.unit))){fail('Niepoprawna część lub brak specyfikacji technicznej.');continue}
   if(parts.has(p.key)){fail('Duplikat OEM '+p.key);continue}
   const sell=id(p.sku), unavailable=loc(p.unavailableReason);
   if(sell===unavailable)fail('Wybierz dokładnie jeden stan handlowy: SKU albo powód braku sprzedaży '+p.key);

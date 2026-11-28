@@ -27,3 +27,5 @@ test('no pilot row may be sold or show an unlicensed drawing',()=>{
 });
 
 test('M54B30 preview keeps individual facts and set quantities scoped to their source',()=>{assert.equal(parts.length,78);assert.equal(diagrams.flatMap(d=>d.usages).length,85);const head=diagrams.find(d=>d.id==='11_9908').usages.find(u=>u.position==='05');assert.equal(head.quantity,1);assert.equal(head.quantityUnit,'set');assert.equal(partByOem(head.oem).unit,'set');assert.equal(searchEngineParts(diagrams,parts,'11 24 7 589 671')[0].usage.quantity,12);assert.ok(searchEngineParts(diagrams,parts,'M9x47').some(x=>x.part.oem==='11247589671'));assert.equal(searchEngineParts(diagrams,parts,'').length,0)});
+
+test('partial dimensions cannot be used to sell a part',()=>{const p={...parts[0],sku:'TEST',technicalEvidence:'test'},u={...diagrams[0].usages[0],mountingEvidence:'test',replacement:'always'};assert.equal(canSell(p,u),true);assert.equal(canSell({...p,dimensionStatus:'partial'},u),false);assert.equal(canSell({...p,dimension:''},u),false);});

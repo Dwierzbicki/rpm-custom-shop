@@ -38,3 +38,5 @@ test('reject ambiguous OEM, missing trade state, unmapped assemblies and cross-m
 test('release rejects accessory assembly in core engine scope',()=>{const f=fixture();f.profiles[0].coverage.push({assemblyId:'intake',status:'complete',evidence:'TEST'});assert.equal(r.validateRelease(f).ok,false);const g=fixture();g.diagrams[0].assemblyIds.push('alternator');assert.equal(r.validateRelease(g).ok,false);});
 
 test('torque is optional but a value requires its source',()=>{const f=fixture();delete f.diagrams[0].usages[0].torque;delete f.diagrams[0].usages[0].torqueSource;assert.equal(r.validateRelease(f).ok,true);f.diagrams[0].usages[0].torque='20 Nm';assert.equal(r.validateRelease(f).ok,false);});
+
+test('partial dimensions block release even when a nonempty string is present',()=>{const f=fixture();f.parts[0].dimensionStatus='partial';assert.equal(r.validateRelease(f).ok,false);});
