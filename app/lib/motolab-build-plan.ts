@@ -153,9 +153,11 @@ const optionKeys:Record<string,string[]>={rods:['rodsFmic'],intercooler:['interc
 export function partOptions(slot:PartsSlot):string[]{
  return [...(slot.candidate?[slot.candidate]:[]),...(slot.alternatives??(slot.candidate?optionKeys[slot.candidate]??[]:[])),...(slot.rpmOptions??[])];
 }
+/** Workshop ECU alternative, not a catalog SKU. */
+export function supportsMs43MapOption(version:string){return ['m54b22','m54b25','m54b30','m52b25tu'].includes(version)}
 export function selectedPart(slot:PartsSlot,selection:Record<string,string>):string|undefined{
  const options=partOptions(slot),choice=selection[slot.id];
- if(choice==='own')return undefined;
+ if(choice==='own'||slot.id==='ecu'&&choice==='ms43-map')return undefined;
  return options.includes(choice)?choice:slot.defaultNone?undefined:options[0];
 }
 
