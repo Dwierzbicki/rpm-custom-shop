@@ -30,3 +30,10 @@ export function oemReferences(version:string,slot:string,internals:string):OemRe
  const table=references[version];
  return Object.hasOwn(table,slot)?table[slot]:[];
 }
+
+/** Localize display text without changing OEM identifiers or source values. */
+export function localizedOemVariant(variant:string,en:boolean):string{
+ if(en)return variant;
+ const colors:Record<string,string>={blue:'niebieska',red:'czerwona',yellow:'żółta',green:'zielona',white:'biała'};
+ return variant.replace(/\b(blue|red|yellow|green|white)\b/g,color=>colors[color]).replace(/(\d)\.(\d)/g,'$1,$2');
+}
