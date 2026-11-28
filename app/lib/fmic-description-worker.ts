@@ -12,10 +12,11 @@ export async function setupDescriptionQueue(){
  if(!setup)setup=(async()=>{await setupEnrichment();return getDbPool().query(`CREATE TABLE IF NOT EXISTS rpm_fmic_description_queue (
  sku text PRIMARY KEY REFERENCES rpm_fmic_catalog(sku) ON DELETE CASCADE,
  status text NOT NULL DEFAULT 'pending', detail text, updated_at timestamptz NOT NULL DEFAULT NOW()
- ); CREATE INDEX IF NOT EXISTS rpm_fmic_description_queue_status_idx ON rpm_fmic_description_queue(status,sku);
+ ); ALTER TABLE rpm_fmic_description_queue ADD COLUMN IF NOT EXISTS retry_count integer NOT NULL DEFAULT 0; ALTER TABLE rpm_fmic_description_queue ADD COLUMN IF NOT EXISTS retry_after timestamptz; CREATE INDEX IF NOT EXISTS rpm_fmic_description_queue_status_idx ON rpm_fmic_description_queue(status,sku);
  CREATE TABLE IF NOT EXISTS rpm_fmic_description_control (
  id integer PRIMARY KEY CHECK(id=1), enabled boolean NOT NULL DEFAULT false, heartbeat timestamptz, last_error text, next_request_at timestamptz
- ); ALTER TABLE rpm_fmic_description_control ADD COLUMN IF NOT EXISTS manual_until timestamptz; INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;`)})().catch(e=>{setup=undefined;throw e});
+ ); ALTER TABLE rpm_fmic_description_control ADD COLUMN IF NOT EXISTS manual_until timestamptz; INSERT INTO rpm_fmic_description_control(id) VALUES(1) ON CONFLICT DO NOTHING;
+ UPDATE rpm_fmic_description_queue SET status='pending',retry_count=1,retry_after=NOW()+interval '2 minutes',updated_at=NOW() WHERE status='review' AND retry_count=0 AND detail LIKE 'TimeoutError:%';`)})().catch(e=>{setup=undefined;throw e});
  await setup;
 }
 export async function seedDescriptionQueue(){
@@ -46,6 +47,13 @@ async function completeCachedDescription(client:import('pg').PoolClient,sku:stri
  const done=hasDescription&&!needsReview;
  await client.query("UPDATE rpm_fmic_description_queue SET status=$2,detail=$3,updated_at=NOW() WHERE sku=$1 AND status='pending'",[sku,done?'done':'review',done?null:needsReview?'Niezgodna tożsamość — opis wymaga weryfikacji':'Brak opisu lub istniejący pusty szkic']);
 }
+// Retry only transient network failures, never identity or content failures.
+function isTransientDescriptionError(message:string){
+ return /^(?:TimeoutError:|TypeError: fetch failed)|^Error: FMIC HTTP (?:500|502|504)\b/.test(message);
+}
+async function deferDescriptionFailure(client:import('pg').PoolClient,sku:string,message:string){
+ await client.query("UPDATE rpm_fmic_description_queue SET retry_count=retry_count+1,status=CASE WHEN retry_count<2 THEN 'pending' ELSE 'review' END,retry_after=CASE WHEN retry_count=0 THEN NOW()+interval '2 minutes' WHEN retry_count=1 THEN NOW()+interval '5 minutes' ELSE NULL END,detail=$2,updated_at=NOW() WHERE sku=$1 AND status='pending'",[sku,message]);
+}
 const g=globalThis as typeof globalThis & {rpmDescriptionLoop?:boolean;rpmDescriptionStop?:boolean;rpmDescriptionTask?:Promise<void>};
 export function startDescriptionWorker(){
  if(g.rpmDescriptionLoop||!canRunFmicWorker()||process.env.FMIC_ENRICHMENT_ALLOWED!=='1')return;
@@ -72,21 +80,21 @@ export function startDescriptionWorker(){
  // A pause, manual reservation or other control change during local work must be respected.
  const fetchState=await client.query("SELECT enabled FROM rpm_fmic_description_control WHERE id=1 AND (manual_until IS NULL OR manual_until<=NOW()) AND (next_request_at IS NULL OR next_request_at<=NOW())");
  if(!g.rpmDescriptionStop&&fetchState.rows[0]?.enabled){
- const priorityRow=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE q.status='pending' AND q.sku=ANY($1::text[]) ORDER BY q.sku LIMIT 1",[builderPrioritySkus])).rows[0];
+ const priorityRow=(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE q.status='pending' AND (q.retry_after IS NULL OR q.retry_after<=NOW()) AND q.sku=ANY($1::text[]) ORDER BY q.sku LIMIT 1",[builderPrioritySkus])).rows[0];
  const refresh=priorityRow?undefined:(await client.query("SELECT e.sku FROM rpm_fmic_enrichment e LEFT JOIN rpm_fmic_description_queue q ON q.sku=e.sku WHERE e.fetched_at<NOW()-interval '30 days' AND (q.updated_at IS NULL OR q.updated_at<NOW()-interval '1 day') ORDER BY e.fetched_at,e.sku LIMIT 1")).rows[0];
  if(refresh){
   await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
-  try{await refreshSupplierDescription(refresh.sku);await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW(),last_error=NULL WHERE id=1')}
+  try{try{await refreshSupplierDescription(refresh.sku)}finally{await client.query("UPDATE rpm_fmic_description_control SET next_request_at=GREATEST(COALESCE(next_request_at,NOW()),NOW()+interval '30 seconds') WHERE id=1")}await client.query('UPDATE rpm_fmic_description_control SET heartbeat=NOW(),last_error=NULL WHERE id=1')}
   catch(e){const msg=String(e).slice(0,400);if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg])}else{await client.query("INSERT INTO rpm_fmic_description_queue(sku,status,detail,updated_at) VALUES($1,'review',$2,NOW()) ON CONFLICT(sku) DO UPDATE SET status='review',detail=EXCLUDED.detail,updated_at=NOW()",[refresh.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg])}}
  }else{
- const row=priorityRow??(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' ORDER BY sku LIMIT 1")).rows[0];
- if(!row)await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '1 hour' WHERE id=1");
+ const row=priorityRow??(await client.query("SELECT q.sku,EXISTS(SELECT 1 FROM rpm_fmic_enrichment e WHERE e.sku=q.sku) AS fetched,EXISTS(SELECT 1 FROM rpm_fmic_product_descriptions d WHERE d.sku=q.sku) AS assigned FROM rpm_fmic_description_queue q WHERE status='pending' AND (q.retry_after IS NULL OR q.retry_after<=NOW()) ORDER BY sku LIMIT 1")).rows[0];
+ if(!row)await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+CASE WHEN EXISTS(SELECT 1 FROM rpm_fmic_description_queue WHERE status='pending') THEN interval '30 seconds' ELSE interval '1 hour' END WHERE id=1");
  else {
  try{
  if(!row.assigned){
  if(!row.fetched){
  await client.query("UPDATE rpm_fmic_description_control SET next_request_at=NOW()+interval '30 seconds' WHERE id=1");
- await inspectProduct(row.sku);
+ try{await inspectProduct(row.sku)}finally{await client.query("UPDATE rpm_fmic_description_control SET next_request_at=GREATEST(COALESCE(next_request_at,NOW()),NOW()+interval '30 seconds') WHERE id=1")}
  }
  }
  await completeCachedDescription(client,row.sku);
@@ -94,7 +102,7 @@ export function startDescriptionWorker(){
  }catch(e){
  const msg=String(e).slice(0,400);
  if(/HTTP (403|429|503)/.test(msg)){await client.query('UPDATE rpm_fmic_description_control SET enabled=false,last_error=$1 WHERE id=1',[msg]);}
- else{await client.query("UPDATE rpm_fmic_description_queue SET status='review',detail=$2,updated_at=NOW() WHERE sku=$1",[row.sku,msg]);await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg]);}
+ else{if(isTransientDescriptionError(msg)){await deferDescriptionFailure(client,row.sku,msg)}else{await client.query("UPDATE rpm_fmic_description_queue SET status='review',detail=$2,updated_at=NOW() WHERE sku=$1",[row.sku,msg]);}await client.query('UPDATE rpm_fmic_description_control SET last_error=$1 WHERE id=1',[msg]);}
  }
  }
  }
