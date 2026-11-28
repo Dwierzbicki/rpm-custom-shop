@@ -782,3 +782,11 @@
 .rpm-build-workspace .rpm-build-quote-request{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:12px}
 .rpm-build-workspace .rpm-build-quote-request.is-requested{color:#86d5ac;border-color:#587f6c}
 .rpm-build-workspace .rpm-summary-quote-request{color:#b9c9dc}
+
+/* Selected for individual quotation: amber, not unresolved red or purchased green. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-quote-requested{position:relative;border-color:#805735;box-shadow:0 0 11px rgba(245,158,66,.09)}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-quote-requested::before{content:'';position:absolute;inset:10px auto 10px 0;width:4px;border-radius:0 3px 3px 0;background:#f59e42;box-shadow:0 0 9px rgba(245,158,66,.45);pointer-events:none}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-quote-requested .rpm-slot-status{color:#ffb76b;background:transparent}
+.rpm-build-workspace .rpm-build-quote-request.is-requested{color:#ffb76b;border-color:#805735}
+.rpm-build-workspace .rpm-summary-quote-request{color:#ffb76b}
+.rpm-build-workspace .rpm-ms43-option .rpm-quote-price-note{display:block;color:#ffb76b;font-size:13px;font-weight:650;line-height:1.5;margin-top:3px}
