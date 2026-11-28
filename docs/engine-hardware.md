@@ -1,0 +1,13 @@
+# RPM Engine Hardware — draft pilot
+
+Preview route: /engine-hardware, enabled only by ENGINE_HARDWARE_PREVIEW=1. No public navigation or indexing yet. Scope: M50 NV/TU, M52/TU, M54, S52, S54, 2JZ-GE/GTE VVT-i and non-VVT-i. Only M54B30 has sample data; not a full catalog.
+
+Data model: unique OEM identity, individual diagram/vehicle/position usage, explicit quantity, localized location, evidence for technical properties and exact mounting, torque source, replacement rule, optional explicit SKU. Do not equate aftermarket parts based only on dimensions. Different vehicle/date profiles must be compared before aggregating kits.
+
+Pilot: 12 OEM identities, 13 usage records, three source diagrams. Source references were consulted for the indicated E46 models; they are not proof for every M54. Individual hole locations, technical specs beyond the listed dimensions, torque, reuse and commercial supply remain unverified. No copied images, no invented hotspot coordinates, no stock or prices. Original diagrams are external links until commercial reproduction rights are confirmed. For the licensed image pipeline, store rights evidence, use an approved local image in public/engine-hardware/licensed, then manually verify normalized hotspot coordinates against each actual diagram position. Never use AI-redrawn diagrams.
+
+Sale gate: technical and mounting evidence, torque source, replacement policy and explicit SKU mapping required; server exposes only visible, available/orderable, non-configurable manual offers. Cart uses existing addManualToCart, which revalidates the live catalog. No product created in production and no checkout bypass. Future work: admin CRUD, licensed diagram editor, exact-hole photos/service procedures, fitment by chassis and production date, validated complete kits, supplier offers, dedicated category/navigation when ready. Do not present an incomplete assembly list as a complete kit.
+
+Tests: npm test, npm run typecheck and npm run build on a preview branch before production merge. Verify mobile scrolling, keyboard selection, diagram scale, source links, disabled sales and real cart integration with approved test SKU.
+
+MotoLab: fourth tool tile is always visible after merge; when ENGINE_HARDWARE_PREVIEW is unset, it shows Coming soon without a link. With the flag enabled, the tile links to the explicitly labelled draft preview. Desktop grid has four cards; tablet two; mobile one. Engine Hardware breadcrumb links back to MotoLab. Admin: Katalog > Engine Hardware provides a 29-assembly checklist and isolated JSON draft import; imported batches are not public catalog entries. No new OEM records have been verified in this iteration.
