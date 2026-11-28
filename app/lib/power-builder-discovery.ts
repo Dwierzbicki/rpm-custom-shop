@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -149,4 +149,69 @@ export function compressorInletMm(technical:unknown,description:string):number|n
 export function suggestedFilterDiameter(inlet:number|null,sizes:number[]):number|null{
  if(inlet===null)return null;
  return [...sizes].filter(n=>Number.isFinite(n)&&Math.abs(n-inlet)<=0.5).sort((a,b)=>Math.abs(a-inlet)-Math.abs(b-inlet)||a-b)[0]??null;
+}
+
+
+/** Nominal catalogue screening; a declared maximum is NOT a compressor map or
+ * proof that a turbo will make the target power on a particular engine. */
+export type TurboCatalogueData={model:string;ratingPs:number;ratingLabel:string;ar:number|null;flange:'t25-single'|'t3-single'|'vband-single'|'t3-twin'|'t4-single'|'t4-twin'|null;wg:'internal'|'external'|null;outlet:string|null};
+export const turboDiscoveryCategory=['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe'];
+const ptx28=/\bpulsar\s+psr\s*(2860|2867|2871)\s*gen\s*2\b/i;
+export function turboCatalogueData(name:string):TurboCatalogueData|null{
+ const n=name.normalize('NFKC').replaceAll(',','.').toLowerCase();
+ if(!/turbosprężarka|turbsprężarka|turbocharger|\bturbo\b/.test(n)||/without (?:turbine|compressor|housing)|bez (?:obudowy|muszli)|\b(?:supercore|super core|chra|cartridge|drop.in|reverse|odwrócona)\b|^obudowa|^muszla|^adapter|^zestaw napraw/.test(n))return null;
+ const hp=[...n.matchAll(/\b(\d{3,4})\s*(hp|km|ps)\b/g)];
+ const ratings=[...new Set(hp.map(m=>Number(m[1])*(m[2]==='hp'?1.01387:1)))];
+ const ptx=n.match(ptx28)?.[1];
+ // Manufacturer's PTX28 model-level FWHP rating, including titles without HP.
+ const known:Record<string,number>={'2860':475,'2867':550,'2871':575};
+ const rating=ratings.length===1?ratings[0]:ratings.length===0&&ptx?known[ptx]*1.01387:null;
+ if(!rating||rating<100||rating>3000)return null;
+ const explicit=[...n.matchAll(/(?:\b(?:a\s*\/?\s*r)\s*[:=]?\s*([01]?\.\d{2,3})|([01]?\.\d{2,3})\s*a\s*\/?\s*r\b)/g)].map(m=>Number(m[1]??m[2]));
+ const flangeAr=[...n.matchAll(/(?:^|\s)([01]?\.\d{2,3})\s+(?:stal nierdzewna\s+)?(?:(?:\d(?:\.\d+)?["″]\s+)?v[ -]?band|t(?:25|3|4)\b)/g)].map(m=>Number(m[1]));
+ const ars=[...new Set([...explicit,...flangeAr].filter(v=>v>=.3&&v<=2))];
+ const ar=ars.length===1?ars[0]:null;
+ const inlet=n.match(/\b(t25|t3|t4)(?:\s+(twin scroll|divided|open|single scroll))?\s+(?:wlot|inlet)\b/);
+ const vb=/\bv[ -]?band\s+(?:wlot|inlet)\b|\bdual v[ -]?band\b|podwójny v[ -]?band/.test(n);
+ let flange:TurboCatalogueData['flange']=inlet?(inlet[1]==='t25'?'t25-single':inlet[1]==='t3'?(inlet[2]==='twin scroll'||inlet[2]==='divided'?'t3-twin':'t3-single'):inlet[2]==='twin scroll'||inlet[2]==='divided'?'t4-twin':inlet[2]==='open'||inlet[2]==='single scroll'?'t4-single':null):vb?'vband-single':null;
+ const out=n.match(/(\d(?:\.\d+)?["″]\s+(?:marmon\s+)?v[ -]?band|5[ -]?bolt|4[ -]?bolt)\s+(?:wylot|outlet)/);
+ const outlet=out?out[1]:vb&&/dual v[ -]?band|podwójny v[ -]?band/.test(n)?'V-Band':null;
+ const internal=/\biwg\b|internally wastegated|wewnętrzny wastegate/.test(n);
+ const external=/\bewg\b|externally wastegated|zewnętrzny wastegate/.test(n);
+ let wg:TurboCatalogueData['wg']=internal===external?null:internal?'internal':'external';
+ // PTX28 manufacturer housing table: .64/.86 T25 5-bolt IWG;
+ // stainless .64/.82 dual V-band (also T3/T25 adapters) external;
+ // .72 dual V-band IWG. No inference for other product families.
+ if(ptx&&!internal&&!external&&ar!==null){
+  if(flange==='t25-single'&&[.64,.86].includes(ar)&&/5[ -]?bolt/.test(outlet??'')&&/actuat|aktuat|stamping|billet\s+\d/.test(n))wg='internal';
+  if(['vband-single','t3-single','t25-single'].includes(flange??'')&&[.64,.82].includes(ar)&&/stal nierdzewna|stainless steel/.test(n)&&/v[ -]?band/.test(outlet??'')&&!/actuat|aktuat|stamping/.test(n))wg='external';
+  if(flange==='vband-single'&&ar===.72&&/actuat|aktuat|stamping|billet\s+\d/.test(n))wg='internal';
+ }
+ return {model:ptx?'PSR '+ptx+' Gen2':n.match(/\bpsr\s+(?:pte\s+)?[a-z0-9]+(?:\s+gen\s*\d)?/i)?.[0]??n.match(/\b(?:gtx?|htx)\d+[a-z0-9]*/i)?.[0]??name,ratingPs:rating,ratingLabel:hp.length&&ratings.length===1?hp[0][1]+' '+hp[0][2].toUpperCase():known[ptx!]+' FWHP',ar,flange,wg,outlet};
+}
+export function discoverTurbo(row:DiscoveryRow,targetPs:number):DiscoveredPart|null{
+ const t=turboCatalogueData(row.name);
+ // Deliberately broad nominal class window; unknown ratings are not guessed.
+ if(!t||!Number.isFinite(targetPs)||targetPs<=0||t.ratingPs<targetPs||t.ratingPs>targetPs*1.85)return null;
+ const brand=row.brand?.trim()||(/pulsar/i.test(row.name)?'Pulsar':/turbosmart/i.test(row.name)?'Turbosmart':/jrspec/i.test(row.name)?'JRspec':/garrett/i.test(row.name)?'Garrett':/turbosystems/i.test(row.name)?'TurboSystems':'—');
+ return {sku:row.sku,name:row.name,brand,slot:'turbo',turbo:t,reason:['Wstępna klasa mocy '+t.ratingLabel+'; A/R '+(t.ar??'do potwierdzenia')+'. Zweryfikuj mapę sprężarki, obudowę, przepływ i przeciwciśnienie.','Preliminary '+t.ratingLabel+' power class; A/R '+(t.ar??'to confirm')+'. Verify compressor map, housing, flow and backpressure.']};
+}
+/** Provisional ranking, not a predicted spool RPM. A/R is compared only within
+ * the same model; different turbine geometries cannot be ranked by A/R alone. */
+export function compareTurboCatalogue(a:TurboCatalogueData|null,b:TurboCatalogueData|null,targetPs:number,priority:string,usage:string):number{
+ if(!a||!b)return a?-1:b?1:0;
+ const known=(t:TurboCatalogueData)=>Number(t.ar===null)+Number(t.wg===null)+Number(t.flange===null)+Number(t.outlet===null);
+ const flange=(t:TurboCatalogueData)=>t.flange==='vband-single'||t.flange==='t3-single'?0:t.flange==='t25-single'?2:1;
+ const response=priority==='response'||(priority==='balanced'&&usage==='drift');
+ const ideal=targetPs*(priority==='power'?1.45:1.25);
+ const classScore=(t:TurboCatalogueData)=>Math.abs(t.ratingPs-ideal)/Math.max(1,targetPs);
+ const main=known(a)-known(b)||flange(a)-flange(b);
+ if(main)return main;
+ const cls=classScore(a)-classScore(b);
+ if(Math.abs(cls)>.02)return cls;
+ if(a.model===b.model&&a.ar!==null&&b.ar!==null&&a.ar!==b.ar){
+  if(response)return a.ar-b.ar;
+  if(priority==='power')return b.ar-a.ar;
+ }
+ return cls;
 }
