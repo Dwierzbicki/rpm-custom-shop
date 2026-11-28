@@ -6,7 +6,8 @@ test('homepage brand story links to actual custom and MotoLab sections in both l
  const home=read('app/components/storefront/HomeSections.tsx');
  const about=home.slice(home.indexOf('<section className="rpm-hp-about"'));
  assert.match(about,/aria-labelledby="rpm-about-title"/);
- assert.match(about,/href="\/motolab"/);
+ assert.match(about,/href="\/#rpm-motolab"/);
+ assert.match(home,/id="rpm-motolab"/);
  assert.match(about,/href="#rpm-custom-home"/);
  assert.match(home,/id="rpm-custom-home"/);
  assert.doesNotMatch(about,/onOpenGarage/);
