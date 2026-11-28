@@ -1,5 +1,5 @@
 import {families,diagrams,parts,partByOem,canSell,hasLicensedImage} from './catalog';
-export const assemblies=[
+export const assemblies:readonly (readonly [string,string,string?])[]=[
  ['block','Blok i mocowania','11_9905'],['block-attachments','Osprzęt bloku'],['rods','Korbowody','11_9913'],['crank','Wał korbowy i podpory'],['pistons','Tłoki i sworznie'],['head','Głowica i mocowania','11_9908'],['head-body','Głowica i podpory wałków'],['cover','Pokrywa zaworów'],['vanos','VANOS / VVT-i'],['timing-cover','Obudowa rozrządu','11_9907'],['timing','Napęd rozrządu i napinacze'],['oil-pan','Miska i czujnik oleju'],['oil-pump','Pompa oleju i smok','11_9953'],['oil-filter','Filtr oleju','11_9921'],['oil-jets','Dysze olejowe'],['breather','Odma'],['intake','Dolot i przepustnica'],['exhaust','Kolektor wydechowy'],['cooling','Pompa wody, termostat i chłodzenie'],['belt','Napęd paskowy i koło pasowe'],['alternator','Alternator'],['starter','Rozrusznik'],['ac','Klimatyzacja'],['fuel','Listwa i układ paliwowy'],['ignition','Zapłon'],['sensors','Czujniki i wiązki'],['flywheel','Koło zamachowe / flexplate'],['mounts','Łapy i wsporniki silnika'],['vacuum','Podciśnienie i emisje']
 ] as const;
 export function auditEngine(engine:string){
