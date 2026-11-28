@@ -31,6 +31,7 @@ export function extractProduct(html:string,sku:string){
  const images=(Array.isArray(product.image)?product.image:[product.image]).map(x=>typeof x==='string'?x:str(obj(x)?.url)).filter(x=>{try{return new URL(x).protocol==='https:'}catch{return false}}).slice(0,20);
  return {sku,brand,name:str(product.name,1000),description:str(product.description,30000),mpn:str(product.mpn),offers,properties,images};
 }
+export const FMIC_DESCRIPTION_TIMEOUT_MS=90_000;
 export async function inspectProduct(sku:string,options:{persist?:boolean}={}){
  await setupEnrichment();
  const db=getDbPool();
@@ -38,7 +39,7 @@ export async function inspectProduct(sku:string,options:{persist?:boolean}={}){
  const row=result.rows[0];if(!row)throw Error('Nie znaleziono SKU');
  const url=new URL(row.url);
  if(url.origin!=='https://fmic.pl'||url.username||url.password)throw Error('Nieobsługiwany adres źródłowy');
- const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(15000),headers:{'User-Agent':'RPMCustomCatalog/1.0 (supplier catalog pilot)'}});
+ const response=await fetch(url,{redirect:'error',cache:'no-store',signal:AbortSignal.timeout(FMIC_DESCRIPTION_TIMEOUT_MS),headers:{'User-Agent':'RPMCustomCatalog/1.0 (supplier catalog pilot)'}});
  if(!response.ok||!response.body)throw Error('FMIC HTTP '+response.status);
  if(!response.headers.get('content-type')?.includes('text/html'))throw Error('Odpowiedź nie jest HTML');
  const reader=response.body.getReader(),decoder=new TextDecoder();let html='',size=0;
