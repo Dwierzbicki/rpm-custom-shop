@@ -94,7 +94,14 @@ export default function PowerGuidesView({
  useLayoutEffect(()=>{
   const previous=window.history.scrollRestoration;
   window.history.scrollRestoration='manual';
-  return()=>{window.history.scrollRestoration=previous};
+  const page=pageRef.current;
+  const header=document.querySelector<HTMLElement>('.rpm-header-v2');
+  const measure=()=>{if(page&&header)page.style.setProperty('--rpm-builder-header-offset',Math.ceil(header.getBoundingClientRect().height+12)+'px')};
+  measure();
+  const observer=typeof ResizeObserver!=='undefined'&&header?new ResizeObserver(measure):null;
+  if(header)observer?.observe(header);
+  window.addEventListener('resize',measure);
+  return()=>{observer?.disconnect();window.removeEventListener('resize',measure);window.history.scrollRestoration=previous};
  },[]);
  const toggleProjectEditor=()=>setEditing(v=>!v);
 
