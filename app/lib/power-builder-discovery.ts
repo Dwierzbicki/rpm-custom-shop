@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null;proposed_gross?:number|string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;piston?:PistonCatalogueData;source?:string;cataloguePrice?:number};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;piston?:PistonCatalogueData;enginePart?:EnginePartData;source?:string;cataloguePrice?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -264,4 +264,97 @@ export function discoverPiston(row:DiscoveryRow,version:string):DiscoveredPart|n
  if(!p||!row.sku||row.sku.length>120)return null;
  const brand=row.brand?.trim()||(/wiseco/i.test(row.name)?'Wiseco':/je pistons/i.test(row.name)?'JE Pistons':/manley/i.test(row.name)?'Manley':/wossner|wössner/i.test(row.name)?'Wössner':/\bzrp\b/i.test(row.name)?'ZRP':'—');
  return {sku:row.sku,name:row.name,brand,slot:'pistons',piston:p,reason:[p.applicationNote[0]+' Potwierdź pomiar cylindra, skok wału, długość korbowodu, CH, sworzeń, objętość denka, rzeczywiste CR, luz i liczbę tłoków w opakowaniu.',p.applicationNote[1]+' Verify bore measurement, stroke, rod length, CH, pin, crown volume, actual CR, clearance and pistons per pack.']};
+}
+
+
+/** Catalogue candidates only. A matching code does not prove fitment. */
+export const engineDiscoveryPaths:Record<string,string[][]>={
+ rods:[['Silnik i turbo','Kute korbowody']],
+ bearings:[['Silnik i turbo','Panewki']],
+ 'bearings-rod':[['Silnik i turbo','Panewki']],
+ 'bearings-main':[['Silnik i turbo','Panewki']],
+ 'thrust-bearings':[['Silnik i turbo','Panewki']],
+ gasket:[['Silnik i turbo','Uszczelki głowicy i silnika']],
+ fasteners:[['Silnik i turbo','Śruby i szpilki ARP']],
+ 'main-fasteners':[['Silnik i turbo','Śruby i szpilki ARP']],
+ camshafts:[['Silnik i turbo','Rozrząd','Wałki rozrządu']],
+ 'valve-train':[['Silnik i turbo','Elementy głowicy','Talerzyki i sprężynki'],['Silnik i turbo','Elementy głowicy','Zawory']],
+ 'timing-kit':[['Silnik i turbo','Rozrząd','Paski rozrządu']],
+};
+export type EnginePartData={
+ application:'exact'|'review';kind:string;lengthMm:number|null;pinMm:number|null;bigEndMm:number|null;
+ beam:'H'|'I'|'X'|null;packSize:number|null;sizeLabel:string|null;boreMm:number|null;
+ thicknessMm:number|null;thread:string|null;camTiming:string|null;applicationNote:[string,string]
+};
+function engineApplication(name:string,version:string):'exact'|'review'|null{
+ if(!(pistonEngineVersions as readonly string[]).includes(version))return null;
+ const n=name.normalize('NFKC').toLowerCase().replaceAll('tü','tu').replace(/\b(m(?:50|52|54))\s+b/g,'$1b');
+ if(version.startsWith('2jz')){
+  const ge=/\b2jz[\s-]*ge\b/.test(n),gte=/\b2jz[\s-]*gte\b/.test(n);
+  if(version==='2jz-ge'&&ge||version==='2jz-gte'&&gte)return 'exact';
+  return !ge&&!gte&&/\b2jz(?:g\b|[-\s]*g\(t\)e\b|\b)/.test(n)?'review':null;
+ }
+ if(/\bstroker\b/.test(n)&&version!=='m50b30-stroker')return null;
+ const family=version.slice(0,3),target=version.replace('-stroker','');
+ const codes=[...n.matchAll(/\b(m(?:50|52|54)b(?:20|22|25|28|30|32)(?:tu)?)(?=\b|m\d{2}b)/g)].map(m=>m[1]);
+ // Slash shorthand e.g. M52B20/25/28 is not an exact engine token.
+ if(codes.includes(target)){
+  if(version==='m50b25'||version==='m50b30-stroker'||version==='m52b28')return 'review';
+  return 'exact';
+ }
+ if(version==='m50b25'&&codes.includes('m50b25tu'))return 'review';
+ if(version==='m52b25tu'&&codes.includes('m52b25'))return null;
+ if(codes.length)return null;
+ if(new RegExp('\\b'+family+'(?:tu)?\\b').test(n))return 'review';
+ return null;
+}
+export function enginePartData(name:string,version:string,slot:string):EnginePartData|null{
+ if(!Object.hasOwn(engineDiscoveryPaths,slot))return null;
+ const application=engineApplication(name,version);if(!application)return null;
+ const n=name.normalize('NFKC').toLowerCase().replaceAll(',','.');
+ let kind='';
+ if(slot==='rods'&&/korbowod|connecting rods?/.test(n)&&!/^(?:śrub|panew|tulej)|\+\s*tłok/.test(n))kind='rod';
+ if(['bearings','bearings-rod','bearings-main','thrust-bearings'].includes(slot)){
+  kind=/panewki? korbowod|rod bearings?|conrod bearing/.test(n)?'rod-bearing':/panewki? główn|main bearings?/.test(n)?'main-bearing':/panewki? oporow|thrust bearing|thrust washer/.test(n)?'thrust-bearing':'';
+  if(slot==='bearings-rod'&&kind!=='rod-bearing'||slot==='bearings-main'&&kind!=='main-bearing'||slot==='thrust-bearings'&&kind!=='thrust-bearing'||slot==='bearings'&&kind==='thrust-bearing')return null;
+ }
+ if(slot==='gasket'&&/uszczelk.*głowic|head gasket/.test(n)&&!/zestaw uszczelek|gasket set/.test(n))kind='head-gasket';
+ if(slot==='fasteners'&&/szpilk.*głowic|śrub.*głowic|head stud|head bolt/.test(n)&&!/śruby korbowod/.test(n))kind='head-fastener';
+ if(slot==='main-fasteners'&&/szpilk.*(?:podpór|wału|panewek główn)|śrub.*(?:podpór|panewek główn)|main stud|main bolt/.test(n))kind='main-fastener';
+ if(slot==='camshafts'&&/wał(?:ki|ek|ków) rozrządu|camshafts?/.test(n)&&!/koło|kółko|czujnik/.test(n))kind='camshaft';
+ if(slot==='valve-train')kind=/sprężyn|valve spring/.test(n)?'valve-spring':/talerzyk|retainer/.test(n)?'retainer':/zawór dolot|zawory dolot|intake valves?/.test(n)?'intake-valve':/zawór wydech|zawory wydech|exhaust valves?/.test(n)?'exhaust-valve':'';
+ if(slot==='timing-kit'&&/pasek rozrządu|timing belt/.test(n))kind='timing-belt';
+ if(!kind)return null;
+ const metric=(label:string)=>singleNumber([...n.matchAll(new RegExp('(?:\\b(?:'+label+')\\s*[:.=-]?\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\b|\\b(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\s*(?:'+label+')\\b)','g'))].map(m=>Number(m[1]??m[2])));
+ const explicitLength=metric('length|dł(?:ugość)?|center.to.center|c.t.c');
+ const tailLength=kind==='rod'?[...n.matchAll(/\b(1[2345]\d(?:\.\d+)?)\s*mm\b/g)].map(m=>Number(m[1])):[];
+ const lengthMm=kind==='rod'?explicitLength??singleNumber(tailLength):null;
+ const pinMm=kind==='rod'?metric('pin|sworzeń|small end'):null;
+ const bigEndMm=kind==='rod'?metric('big end|stopa|średnica stopy'):null;
+ const beamMatch=n.match(/\b([hix])\s*-?\s*beam\b/);
+ const beam=beamMatch?beamMatch[1].toUpperCase() as EnginePartData['beam']:null;
+ const pack=kind==='rod'?(/\b(?:single|kuty korbowód|1\s*szt)\b/.test(n)?1:/\b(?:6\s*szt|6\s*pcs|set of 6|komplet 6)\b/.test(n)?6:null):null;
+ const bearing=kind.endsWith('-bearing');
+ const sizeLabel=bearing?(/\bstd\b/.test(n)?(/\bhx\b/.test(n)?'STD / HX':'STD'):n.match(/(?:^|\s)([+-]?(?:0?\.\d{2,3}))(?=\s|$)/)?.[1]??null):null;
+ const gasket=kind==='head-gasket';
+ const boreMm=gasket?singleNumber([...n.matchAll(/\b(7[5-9]|8\d|9[0-5])(?:\.\d+)?\s*mm\b/g)].map(m=>Number(m[0].replace(/\s*mm$/,'')))):null;
+ const thicknessMm=gasket?singleNumber([...n.matchAll(/\b(\d(?:\.\d+)?)\s*mm\b/g)].map(m=>Number(m[1])).filter(v=>v>=.3&&v<=5).concat([...n.matchAll(/(?:^|\s)(0?\.\d{2,3})\s*(?:inch|["″])/g)].map(m=>Math.round(Number(m[1])*2540)/100))):null;
+ const thread=/fastener$/.test(kind)?n.match(/\bm\d{1,2}\s*x\s*\d(?:\.\d+)?\b/)?.[0]?.toUpperCase()??null:null;
+ const camTiming=kind==='camshaft'?(/non[- ]?vvti|non[- ]?vvt-i/.test(n)?'non-VVT-i':/\bvvt[- ]?i\b/.test(n)?'VVT-i':null):null;
+ return {application,kind,lengthMm,pinMm,bigEndMm,beam,packSize:pack,sizeLabel,boreMm,thicknessMm,thread,camTiming,applicationNote:application==='exact'?['Kod silnika w nazwie katalogowej; potwierdź wersję i geometrię.','Engine code in catalogue title; verify variant and geometry.']:['Zgodność na poziomie rodziny silnika, wymaga indywidualnej weryfikacji.','Engine-family application only; individual verification required.']};
+}
+export function discoverEnginePart(row:DiscoveryRow,version:string,slot:string,category:string[]):DiscoveredPart|null{
+ if(!Object.hasOwn(engineDiscoveryPaths,slot)||!engineDiscoveryPaths[slot].some(p=>p.join('/')===category.join('/')))return null;
+ const p=enginePartData(row.name,version,slot);if(!p||!row.sku||row.sku.length>120)return null;
+ const brand=row.brand?.trim()||([[/\bprism\b/i,'Prism'],[/\bk1\b/i,'K1'],[/manley/i,'Manley'],[/wiseco/i,'Wiseco'],[/zrp/i,'ZRP'],[/fmic\.pro/i,'FMIC.Pro'],[/brian crower/i,'Brian Crower'],[/\bacl\b/i,'ACL'],[/king racing/i,'King Racing'],[/cometic/i,'Cometic'],[/athena/i,'Athena'],[/\barp\b/i,'ARP'],[/ftwl/i,'FTWL'],[/kelford/i,'Kelford'],[/supertech/i,'SuperTech'],[/gates/i,'Gates']] as [RegExp,string][]).find(([re])=>re.test(row.name))?.[1]||'—';
+ const notes:Record<string,[string,string]>={
+ rod:['Potwierdź długość C-C, średnicę sworznia i stopy, szerokość, śruby, materiał, obciążenie i liczbę sztuk.','Verify C-C length, pin and big-end bore, width, bolts, material, load and pack count.'],
+ 'head-gasket':['Potwierdź średnicę otworu, grubość po ściśnięciu, powierzchnie i rzeczywiste CR.','Confirm gasket bore, compressed thickness, deck finish and actual CR.'],
+ 'camshaft':['Potwierdź VANOS/VVT-i, wznios, fazy, sprężyny i luz tłok–zawór.','Confirm VANOS/VVT-i, lift, duration, springs and piston-to-valve clearance.']
+ };
+ const note=notes[p.kind]??(p.kind.endsWith('-bearing')?['Rozmiar i luz olejowy dobierz po pomiarze czopów, gniazd i danych producenta. Nie interpretuj samego sufiksu jako szlifu.','Select size and oil clearance after measuring journals and housings and consulting manufacturer data. Do not interpret suffix alone as undersize.']:p.kind.endsWith('-fastener')?['Potwierdź gwint, materiał bloku, wymagania obróbki, procedurę i moment/naciąg producenta.','Confirm thread, block material, machining, installation and manufacturer torque/stretch.']:['Potwierdź wariant silnika, wymiary, zawartość zestawu i procedurę montażu.','Confirm engine variant, dimensions, kit contents and installation procedure.']);
+ return {sku:row.sku,name:row.name,brand,slot,enginePart:p,reason:[p.applicationNote[0]+' '+note[0],p.applicationNote[1]+' '+note[1]]};
+}
+export function engineGeometryConflicts(piston:PistonCatalogueData|null,rod:EnginePartData|null,gasket:EnginePartData|null):{pin:boolean;gasket:boolean}{
+ return {pin:!!(piston?.pinMm!=null&&rod?.pinMm!=null&&Math.abs(piston.pinMm-rod.pinMm)>.05),gasket:!!(piston?.boreMm!=null&&gasket?.boreMm!=null&&gasket.boreMm<piston.boreMm)};
 }
