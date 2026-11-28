@@ -291,7 +291,7 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
   if(intakeFabricationOptions[s.id])return {...s,alternatives:[...new Set([...intakeFabricationOptions[s.id],...partOptions(s)])],defaultNone:true,candidate:undefined,planNote:['Wybierz element po potwierdzeniu wymiarów i trasy instalacji.','Select after confirming dimensions and installation routing.'] as [string,string]};
   if(pipeDiameter&&['exhaust-bends','exhaust-flex','exhaust-vband'].includes(s.id))return {...s,alternatives:partOptions(s).filter(k=>allCandidates[k]?.variant?.diameterMm===pipeDiameter),defaultNone:true,planNote:['Dopasowanie nominalne do rury '+pipeDiameter+' mm. Potwierdź połączenie i geometrię.','Nominal match to '+pipeDiameter+' mm pipe. Confirm joint and geometry.'] as [string,string]};
   if(s.id==='turbo-insulation')return resolveBlanketFitment(s,turboKey,candidateMap);
-  if(s.id==='boost-control'&&ecuKey==='ecu'&&tuTurboSpec(turboKey,candidateMap))return {...s,candidate:'boostMac',defaultNone:false,qty:1};
+  if(s.id==='boost-control'){const ecuControl=ecuKey==='ecu'&&!!tuTurboSpec(turboKey,candidateMap);return {...s,candidate:ecuControl?'boostMac':undefined,defaultNone:!ecuControl,qty:1};}
   if(s.id==='vacuum-lines')return {...s,alternatives:['vacuum4','vacuum4Red','vacuum4Blue','vacuum6','vacuum6Red'],defaultNone:true};
   if(['heat-sleeve-oil','heat-sleeve-water','heat-sleeve-fuel','heat-sleeve-wiring','heat-sleeve-vacuum'].includes(s.id))return {...s,alternatives:['sleeve10','sleeve15','sleeve30'],defaultNone:true};
   return s;
@@ -406,7 +406,7 @@ export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined,c
 function completionSlots():PartsSlot[]{
  const item=(id:string,pl:string,en:string,plNote:string,enNote:string):PartsSlot=>({id,label:[pl,en],qty:null,conditional:true,defaultNone:true,alternatives:[],planNote:[plNote,enNote]});
  return [
- item('boost-control','Elektrozawór sterowania boostem','Boost control solenoid','Dobierz do ECU, IWG/EWG i schematu pneumatycznego.','Match ECU, IWG/EWG and pneumatic layout.'),
+ item('boost-control','Sterowanie doładowaniem (MBC / EBC)','Boost control (MBC / EBC)','Wybierz ręczny MBC, elektroniczny EBC lub elektrozawór do ECU. Potwierdź zgodność z IWG/EWG, sprężyną WG i zabezpieczeniem overboost.','Choose manual MBC, electronic EBC or an ECU solenoid. Confirm IWG/EWG, WG spring and overboost protection.'),
  item('vacuum-lines','Przewody podciśnienia i złączki','Vacuum lines and fittings','Dobierz średnice, długości, temperaturę i ciśnienie.','Match diameter, length, temperature and pressure.'),
  item('turbo-support','Podpora turbo i mocowania','Turbo support and mounting','Wskazówka RPM Custom: zalecamy wykonanie dodatkowej podpory turbosprężarki lub kolektora do bloku silnika. Ogranicza drgania i obciążenia kolektora, zmniejszając ryzyko pękania spoin i flansz. Podpora musi uwzględniać rozszerzalność cieplną oraz nie powodować naprężeń montażowych.','RPM Custom tip: we recommend an additional turbocharger or manifold support attached to the engine block. This reduces vibration and manifold loads, lowering the risk of cracked welds and flanges. Allow for thermal expansion and avoid installation preload.'),
  item('fuel-fittings','Złączki paliwowe AN','Fuel AN fittings','Dobierz do średnic, gwintów, paliwa i ciśnienia.','Match diameters, threads, fuel and pressure.'),
