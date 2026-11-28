@@ -105,19 +105,19 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
   }catch{setExtraLookup(old=>({...old,[id]:'error'}))}
  };
  const turboTarget=targetPower??powerRangesFor(version)[range]?.max??0;
- const [turboSearch,setTurboSearch]=useState<{target:number;items:DiscoveredPart[];scanned:number;status:'loading'|'ready'|'error'}>({target:0,items:[],scanned:0,status:'loading'});
+ const [turboSearch,setTurboSearch]=useState<{target:number;items:DiscoveredPart[];quotes:FmicQuote[];scanned:number;status:'loading'|'ready'|'error'}>({target:0,items:[],quotes:[],scanned:0,status:'loading'});
  const [turboRetry,setTurboRetry]=useState(0);
  const [turboArFilter,setTurboArFilter]=useState(''),[turboFlangeFilter,setTurboFlangeFilter]=useState(''),[turboWgFilter,setTurboWgFilter]=useState('');
  useEffect(()=>{setTurboArFilter('');setTurboFlangeFilter('');setTurboWgFilter('')},[turboTarget]);
  useEffect(()=>{
   if(!turboTarget)return;
   const ctrl=new AbortController();
-  setTurboSearch({target:turboTarget,items:[],scanned:0,status:'loading'});
+  setTurboSearch({target:turboTarget,items:[],quotes:[],scanned:0,status:'loading'});
   fetch('/api/catalog/fmic/build-discovery?'+new URLSearchParams({slot:'turbo',targetPs:String(turboTarget)}),{cache:'no-store',signal:ctrl.signal}).then(async r=>{
    if(!r.ok)throw Error('Turbo catalogue lookup failed');
-   const data=await r.json();if(!Array.isArray(data.items)||data.targetPs!==turboTarget)throw Error('Invalid turbo catalogue response');
-   if(!ctrl.signal.aborted)setTurboSearch({target:turboTarget,items:data.items.filter((d:DiscoveredPart)=>d.slot==='turbo'&&d.turbo),scanned:Number(data.scanned)||0,status:'ready'});
-  }).catch(()=>{if(!ctrl.signal.aborted)setTurboSearch({target:turboTarget,items:[],scanned:0,status:'error'})});
+   const data=await r.json();if(!Array.isArray(data.items)||!Array.isArray(data.quotes)||data.targetPs!==turboTarget)throw Error('Invalid turbo catalogue response');
+   if(!ctrl.signal.aborted)setTurboSearch({target:turboTarget,items:data.items.filter((d:DiscoveredPart)=>d.slot==='turbo'&&d.turbo),quotes:data.quotes,scanned:Number(data.scanned)||0,status:'ready'});
+  }).catch(()=>{if(!ctrl.signal.aborted)setTurboSearch({target:turboTarget,items:[],quotes:[],scanned:0,status:'error'})});
   return()=>ctrl.abort();
  },[turboTarget,turboRetry]);
  const discoveries=useMemo(()=>[...discovered,...Object.values(extraDiscovered).flat(),...(turboSearch.target===turboTarget?turboSearch.items:[])], [discovered,extraDiscovered,turboSearch,turboTarget]);
@@ -156,7 +156,7 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
    if(turboSearch.target!==turboTarget||turboSearch.status==='loading')return {...merged,defaultNone:true};
    if(turboSearch.status==='error')return {...merged,defaultNone:true};
    const all=partOptions(merged).filter(k=>{const t=turboDataFor(k);return !t||t.ratingPs>=turboTarget&&t.ratingPs<=turboTarget*1.85});
-   const fit=all.filter(k=>{const t=turboDataFor(k);return !!t&&t.ar!==null&&!!tuTurboSpec(k,candidates)});
+   const fit=all.filter(k=>{const t=turboDataFor(k);return !!t&&t.ar!==null&&!(t.ar<.60&&turboTarget/t.ratingPs>=.75)&&!!tuTurboSpec(k,candidates)});
    const ranked=fit.sort(rankTurbo);
    const best=ranked[0];
    // Do not silently substitute a vanished manually selected variant.
@@ -226,9 +226,10 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
  const manifoldPrice=configuredManifold?.unitPrice??manifold?.price??0;
  const manifoldReady=!!configuredManifold?.line;
  const setManifoldChoice=(id:string,value:string)=>{setManifoldChoices(old=>({...old,[manifoldKey]:{...old[manifoldKey],[id]:value}}));setCartStatus('');setCartError('')};
- const skuKey=[...new Set(keys.filter(k=>!ownByKey.has(k)).map(k=>candidates[k].sku))].sort().join('|');
+ const turboQuoteMap=new Map((turboSearch.target===turboTarget&&turboSearch.status==='ready'?turboSearch.quotes:[]).map(q=>[q.sku,q]));
+ const skuKey=[...new Set(keys.filter(k=>!ownByKey.has(k)&&turboQuoteMap.get(candidates[k].sku)?.name!==candidates[k].expectedName).map(k=>candidates[k].sku))].sort().join('|');
  useEffect(()=>{const controller=new AbortController();setQuotes([]);if(!skuKey){setState('ready');return}setState('loading');quoteFmicCart(skuKey.split('|'),controller.signal).then(q=>{if(!controller.signal.aborted){setQuotes(q);setState('ready')}}).catch(()=>{if(!controller.signal.aborted)setState('error')});return()=>controller.abort()},[skuKey]);
- const matched=keys.flatMap(k=>{const c=candidates[k],p=ownByKey.get(k);const q:FmicQuote|undefined=p?{sku:p.sku,name:p.name,unitPrice:p.price,available:true,image:p.images?.[0]??null,updatedAt:''}:quotes.find(q=>q.sku===c.sku&&q.name===c.expectedName);return q?[q]:[]});
+ const matched=keys.flatMap(k=>{const c=candidates[k],p=ownByKey.get(k);const q:FmicQuote|undefined=p?{sku:p.sku,name:p.name,unitPrice:p.price,available:true,image:p.images?.[0]??null,updatedAt:''}:(turboQuoteMap.get(c.sku)?.name===c.expectedName?turboQuoteMap.get(c.sku):quotes.find(q=>q.sku===c.sku&&q.name===c.expectedName));return q?[q]:[]});
  const total=slots.reduce((sum,slot)=>{const k=selectedPart(slot,selection);const q=k?matched.find(q=>q.sku===candidates[k].sku):undefined;return sum+(k&&q?.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0?q.unitPrice*qtyFor(slot.id,k):0)},0)+manifoldPrice;
 
  const remaining=budgetRemaining(profile.budgetPln,total);
