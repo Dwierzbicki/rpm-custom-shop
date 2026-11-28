@@ -1,6 +1,6 @@
 import type {Diagram,Part} from './catalog';
 import type {Profile} from './release';
-import {m54Breakdown,connectionRows} from './m54-breakdown';
+import {m54Breakdown,needsReference} from './m54-breakdown';
 
 type ReportOptions={engine:string;profileId:string;revision:string|null;profiles:Profile[];parts:Part[];diagrams:Diagram[]};
 export function buildHardwareReport({engine,profileId,revision,profiles,parts,diagrams}:ReportOptions){
@@ -12,8 +12,9 @@ export function buildHardwareReport({engine,profileId,revision,profiles,parts,di
  const byKey=new Map(parts.map(p=>[p.key??p.oem,p]));
  const groups=selected.map(d=>({diagram:d,rows:d.usages.map(usage=>({usage,part:byKey.get(usage.partKey??usage.oem)}))}));
  const all=groups.flatMap(g=>g.rows);
- const gaps=!revision?m54Breakdown.map(g=>({id:g.id,title:g.title,items:g.connections.filter(c=>!connectionRows(c,selected).length)})).filter(g=>g.items.length):[];
- return {engine,profile,revision,groups,gaps,usageCount:all.length,uniqueOem:new Set(all.map(r=>r.usage.partKey??r.usage.oem)).size,unresolvedPartCount:all.filter(r=>!r.part).length};
+ const gaps=!revision?m54Breakdown.map(g=>({id:g.id,title:g.title,items:g.connections.filter(c=>needsReference(c,selected))})).filter(g=>g.items.length):[];
+ const reviewed=!revision?m54Breakdown.flatMap(g=>g.connections.filter(c=>c.review).map(c=>({id:c.id,title:c.title,review:c.review!}))):[];
+ return {engine,profile,revision,groups,gaps,reviewed,usageCount:all.length,uniqueOem:new Set(all.map(r=>r.usage.partKey??r.usage.oem)).size,unresolvedPartCount:all.filter(r=>!r.part).length};
 }
 export function hardwareReportHref(engine:string,profileId:string,language:'pl'|'en'){
  const q=new URLSearchParams({engine,lang:language});

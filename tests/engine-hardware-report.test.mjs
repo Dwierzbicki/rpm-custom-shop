@@ -8,7 +8,7 @@ function load(name,deps={}){const exports={};vm.runInNewContext(ts.transpileModu
 const catalog=load('catalog'),breakdown=load('m54-breakdown'),report=load('report-data',{'./m54-breakdown':breakdown});
 const options={engine:'M54B30',profileId:'',revision:null,profiles:[],parts:catalog.parts,diagrams:catalog.diagrams};
 test('report includes all engine rows independent of browsing and preserves units without summing across diagrams',()=>{
- const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,17);assert.equal(r.usageCount,66);assert.equal(r.uniqueOem,61);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),15);
+ const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,17);assert.equal(r.usageCount,84);assert.equal(r.uniqueOem,77);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),6);
  const rows=r.groups.flatMap(g=>g.rows);assert.equal(rows.filter(x=>x.usage.oem==='07119905391').length,2);assert.equal(rows.find(x=>x.usage.oem==='11121740065').usage.quantityUnit,'set');assert.ok(!('totalQuantity' in r));
 });
 test('report rejects unsupported preview engine and mismatched release profiles',()=>{
@@ -25,3 +25,5 @@ test('PDF view is explicit about print, preview protection and missing data',()=
 });
 
 test('report omits out-of-scope and unresolved peripheral positions',()=>{const r=report.buildHardwareReport(options);const rows=r.groups.flatMap(g=>g.rows);for(const oem of ["11721742644","07119904992","07119905544"])assert.ok(!rows.some(x=>x.usage.oem===oem));assert.ok(!r.gaps.some(g=>['intake','exhaust','cooling','accessory'].includes(g.id)));});
+
+test('VANOS oil line total appears only once and grouped cam counts are not duplicated',()=>{const r=report.buildHardwareReport(options),rows=r.groups.flatMap(g=>g.rows);assert.equal(rows.filter(x=>x.usage.oem==='32416852469').length,1);assert.equal(rows.find(x=>x.usage.oem==='32416852469').usage.quantity,2);assert.equal(rows.find(x=>x.usage.oem==='32411093596').usage.quantity,4);assert.equal(rows.filter(x=>x.usage.oem==='11617545279').length,1);assert.ok(r.reviewed.some(c=>c.id==='filter-line'));assert.ok(!r.gaps.flatMap(g=>g.items).some(c=>c.id==='filter-line'));});
