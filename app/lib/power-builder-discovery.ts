@@ -278,7 +278,9 @@ export const engineDiscoveryPaths:Record<string,string[][]>={
  fasteners:[['Silnik i turbo','Śruby i szpilki ARP']],
  'main-fasteners':[['Silnik i turbo','Śruby i szpilki ARP']],
  camshafts:[['Silnik i turbo','Rozrząd','Wałki rozrządu']],
- 'valve-train':[['Silnik i turbo','Elementy głowicy','Talerzyki i sprężynki'],['Silnik i turbo','Elementy głowicy','Zawory']],
+ 'valve-train':[['Silnik i turbo','Elementy głowicy','Talerzyki i sprężynki']],
+ 'intake-valves':[['Silnik i turbo','Elementy głowicy','Zawory']],
+ 'exhaust-valves':[['Silnik i turbo','Elementy głowicy','Zawory']],
  'timing-kit':[['Silnik i turbo','Rozrząd','Paski rozrządu']],
 };
 export type EnginePartData={
@@ -313,7 +315,7 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
  const application=engineApplication(name,version);if(!application)return null;
  const n=name.normalize('NFKC').toLowerCase().replaceAll(',','.');
  let kind='';
- if(slot==='rods'&&/korbowod|connecting rods?/.test(n)&&!/^(?:śrub|panew|tulej)|\+\s*tłok/.test(n))kind='rod';
+ if(slot==='rods'&&/korbowod|korbowód|connecting rods?/.test(n)&&!/^(?:śrub|panew|tulej)|\+\s*tłok/.test(n))kind='rod';
  if(['bearings','bearings-rod','bearings-main','thrust-bearings'].includes(slot)){
   kind=/panewki? korbowod|rod bearings?|conrod bearing/.test(n)?'rod-bearing':/panewki? główn|main bearings?/.test(n)?'main-bearing':/panewki? oporow|thrust bearing|thrust washer/.test(n)?'thrust-bearing':'';
   if(slot==='bearings-rod'&&kind!=='rod-bearing'||slot==='bearings-main'&&kind!=='main-bearing'||slot==='thrust-bearings'&&kind!=='thrust-bearing'||slot==='bearings'&&kind==='thrust-bearing')return null;
@@ -322,11 +324,13 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
  if(slot==='fasteners'&&/szpilk.*głowic|śrub.*głowic|head stud|head bolt/.test(n)&&!/śruby korbowod/.test(n))kind='head-fastener';
  if(slot==='main-fasteners'&&/szpilk.*(?:podpór|wału|panewek główn)|śrub.*(?:podpór|panewek główn)|main stud|main bolt/.test(n))kind='main-fastener';
  if(slot==='camshafts'&&/wał(?:ki|ek|ków) rozrządu|camshafts?/.test(n)&&!/koło|kółko|czujnik/.test(n))kind='camshaft';
- if(slot==='valve-train')kind=/sprężyn|valve spring/.test(n)?'valve-spring':/talerzyk|retainer/.test(n)?'retainer':/zawór dolot|zawory dolot|intake valves?/.test(n)?'intake-valve':/zawór wydech|zawory wydech|exhaust valves?/.test(n)?'exhaust-valve':'';
+ if(slot==='valve-train'&&/sprężyn|valve spring/.test(n))kind='valve-spring';
+ if(slot==='intake-valves'&&/zawór (?:dolot|ssąc)|zawor(?:y|ów) (?:dolot|ssąc)|intake valves?/.test(n))kind='intake-valve';
+ if(slot==='exhaust-valves'&&/zawór wydech|zawor(?:y|ów) wydech|exhaust valves?/.test(n))kind='exhaust-valve';
  if(slot==='timing-kit'&&/pasek rozrządu|timing belt/.test(n))kind='timing-belt';
  if(!kind)return null;
  const metric=(label:string)=>singleNumber([...n.matchAll(new RegExp('(?:\\b(?:'+label+')\\s*[:.=-]?\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\b|\\b(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\s*(?:'+label+')\\b)','g'))].map(m=>Number(m[1]??m[2])));
- const explicitLength=metric('length|dł(?:ugość)?|center.to.center|c.t.c');
+ const explicitLength=metric('length|dł(?:ugość)?|center.to.center|c.t.c')??(kind==='rod'?singleNumber([...n.matchAll(/\b(?:dł\.|length)\s*(1[2345]\d(?:\.\d+)?)\b/g)].map(m=>Number(m[1]))):null);
  const tailLength=kind==='rod'?[...n.matchAll(/\b(1[2345]\d(?:\.\d+)?)\s*mm\b/g)].map(m=>Number(m[1])):[];
  const lengthMm=kind==='rod'?explicitLength??singleNumber(tailLength):null;
  const pinMm=kind==='rod'?metric('pin|sworzeń|small end'):null;
