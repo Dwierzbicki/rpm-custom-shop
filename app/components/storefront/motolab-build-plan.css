@@ -497,7 +497,10 @@
 .rpm-build-workspace .rpm-build-clean-card .rpm-build-product-price{font-size:clamp(20px,2vw,25px);letter-spacing:-.04em}
 .rpm-build-workspace .rpm-lab-manifold{background:#20252d;border:1px solid #444d5a;padding:14px;gap:12px}
 .rpm-lab-manifold-hero{display:flex;align-items:center;gap:14px}
-.rpm-lab-manifold-hero>img{width:100px;height:90px;object-fit:contain;background:#f4f4f5;border-radius:5px}
+.rpm-lab-manifold-hero>.rpm-manifold-photo{flex:0 0 100px;width:100px;height:90px;background:#f4f4f5;border-radius:5px;overflow:hidden}
+.rpm-manifold-photo>img{display:block;width:100%;height:100%;object-fit:contain}
+.rpm-lab-manifold-hero .rpm-product-placeholder strong{font-size:clamp(9px,6cqh,19px);color:#292d35}
+.rpm-lab-manifold-hero .rpm-product-placeholder{padding:5px;gap:3px}
 .rpm-lab-manifold-hero>div{min-width:0}
 .rpm-lab-manifold-hero h4{font-size:21px;letter-spacing:-.035em;margin:5px 0}
 .rpm-lab-manifold-hero strong{font-size:12px;color:#bbc4d0}
@@ -512,7 +515,7 @@
 .rpm-build-workspace .rpm-lab-manifold-options>button.selected{border-color:var(--rpm-color-accent);background:#3d2936;box-shadow:none}
 .rpm-build-workspace .rpm-lab-manifold-options>button:disabled.selected{opacity:1;border-color:#617084;background:#262e39}
 .rpm-lab-manifold-options>button:focus-visible{outline:2px solid #ff7398;outline-offset:2px}
-@media(max-width:600px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-hero{grid-template-columns:1fr;padding:16px;gap:16px}.rpm-lab-hero-progress{grid-template-columns:1fr auto;align-items:center}.rpm-lab-hero-progress .rpm-lab-mini-track{grid-column:1/-1}.rpm-lab-hero-progress>small{grid-column:1/-1}.rpm-lab-manifold-hero>img{width:76px;height:76px}}
+@media(max-width:600px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-hero{grid-template-columns:1fr;padding:16px;gap:16px}.rpm-lab-hero-progress{grid-template-columns:1fr auto;align-items:center}.rpm-lab-hero-progress .rpm-lab-mini-track{grid-column:1/-1}.rpm-lab-hero-progress>small{grid-column:1/-1}.rpm-lab-manifold-hero>.rpm-manifold-photo{flex-basis:76px;width:76px;height:76px}}
 
 
 /* Progressive alternatives: show four results, then reveal four more. */
