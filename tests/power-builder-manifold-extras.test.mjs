@@ -28,3 +28,20 @@ test('manifold extras start blank and do not increase the estimate',()=>{
  const extra=manifoldConfiguration(product,spec,{'rpm-chassis':'e46','rpm-egt':'yes','rpm-thermal-insulation':'termshield'});
  assert.equal(extra.line.unitPrice,4950);
 });
+
+test('all displayed choices are required even when catalog marks them optional',()=>{
+ const optionalCatalog={...product,optionGroups:[...product.optionGroups.map(g=>({...g,required:false})),{...group('custom-coating',[['none',0],['coat',100]]),required:false}]};
+ const choices={'rpm-chassis':'e46','rpm-egt':'none','rpm-thermal-insulation':'none','custom-coating':'none'};
+ for(const id of Object.keys(choices)){
+  const incomplete={...choices};delete incomplete[id];
+  const result=manifoldConfiguration(optionalCatalog,spec,incomplete);
+  assert.equal(result.canAdd,false,id);
+  assert.equal(result.line,null,id);
+  assert.ok(result.customGroups.every(g=>g.required),id);
+ }
+ const complete=manifoldConfiguration(optionalCatalog,spec,choices);
+ assert.equal(complete.canAdd,true);
+ assert.equal(complete.line.unitPrice,3000);
+ assert.equal(complete.line.options['rpm-thermal-insulation'],'none');
+ assert.equal(manifoldConfiguration(optionalCatalog,spec,{...choices,'rpm-thermal-insulation':'invalid'}),null);
+});
