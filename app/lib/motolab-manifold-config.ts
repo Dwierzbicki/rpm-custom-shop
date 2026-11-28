@@ -13,7 +13,10 @@ export function manifoldConfiguration(product:Product,spec:Spec,choices:Record<s
  }
  if(Object.entries(spec.options).some(([id,value])=>!product.optionGroups?.some(g=>g.id===id&&g.options.some(o=>o.id===value))))return null;
  const configuration={chosenOptions,engine:'',flange:'',wg:'',egt:false,qty:1};
- const described=describeConfiguration(product,configuration);
- const line=configuredCartLine(product,configuration);
+ // Every displayed manifold option requires an explicit choice, including free
+ // alternatives such as no EGT or no thermal insulation. Do not rely on catalogue flags.
+ const requiredProduct={...product,optionGroups:product.optionGroups.map(group=>({...group,required:true}))};
+ const described=describeConfiguration(requiredProduct,configuration);
+ const line=configuredCartLine(requiredProduct,configuration);
  return {...described,chosenOptions,line};
 }
