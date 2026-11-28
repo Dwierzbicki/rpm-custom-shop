@@ -822,3 +822,15 @@
 @media(min-width:461px) and (max-width:600px){
  .rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero .rpm-project-tech-tag:last-child{grid-column:auto}
 }
+
+/* Center complete labels and values; move whole tiles to a new row instead of breaking text. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero>.rpm-lab-project-technical{
+ display:flex;flex-wrap:wrap;align-items:stretch;justify-content:center;gap:7px;min-width:0
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero>.rpm-lab-project-technical>.rpm-project-tech-tag{
+ flex:1 0 auto;min-width:max-content;max-width:100%;display:grid;place-content:center;justify-items:center;text-align:center;gap:3px
+}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero .rpm-project-tech-tag>small,
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero .rpm-project-tech-tag>b{
+ white-space:nowrap;overflow-wrap:normal;word-break:normal;text-align:center;max-width:none
+}
