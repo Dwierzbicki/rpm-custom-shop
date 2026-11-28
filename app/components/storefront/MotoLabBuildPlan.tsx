@@ -6,7 +6,7 @@ import {productPath} from '../../lib/product-path';
 import {manifoldConfiguration} from '../../lib/motolab-manifold-config';
 import {fuelModel,budgetRemaining,type BuildProfile} from '../../lib/power-build-profile';
 import {useEffect,useLayoutEffect,useMemo,useState,useRef,type ReactNode} from 'react';
-import {ArrowRight,CheckCircle2,Package,ExternalLink,AlertTriangle,Wrench,ShoppingCart,ChevronDown,ChevronLeft,ChevronRight,Gauge,Wind,Droplets,Cpu,Settings2,Flame,FileDown,Settings,LockKeyhole} from 'lucide-react';
+import {ArrowRight,CheckCircle2,Package,ExternalLink,AlertTriangle,Wrench,ShoppingCart,ChevronDown,Gauge,Wind,Droplets,Cpu,Settings2,Flame,FileDown,Settings,LockKeyhole} from 'lucide-react';
 import {chargeClampSuggestion,filterInjectorSlot,injectorNominalFlow,buildParts,allCandidates as supplierCandidates,partOptions,selectedPart,estimateFuel,assessBuild,candidateBrand,turboAssemblySlots,isTuPilot,hasCatalogBuild,resolveTuDependencies,tuManifoldSpec,tuManifoldEstimate,tuTurboSpec,type Fuel,type BuildCandidate,type PartsSlot} from '../../lib/motolab-build-plan';
 import {eligibleRpmParts,type RpmOption} from '../../lib/motolab-rpm-parts';
 import {isRetiredDemoProductId,type CartLine} from '../../data';
@@ -21,28 +21,27 @@ type VariantChoice={key:string;candidate:BuildCandidate;quote:FmicQuote};
 const initialRequestSignal=(signal:AbortSignal,timeout=90000)=>AbortSignal.any([signal,AbortSignal.timeout(timeout)]);
 function PartsCarousel({count,en,children}:{count:number;en:boolean;children:ReactNode}){
  const track=useRef<HTMLDivElement>(null);
- const [position,setPosition]=useState({first:1,last:Math.min(count,4),prev:false,next:count>4});
- useEffect(()=>{
+ const [position,setPosition]=useState({first:1,last:Math.min(count,4),left:0,max:0});
+ useLayoutEffect(()=>{
   const el=track.current;if(!el)return;
   const update=()=>{
-   const left=el.scrollLeft,right=left+el.clientWidth;
+   const max=Math.max(0,el.scrollWidth-el.clientWidth);
+   const left=Math.max(0,Math.min(max,el.scrollLeft)),right=left+el.clientWidth;
    const cards=Array.from(el.children) as HTMLElement[];
    const visible=cards.map((card,i)=>({i,start:card.offsetLeft,end:card.offsetLeft+card.offsetWidth})).filter(c=>c.end>left+2&&c.start<right-2);
-   setPosition({first:visible.length?visible[0].i+1:0,last:visible.length?visible[visible.length-1].i+1:0,prev:left>2,next:right<el.scrollWidth-2});
+   setPosition(old=>{const next={first:visible.length?visible[0].i+1:0,last:visible.length?visible[visible.length-1].i+1:0,left,max};return old.first===next.first&&old.last===next.last&&old.left===next.left&&old.max===next.max?old:next});
   };
   update();el.addEventListener('scroll',update,{passive:true});
   const observer=new ResizeObserver(update);observer.observe(el);
   return()=>{el.removeEventListener('scroll',update);observer.disconnect()};
  },[count]);
- const move=(direction:number)=>{
+ const slide=(value:number)=>{
   const el=track.current;if(!el)return;
-  const cards=Array.from(el.children) as HTMLElement[];
-  const step=cards.length>1?cards[1].offsetLeft-cards[0].offsetLeft:el.clientWidth;
-  const page=Math.max(1,Math.floor((el.clientWidth+2)/Math.max(1,step)));
-  el.scrollBy({left:direction*step*page,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
+  el.scrollLeft=value;
+  setPosition(old=>({...old,left:Math.max(0,Math.min(old.max,el.scrollLeft))}));
  };
  if(!count)return null;
- return <div className="rpm-parts-carousel"><div className="rpm-carousel-toolbar"><span>{en?'Products':'Produkty'} <b>{position.first}–{position.last} / {count}</b></span></div><div className="rpm-carousel-stage"><div className="rpm-picker-magazine-grid rpm-carousel-track" ref={track} role="region" aria-label={en?'Product alternatives':'Alternatywy produktów'} tabIndex={0}>{children}</div>{(position.prev||position.next)&&<div className="rpm-carousel-buttons"><button type="button" className="outline rpm-carousel-prev" aria-label={en?'Previous products':'Poprzednie produkty'} disabled={!position.prev} onClick={()=>move(-1)}><ChevronLeft size={22}/></button><button type="button" className="outline rpm-carousel-next" aria-label={en?'Next products':'Następne produkty'} disabled={!position.next} onClick={()=>move(1)}><ChevronRight size={22}/></button></div>}</div>{count>1&&<div className="rpm-carousel-hint"><span>{en?'Swipe or use arrows to browse':'Przesuwaj w bok lub użyj strzałek'}</span><small>{en?'Remaining':'Pozostało'}: {Math.max(0,count-position.last)}</small></div>}</div>
+ return <div className="rpm-parts-carousel"><div className="rpm-carousel-toolbar"><span>{en?'Products':'Produkty'} <b>{position.first}–{position.last} / {count}</b></span></div><div className="rpm-carousel-stage"><div className="rpm-picker-magazine-grid rpm-carousel-track" ref={track} role="region" aria-label={en?'Product alternatives':'Alternatywy produktów'} tabIndex={0}>{children}</div></div>{position.max>2&&<><div className="rpm-carousel-scroll-control"><input className="rpm-carousel-slider" type="range" min={0} max={Math.ceil(position.max)} step={1} value={Math.round(position.left)} aria-label={en?'Scroll product alternatives':'Przewijanie alternatyw produktów'} aria-valuetext={position.first+'–'+position.last+' / '+count} onChange={e=>slide(Number(e.currentTarget.value))}/></div><div className="rpm-carousel-hint"><span>{en?'Drag the slider or swipe the products':'Przeciągnij suwak lub przesuń produkty w bok'}</span><small>{en?'Remaining':'Pozostało'}: {Math.max(0,count-position.last)}</small></div></>}</div>
 }
 
 function MaterialVariants({options,picked,busy,en,onChoose}:{options:VariantChoice[];picked?:string;busy:boolean;en:boolean;onChoose:(key:string)=>void}){
