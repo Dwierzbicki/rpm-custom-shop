@@ -219,3 +219,18 @@ test('boost control discovers MBC, standalone EBC and ECU solenoids without acce
   ['DP1003','EBC Brakes Klocki hamulcowe',['Hamulce i koła','Klocki hamulcowe']]
  ])assert.equal(exports.discoverExtraPart({sku,name},category,'boost-control'),null,sku);
 });
+
+test('complete engine sales units default to one set, not ambiguous packages',()=>{
+ const complete=(sku,name,part)=>exports.isCompleteEngineSalesUnit(sku,name,part);
+ const head={kind:'head-fastener'},ring={kind:'piston-rings'};
+ assert.equal(complete('FTWL_HSM54','Wyczynowe szpilki głowicy BMW M52 M52TU M54 M12x1.5 FTWL',head),true);
+ assert.equal(complete('FTWL_HSM54M10','Wyczynowe szpilki głowicy M10 FTWL BMW M52 / M54',head),true);
+ assert.equal(complete('OTHER','Head stud BMW M54',head),false);
+ assert.equal(complete('OTHER','Head stud kit BMW M54',head),true);
+ assert.equal(complete('OTHER','Head stud kit BMW M52 Single VANOS 1 szt',head),false);
+ assert.equal(complete('OTHER','Piston ring set per cylinder',ring),false);
+ assert.equal(complete('OTHER','Piston ring set',ring),false);
+ assert.equal(complete('OTHER','Piston ring set for all cylinders',ring),true);
+ assert.equal(complete('OTHER','Connecting rods BMW M54',{kind:'rod',packSize:6}),true);
+ assert.equal(complete('OTHER','Connecting rods BMW M54',{kind:'rod',packSize:null}),false);
+});
