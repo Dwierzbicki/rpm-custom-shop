@@ -277,7 +277,7 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
  const fuelLineSize=(id:string)=>{const slot=slots.find(s=>s.id===id);const key=slot?selectedPart(slot,selection):undefined;return key?allCandidates[key]?.anSize:undefined;};
  const couplerSlot=slots.find(s=>s.id==='charge-couplers');
  const couplerKey=couplerSlot?selectedPart(couplerSlot,selection):undefined;
- const clampHint=chargeClampSuggestion(couplerKey);
+ const clampHint=chargeClampSuggestion(couplerKey,candidateMap);
  const protectedSlots=slots.map(s=>{
   if(s.id==='charge-clamps'&&clampHint){
    const all=intakeFabricationOptions[s.id]??[];
@@ -288,7 +288,7 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
    const size=fuelLineSize(side);
    return {...s,alternatives:partOptions(s).filter(k=>!size||allCandidates[k]?.anSize===size),defaultNone:true};
   }
-  if(intakeFabricationOptions[s.id])return {...s,alternatives:intakeFabricationOptions[s.id],defaultNone:true,candidate:undefined,planNote:['Wybierz element po potwierdzeniu wymiarów i trasy instalacji.','Select after confirming dimensions and installation routing.'] as [string,string]};
+  if(intakeFabricationOptions[s.id])return {...s,alternatives:[...new Set([...intakeFabricationOptions[s.id],...partOptions(s)])],defaultNone:true,candidate:undefined,planNote:['Wybierz element po potwierdzeniu wymiarów i trasy instalacji.','Select after confirming dimensions and installation routing.'] as [string,string]};
   if(pipeDiameter&&['exhaust-bends','exhaust-flex','exhaust-vband'].includes(s.id))return {...s,alternatives:partOptions(s).filter(k=>allCandidates[k]?.variant?.diameterMm===pipeDiameter),defaultNone:true,planNote:['Dopasowanie nominalne do rury '+pipeDiameter+' mm. Potwierdź połączenie i geometrię.','Nominal match to '+pipeDiameter+' mm pipe. Confirm joint and geometry.'] as [string,string]};
   if(s.id==='turbo-insulation')return resolveBlanketFitment(s,turboKey,candidateMap);
   if(s.id==='boost-control'&&ecuKey==='ecu'&&tuTurboSpec(turboKey,candidateMap))return {...s,candidate:'boostMac',defaultNone:false,qty:1};
@@ -491,8 +491,8 @@ function fuelFabricationSlots():PartsSlot[]{
 
 /** FMIC straight 4-ply couplers: nominal wall 5.5 mm. Supplier explicitly
  * lists SGB 68–73 for 57 mm and 74–79 for 63 mm. Other sizes are estimates. */
-export function chargeClampSuggestion(couplerKey:string|undefined){
- const c=couplerKey?intakeFabricationCandidates[couplerKey]:undefined;
+export function chargeClampSuggestion(couplerKey:string|undefined,candidateMap:Record<string,BuildCandidate>=intakeFabricationCandidates){
+ const c=couplerKey?candidateMap[couplerKey]:undefined;
  if(c?.variant?.family!=='charge-couplers')return null;
  const inner=c.variant.diameterMm,outer=inner+11;
  const ranges:Record<number,[string,string]>={51:['intake_OBSGB6063','60–63'],57:['intake_OBSGB6873','68–73'],63:['intake_OBSGB7479','74–79'],70:['intake_OBSGB8085','80–85'],76:['intake_OBSGB8691','86–91']};
