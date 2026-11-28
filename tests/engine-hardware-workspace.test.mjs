@@ -30,3 +30,5 @@ test('initial catalogue state never implicitly selects an assembly or a part',()
 });
 
 test('engine header reflects active engine and selected vehicle profile',()=>{const ui=read('app/engine-hardware/HardwareCatalog.tsx');assert.ok(ui.includes('<span>{engine}</span></h1>'));assert.ok(ui.includes("engine.startsWith('2JZ')?'Toyota':'BMW'"));assert.ok(ui.includes('effectiveProfile.vehicle,effectiveProfile.market,effectiveProfile.production'));assert.ok(!ui.includes('<h1>Engine <span>Hardware.'));});
+
+test('whole engine set is primary action and independent of browsing filters',()=>{const ui=read('app/engine-hardware/HardwareCatalog.tsx');assert.ok(!ui.includes('eh-engine-search'));assert.ok(!ui.includes('globalQuery'));assert.ok(!ui.includes('Pełny indeks dokumentacji OEM'));assert.ok(ui.includes('eh-kit-summary'));assert.ok(ui.includes('Zobacz zestaw'));assert.ok(ui.includes('buildHardwareReport({engine,profileId:effectiveProfile?.id'));assert.ok(ui.includes('Zakup kompletu po weryfikacji'));});
