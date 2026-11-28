@@ -49,8 +49,13 @@ export async function GET(request:Request){
   }
   if(slot&&!Object.hasOwn(extraDiscoveryPaths,slot))return NextResponse.json({error:'Nieobsługiwana grupa'},{status:400,headers});
   const categories=slot?extraDiscoveryPaths[slot]:[['Układ dolotowy','Blow off','Blow offy uniwersalne'],['Układ paliwowy','Regulatory ciśnienia paliwa','Regulatory ciśnienia paliwa'],['Układ paliwowy','Filtry paliwa'],['Układ dolotowy','Intercooler','Uniwersalne']];
-  const result=await getDbPool().query<DiscoveryRow & {target_category:string[]}>("SELECT c.sku,c.name,c.brand,c.target_category FROM jsonb_array_elements($1::jsonb) AS category(path) CROSS JOIN LATERAL (SELECT sku,name,data->>'brand' AS brand,target_category FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=ARRAY(SELECT jsonb_array_elements_text(category.path)) ORDER BY sku LIMIT $2) AS c",[JSON.stringify(categories),slot==='filter'?400:250]);
+  const result=await getDbPool().query<DiscoveryRow & {target_category:string[]}>("SELECT c.sku,c.name,c.brand,c.target_category FROM jsonb_array_elements($1::jsonb) AS category(path) CROSS JOIN LATERAL (SELECT sku,name,data->>'brand' AS brand,target_category FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=ARRAY(SELECT jsonb_array_elements_text(category.path)) ORDER BY sku) AS c",[JSON.stringify(categories)]);
   const items=result.rows.flatMap(row=>{const candidate=slot?discoverExtraPart(row,row.target_category,slot):discoverPart(row,row.target_category);return candidate?[candidate]:[]});
-  return NextResponse.json({items},{headers});
+  if(slot&&items.length){
+   const matched=await getDbPool().query("SELECT sku,name,proposed_gross,available,updated_at,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM rpm_fmic_catalog WHERE sku=ANY($1::text[]) AND "+visibleCatalog,[items.map(p=>p.sku)]);
+   const quotes=matched.rows.map(p=>({sku:p.sku,name:p.name,unitPrice:Number(p.proposed_gross),available:p.available===true,image:p.image,updatedAt:p.updated_at}));
+   return NextResponse.json({items,quotes,scanned:result.rows.length},{headers});
+  }
+  return NextResponse.json({items,quotes:[],scanned:result.rows.length},{headers});
  }catch(e){console.error('Build discovery failed',e);return NextResponse.json({error:'Nie udało się przeszukać katalogu'},{status:503,headers})}
 }
