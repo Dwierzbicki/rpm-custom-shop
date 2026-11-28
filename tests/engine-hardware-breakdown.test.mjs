@@ -10,7 +10,7 @@ test('M54 research tree maps every reference row once, without pretending covera
  assert.equal(new Set(allConnections.map(c=>c.id)).size,allConnections.length);
  const keys=[];
  for(const c of allConnections){const rows=connectionRows(c,diagrams);if(!c.diagramId){assert.equal(rows.length,0);assert.equal(c.positions,undefined);continue}assert.equal(rows.length,c.positions.length);for(const row of rows){keys.push(c.diagramId+':'+row.position);assert.equal(connectionForPosition(c.diagramId,row.position).id,c.id)}}
- assert.equal(keys.length,85);assert.equal(new Set(keys).size,keys.length);assert.equal(allConnections.filter(c=>connectionRows(c,diagrams).length).length,50);
+ assert.equal(keys.length,85);assert.equal(new Set(keys).size,keys.length);assert.equal(allConnections.filter(c=>connectionRows(c,diagrams).length).length,51);
 });
 test('unmapped connection does not inherit parts from a similar assembly',()=>{assert.equal(connectionRows(allConnections.find(c=>c.id==='pump-pickup'),diagrams).length,0)});
 
@@ -27,3 +27,5 @@ test('whole group retains every mapped position, unknown joints and distinct dia
 });
 
 test('core engine checklist excludes external equipment, manifolds and drivetrain interfaces',()=>{assert.equal(m54Breakdown.map(g=>g.id).join(','),'block,crank,head,timing,oil');for(const id of ["knock","damper","flywheel","clutch","crank-sensor","head-lift","spark","cover-ground","head-nut-12","cam-sensors","filter-sensor","pan-gearbox","oil-level","dipstick"])assert.ok(!allConnections.some(c=>c.id===id));assert.ok(allConnections.some(c=>c.id==='crank-hub'));assert.ok(allConnections.some(c=>c.id==='vanos-line'));assert.ok(allConnections.some(c=>c.id==='filter-short'));});
+
+test('VANOS piston fastener has a separate joint without double counting',()=>{const c=allConnections.find(x=>x.id==='vanos-pistons');assert.equal(connectionForPosition('11_9909','09').id,c.id);const rows=connectionRows(c,diagrams);assert.equal(rows.length,1);assert.equal(rows[0].quantity,2);});

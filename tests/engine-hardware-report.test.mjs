@@ -8,7 +8,7 @@ function load(name,deps={}){const exports={};vm.runInNewContext(ts.transpileModu
 const catalog=load('catalog'),breakdown=load('m54-breakdown'),report=load('report-data',{'./m54-breakdown':breakdown});
 const options={engine:'M54B30',profileId:'',revision:null,profiles:[],parts:catalog.parts,diagrams:catalog.diagrams};
 test('report includes all engine rows independent of browsing and preserves units without summing across diagrams',()=>{
- const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,17);assert.equal(r.usageCount,85);assert.equal(r.uniqueOem,78);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),5);
+ const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,17);assert.equal(r.usageCount,85);assert.equal(r.uniqueOem,78);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),4);
  const rows=r.groups.flatMap(g=>g.rows);assert.equal(rows.filter(x=>x.usage.oem==='07119905391').length,2);assert.equal(rows.find(x=>x.usage.oem==='11121740065').usage.quantityUnit,'set');assert.ok(!('totalQuantity' in r));
 });
 test('report rejects unsupported preview engine and mismatched release profiles',()=>{
@@ -30,4 +30,4 @@ test('VANOS oil line total appears only once and grouped cam counts are not dupl
 
 test('measurement list retains source variant and does not invent dimensions; coolant drain plug occurs once',()=>{const r=report.buildHardwareReport(options);assert.ok(r.missingDimensions.length>0);assert.ok(r.missingDimensions.every(x=>(!x.part?.dimension.trim()||x.part.dimensionStatus==='partial')&&x.source&&x.vehicle));const rows=r.groups.flatMap(g=>g.rows);assert.equal(rows.filter(x=>x.usage.oem==='07119904539').length,1);const washer=rows.find(x=>x.usage.oem==='07119963200');assert.equal(washer.part.dimension,'A14 × 18-AL');assert.equal(washer.usage.quantity,1);assert.equal(report.buildHardwareReport({...options,engine:'M54B22'}),null);});
 
-test('partial dimensions stay on the measurement list and are not treated as full specifications',()=>{const r=report.buildHardwareReport(options);for(const oem of ['11211720633','11361436675','11361432373','11131740000']){const row=r.missingDimensions.find(x=>x.usage.oem===oem);assert.ok(row);assert.equal(row.part.dimensionStatus,'partial');assert.ok(row.part.technicalEvidence.includes('https://'));}});
+test('partial dimensions stay on the measurement list and are not treated as full specifications',()=>{const r=report.buildHardwareReport(options);for(const oem of ['11211720633','11361436675','11361432373','11131740000','11361748745']){const row=r.missingDimensions.find(x=>x.usage.oem===oem);assert.ok(row);assert.equal(row.part.dimensionStatus,'partial');assert.ok(row.part.technicalEvidence.includes('https://'));}});

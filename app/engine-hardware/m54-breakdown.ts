@@ -473,24 +473,27 @@ export const m54Breakdown:ConnectionGroup[]=[
     },
     "diagramId": "11_9909",
     "positions": [
-     "08",
-     "09"
+     "08"
     ]
    },
    {
     "id": "vanos-pistons",
     "title": {
-     "pl": "Tłoki VANOS / elementy zabezpieczające",
-     "en": "VANOS pistons / retention"
+     "pl": "Tłoki VANOS → wałki wielowypustowe",
+     "en": "VANOS pistons → splined shafts"
     },
     "review": {
-     "kind": "assembly-only",
+     "kind": "pending",
      "note": {
-      "pl": "Tłoki VANOS występują jako części; schemat nie rozpisuje ich wewnętrznych śrub. Nie oznacza to potwierdzenia braku śrub.",
-      "en": "VANOS pistons listed as parts; their internal bolts are not listed. This is not proof no bolts exist."
+      "pl": "Dwie śruby z lewym gwintem; T30 potwierdzone. Wymiar M6×1×15 podany przez sprzedawcę; do pomiaru.",
+      "en": "Two left-hand bolts; T30 confirmed. M6×1×15 from supplier, measure before purchase."
      },
-     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9909&id=ET56-EUR-04_2001_E46_BMW_330i"
-    }
+     "source": "https://beisansystems.com/6-cylinder-double-vanos-procedure-e46-e39/"
+    },
+    "diagramId": "11_9909",
+    "positions": [
+     "09"
+    ]
    },
    {
     "id": "vanos-cover",

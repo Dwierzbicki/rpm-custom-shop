@@ -33,3 +33,6 @@ Reconciliation: replaced US cam reference with Jan 2002 EUR source; excluded ext
 M54B30-only preview; mixed E46 330i body/market/production reference data must not be interpreted as a universally compatible BOM. Add the independently checked coolant drain washer (position 05 on the same block diagram as plug 04), move the plug into its joint without duplication. PDF includes an explicit list of rows with completely missing dimensions (not proof that other specifications are complete).
 
 Dimension research: keep partial dimensions in the measurement list, distinguish aftermarket/retailer claims from OEM values. M18×1.5 central bolt thread from 330i TIS, provisional intake stud thread segment data from supplier (conflicting product title), exhaust stud M7/M6 from reproduction supplier, M6 oil pan joint per TIS. Do not equate aftermarket total length with OEM under-head length. These are not verified substitutes. No change to release/preview sales gate.
+
+
+VANOS piston joint correction: existing 11361748745 position 09 (2) belongs to piston/splined shaft connection, not VANOS/head fastener. BMW 330i service manual and Beisan confirm left-hand thread and piston joint; retailer M6×1×15 LH remains provisional. Reassigned existing rows only, no quantity increase.
