@@ -705,3 +705,13 @@
 .rpm-guide-page.rpm-builder .rpm-guide-result,
 .rpm-guide-page.rpm-builder .rpm-build-system-head,
 .rpm-guide-page.rpm-builder [data-build-slot]{scroll-margin-top:var(--rpm-builder-header-offset,135px)}
+
+/* OEM references are non-purchasable technical hints. */
+.rpm-build-workspace .rpm-build-oem-reference{border:1px solid #3a424e;border-radius:6px;padding:10px 12px;background:#1d2128;min-width:0}
+.rpm-build-workspace .rpm-build-oem-reference>summary,.rpm-build-workspace .rpm-build-sourcing>summary{cursor:pointer;font-size:12px;font-weight:750;color:#e3e7ed}
+.rpm-build-workspace .rpm-build-oem-reference>div{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 0;border-top:1px solid #343943;font-size:12px}
+.rpm-build-workspace .rpm-build-oem-reference code{color:#e5e9ef;font-size:12px;font-weight:700}
+.rpm-build-workspace .rpm-build-oem-reference a{display:inline-flex;align-items:center;gap:4px;margin-left:auto;color:#b9c9dc;text-decoration:underline;font-size:11px}
+.rpm-build-workspace .rpm-build-sourcing{padding:10px 0;border-top:1px solid #363b45;min-width:0}
+.rpm-build-workspace .rpm-build-sourcing>p{font-size:11px;line-height:1.5;margin:9px 0}
+.rpm-build-workspace .rpm-build-sourcing>.rpm-build-cart-link{display:flex;width:100%;min-height:36px;align-items:center;justify-content:center;gap:5px;text-align:center;padding:8px 6px;font-size:11px;line-height:1.35;margin-top:7px;box-sizing:border-box;white-space:normal}
