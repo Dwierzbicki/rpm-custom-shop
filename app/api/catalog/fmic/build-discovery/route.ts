@@ -22,7 +22,7 @@ export async function GET(request:Request){
    const raw=params.get('targetPs'),target=Number(raw);
    if(!raw||!Number.isFinite(target)||target<100||target>2500)return NextResponse.json({error:'Nieprawidłowa moc docelowa'},{status:400,headers});
    // Scan the whole eligible category; never truncate by SKU before sizing.
-   const rows=await getDbPool().query<DiscoveryRow>("SELECT sku,name,data->>'brand' AS brand FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=$1::text[] ORDER BY sku",[turboDiscoveryCategory]);
+   const rows=await getDbPool().query<DiscoveryRow>("SELECT sku,name,data->>'brand' AS brand,proposed_gross FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=$1::text[] ORDER BY sku",[turboDiscoveryCategory]);
    const items=rows.rows.flatMap(row=>{const part=discoverTurbo(row,target);return part?[part]:[]});
    return NextResponse.json({items,scanned:rows.rows.length,targetPs:target},{headers});
   }
