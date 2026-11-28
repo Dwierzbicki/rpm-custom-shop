@@ -1,5 +1,5 @@
 'use client';
-import {ArrowRight,Check,Package,Settings2,ShoppingCart,Wrench} from 'lucide-react';
+import {ArrowRight,Check,Hexagon,Package,Settings2,ShoppingCart,Wrench} from 'lucide-react';
 import type {Product} from '../../data';
 import ProductCard from './ProductCard';
 import CommunitySection from './CommunitySection';
@@ -36,7 +36,7 @@ export default function HomeSections({
    <h3>{lang==='en'?'YOUR ENGINE. YOUR BUILD.':'TWÓJ SILNIK. TWOJE MOŻLIWOŚCI.'}</h3>
    <p>{lang==='en'?'Explore proven build paths and component recommendations for your engine.':"Wybierz silnik, poznaj możliwe konfiguracje i dobierz komponenty do swojego projektu."}</p>
    <div className="rpm-motolab-benefits"><span><Wrench size={20}/>{lang==='en'?'Engine-specific':'Dopasowane do silnika'}</span><span><Check size={20}/>{lang==='en'?'Component recommendations':'Rekomendacje części'}</span><span><Settings2 size={20}/>{lang==='en'?'Your build goals':'Twój cel mocy'}</span></div>
-   <div className="rpm-motolab-tools"><a href="/power-guides"><Wrench size={23}/><strong>Power Builder</strong><small>{lang==='en'?'Engine configuration':'Konfiguracja silnika'}</small><ArrowRight size={15}/></a><a href="/cr-calculator"><Settings2 size={23}/><strong>CR Calculator 3D</strong><small>{lang==='en'?'Engine geometry':'Geometria silnika'}</small><ArrowRight size={15}/></a><a href="/motolab"><Package size={23}/><strong>ITB Designer</strong><small>{lang==='en'?'Intake design':'Projektowanie dolotu'}</small><ArrowRight size={15}/></a></div>
+   <div className="rpm-motolab-tools"><a href="/power-guides"><Wrench size={23}/><strong>Power Builder</strong><small>{lang==='en'?'Engine configuration':'Konfiguracja silnika'}</small><ArrowRight size={15}/></a><a href="/cr-calculator"><Settings2 size={23}/><strong>CR Calculator 3D</strong><small>{lang==='en'?'Engine geometry':'Geometria silnika'}</small><ArrowRight size={15}/></a><a href="/motolab"><Package size={23}/><strong>ITB Designer</strong><small>{lang==='en'?'Intake design':'Projektowanie dolotu'}</small><ArrowRight size={15}/></a><a href="/engine-hardware"><Hexagon size={23}/><strong>Engine Hardware</strong><small>{lang==='en'?'Engine fastener sets':'Zestawy montażowe silnika'}</small><ArrowRight size={15}/></a></div>
    <div className="rpm-motolab-actions"><a href="/motolab" className="primary rpm-motolab-entry">{lang==='en'?'EXPLORE MOTOLAB':'PRZEJDŹ DO MOTOLAB'} <ArrowRight size={18}/></a></div>
   </div>
   <div className="rpm-motolab-photo" aria-hidden="true"><div className="rpm-motolab-photo-caption"><span>RPM CUSTOM</span><strong>ENGINE PERFORMANCE</strong><small>BUILD WITHOUT LIMITS</small></div></div>
@@ -63,7 +63,7 @@ export default function HomeSections({
      {Icon:Package,title:lang==='en'?'Performance parts':'Części performance',description:lang==='en'?'Components for street, drift, track day and turbo builds in one catalogue.':'Komponenty do projektów street, drift, track day i turbo w jednym katalogu.'},
      {Icon:Wrench,title:lang==='en'?'Workshop experience':'Doświadczenie warsztatowe',description:lang==='en'?'Hands-on fabrication, TIG welding and custom solutions for demanding builds.':'Praktyka warsztatowa, spawanie TIG i indywidualne rozwiązania dla wymagających projektów.'},
      {Icon:Settings2,title:lang==='en'?'Your build, your goal':'Dobór pod konkretny cel',description:lang==='en'?'Plan modifications around your engine, power target, intended use and budget.':'Planuj modyfikacje z uwzględnieniem silnika, celu mocy, zastosowania i budżetu.'},
-     {Icon:Check,title:'MotoLab',description:lang==='en'?'Power Builder, compression ratio calculator and ITB design tools for informed decisions.':'Power Builder, kalkulator stopnia sprężania i kreator ITB wspierające świadomy dobór części.'}
+     {Icon:Check,title:'MotoLab',description:lang==='en'?'Power Builder, compression ratio calculator, ITB design and engine hardware tools for informed decisions.':'Power Builder, kalkulator stopnia sprężania, kreator ITB i Engine Hardware wspierające świadomy dobór części.'}
     ].map(({Icon,title,description},i)=><article className="rpm-about-pillar" key={i}><div className="rpm-about-pillar-head"><Icon size={23} aria-hidden="true"/><span aria-hidden="true">0{i+1}</span></div><h4>{title}</h4><p>{description}</p></article>)}
    </div>
   </div>
