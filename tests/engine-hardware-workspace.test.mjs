@@ -28,3 +28,5 @@ test('initial catalogue state never implicitly selects an assembly or a part',()
  assert.ok(ui.includes("setDiagramId(next);setCopyStatus('');setPosition('');setQty(1)"));
  assert.ok(ui.includes('!connection&&!d&&'));
 });
+
+test('engine header reflects active engine and selected vehicle profile',()=>{const ui=read('app/engine-hardware/HardwareCatalog.tsx');assert.ok(ui.includes('<span>{engine}</span></h1>'));assert.ok(ui.includes("engine.startsWith('2JZ')?'Toyota':'BMW'"));assert.ok(ui.includes('effectiveProfile.vehicle,effectiveProfile.market,effectiveProfile.production'));assert.ok(!ui.includes('<h1>Engine <span>Hardware.'));});
