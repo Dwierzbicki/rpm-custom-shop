@@ -967,3 +967,8 @@ export function connectionRows(c:Connection,diagrams:Diagram[]){
 export function connectionForPosition(diagramId:string,position:string){
  return allConnections.find(c=>c.diagramId===diagramId&&c.positions?.includes(position));
 }
+
+/** Group view preserves each diagram/position identity; no summing repeated OEM numbers. */
+export function groupSections(group:ConnectionGroup,diagrams:Diagram[]){
+ return group.connections.map(connection=>({connection,diagram:diagrams.find(d=>d.id===connection.diagramId&&d.engine==='M54B30'),rows:connectionRows(connection,diagrams)}));
+}
