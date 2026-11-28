@@ -11,7 +11,7 @@ test('exact requested engine variants, no borrowed fitments',()=>{
  assert.equal(families.flatMap(f=>f.versions).length,20);
  assert.equal(diagramsFor('M54B25').length,0);
  assert.equal(diagramsFor('2JZ-GE VVT-i').length,0);
- assert.equal(diagramsFor('M54B30').length,8);
+ assert.equal(diagramsFor('M54B30').length,13);
 });
 test('OEM identity is unique but usages may repeat',()=>{
  assert.equal(new Set(parts.map(p=>p.oem)).size,parts.length);
@@ -26,4 +26,4 @@ test('no pilot row may be sold or show an unlicensed drawing',()=>{
  assert.equal(matches(p,u,'07119905391'),true);
 });
 
-test('M54B30 preview keeps individual facts and set quantities scoped to their source',()=>{assert.equal(parts.length,36);assert.equal(diagrams.flatMap(d=>d.usages).length,39);const head=diagrams.find(d=>d.id==='11_9908').usages.find(u=>u.position==='05');assert.equal(head.quantity,1);assert.equal(head.quantityUnit,'set');assert.equal(partByOem(head.oem).unit,'set');assert.equal(searchEngineParts(diagrams,parts,'11 24 7 589 671')[0].usage.quantity,12);assert.ok(searchEngineParts(diagrams,parts,'M9x47').some(x=>x.part.oem==='11247589671'));assert.equal(searchEngineParts(diagrams,parts,'').length,0)});
+test('M54B30 preview keeps individual facts and set quantities scoped to their source',()=>{assert.equal(parts.length,46);assert.equal(diagrams.flatMap(d=>d.usages).length,49);const head=diagrams.find(d=>d.id==='11_9908').usages.find(u=>u.position==='05');assert.equal(head.quantity,1);assert.equal(head.quantityUnit,'set');assert.equal(partByOem(head.oem).unit,'set');assert.equal(searchEngineParts(diagrams,parts,'11 24 7 589 671')[0].usage.quantity,12);assert.ok(searchEngineParts(diagrams,parts,'M9x47').some(x=>x.part.oem==='11247589671'));assert.equal(searchEngineParts(diagrams,parts,'').length,0)});

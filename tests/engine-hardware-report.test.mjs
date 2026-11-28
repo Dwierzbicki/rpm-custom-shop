@@ -8,7 +8,7 @@ function load(name,deps={}){const exports={};vm.runInNewContext(ts.transpileModu
 const catalog=load('catalog'),breakdown=load('m54-breakdown'),report=load('report-data',{'./m54-breakdown':breakdown});
 const options={engine:'M54B30',profileId:'',revision:null,profiles:[],parts:catalog.parts,diagrams:catalog.diagrams};
 test('report includes all engine rows independent of browsing and preserves units without summing across diagrams',()=>{
- const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,8);assert.equal(r.usageCount,39);assert.equal(r.uniqueOem,36);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),79);
+ const r=report.buildHardwareReport(options);assert.ok(r);assert.equal(r.groups.length,13);assert.equal(r.usageCount,49);assert.equal(r.uniqueOem,46);assert.equal(r.unresolvedPartCount,0);assert.equal(r.gaps.reduce((n,g)=>n+g.items.length,0),24);
  const rows=r.groups.flatMap(g=>g.rows);assert.equal(rows.filter(x=>x.usage.oem==='07119905391').length,2);assert.equal(rows.find(x=>x.usage.oem==='11121740065').usage.quantityUnit,'set');assert.ok(!('totalQuantity' in r));
 });
 test('report rejects unsupported preview engine and mismatched release profiles',()=>{
@@ -23,3 +23,5 @@ test('PDF view is explicit about print, preview protection and missing data',()=
  const page=read('app/engine-hardware/report/page.tsx'),css=read('app/engine-hardware/report/report.css'),button=read('app/engine-hardware/report/PrintReportButton.tsx');
  assert.ok(page.includes("process.env.ENGINE_HARDWARE_PREVIEW!=='1'"));assert.ok(page.includes('KATALOG NIEKOMPLETNY'));assert.ok(page.includes('nie sumujemy'));assert.ok(css.includes('@page{size:A4'));assert.ok(css.includes('display:table-header-group'));assert.ok(button.includes('window.print()'));assert.equal(report.hardwareReportHref('M54B30','','pl'),'/engine-hardware/report?engine=M54B30&lang=pl');
 });
+
+test('report omits out-of-scope and unresolved peripheral positions',()=>{const r=report.buildHardwareReport(options);const rows=r.groups.flatMap(g=>g.rows);for(const oem of ["11721742644","07119904992","07119905544"])assert.ok(!rows.some(x=>x.usage.oem===oem));assert.ok(!r.gaps.some(g=>['intake','exhaust','cooling','accessory'].includes(g.id)));});
