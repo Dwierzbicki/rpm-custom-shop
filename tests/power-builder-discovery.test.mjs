@@ -164,3 +164,17 @@ test('head gasket bore and pin conflicts are detected; unknown dimensions are no
  const y=exports.engineGeometryConflicts({pinMm:null,boreMm:null},{pinMm:21},gasket);
  assert.equal(y.pin,false);assert.equal(y.gasket,false);
 });
+
+
+test('full-category materials use explicit dimensions and leave quantity to the user',()=>{
+ const category=['Układ dolotowy','Łączniki silikonowe','Proste łączniki silikonowe'];
+ const item=exports.discoverExtraPart({sku:'009500-R-76',name:'Łącznik silikonowy prosty 95mm Czerwony 7,6cm'},category,'charge-couplers');
+ assert.equal(item.material.diameterMm,95);assert.equal(item.material.lengthMm,76);assert.equal(item.material.color,'red');assert.equal(item.quantityRequired,true);
+ const bends=['Układ dolotowy','Kolanka i rury aluminiowe','Kolanka aluminiowe'];
+ const bend={sku:'AL9030028-JR',name:"Kolanko aluminiowe JRspec 90' 28mm 30cm"};
+ assert.equal(exports.discoverExtraPart(bend,bends,'charge-bend-90').material.angleDeg,90);
+ assert.equal(exports.discoverExtraPart(bend,bends,'charge-bend-45'),null);
+ const gates=['Układ wydechowy','Wastegate','Zawory Wastegate'];
+ assert.equal(exports.discoverExtraPart({sku:'X',name:'Wastegate Turbosmart Hyper-Gate45 45mm'},gates,'wastegate').slot,'wastegate');
+ assert.equal(exports.discoverExtraPart({sku:'X',name:'Wastegate JR.Spec V-Band 50mm'},gates,'wastegate'),null);
+});
