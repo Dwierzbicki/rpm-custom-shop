@@ -116,3 +116,28 @@ test('screen excludes incomplete and out-of-class turbos; unknown data remains u
  const ambiguous=exports.turboCatalogueData('Turbosprężarka Pulsar PSR 5455G 660KM 0.70A/R Dual V-Band 1.01A/R');
  assert.equal(ambiguous.ar,null);
 });
+
+
+test('piston discovery distinguishes engine versions and exposes dimensions without guessing',()=>{
+ const wiseco={sku:'USA-WIS-KE325M84',name:'Kute tłoki silnika Wiseco KE325M84 BMW E46 M54B30 Double Vanos 3.0L (84.00mm) STD, 9.0:1 CR'};
+ const p=exports.discoverPiston(wiseco,'m54b30').piston;
+ assert.equal(p.application,'exact');
+ assert.equal(p.boreMm,84);
+ assert.equal(p.compressionRatio,9);
+ assert.equal(p.pinMm,null);
+ assert.equal(p.packSize,null);
+ assert.equal(exports.discoverPiston(wiseco,'m54b25'),null);
+ const m52={sku:'USA-WIS-KE118M845',name:'Kute tłoki silnika Wiseco BMW M52B25 84.50mm Bore - 32.70mm CH -5.00 CC'};
+ const q=exports.discoverPiston(m52,'m52b25').piston;
+ assert.equal(q.boreMm,84.5);
+ assert.equal(q.compressionHeightMm,32.7);
+ assert.equal(q.crownVolumeCc,-5);
+ assert.equal(exports.discoverPiston(m52,'m52b25tu'),null);
+ const ge={sku:'X',name:'Piston Set Toyota 2JZ-GE 86.5mm Bore 1.180 In. CH -16.00 CC'};
+ assert.equal(exports.discoverPiston(ge,'2jz-ge').piston.compressionHeightMm,29.97);
+ assert.equal(exports.discoverPiston(ge,'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki Wiseco + korbowody Manley Toyota 2JZGTE 86mm'},'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki JE Toyota 2JZGTE Stroker 94mm 86.00mm'},'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki ZRP BMW 2.8L M50 / M52 / M54 84.00mm 8.7:1'},'m52b28').piston.application,'review');
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki Toyota 2JZ 86.50mm 9:1'},'2jz-ge').piston.application,'review');
+});
