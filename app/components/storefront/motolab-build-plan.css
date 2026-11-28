@@ -687,3 +687,9 @@
 .rpm-build-workspace .rpm-summary-progress-head>strong{font-size:25px;line-height:1;font-weight:850;font-variant-numeric:tabular-nums;letter-spacing:-.04em;color:#fff}
 .rpm-build-workspace .rpm-summary-progress-head>strong small{font-size:13px;margin-left:2px;color:#a6afbd}
 .rpm-build-workspace .rpm-summary-progress-compact>.rpm-lab-edit-project{margin-top:3px;min-height:32px;padding:7px 9px;font-size:12px}
+
+/* Keep project basics and technical preferences in separate compact rows. */
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-project-technical{margin-top:7px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:780px}
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-project-technical>.rpm-project-tech-tag{display:grid;align-content:center;gap:3px;padding:8px 10px;min-width:0}
+.rpm-build-workspace .rpm-lab-unified-hero .rpm-project-tech-tag>b{overflow-wrap:anywhere;line-height:1.35}
+@media(max-width:600px){.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-project-technical{grid-template-columns:repeat(2,minmax(0,1fr))}.rpm-build-workspace .rpm-lab-unified-hero .rpm-lab-project-technical>.rpm-project-tech-tag:last-child{grid-column:1/-1}}
