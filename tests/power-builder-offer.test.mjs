@@ -35,3 +35,14 @@ test('real storefront logo and client-only offer preserve selected totals',()=>{
  assert.ok(html.includes('361,50'));
  assert.ok(html.includes('Rura nierdzewna'));
 });
+
+test('explicit quote requests appear in the offer but do not change priced subtotal',()=>{
+ const rows=[row,{label:'Panewki korbowodowe',product:'Do indywidualnej wyceny',qty:null,unitPrice:null,status:'Do wyceny',priced:false,quoteRequested:true,kind:'pending',note:'OEM 11241284850'},{label:'Sterownik silnika',product:'MS43 + MAP',qty:null,unitPrice:null,status:'Do wyceny',priced:false,quoteRequested:true,kind:'pending',note:'MS43 + MAP · konwersja'},{label:'Nie wybrano',product:'Brak',qty:null,unitPrice:null,status:'Do wyceny',priced:false,kind:'pending'}];
+ const model={...snapshot,groups:[{label:'Silnik',rows}]};
+ const html=renderBuildOffer(model);
+ assert.equal(offerTotal(model),36150);
+ assert.ok(html.includes('Części do indywidualnej wyceny'));
+ assert.ok(html.includes('Panewki korbowodowe')&&html.includes('11241284850'));
+ assert.ok(html.includes('MS43 + MAP'));
+ assert.ok(!html.includes('Nie wybrano'));
+});
