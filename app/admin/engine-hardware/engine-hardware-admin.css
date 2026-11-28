@@ -1,0 +1,11 @@
+.eh-admin .rpm-settings-card{display:grid;align-content:start}
+.eh-admin .rpm-settings-card>p{margin:0;color:var(--bo-muted);line-height:1.55}
+.eh-admin .rpm-settings-card>h2{margin:0}
+.eh-admin .rpm-settings-card>.outline{justify-self:start}
+.eh-admin .rpm-settings-field{max-width:420px;display:grid;gap:8px}
+.eh-admin .eh-admin-kpis{margin:0}
+.eh-admin-assemblies{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:10px}
+.eh-admin-assemblies>div,.eh-admin-batch{min-width:0;padding:12px;border:1px solid var(--bo-border);border-radius:7px;background:var(--bo-field);overflow-wrap:anywhere}
+.eh-admin-assemblies small{color:var(--bo-muted);font-size:12px}
+.eh-admin-json{width:100%;font-family:monospace}
+.eh-admin [role=alert]{overflow-wrap:anywhere}
