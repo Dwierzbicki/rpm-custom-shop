@@ -669,3 +669,10 @@
 .rpm-build-workspace .rpm-build-risk-inline{color:#aab1bc}
 @media(min-width:1201px){.rpm-build-workspace .rpm-build-systems button>small:last-child{display:none}}
 @media(max-width:760px){.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-lab-unified-hero{padding:16px}.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group:is(.is-status-matched,.is-status-pending,.is-status-owned,.is-status-optional,.is-status-advice,.is-status-conflict){padding:12px}.rpm-build-workspace .rpm-build-step-actions{flex-wrap:wrap}.rpm-build-workspace .rpm-build-step-actions>button{flex:1;white-space:normal}.rpm-build-workspace .rpm-build-systems button{min-height:54px}.rpm-build-workspace .rpm-build-side-price{padding:14px}}
+
+
+/* Compact project-specific RPM explanation, without extra status colours. */
+.rpm-build-workspace .rpm-product-rationale{display:grid;gap:4px;margin:9px 0 4px;padding:8px 0 8px 11px;border-left:2px solid #5b626e;color:#bfc7d2;font-size:12px;line-height:1.55;overflow-wrap:anywhere}
+.rpm-build-workspace .rpm-product-rationale>b{display:block;color:#e3e7ed;font-size:11px;font-weight:700}
+.rpm-build-workspace .rpm-magazine-product .rpm-product-rationale,.rpm-build-workspace .rpm-carousel-material .rpm-product-rationale{font-size:11px;line-height:1.5;margin:6px 0}
+.rpm-build-workspace .rpm-product-rationale+.rpm-build-product-details{margin-top:4px}
