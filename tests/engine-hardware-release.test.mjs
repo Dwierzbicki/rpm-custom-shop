@@ -20,6 +20,7 @@ test('no release means production remains unavailable; complete structural fixtu
  assert.equal(r.validateRelease(null).ok,false);
  assert.equal(r.validateRelease(fixture()).ok,true);
  const f=fixture();f.profiles.pop();assert.equal(r.validateRelease(f).ok,false);
+ const empty=fixture();empty.profiles[0].coverage.forEach(a=>a.status='not-applicable');empty.diagrams.shift();assert.equal(r.validateRelease(empty).ok,false);
 });
 test('reject incomplete coverage, unlicensed asset and unknown or mixed unit',()=>{
  const f=fixture();f.profiles[0].coverage.pop();assert.equal(r.validateRelease(f).ok,false);

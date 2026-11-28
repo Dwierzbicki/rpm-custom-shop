@@ -29,6 +29,7 @@ export function validateRelease(value:unknown):ReleaseCheck{
    if(seen.has(a.assemblyId))fail('Powtórzony zespół w '+p.id+': '+a.assemblyId);
    seen.add(a.assemblyId);
   }
+  if(!p.coverage.some(a=>obj(a)&&a.status==='complete'))fail('Profil bez żadnego zweryfikowanego zespołu '+p.id);
   for(const assembly of knownAssembly)if(!seen.has(assembly))fail('Brak zespołu '+p.id+' / '+assembly);
  }
  for(const engine of engineIds)if(!engines.has(engine))fail('Brak profilu silnika '+engine);
