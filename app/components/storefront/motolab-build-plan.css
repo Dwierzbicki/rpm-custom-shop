@@ -772,3 +772,13 @@
 .rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:focus-visible{outline:2px solid #ff7593;outline-offset:3px}
 .rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:hover::-webkit-slider-thumb{background:#ff456d}
 .rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:hover::-moz-range-thumb{background:#ff456d}
+
+.rpm-build-workspace .rpm-ms43-option{background:#20252d;border:1px solid #414956;border-radius:6px;padding:12px;gap:8px;font-size:12px;line-height:1.5}
+.rpm-build-workspace .rpm-ms43-option>div{display:grid;gap:3px}
+.rpm-build-workspace .rpm-ms43-option small{color:#aab1bc}
+.rpm-build-workspace .rpm-ms43-option p{margin:0;color:#c5cbd4}
+.rpm-build-workspace .rpm-ms43-option a{display:inline-flex;align-items:center;gap:5px;width:fit-content;color:#b9c9dc;text-decoration:underline}
+.rpm-build-workspace .rpm-ms43-option>button{justify-self:start}
+.rpm-build-workspace .rpm-build-quote-request{display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:12px}
+.rpm-build-workspace .rpm-build-quote-request.is-requested{color:#86d5ac;border-color:#587f6c}
+.rpm-build-workspace .rpm-summary-quote-request{color:#b9c9dc}
