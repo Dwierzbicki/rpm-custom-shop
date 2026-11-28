@@ -8,13 +8,13 @@ import './power-build-preferences.css';
 type Choice={value:string;title:string;description?:string};
 function Choices({name,value,onChange,options,label}:{name:string;value:string;onChange:(value:string)=>void;options:Choice[];label:string}){
  const uid=useId();
- return <div className="rpm-pref-choice-grid" role="group" aria-label={label}>{options.map(option=><label key={option.value} className={'rpm-pref-choice'+(value===option.value?' selected':'')}>
+ return <div className={'rpm-pref-choice-grid rpm-pref-choices-'+name} role="group" aria-label={label}>{options.map(option=><label key={option.value} className={'rpm-pref-choice'+(value===option.value?' selected':'')}>
   <input type="radio" name={uid+'-'+name} value={option.value} checked={value===option.value} onChange={()=>onChange(option.value)} required/>
   <span className="rpm-pref-choice-content"><strong>{option.title}</strong>{option.description&&<small>{option.description}</small>}</span><span className="rpm-pref-radio-mark" aria-hidden="true">{value===option.value&&<Check size={13} strokeWidth={3}/>}</span>
  </label>)}</div>;
 }
 function PreferenceSection({number,title,description,icon,children}:{number:string;title:string;description?:string;icon:ReactNode;children:ReactNode}){
- return <section className="rpm-pref-section"><div className="rpm-pref-section-head"><div className="rpm-pref-section-icon">{icon}</div><div><span className="rpm-pref-step">STEP {number}</span><h3>{title}</h3>{description&&<p>{description}</p>}</div></div>{children}</section>;
+ return <section className={'rpm-pref-section rpm-pref-section-'+number}><div className="rpm-pref-section-head"><div className="rpm-pref-section-icon">{icon}</div><div><span className="rpm-pref-step">STEP {number}</span><h3>{title}</h3>{description&&<p>{description}</p>}</div></div>{children}</section>;
 }
 export default function PowerBuildPreferences({version,onApply,onDraftChange}:{version:string;onApply:(profile:BuildProfile)=>void;onDraftChange:()=>void}){
  const {lang}=useStorefrontLanguage(),en=lang==='en';const tr=(pl:string,english:string)=>en?english:pl;
@@ -36,7 +36,7 @@ export default function PowerBuildPreferences({version,onApply,onDraftChange}:{v
   auto:{value:'auto',title:tr('Dobierz za mnie','Choose for me'),description:tr('Na podstawie dostępnych reguł','Using available rules')}
  };
  return <form className="rpm-build-preferences rpm-pref-studio" onChange={onDraftChange} onSubmit={e=>{e.preventDefault();if(validBuildProfile(profile,version))onApply(profile)}}>
-  <header className="rpm-pref-header"><div><span className="eyebrow">RPM CUSTOM / PROJECT SETUP</span><h2><Settings2 size={23}/> {tr('Skonfiguruj swój projekt','Configure your build')}</h2><p>{tr('Określ założenia techniczne. Na tej podstawie przygotujemy zestaw części w trzech wariantach.','Set your technical requirements. We will prepare a parts selection in three tiers.')}</p></div><div className="rpm-pref-progress"><strong>{completed}/5</strong><small>{tr('Uzupełnione wybory','Selections completed')}</small><progress value={completed} max={5} aria-label={tr('Uzupełnione wybory','Selections completed')}/></div></header>
+  <header className="rpm-pref-header"><div><span className="eyebrow">RPM CUSTOM / PROJECT SETUP</span><h2><Settings2 size={23}/> {tr('Skonfiguruj swój projekt','Configure your build')}</h2><p>{tr('Określ założenia techniczne. Dobierzemy części do Twojego celu i preferencji.','Set your technical requirements. We will match parts to your target and preferences.')}</p></div><div className="rpm-pref-progress"><strong>{completed}/5</strong><small>{tr('Uzupełnione wybory','Selections completed')}</small><progress value={completed} max={5} aria-label={tr('Uzupełnione wybory','Selections completed')}/></div></header>
   <div className="rpm-pref-induction"><Wind size={20}/><div><strong>Turbo</strong><small>{tr('Typ modyfikacji','Induction type')}</small></div><span>{tr('Wolnossący i kompresor w przygotowaniu','Naturally aspirated and supercharger planned')}</span></div>
   <div className="rpm-pref-sections">
    <PreferenceSection number="01" title={tr('Paliwo','Fuel')} description={tr('Wybierz paliwo, na którym będzie strojony silnik.','Choose the fuel the engine will be tuned on.')} icon={<Droplets size={21}/>}>
@@ -65,8 +65,8 @@ export default function PowerBuildPreferences({version,onApply,onDraftChange}:{v
     ]}/>
    </PreferenceSection>
    <PreferenceSection number="04" title={tr('Budżet na części','Parts budget')} description={tr('Wpisz kwotę lub zaznacz, że budżetu nie ustalono.','Enter an amount or indicate that the budget is not set.')} icon={<Wallet size={21}/>}>
-    <label className="rpm-pref-number">{tr('Budżet na części','Parts budget')}<div><input type="number" min={1000} max={1000000} step={1} required={budget!=='none'} value={budget==='none'?'':budget} placeholder={tr('Wpisz kwotę','Enter amount')} onChange={e=>setBudget(e.target.value)}/><span>PLN</span></div><small>{tr('Tylko części, bez robocizny i dostawy.','Parts only, excluding labour and delivery.')}</small></label>
-    <div className="rpm-pref-budget-presets"><button type="button" className={budget==='none'?'selected':''} aria-pressed={budget==='none'} onClick={()=>chooseBudget('none')}>{tr('Budżetu nie ustalono','Budget not set')}</button></div>
+    <div className="rpm-pref-budget-layout"><label className="rpm-pref-number">{tr('Kwota na części','Parts allowance')}<div><input type="number" min={1000} max={1000000} step={1} required={budget!=='none'} value={budget==='none'?'':budget} placeholder={tr('Wpisz kwotę','Enter amount')} onChange={e=>setBudget(e.target.value)}/><span>PLN</span></div><small>{tr('Tylko części, bez robocizny i dostawy.','Parts only, excluding labour and delivery.')}</small></label>
+    <div className="rpm-pref-budget-presets"><button type="button" className={budget==='none'?'selected':''} aria-pressed={budget==='none'} onClick={()=>chooseBudget('none')}>{tr('Budżetu nie ustalono','Budget not set')}</button></div></div>
    </PreferenceSection>
   </div>
   <footer className="rpm-pref-footer"><div><strong>{ready?tr('Projekt gotowy do analizy','Ready to analyse'):tr('Uzupełnij wszystkie wybory','Complete all selections')}</strong><p>{tr('Preferencje nie potwierdzają zgodności ani trwałości części. Budżet porównujemy z wycenionymi produktami.','Preferences do not establish compatibility or durability. Budget is compared with priced products.')}</p></div><button className="primary" type="submit" disabled={!ready}>{tr('Wygeneruj zestaw części','Generate parts selection')} <ArrowRight size={18}/></button></footer>
