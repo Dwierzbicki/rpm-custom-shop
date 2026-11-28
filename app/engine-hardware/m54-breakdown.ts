@@ -32,7 +32,8 @@ export const m54Breakdown:ConnectionGroup[]=[
     "diagramId": "11_9905",
     "positions": [
      "03",
-     "04"
+     "04",
+     "11"
     ]
    },
    {
@@ -94,6 +95,18 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Czujniki spalania stukowego → blok",
      "en": "Knock sensors → block"
     }
+   },
+   {
+    "id": "block-studs",
+    "title": {
+     "pl": "Szpilki bloku – pozycje 09 i 10",
+     "en": "Block studs – positions 09 and 10"
+    },
+    "diagramId": "11_9905",
+    "positions": [
+     "09",
+     "10"
+    ]
    }
   ]
  },
@@ -197,7 +210,9 @@ export const m54Breakdown:ConnectionGroup[]=[
     },
     "diagramId": "11_9908",
     "positions": [
-     "07"
+     "07",
+     "08",
+     "09"
     ]
    },
    {
@@ -275,6 +290,17 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Punkty masowe i uchwyty pokrywy",
      "en": "Cover earth points and brackets"
     }
+   },
+   {
+    "id": "head-nut-12",
+    "title": {
+     "pl": "Głowica: nakrętki poz. 12",
+     "en": "Head: nuts at position 12"
+    },
+    "diagramId": "11_9908",
+    "positions": [
+     "12"
+    ]
    }
   ]
  },
@@ -569,9 +595,13 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "pan-block",
     "title": {
-     "pl": "Miska → blok: śruby obwodowe",
-     "en": "Oil pan → block: perimeter bolts"
-    }
+     "pl": "Miska: główna grupa śrub, poz. 05",
+     "en": "Oil pan: main bolt group, position 05"
+    },
+    "diagramId": "11_9918",
+    "positions": [
+     "05"
+    ]
    },
    {
     "id": "pan-cover",
@@ -599,14 +629,44 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Czujnik poziomu oleju → miska",
      "en": "Oil level sensor → pan"
-    }
+    },
+    "diagramId": "11_9918",
+    "positions": [
+     "16"
+    ]
    },
    {
     "id": "dipstick",
     "title": {
      "pl": "Rurka bagnetu i jej wspornik",
      "en": "Dipstick tube and bracket"
-    }
+    },
+    "diagramId": "11_9918",
+    "positions": [
+     "13"
+    ]
+   },
+   {
+    "id": "pan-long-64",
+    "title": {
+     "pl": "Miska: śruby 64 mm",
+     "en": "Oil pan: 64 mm bolts"
+    },
+    "diagramId": "11_9918",
+    "positions": [
+     "06"
+    ]
+   },
+   {
+    "id": "pan-long-100",
+    "title": {
+     "pl": "Miska: śruby 100 mm",
+     "en": "Oil pan: 100 mm bolts"
+    },
+    "diagramId": "11_9918",
+    "positions": [
+     "07"
+    ]
    }
   ]
  },
