@@ -1,8 +1,8 @@
 /** First catalogue discovery rule. It produces candidates, not fitment approvals.
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
-export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData};
+export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null;proposed_gross?:number|string|null};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;source?:string;cataloguePrice?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -159,7 +159,7 @@ export const turboDiscoveryCategory=['Silnik i turbo','Turbosprężarki','Turbos
 const ptx28=/\bpulsar\s+psr\s*(2860|2867|2871)\s*gen\s*2\b/i;
 export function turboCatalogueData(name:string):TurboCatalogueData|null{
  const n=name.normalize('NFKC').replaceAll(',','.').toLowerCase();
- if(!/turbosprężarka|turbsprężarka|turbocharger|\bturbo\b/.test(n)||/without (?:turbine|compressor|housing)|bez (?:obudowy|muszli)|\b(?:supercore|super core|chra|cartridge|drop.in|reverse|odwrócona)\b|^obudowa|^muszla|^adapter|^zestaw napraw/.test(n))return null;
+ if(!/turbosprężarka|turbsprężarka|turbocharger|\bturbo\b/.test(n)||/without (?:turbine|compressor|housing|hot side|cold side)|bez (?:obudowy|muszli|strony gorącej|strony zimnej)|housing only|turbo core|\b(?:supercore|super core|chra|cartridge|drop.in|reverse|odwrócona)\b|^obudowa|^muszla|^adapter|^zestaw napraw/.test(n))return null;
  const hp=[...n.matchAll(/\b(\d{3,4})\s*(hp|km|ps)\b/g)];
  const ratings=[...new Set(hp.map(m=>Number(m[1])*(m[2]==='hp'?1.01387:1)))];
  const ptx=n.match(ptx28)?.[1];
@@ -194,7 +194,9 @@ export function discoverTurbo(row:DiscoveryRow,targetPs:number):DiscoveredPart|n
  // Deliberately broad nominal class window; unknown ratings are not guessed.
  if(!t||!Number.isFinite(targetPs)||targetPs<=0||t.ratingPs<targetPs||t.ratingPs>targetPs*1.85)return null;
  const brand=row.brand?.trim()||(/pulsar/i.test(row.name)?'Pulsar':/turbosmart/i.test(row.name)?'Turbosmart':/jrspec/i.test(row.name)?'JRspec':/garrett/i.test(row.name)?'Garrett':/turbosystems/i.test(row.name)?'TurboSystems':'—');
- return {sku:row.sku,name:row.name,brand,slot:'turbo',turbo:t,reason:['Wstępna klasa mocy '+t.ratingLabel+'; A/R '+(t.ar??'do potwierdzenia')+'. Zweryfikuj mapę sprężarki, obudowę, przepływ i przeciwciśnienie.','Preliminary '+t.ratingLabel+' power class; A/R '+(t.ar??'to confirm')+'. Verify compressor map, housing, flow and backpressure.']};
+ const price=Number(row.proposed_gross);
+ const source=ptx28.test(row.name)?'https://pulsarturbo.com/product/psr-ptx28-gen1-gen2-turbine-housings-for-psr2860-psr2867-psr2871-turbos/':undefined;
+ return {sku:row.sku,name:row.name,brand,slot:'turbo',turbo:t,source,cataloguePrice:Number.isFinite(price)&&price>0?price:undefined,reason:['Wstępna klasa mocy '+t.ratingLabel+'; A/R '+(t.ar??'do potwierdzenia')+'. Zweryfikuj mapę sprężarki, obudowę, przepływ i przeciwciśnienie.','Preliminary '+t.ratingLabel+' power class; A/R '+(t.ar??'to confirm')+'. Verify compressor map, housing, flow and backpressure.']};
 }
 /** Provisional ranking, not a predicted spool RPM. A/R is compared only within
  * the same model; different turbine geometries cannot be ranked by A/R alone. */
@@ -208,10 +210,11 @@ export function compareTurboCatalogue(a:TurboCatalogueData|null,b:TurboCatalogue
  const main=known(a)-known(b)||flange(a)-flange(b);
  if(main)return main;
  const cls=classScore(a)-classScore(b);
- if(Math.abs(cls)>.02)return cls;
- if(a.model===b.model&&a.ar!==null&&b.ar!==null&&a.ar!==b.ar){
+ if(Math.abs(cls)>1e-8)return cls;
+ if(a.model!==b.model)return a.model.localeCompare(b.model);
+ if(a.ar!==null&&b.ar!==null&&a.ar!==b.ar){
   if(response)return a.ar-b.ar;
   if(priority==='power')return b.ar-a.ar;
  }
- return cls;
+ return Number(b.wg==='internal')-Number(a.wg==='internal');
 }
