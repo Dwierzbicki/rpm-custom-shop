@@ -304,7 +304,7 @@ export function tuManifoldSpec(slots:PartsSlot[],selection:Record<string,string>
  const slot=slots.find(s=>s.dependency==='m52tu');const spec=slot?tuTurboSpec(selectedPart(slot,selection),candidateMap):null;
  const engine=slot?.manifoldEngine??'m52';
  if(!spec||selection.manifold==='own'||engine==='2jz-gte')return null;
- return {...spec,sku:engine==='2jz-ge'?'RPM-00033':'RPM-00032',egtPoints:tier==='premium'?7:1,options:{...(engine==='2jz-ge'?{}:{'rpm-engine':engine}),'rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45','rpm-egt':tier==='premium'?'seven':'yes','rpm-thermal-insulation':tier==='premium'?'termshield':'none'} as Record<string,string>};
+ return {...spec,sku:engine==='2jz-ge'?'RPM-00033':'RPM-00032',egtPoints:tier==='premium'?7:1,options:{...(engine==='2jz-ge'?{}:{'rpm-engine':engine}),'rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45'} as Record<string,string>};
 }
 type ManifoldCatalog={id:number;sku:string;name:string;price:number;visible?:boolean;stockStatus?:string;configurable?:boolean;optionGroups?:{id:string;required?:boolean;options:{id:string;price:number}[]}[]};
 export function tuManifoldEstimate(products:ManifoldCatalog[],spec:ReturnType<typeof tuManifoldSpec>){
@@ -313,8 +313,8 @@ export function tuManifoldEstimate(products:ManifoldCatalog[],spec:ReturnType<ty
  if(!p||!p.optionGroups)return null;
  let price=p.price;
  for(const [id,value] of Object.entries(spec.options)){const o=p.optionGroups.find(g=>g.id===id)?.options.find(o=>o.id===value);if(!o||!Number.isFinite(o.price))return null;price+=o.price}
- // Missing chassis is intentional; only a provisional estimate, no cart line.
- if((spec.sku==='RPM-00032'&&!p.optionGroups.find(g=>g.id==='rpm-chassis')?.options.length)||p.optionGroups.some(g=>g.required&&g.id!=='rpm-chassis'&&!(g.id in spec.options)))return null;
+ // Chassis, EGT and thermal insulation are explicit customer choices; estimate only fixed options until selected.
+ if((spec.sku==='RPM-00032'&&!p.optionGroups.find(g=>g.id==='rpm-chassis')?.options.length)||p.optionGroups.some(g=>g.required&&!['rpm-chassis','rpm-egt','rpm-thermal-insulation'].includes(g.id)&&!(g.id in spec.options)))return null;
  return {product:p,price:Math.round(price*100)/100};
 }
 
