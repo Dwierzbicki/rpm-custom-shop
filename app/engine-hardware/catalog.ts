@@ -15,6 +15,7 @@ const l=(pl:string,en:string):Localized=>({pl,en});
 export type Part={key?:string;unavailableReason?:Localized;unit?:'piece'|'set';oem:string;dimension:string;name:Localized;sku?:string;technicalEvidence?:string};
 export type Usage={partKey?:string;quantityUnit?:'piece'|'set';position:string;oem:string;quantity:number;location:Localized;mountingEvidence?:string;torque?:string;torqueSource?:string;replacement?:'always'|'inspect'|'not-applicable';hotspots?:{x:number;y:number}[]};
 export type Diagram={profileId?:string;sourceId?:string;id:string;engine:string;vehicle:string;title:Localized;source:string;image?:{path:string;rightsEvidence:string};usages:Usage[]};
+export const M54_REFERENCE_INDEX='https://www.realoem.com/bmw/en/partgrp?id=ET56-EUR-11-2001-E46-BMW-330i&mg=11';
 const bolt=l('Śruba z podkładką','Bolt with washer');
 export const parts:Part[]=[
  {oem:'07119905391',dimension:'M8 × 55-U1',name:bolt},
@@ -29,6 +30,19 @@ export const parts:Part[]=[
  {oem:'07119905739',dimension:'M8 × 22',name:bolt},
  {oem:'07119904524',dimension:'M6 × 16-U1-8.8',name:bolt},
  {oem:'07119905857',dimension:'M10 × 1-LH',name:l('Nakrętka z lewym gwintem','Left-hand-thread nut')},
+ {oem:'11111740345',dimension:'M10 × 92',name:l('Śruba podpory wału','Main bearing cap bolt')},
+ {oem:'11111703878',dimension:'M12 × 1,5',name:l('Korek gwintowany bloku','Threaded block plug')},
+ {oem:'07119904539',dimension:'M14 × 1,5-ZNNIV',name:l('Korek gwintowany bloku','Threaded block plug')},
+ {oem:'11121740065',dimension:'M10 × 110',unit:'set',name:l('Komplet śrub głowicy','Cylinder head bolt set')},
+ {oem:'11127550856',dimension:'',name:l('Podkładka śruby głowicy','Cylinder head bolt washer')},
+ {oem:'11121726397',dimension:'M6 × 50',name:l('Śruba Torx','Torx bolt')},
+ {oem:'11247589671',dimension:'M9 × 47',name:l('Śruba korbowodu','Connecting rod bolt')},
+ {oem:'11241280833',dimension:'7,5 × 11,2 mm',name:l('Kołek ustalający korbowodu','Connecting rod locating dowel')},
+ {oem:'11137535106',dimension:'M12 × 16',name:l('Korek spustowy oleju','Oil drain plug')},
+ {oem:'07119963151',dimension:'A12 × 17-CU',name:l('Podkładka uszczelniająca korka','Drain plug sealing washer')},
+ {oem:'11121738607',dimension:'M6',name:l('Nakrętka pokrywy zaworów','Valve cover cap nut')},
+ {oem:'11121738608',dimension:'M6',name:l('Nakrętka pokrywy zaworów','Valve cover cap nut')},
+ {oem:'11127838077',dimension:'',name:l('Podkładka mocowania pokrywy','Valve cover mounting washer')},
 ];
 const u=(position:string,oem:string,quantity:number,pl:string,en:string):Usage=>({position,oem,quantity,location:l(pl,en)});
 export const diagrams:Diagram[]=[
@@ -51,10 +65,42 @@ export const diagrams:Diagram[]=[
   u('10','07119904524',3,'Zespół pompy oleju; pozycja 10, śruby 16 mm.','Oil pump assembly; position 10, 16 mm bolts.'),
   u('11','07119905857',1,'Mocowanie koła napędowego pompy oleju; lewy gwint.','Oil pump sprocket fastening; left-hand thread.'),
  ]},
+ // Selected reference examples only, not a bulk copy of the source catalogue.
+ {id:'11_9905',engine:'M54B30',vehicle:'BMW E46 330i · sedan EUR LHD',title:l('Blok silnika','Engine block'),source:'https://bmwfans.info/parts-catalog/E46-Sedan/Europe/330i-M54/L-N/browse/engine/engine_block/',usages:[
+  u('02','11111740345',14,'Mocowanie podpór łożysk głównych wału korbowego do bloku.','Main bearing cap fastening to the cylinder block.'),
+  u('03','11111703878',2,'Gwintowane zamknięcie otworów bloku; dokładne otwory do weryfikacji.','Threaded closure of block openings; exact openings pending verification.'),
+  u('04','07119904539',1,'Korek gwintowany bloku; pozycja 04.','Threaded block plug; position 04.'),
+  u('13','07119905739',16,'Mocowanie płyt wsporczych bloku; pozycja 13.','Block support plate fastening; position 13.'),
+ ]},
+ {id:'11_9908',engine:'M54B30',vehicle:'BMW E46 330i · ET56 EUR · 11/2001',title:l('Głowica i mocowania','Cylinder head fasteners'),source:'https://www.realoem.com/bmw/en/showparts?diagId=11_9908&id=ET56-EUR-11-2001-E46-BMW-330i',usages:[
+  {...u('05','11121740065',1,'Główne mocowanie głowicy do bloku. Jednostka katalogowa: komplet, nie jedna śruba.','Main cylinder head-to-block fastening. Catalogue unit: one set, not one bolt.'),quantityUnit:'set'},
+  u('06','11127550856',14,'Podkładki pod główne śruby głowicy.','Washers under the main cylinder head bolts.'),
+  u('07','11121726397',1,'Śruba M6×50 w zespole głowicy; dokładny otwór wymaga potwierdzenia.','M6×50 bolt in cylinder head assembly; exact hole pending verification.'),
+ ]},
+ {id:'11_9913',engine:'M54B30',vehicle:'BMW E46 330i · ET56 EUR · 11/2001',title:l('Korbowody','Connecting rods'),source:'https://www.realoem.com/bmw/en/showparts?diagId=11_9913&id=ET56-EUR-11-2001-E46-BMW-330i',usages:[
+  u('03','11241280833',12,'Ustalenie położenia stopy korbowodu; pozycja 03.','Connecting rod cap location; position 03.'),
+  u('04','11247589671',12,'Mocowanie stopy korbowodu do korbowodu; 12 szt. według katalogu.','Connecting rod cap fastening; 12 pieces per catalogue.'),
+ ]},
+ {id:'11_9918',engine:'M54B30',vehicle:'BMW E46 330i · ET56 EUR · 11/2001',title:l('Miska olejowa','Oil pan'),source:'https://www.realoem.com/bmw/en/showparts?diagId=11_9918&id=ET56-EUR-11-2001-E46-BMW-330i',usages:[
+  u('02','07129904544',3,'Szpilki zespołu miski olejowej; dokładne otwory do weryfikacji.','Oil pan assembly studs; exact holes pending verification.'),
+  u('03','11137535106',1,'Gwintowany otwór spustowy miski olejowej.','Threaded oil pan drain opening.'),
+  u('04','07119963151',1,'Uszczelnienie pod korkiem spustowym oleju.','Seal underneath the oil drain plug.'),
+ ]},
+ {id:'11_9911',engine:'M54B30',vehicle:'BMW E46 330i · sedan EUR · wariant pokrywy do sprawdzenia',title:l('Pokrywa zaworów','Valve cover'),source:'https://bmwfans.info/parts-catalog/E46-Sedan/Europe/330i-M54/browse/engine/cylinder_head_cover/',usages:[
+  u('05','11121738607',11,'Jedna grupa nakrętek M6 pokrywy; pozycja 05.','One group of M6 valve cover nuts; position 05.'),
+  u('06','11127838077',15,'Podkładki mocowań pokrywy zaworów.','Valve cover mounting washers.'),
+  u('08','11121738608',4,'Druga grupa nakrętek M6 pokrywy; pozycja 08.','Second group of M6 valve cover nuts; position 08.'),
+ ]},
 ];
 export const partByOem=(oem:string)=>parts.find(p=>p.oem===oem);
 export const diagramsFor=(engine:string)=>diagrams.filter(d=>d.engine===engine);
-export const matches=(p:Part,u:Usage,q:string)=>[p.oem,p.dimension,p.name.pl,p.name.en,u.location.pl,u.location.en,u.position].join(' ').toLowerCase().includes(q.trim().toLowerCase());
+const searchText=(s:string)=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ł/g,'l').replace(/[×x]/g,'x').replace(/\s+/g,'');
+export const matches=(p:Part,u:Usage,q:string)=>searchText([p.oem,p.dimension,p.name.pl,p.name.en,u.location.pl,u.location.en,u.position].join(' ')).includes(searchText(q.trim()));
+export function searchEngineParts(diagrams:Diagram[],parts:Part[],query:string){
+ if(!query.trim())return [];
+ const map=new Map(parts.map(p=>[p.key??p.oem,p]));
+ return diagrams.flatMap(diagram=>diagram.usages.flatMap(usage=>{const part=map.get(usage.partKey??usage.oem);return part&&matches(part,usage,query)?[{diagram,usage,part}]:[]}));
+}
 export function canSell(p:Part,u:Usage){
  return Boolean(p.sku&&p.technicalEvidence?.trim()&&u.mountingEvidence?.trim()&&u.torque?.trim()&&u.torqueSource?.trim()&&u.replacement);
 }
