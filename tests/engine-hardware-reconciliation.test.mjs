@@ -7,8 +7,8 @@ function load(name){const exports={};vm.runInNewContext(ts.transpileModule(readF
 const {diagrams}=load('catalog'),{reconcileM54}=load('m54-reconciliation');
 test('reference positions are reconciled only against their exact source and conditional rows remain open',()=>{
  const r=reconcileM54(diagrams);
- assert.equal(r.reduce((n,x)=>n+x.reference,0),18);
- assert.equal(r.reduce((n,x)=>n+x.missing,0),4);
+ assert.equal(r.reduce((n,x)=>n+x.reference,0),21);
+ assert.equal(r.reduce((n,x)=>n+x.missing,0),1);
  assert.equal(r.reduce((n,x)=>n+x.variant,0),4);
  assert.equal(reconcileM54(diagrams.map(d=>({...d,source:'https://example.com/other'}))).reduce((n,x)=>n+x.reference,0),0);
 });
