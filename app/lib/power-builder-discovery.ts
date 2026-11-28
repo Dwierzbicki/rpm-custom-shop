@@ -427,7 +427,7 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
 export function isCompleteEngineSalesUnit(sku:string,name:string,part:EnginePartData|null):boolean{
  if(!part)return false;
  const n=name.normalize('NFKC').toLowerCase();
- if(/\b(?:single|per piece|per cylinder|1\s*(?:szt|pc|piece))\b/.test(n)&&!/single vanos/.test(n))return false;
+ if(/\b(?:single|per piece|per cylinder|1\s*(?:szt|pc|piece))\b/.test(n.replace(/\bsingle vanos\b/g,'')))return false;
  if(part.kind==='rod')return part.packSize===6;
  if(part.kind==='head-fastener'&&['FTWL_HSM54','FTWL_HSM54M10'].includes(sku.toUpperCase()))return true;
  if(['head-fastener','main-fastener','clutch-kit'].includes(part.kind))return /\b(?:komplet|zestaw|kit|set)\b/.test(n)&&!/repair|naprawcz|partial|częściowy/.test(n);
