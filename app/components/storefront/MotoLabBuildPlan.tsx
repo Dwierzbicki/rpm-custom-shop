@@ -224,20 +224,18 @@ export default function MotoLabBuildPlan({version,range,usage,tier,profile,targe
  useLayoutEffect(()=>{
   if(!systemScrollRequest||!scrollTarget.current)return;
   const target=scrollTarget.current;
-  const frame=window.requestAnimationFrame(()=>{
-   const heading=systemHeadingRef.current;
-   if(!heading)return;
-   const card=target.slot?Array.from(heading.parentElement?.querySelectorAll<HTMLElement>('[data-build-slot]')??[]).find(el=>el.dataset.buildSlot===target.slot):undefined;
-   const anchor=card?.querySelector<HTMLElement>('.rpm-parts-slot-head')??heading;
-   const rect=anchor.getBoundingClientRect();
-   const header=document.querySelector<HTMLElement>('.rpm-header-v2');
-   const headerBottom=header?Math.max(0,Math.min(window.innerHeight*.4,header.getBoundingClientRect().bottom)):0;
-   const center=headerBottom+(window.innerHeight-headerBottom)/2;
-   const top=Math.max(0,window.scrollY+rect.top+rect.height/2-center);
-   window.scrollTo({top,behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});
-   scrollTarget.current=null;
-  });
-  return()=>window.cancelAnimationFrame(frame);
+  scrollTarget.current=null;
+  const heading=systemHeadingRef.current;
+  if(!heading)return;
+  const card=target.slot?Array.from(heading.parentElement?.querySelectorAll<HTMLElement>('[data-build-slot]')??[]).find(el=>el.dataset.buildSlot===target.slot):undefined;
+  const anchor=target.slot?card?.querySelector<HTMLElement>('.rpm-parts-slot-head'):heading;
+  if(!anchor)return;
+  const rect=anchor.getBoundingClientRect();
+  const header=document.querySelector<HTMLElement>('.rpm-header-v2');
+  const offset=Math.max(0,header?.getBoundingClientRect().bottom??0)+16;
+  // A product selection keeps the current viewport unless its header is out of view.
+  if(target.slot&&rect.top>=offset&&rect.bottom<=window.innerHeight-16)return;
+  window.scrollTo({top:Math.max(0,window.scrollY+rect.top-offset),behavior:'instant'});
  },[systemScrollRequest]);
  const [brandFilters,setBrandFilters]=useState<Record<string,string>>({});
  const [optionQueries,setOptionQueries]=useState<Record<string,string>>({});
