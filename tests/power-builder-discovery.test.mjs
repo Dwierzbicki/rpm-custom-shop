@@ -178,3 +178,22 @@ test('full-category materials use explicit dimensions and leave quantity to the 
  assert.equal(exports.discoverExtraPart({sku:'X',name:'Wastegate Turbosmart Hyper-Gate45 45mm'},gates,'wastegate').slot,'wastegate');
  assert.equal(exports.discoverExtraPart({sku:'X',name:'Wastegate JR.Spec V-Band 50mm'},gates,'wastegate'),null);
 });
+
+
+test('rod sales units require explicit package evidence, not Single VANOS',()=>{
+ const rod=(name)=>exports.enginePartData(name,'m52b25','rods');
+ const name='Kute korbowody BMW M52B25 Single Vanos 140mm';
+ assert.equal(rod(name).packSize,null);
+ assert.equal(rod(name+' 1 szt').packSize,1);
+ assert.equal(rod(name+' 6 szt').packSize,6);
+ assert.equal(rod(name+' 1 szt / set of 6').packSize,null);
+ assert.equal(rod('Kuty korbowód BMW M52B25 140mm').packSize,null);
+});
+test('stock-stroke 2JZ profiles exclude explicit stroker rotating assemblies',()=>{
+ for(const version of ['2jz-ge','2jz-gte']){
+  const code=version==='2jz-ge'?'2JZ-GE':'2JZ-GTE';
+  assert.equal(exports.enginePartData('Connecting rods '+code+' Stroker 94mm',version,'rods'),null);
+  assert.equal(exports.enginePartData('Piston rings '+code+' stroker',version,'rings'),null);
+  assert.ok(exports.enginePartData('Connecting rods '+code+' 142mm',version,'rods'));
+ }
+});
