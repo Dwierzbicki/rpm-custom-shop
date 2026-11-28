@@ -54,6 +54,19 @@ const referenceParts:Part[]=[
  {oem:'07129908132',dimension:'M8 × 35 – 8.8 ZN',name:l('Szpilka','Stud')},
  {oem:'07129903135',dimension:'M10 × 40',name:l('Szpilka','Stud')},
  {oem:'11111703836',dimension:'M24 × 1,5',name:l('Korek gwintowany','Threaded plug')},
+ {"oem":"07119934460","dimension":"C22 × 1,5","name":{"pl":"Pierścień zabezpieczający sworzeń","en":"Piston pin circlip"}},
+ {"oem":"11211720633","dimension":"","name":{"pl":"Centralna śruba wału","en":"Crankshaft central bolt"}},
+ {"oem":"11231288660","dimension":"","name":{"pl":"Podkładka śruby centralnej","en":"Crankshaft bolt washer"}},
+ {"oem":"11617545279","dimension":"M7","name":{"pl":"Nakrętka kołnierzowa","en":"Flange nut"}},
+ {"oem":"07129901481","dimension":"M7 × 95","name":{"pl":"Szpilka łoża wałka","en":"Camshaft bearing ledge stud"}},
+ {"oem":"07119951480","dimension":"5 × 6,5","name":{"pl":"Wpust czółenkowy","en":"Woodruff key"}},
+ {"oem":"11311748817","dimension":"","name":{"pl":"Sworzeń prowadnicy rozrządu","en":"Timing guide bearing bolt"}},
+ {"oem":"11311703718","dimension":"","name":{"pl":"Sworzeń szyny napinającej","en":"Tensioning rail bearing bolt"}},
+ {"oem":"07119963418","dimension":"A26 × 31-AL","name":{"pl":"Pierścień uszczelniający napinacza","en":"Tensioner sealing washer"}},
+ {"oem":"07129904553","dimension":"AM6-8-ZNNIV SI","name":{"pl":"Nakrętka z podkładką","en":"Nut with washer"}},
+ {"oem":"11361748745","dimension":"","name":{"pl":"Śruba pasowana VANOS","en":"VANOS fit bolt"}},
+ {"oem":"11361433513","dimension":"","name":{"pl":"Zaślepka VANOS","en":"VANOS blind plug"}},
+ {"oem":"11361438338","dimension":"","name":{"pl":"Korek z pierścieniem uszczelniającym","en":"Screw plug with sealing ring"}},
 ];
 const u=(position:string,oem:string,quantity:number,pl:string,en:string):Usage=>({position,oem,quantity,location:l(pl,en)});
 const referenceDiagrams:Diagram[]=[
@@ -113,6 +126,11 @@ const referenceDiagrams:Diagram[]=[
   u('06','11127838077',15,'Podkładki mocowań pokrywy zaworów.','Valve cover mounting washers.'),
   u('08','11121738608',4,'Druga grupa nakrętek M6 pokrywy; pozycja 08.','Second group of M6 valve cover nuts; position 08.'),
  ]},
+ {"id":"ref-pistons-2002","engine":"M54B30","vehicle":"BMW E46 330i · sedan USA · 2002 (rok modelowy)","title":{"pl":"Tłoki i sworznie","en":"Pistons and pins"},"source":"https://www.bmwpartsdeal.com/parts-list/2002-bmw-330i-sedan_e46/engine/crankshaft_pistons.html","usages":[{"position":"02","oem":"07119934460","quantity":12,"location":{"pl":"Zabezpieczenie sworzni; 2 na tłok.","en":"Piston pin retention; two per piston."}}]},
+ {"id":"ref-crank-hub-2002","engine":"M54B30","vehicle":"BMW E46 330i · sedan USA · 2002 (rok modelowy)","title":{"pl":"Centralne mocowanie wału","en":"Crankshaft central fastening"},"source":"https://www.bmwpartsdeal.com/parts-list/2002-bmw-330i-sedan_e46/engine/belt_drive_vibration_damper.html","usages":[{"position":"02","oem":"11211720633","quantity":1,"location":{"pl":"Centralne mocowanie na czole wału; wymiar do potwierdzenia.","en":"Central fastener at crankshaft nose; dimensions pending."}},{"position":"03","oem":"11231288660","quantity":1,"location":{"pl":"Podkładka centralnego mocowania wału.","en":"Washer at crankshaft central fastening."}}]},
+ {"id":"ref-cam-bearings-2002","engine":"M54B30","vehicle":"BMW E46 330i · sedan USA · 2002 (rok modelowy)","title":{"pl":"Łoża wałków – wybrane mocowania","en":"Camshaft bearing ledges – selected hardware"},"source":"https://www.bmwpartsdeal.com/parts-list/2002-bmw-330i-sedan_e46/engine/cylinder_head_attached_parts.html","usages":[{"position":"04","oem":"11617545279","quantity":28,"location":{"pl":"Zespół łoży wałków; rozdział na wałki do potwierdzenia.","en":"Camshaft bearing ledge assembly; allocation pending."}},{"position":"09","oem":"07129901481","quantity":28,"location":{"pl":"Szpilki łoży wałków; łączna ilość katalogowa, rozdział do potwierdzenia.","en":"Camshaft bearing ledge studs; catalogue total, allocation pending."}}]},
+ {"id":"11_9900","engine":"M54B30","vehicle":"BMW E46 330i · sedan USA · 2002 (rok modelowy)","title":{"pl":"Dolny napęd rozrządu","en":"Lower timing drive"},"source":"https://www.bmwpartsdeal.com/parts-list/2002-bmw-330i-sedan_e46/engine/timing_timing_chain_lower_p.html","usages":[{"position":"03","oem":"07119951480","quantity":2,"location":{"pl":"Ustalenie napędu na wale; nie sumować z diagramem koła pasowego.","en":"Location of drive components on crankshaft; do not sum with pulley diagram."}},{"position":"06","oem":"11311748817","quantity":2,"location":{"pl":"Sworznie zespołu prowadnicy łańcucha głównego.","en":"Primary timing chain guide bearing bolts."}},{"position":"08","oem":"11311703718","quantity":1,"location":{"pl":"Sworzeń zespołu szyny napinającej.","en":"Tensioning rail bearing bolt."}},{"position":"10","oem":"07119963418","quantity":1,"location":{"pl":"Uszczelnienie napinacza głównego.","en":"Primary chain tensioner seal."}}]},
+ {"id":"11_9909","engine":"M54B30","vehicle":"BMW E46 330i · sedan USA · 2003 (rok modelowy)","title":{"pl":"VANOS – wybrane mocowania","en":"VANOS – selected fasteners"},"source":"https://www.bmwpartsdeal.com/parts-list/2003-bmw-330i-sedan_e46/engine/cylinder_head_vanos.html","usages":[{"position":"08","oem":"07129904553","quantity":6,"location":{"pl":"Nakrętki zespołu VANOS; dokładne punkty do potwierdzenia.","en":"VANOS assembly nuts; exact points pending."}},{"position":"09","oem":"11361748745","quantity":2,"location":{"pl":"Śruby pasowane zespołu VANOS; dokładne punkty do potwierdzenia.","en":"VANOS fit bolts; exact points pending."}},{"position":"10","oem":"11361433513","quantity":2,"location":{"pl":"Zaślepki zespołu VANOS.","en":"VANOS assembly blind plugs."}},{"position":"11","oem":"11361438338","quantity":2,"location":{"pl":"Korki zespołu VANOS z uszczelnieniem.","en":"VANOS assembly sealing plugs."}}]},
 ];
 // Scope: assembled engine only. External mounts and unconfirmed peripheral joints
 // remain in historical reference data but never enter the customer set.

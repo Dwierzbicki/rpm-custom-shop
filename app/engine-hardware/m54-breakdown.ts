@@ -137,14 +137,23 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Zabezpieczenia sworzni tłokowych",
      "en": "Piston pin retainers"
-    }
+    },
+    "diagramId": "ref-pistons-2002",
+    "positions": [
+     "02"
+    ]
    },
    {
     "id": "crank-hub",
     "title": {
      "pl": "Piasta / centralna śruba wału",
      "en": "Crankshaft hub / central bolt"
-    }
+    },
+    "diagramId": "ref-crank-hub-2002",
+    "positions": [
+     "02",
+     "03"
+    ]
    }
   ]
  },
@@ -199,7 +208,12 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Elementy mocujące prowadnice / łoża wałków",
      "en": "Camshaft carrier fasteners"
-    }
+    },
+    "diagramId": "ref-cam-bearings-2002",
+    "positions": [
+     "04",
+     "09"
+    ]
    },
    {
     "id": "valve-keepers",
@@ -290,21 +304,33 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Prowadnica łańcucha głównego",
      "en": "Primary chain guide"
-    }
+    },
+    "diagramId": "11_9900",
+    "positions": [
+     "06"
+    ]
    },
    {
     "id": "tension-guide",
     "title": {
      "pl": "Szyna napinająca łańcuch główny",
      "en": "Primary tensioning rail"
-    }
+    },
+    "diagramId": "11_9900",
+    "positions": [
+     "08"
+    ]
    },
    {
     "id": "main-tensioner",
     "title": {
      "pl": "Napinacz główny i uszczelnienie",
      "en": "Primary tensioner and seal"
-    }
+    },
+    "diagramId": "11_9900",
+    "positions": [
+     "10"
+    ]
    },
    {
     "id": "secondary-guide",
@@ -339,7 +365,12 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "VANOS → głowica",
      "en": "VANOS → head"
-    }
+    },
+    "diagramId": "11_9909",
+    "positions": [
+     "08",
+     "09"
+    ]
    },
    {
     "id": "vanos-pistons",
@@ -353,7 +384,12 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Pokrywy i korki VANOS",
      "en": "VANOS covers and plugs"
-    }
+    },
+    "diagramId": "11_9909",
+    "positions": [
+     "10",
+     "11"
+    ]
    },
    {
     "id": "vanos-solenoids",
@@ -368,6 +404,17 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Przewód olejowy przy VANOS",
      "en": "Oil line at VANOS"
     }
+   },
+   {
+    "id": "crank-drive-key",
+    "title": {
+     "pl": "Wpusty ustalające napęd na wale",
+     "en": "Crankshaft drive locating keys"
+    },
+    "diagramId": "11_9900",
+    "positions": [
+     "03"
+    ]
    }
   ]
  },
