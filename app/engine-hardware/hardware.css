@@ -35,3 +35,5 @@
 /* No fixed viewport height, nested scroll containers or touch-action overrides. */
 
 .eh-engine-search{margin-bottom:16px}.eh-search-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.eh-search-heading h2{margin-bottom:4px}.eh-search-heading p{margin:0}.eh-engine-search label{margin-bottom:0}.eh-engine-search .eh-rows{margin-top:12px}.eh-oem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.eh-detail .eh-oem .outline{width:auto;margin:0;min-height:36px;padding:7px 12px}.eh-oem span{font-variant-numeric:tabular-nums}
+
+.eh-breakdown h2{margin-top:20px}.eh-breakdown>p{margin:4px 0 10px}.eh-breakdown .eh-breakdown-note{font-size:11px}.eh-breakdown-group .eh-group-toggle{justify-content:space-between;font-weight:650}.eh-breakdown-group .eh-group-toggle b{font-size:18px;color:var(--rpm-color-accent-hover)}.eh-connections{padding-left:10px;border-left:1px solid var(--rpm-color-border);margin:0 0 12px 6px}.eh-panel .eh-connections button:not(.primary):not(.outline){font-size:12px;padding:8px 10px}.eh-connections button small{font-size:10px}.eh-panel>.outline{margin:0 0 12px;white-space:normal;max-width:100%}
