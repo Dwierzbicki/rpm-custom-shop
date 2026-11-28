@@ -1,5 +1,5 @@
 import type {Diagram,Localized} from './catalog';
-export type Connection={id:string;title:Localized;diagramId?:string;positions?:string[]};
+export type Connection={id:string;title:Localized;diagramId?:string;positions?:string[];review?:{kind:'included'|'assembly-only'|'pending';note:Localized;source:string}};
 export type ConnectionGroup={id:string;title:Localized;connections:Connection[]};
 // Research/navigation checklist, not a claim of fitment or completeness.
 // A mapped item is a reference example only; exact-hole evidence is still required.
@@ -99,6 +99,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Przedni uszczelniacz / jego mocowanie",
      "en": "Front seal / retention"
+    },
+    "review": {
+     "kind": "assembly-only",
+     "note": {
+      "pl": "Uszczelniacz 48×65×10 (11142249532); w tym schemacie brak odrębnej pozycji śruby do niego.",
+      "en": "48×65×10 seal (11142249532); no separate fastener listed on this diagram."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9907&id=AV52-EUR-08-2001-E46-BMW-330i"
     }
    },
    {
@@ -106,6 +114,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Korek spustowy płynu w bloku",
      "en": "Block coolant drain"
+    },
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "W grupie korków bloku istnieje M14×1,5 (07119904539); tożsamość dokładnego otworu do potwierdzenia, nie dodano drugi raz.",
+      "en": "M14×1.5 (07119904539) already listed in block plugs; exact opening pending, not duplicated."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9905&id=AV51-EUR-08-2001-E46-BMW-330i"
     }
    },
    {
@@ -213,6 +229,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Podpory wałka ssącego",
      "en": "Intake camshaft bearing caps"
+    },
+    "review": {
+     "kind": "included",
+     "note": {
+      "pl": "Wspólna grupa łoży wałków zawiera ilości łączne. Podział na wałki do potwierdzenia.",
+      "en": "Combined bearing ledge group contains totals. Allocation pending."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9925&id=ET55-EUR-01-2002-E46-BMW-330i"
     }
    },
    {
@@ -220,6 +244,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Podpory wałka wydechowego",
      "en": "Exhaust camshaft bearing caps"
+    },
+    "review": {
+     "kind": "included",
+     "note": {
+      "pl": "Wspólna grupa łoży wałków zawiera ilości łączne. Podział na wałki do potwierdzenia.",
+      "en": "Combined bearing ledge group contains totals. Allocation pending."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9925&id=ET55-EUR-01-2002-E46-BMW-330i"
     }
    },
    {
@@ -228,9 +260,11 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Elementy mocujące prowadnice / łoża wałków",
      "en": "Camshaft carrier fasteners"
     },
-    "diagramId": "ref-cam-bearings-2002",
+    "diagramId": "11_9925",
     "positions": [
+     "03",
      "04",
+     "08",
      "09"
     ]
    },
@@ -250,7 +284,18 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Korki i zaślepki głowicy",
      "en": "Cylinder head plugs"
-    }
+    },
+    "diagramId": "11_9925",
+    "positions": [
+     "17",
+     "18",
+     "19",
+     "20",
+     "21",
+     "22",
+     "23",
+     "27"
+    ]
    },
    {
     "id": "cover-nuts",
@@ -268,8 +313,20 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "cover-studs",
     "title": {
-     "pl": "Szpilki pokrywy M6×30 – ilość nieokreślona (X wg OEM)",
-     "en": "Cover studs M6×30 – quantity unspecified (X in OEM)"
+     "pl": "Szpilki pokrywy zaworów",
+     "en": "Valve cover studs"
+    },
+    "diagramId": "11_9925",
+    "positions": [
+     "10"
+    ],
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "M7/M6×29,5: 14 szt. w głowicy. M6×30: X w schemacie pokrywy, ilość do pomiaru.",
+      "en": "M7/M6×29.5: 14 in head diagram. M6×30: X in cover diagram; quantity to measure."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9911&id=AW51-EUR---E46-BMW-330i"
     }
    }
   ]
@@ -320,6 +377,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Obudowa rozrządu → głowica",
      "en": "Timing cover → head"
+    },
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "Sprawdzić rozdział istniejących śrub obudowy i głowicy. Brak nowej ilości.",
+      "en": "Reconcile existing timing cover and head bolts. No added quantity."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9907&id=AV52-EUR-08-2001-E46-BMW-330i"
     }
    },
    {
@@ -421,6 +486,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Tłoki VANOS / elementy zabezpieczające",
      "en": "VANOS pistons / retention"
+    },
+    "review": {
+     "kind": "assembly-only",
+     "note": {
+      "pl": "Tłoki VANOS występują jako części; schemat nie rozpisuje ich wewnętrznych śrub. Nie oznacza to potwierdzenia braku śrub.",
+      "en": "VANOS pistons listed as parts; their internal bolts are not listed. This is not proof no bolts exist."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9909&id=ET56-EUR-04_2001_E46_BMW_330i"
     }
    },
    {
@@ -438,16 +511,26 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "vanos-solenoids",
     "title": {
-     "pl": "Elektrozawory i uchwyty VANOS",
-     "en": "VANOS solenoids and retainers"
-    }
+     "pl": "Szpilka i nakrętka uchwytu VANOS – przypisanie do weryfikacji",
+     "en": "VANOS holder stud and nut – allocation pending"
+    },
+    "diagramId": "11_9909",
+    "positions": [
+     "13",
+     "14"
+    ]
    },
    {
     "id": "vanos-line",
     "title": {
      "pl": "Przewód olejowy przy VANOS",
      "en": "Oil line at VANOS"
-    }
+    },
+    "diagramId": "11_9909",
+    "positions": [
+     "16",
+     "17"
+    ]
    },
    {
     "id": "crank-drive-key",
@@ -508,11 +591,14 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Przewód olejowy przy podstawie filtra",
      "en": "Oil line at filter housing"
     },
-    "diagramId": "11_9921",
-    "positions": [
-     "10",
-     "11"
-    ]
+    "review": {
+     "kind": "included",
+     "note": {
+      "pl": "Ujęto cały przewód w grupie VANOS (2 śruby, 4 pierścienie); nie doliczać końca przy filtrze.",
+      "en": "Entire line listed under VANOS (2 bolts, 4 rings); do not add the filter end."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9909&id=ET56-EUR-04_2001_E46_BMW_330i"
+    }
    },
    {
     "id": "pump-08",
@@ -563,6 +649,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Smok → pompa: osobna weryfikacja połączenia",
      "en": "Pickup → pump: separate joint verification"
+    },
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "Schemat pompy ma już pozycje 08–10; osobne przypisanie do smoka niepotwierdzone.",
+      "en": "Pump diagram already lists positions 08–10; pickup allocation not confirmed."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9953&id=AN56-EUR-09-2001-E46-BMW-330i"
     }
    },
    {
@@ -570,6 +664,18 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Korpus / pokrywa pompy oleju",
      "en": "Oil pump body / cover"
+    },
+    "diagramId": "11_9953",
+    "positions": [
+     "17"
+    ],
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "Kołek ma numer OEM; odrębne śruby pokrywy pompy nie są rozpisane. Zweryfikować fizycznie.",
+      "en": "Dowel has OEM number; separate pump cover bolts not listed. Physical verification needed."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9953&id=AN56-EUR-09-2001-E46-BMW-330i"
     }
    },
    {
@@ -577,7 +683,12 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Zawór przelewowy / zabezpieczenia",
      "en": "Pressure relief valve / retention"
-    }
+    },
+    "diagramId": "11_9953",
+    "positions": [
+     "16",
+     "15"
+    ]
    },
    {
     "id": "pan-studs",
@@ -618,6 +729,14 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Miska → obudowa rozrządu",
      "en": "Oil pan → timing cover"
+    },
+    "review": {
+     "kind": "pending",
+     "note": {
+      "pl": "Śruby miski 64 i 100 mm istnieją w katalogu. Nie doliczać nowych bez ustalenia otworów.",
+      "en": "64 and 100 mm oil pan bolts already listed. No additions until holes are identified."
+     },
+     "source": "https://www.realoem.com/bmw/enUS/showparts?diagId=11_9918&id=AN56-EUR-03_2000_E46_BMW-330i"
     }
    },
    {
@@ -625,7 +744,12 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Przegrody / osłony oleju",
      "en": "Oil baffles / shields"
-    }
+    },
+    "diagramId": "11_9906",
+    "positions": [
+     "22",
+     "23"
+    ]
    },
    {
     "id": "pan-long-64",
@@ -665,3 +789,6 @@ export function connectionForPosition(diagramId:string,position:string){
 export function groupSections(group:ConnectionGroup,diagrams:Diagram[]){
  return group.connections.map(connection=>({connection,diagram:diagrams.find(d=>d.id===connection.diagramId&&d.engine==='M54B30'),rows:connectionRows(connection,diagrams)}));
 }
+
+export const isIncludedElsewhere=(c:Connection)=>c.review?.kind==='included';
+export const needsReference=(c:Connection,diagrams:Diagram[])=>!connectionRows(c,diagrams).length&&!isIncludedElsewhere(c);
