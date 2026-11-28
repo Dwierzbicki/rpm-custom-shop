@@ -10,15 +10,15 @@ test('M54 research tree maps every reference row once, without pretending covera
  assert.equal(new Set(allConnections.map(c=>c.id)).size,allConnections.length);
  const keys=[];
  for(const c of allConnections){const rows=connectionRows(c,diagrams);if(!c.diagramId){assert.equal(rows.length,0);assert.equal(c.positions,undefined);continue}assert.equal(rows.length,c.positions.length);for(const row of rows){keys.push(c.diagramId+':'+row.position);assert.equal(connectionForPosition(c.diagramId,row.position).id,c.id)}}
- assert.equal(keys.length,49);assert.equal(new Set(keys).size,keys.length);assert.equal(allConnections.filter(c=>connectionRows(c,diagrams).length).length,34);
+ assert.equal(keys.length,66);assert.equal(new Set(keys).size,keys.length);assert.equal(allConnections.filter(c=>connectionRows(c,diagrams).length).length,43);
 });
 test('unmapped connection does not inherit parts from a similar assembly',()=>{assert.equal(connectionRows(allConnections.find(c=>c.id==='pump-pickup'),diagrams).length,0)});
 
 test('whole group retains every mapped position, unknown joints and distinct diagram identity',()=>{
  const groups=m54Breakdown.map(g=>groupSections(g,diagrams));
- assert.equal(groups.flat().flatMap(s=>s.rows).length,49);
+ assert.equal(groups.flat().flatMap(s=>s.rows).length,66);
  const block=groupSections(m54Breakdown.find(g=>g.id==='block'),diagrams);
- assert.equal(block.length,10);assert.equal(block.flatMap(s=>s.rows).length,7);
+ assert.equal(block.length,10);assert.equal(block.flatMap(s=>s.rows).length,14);
  const oil=groupSections(m54Breakdown.find(g=>g.id==='oil'),diagrams);
  assert.ok(new Set(oil.filter(s=>s.rows.length).map(s=>s.diagram.id)).size>1);
  assert.ok(oil.some(s=>s.rows.length===0));

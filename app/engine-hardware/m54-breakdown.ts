@@ -50,30 +50,49 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "block-dowels",
     "title": {
-     "pl": "Kołki ustalające głowicę względem bloku",
-     "en": "Head-to-block locating dowels"
-    }
+     "pl": "Kołki ustalające bloku – wszystkie średnice",
+     "en": "Block locating dowels – all diameters"
+    },
+    "diagramId": "11_9905",
+    "positions": [
+     "06",
+     "07",
+     "08"
+    ]
    },
    {
     "id": "core-plugs",
     "title": {
      "pl": "Zaślepki kanałów i otworów technologicznych",
      "en": "Gallery and core plugs"
-    }
+    },
+    "diagramId": "11_9906",
+    "positions": [
+     "13"
+    ]
    },
    {
     "id": "oil-jets",
     "title": {
      "pl": "Dysze olejowe → blok",
      "en": "Oil jets → block"
-    }
+    },
+    "diagramId": "11_9906",
+    "positions": [
+     "12"
+    ]
    },
    {
     "id": "rear-seal",
     "title": {
      "pl": "Tylna obudowa uszczelniacza → blok",
      "en": "Rear seal housing → block"
-    }
+    },
+    "diagramId": "11_9906",
+    "positions": [
+     "03",
+     "04"
+    ]
    },
    {
     "id": "front-seal",
@@ -220,7 +239,11 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Zamki zaworowe i zabezpieczenia",
      "en": "Valve keepers and retainers"
-    }
+    },
+    "diagramId": "ref-valve-keepers",
+    "positions": [
+     "09"
+    ]
    },
    {
     "id": "head-plugs",
@@ -245,8 +268,8 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "cover-studs",
     "title": {
-     "pl": "Szpilki pokrywy → głowica",
-     "en": "Valve cover studs → head"
+     "pl": "Szpilki pokrywy M6×30 – ilość nieokreślona (X wg OEM)",
+     "en": "Cover studs M6×30 – quantity unspecified (X in OEM)"
     }
    }
   ]
@@ -335,30 +358,51 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "secondary-guide",
     "title": {
-     "pl": "Prowadnica łańcucha wałków",
-     "en": "Secondary chain guide"
-    }
+     "pl": "Górny rozrząd – śruby 40, 16 i 55 mm",
+     "en": "Upper timing – 40, 16 and 55 mm bolts"
+    },
+    "diagramId": "11_9910",
+    "positions": [
+     "04",
+     "05",
+     "14"
+    ]
    },
    {
     "id": "secondary-tensioner",
     "title": {
-     "pl": "Napinacz łańcucha wałków",
-     "en": "Secondary chain tensioner"
-    }
+     "pl": "Górny rozrząd – śruby Torx M6×20",
+     "en": "Upper timing – M6×20 Torx bolts"
+    },
+    "diagramId": "11_9910",
+    "positions": [
+     "06"
+    ]
    },
    {
     "id": "intake-sprocket",
     "title": {
      "pl": "Koło wałka ssącego i mocowanie",
      "en": "Intake cam sprocket and fastening"
-    }
+    },
+    "diagramId": "11_9910",
+    "positions": [
+     "09",
+     "13"
+    ]
    },
    {
     "id": "exhaust-sprocket",
     "title": {
      "pl": "Koło wałka wydechowego i mocowanie",
      "en": "Exhaust cam sprocket and fastening"
-    }
+    },
+    "diagramId": "11_9916",
+    "positions": [
+     "02",
+     "05",
+     "10"
+    ]
    },
    {
     "id": "vanos-head",

@@ -7,3 +7,5 @@
 @media(max-width:600px){.ehr{padding:8px}.ehr-paper{padding:12px;margin:8px auto}.ehr-actions{flex-wrap:wrap}.ehr-header h1{font-size:25px}.ehr th,.ehr td{padding:5px 3px}.ehr table{font-size:10px}.ehr td small{font-size:9px}.ehr-oem{font-size:10px}.ehr-col-item{width:32%}.ehr-col-qty{width:12%}}
 @page{size:A4;margin:13mm}
 @media print{html,body{background:#fff!important;color:#20232b!important;margin:0!important;padding:0!important}.ehr{padding:0!important;background:white;min-height:0;print-color-adjust:exact;-webkit-print-color-adjust:exact}.ehr-actions{display:none!important}.ehr-paper{max-width:none;width:auto;margin:0;padding:0;box-shadow:none}.ehr-section{break-inside:auto}.ehr table{font-size:10px}.ehr td small{font-size:9px}.ehr-section-heading{break-after:avoid-page}.ehr th{font-size:9px}.ehr-header h1{font-size:27px}}
+
+.ehr-dimension{font-size:12px;line-height:1.3}.ehr td .ehr-oem{font-size:9px;color:#666b75}

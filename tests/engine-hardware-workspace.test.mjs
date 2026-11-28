@@ -42,3 +42,5 @@ test('entire group is explicit and selects rows by diagram and position without 
  assert.ok(ui.includes('d?.id===diagram?.id&&u?.position===row.position'));
  assert.ok(ui.includes('groupSections(group,diagrams)'));
 });
+
+test('dimensions and quantities lead the UI and missing torque is not rendered',()=>{const ui=read('app/engine-hardware/HardwareCatalog.tsx'),pdf=read('app/engine-hardware/report/page.tsx');assert.ok(ui.includes('eh-row-size'));assert.ok(ui.includes('eh-detail-quantity'));assert.ok(ui.includes('u.torque&&u.torqueSource&&<>'));assert.ok(pdf.includes('ehr-dimension'));});

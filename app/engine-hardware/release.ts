@@ -2,7 +2,7 @@ import {assemblies,engineIds} from './audit';
 import {hasLicensedImage,type Diagram,type Part,type Localized,type Usage} from './catalog';
 export type Profile={id:string;engine:string;vehicle:string;market:string;production:string;fitmentEvidence:string;coverage:{assemblyId:string;status:'complete'|'not-applicable';evidence:string}[]};
 export type ReleasePart=Part&{key:string;manufacturer:'BMW'|'Toyota';technicalEvidence:string;sku?:string;unavailableReason?:Localized;unit:'piece'|'set'};
-export type ReleaseUsage=Usage&{partKey:string;quantityUnit:'piece'|'set';mountingEvidence:string;torque:string;torqueSource:string;replacement:'always'|'inspect'|'not-applicable';hotspots:{x:number;y:number}[]};
+export type ReleaseUsage=Usage&{partKey:string;quantityUnit:'piece'|'set';mountingEvidence:string;torque?:string;torqueSource?:string;replacement:'always'|'inspect'|'not-applicable';hotspots:{x:number;y:number}[]};
 export type ReleaseDiagram=Diagram&{sourceId:string;profileId:string;assemblyIds:string[];image:{path:string;rightsEvidence:string;sha256:string};usages:ReleaseUsage[]};
 export type HardwareRelease={schema:1;revision:string;reviewedBy:string;reviewDate:string;scopeEvidence:string;rightsEvidence:string;profiles:Profile[];parts:ReleasePart[];diagrams:ReleaseDiagram[]};
 export type ReleaseCheck={ok:true;release:HardwareRelease}|{ok:false;errors:string[]};
@@ -55,7 +55,7 @@ export function validateRelease(value:unknown):ReleaseCheck{
   }
   const positions=new Set<string>();
   for(const u of d.usages){
-   if(!obj(u)||!id(u.position)||!id(u.partKey)||!id(u.oem)||!Number.isSafeInteger(u.quantity)||Number(u.quantity)<1||Number(u.quantity)>1000||!['piece','set'].includes(String(u.quantityUnit))||!loc(u.location)||!str(u.mountingEvidence)||!str(u.torque)||!str(u.torqueSource)||!['always','inspect','not-applicable'].includes(String(u.replacement))||!Array.isArray(u.hotspots)||!u.hotspots.length||u.hotspots.length>100||!u.hotspots.every(h=>obj(h)&&typeof h.x==='number'&&Number.isFinite(h.x)&&h.x>=0&&h.x<=1&&typeof h.y==='number'&&Number.isFinite(h.y)&&h.y>=0&&h.y<=1)){fail('Niekompletne zastosowanie w '+d.id);continue}
+   if(!obj(u)||!id(u.position)||!id(u.partKey)||!id(u.oem)||!Number.isSafeInteger(u.quantity)||Number(u.quantity)<1||Number(u.quantity)>1000||!['piece','set'].includes(String(u.quantityUnit))||!loc(u.location)||!str(u.mountingEvidence)||(u.torque!==undefined&&!str(u.torque))||(u.torqueSource!==undefined&&!str(u.torqueSource))||Boolean(u.torque)!==Boolean(u.torqueSource)||!['always','inspect','not-applicable'].includes(String(u.replacement))||!Array.isArray(u.hotspots)||!u.hotspots.length||u.hotspots.length>100||!u.hotspots.every(h=>obj(h)&&typeof h.x==='number'&&Number.isFinite(h.x)&&h.x>=0&&h.x<=1&&typeof h.y==='number'&&Number.isFinite(h.y)&&h.y>=0&&h.y<=1)){fail('Niekompletne zastosowanie w '+d.id);continue}
    if(positions.has(u.position))fail('Powtórzona pozycja '+d.id+' / '+u.position+'; rozdziel warianty pojazdu.');
    positions.add(u.position);
    const p=parts.get(u.partKey);
