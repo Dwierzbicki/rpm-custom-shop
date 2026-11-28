@@ -6,6 +6,15 @@ import {discoverPart,discoverExtraPart,extraDiscoveryPaths,compressorInletMm,dis
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
+async function quoteCandidates<T extends {sku:string;name:string}>(items:T[]){
+ const skus=[...new Set(items.map(p=>p.sku))];
+ if(!skus.length)return {items,quotes:[]};
+ const matched=await getDbPool().query("SELECT sku,name,proposed_gross,available,updated_at,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM rpm_fmic_catalog WHERE sku=ANY($1::text[]) AND "+visibleCatalog,[skus]);
+ const quotes=matched.rows.map(p=>({sku:p.sku,name:p.name,unitPrice:Number(p.proposed_gross),available:p.available===true,image:p.image,updatedAt:p.updated_at}));
+ const current=new Set(quotes.filter(q=>q.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0).map(q=>q.sku+'|'+q.name));
+ return {items:items.filter(p=>current.has(p.sku+'|'+p.name)),quotes};
+}
+
 export async function GET(request:Request){
  if(process.env.SITE_LOCK_ENABLED!=='1')return NextResponse.json({error:'Katalog jeszcze niedostępny'},{status:503,headers});
  try{
@@ -38,24 +47,19 @@ export async function GET(request:Request){
    const paths=[...new Map(Object.values(engineDiscoveryPaths).flat().map(p=>[p.join('/'),p])).values()];
    const rows=await getDbPool().query<DiscoveryRow & {target_category:string[]}>("SELECT sku,name,data->>'brand' AS brand,proposed_gross,target_category FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category IN (SELECT ARRAY(SELECT jsonb_array_elements_text(p.path)) FROM jsonb_array_elements($1::jsonb) AS p(path)) ORDER BY sku",[JSON.stringify(paths)]);
    const items=rows.rows.flatMap(row=>Object.keys(engineDiscoveryPaths).flatMap(id=>{const part=discoverEnginePart(row,version,id,row.target_category);return part?[part]:[]}));
-   return NextResponse.json({items,scanned:rows.rows.length,version},{headers});
+   return NextResponse.json({...await quoteCandidates(items),scanned:rows.rows.length,version},{headers});
   }
   if(slot==='pistons'){
    const version=params.get('version')??'';
    if(!(pistonEngineVersions as readonly string[]).includes(version))return NextResponse.json({error:'Nieprawidłowy silnik'},{status:400,headers});
    const rows=await getDbPool().query<DiscoveryRow>("SELECT sku,name,data->>'brand' AS brand,proposed_gross FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=$1::text[] ORDER BY sku",[pistonDiscoveryCategory]);
    const items=rows.rows.flatMap(row=>{const part=discoverPiston(row,version);return part?[part]:[]});
-   return NextResponse.json({items,scanned:rows.rows.length,version},{headers});
+   return NextResponse.json({...await quoteCandidates(items),scanned:rows.rows.length,version},{headers});
   }
   if(slot&&!Object.hasOwn(extraDiscoveryPaths,slot))return NextResponse.json({error:'Nieobsługiwana grupa'},{status:400,headers});
   const categories=slot?extraDiscoveryPaths[slot]:[['Układ dolotowy','Blow off','Blow offy uniwersalne'],['Układ paliwowy','Regulatory ciśnienia paliwa','Regulatory ciśnienia paliwa'],['Układ paliwowy','Filtry paliwa'],['Układ dolotowy','Intercooler','Uniwersalne']];
   const result=await getDbPool().query<DiscoveryRow & {target_category:string[]}>("SELECT c.sku,c.name,c.brand,c.target_category FROM jsonb_array_elements($1::jsonb) AS category(path) CROSS JOIN LATERAL (SELECT sku,name,data->>'brand' AS brand,target_category FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=ARRAY(SELECT jsonb_array_elements_text(category.path)) ORDER BY sku) AS c",[JSON.stringify(categories)]);
   const items=result.rows.flatMap(row=>{const candidate=slot?discoverExtraPart(row,row.target_category,slot):discoverPart(row,row.target_category);return candidate?[candidate]:[]});
-  if(slot&&items.length){
-   const matched=await getDbPool().query("SELECT sku,name,proposed_gross,available,updated_at,(SELECT img.url FROM jsonb_array_elements_text(data->'images') WITH ORDINALITY AS img(url,pos) LEFT JOIN rpm_fmic_image_audit a ON a.url=img.url WHERE COALESCE(a.status,'pending') NOT IN ('blank','missing') ORDER BY "+imageOrderSql+" LIMIT 1) AS image FROM rpm_fmic_catalog WHERE sku=ANY($1::text[]) AND "+visibleCatalog,[items.map(p=>p.sku)]);
-   const quotes=matched.rows.map(p=>({sku:p.sku,name:p.name,unitPrice:Number(p.proposed_gross),available:p.available===true,image:p.image,updatedAt:p.updated_at}));
-   return NextResponse.json({items,quotes,scanned:result.rows.length},{headers});
-  }
-  return NextResponse.json({items,quotes:[],scanned:result.rows.length},{headers});
+  return NextResponse.json({...await quoteCandidates(items),scanned:result.rows.length},{headers});
  }catch(e){console.error('Build discovery failed',e);return NextResponse.json({error:'Nie udało się przeszukać katalogu'},{status:503,headers})}
 }
