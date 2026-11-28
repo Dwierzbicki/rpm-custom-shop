@@ -159,3 +159,59 @@
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content{display:grid;gap:4px}
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content small{text-align:left}
 }
+
+/* Compact technical studio: consistent card hierarchy, no stretched radio rows. */
+.rpm-guide-page.rpm-builder .rpm-pref-studio.rpm-build-preferences{
+ width:100%;max-width:1120px;margin-inline:auto;box-sizing:border-box;
+ background:#20242c;border:1px solid #3b424d;gap:14px;padding:clamp(14px,2vw,24px)
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-sections{grid-template-columns:minmax(0,1fr);gap:12px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section{
+ grid-template-columns:minmax(0,1fr);gap:12px;padding:16px;background:#171b20;border-color:#353d48
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section>.rpm-pref-section-head{
+ grid-column:1;grid-row:auto;align-items:center;gap:10px
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section>:not(.rpm-pref-section-head){grid-column:1}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section-head h3{font-size:16px;margin:2px 0 3px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section-head p{margin:0;color:#aab3c0;line-height:1.4}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choice-grid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choice-grid>.rpm-pref-choice{grid-column:auto}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-pistons,
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-rods{grid-template-columns:repeat(2,minmax(0,1fr))}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals>div{
+ padding:12px;background:#1d2128;border:1px solid #343b46;border-radius:7px;box-sizing:border-box
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals h4{margin:0 0 10px;color:#e5e9f0;font-size:13px;font-weight:750}
+.rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice{
+ display:grid;grid-template-columns:minmax(0,1fr) 16px;align-items:center;gap:6px;min-height:64px;
+ padding:10px 11px;background:#252b34;border:1px solid #414a58;box-sizing:border-box;text-align:left
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content{display:grid;align-content:center;justify-content:start;gap:4px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content strong{font-size:13px;line-height:1.35;color:#eef1f5}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content small{font-size:11px;line-height:1.4;text-align:left;color:#b1bac8}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-radio-mark{display:grid;width:16px;height:16px;border-color:#5a6575;pointer-events:none}
+.rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice.selected{background:#382630;border-color:var(--rpm-color-accent)}
+.rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice:hover{border-color:var(--rpm-color-accent)}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-budget-layout{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-budget-layout>.rpm-pref-number{max-width:300px;flex:1 1 210px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-budget-layout>.rpm-pref-budget-presets{display:flex;flex:0 1 200px;max-width:200px;margin-top:22px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-budget-presets>button{min-height:42px}
+@media(min-width:1050px){
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-fuel,
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-priority{grid-template-columns:repeat(5,minmax(0,1fr))}
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-pistons{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media(max-width:680px){
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{grid-template-columns:minmax(0,1fr);gap:10px}
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section{padding:12px}
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choice-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-budget-layout>.rpm-pref-budget-presets{margin-top:0;max-width:none;flex:1 1 180px}
+}
+@media(max-width:360px){
+ .rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice{padding:8px;grid-template-columns:minmax(0,1fr) 13px}
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-radio-mark{width:13px;height:13px}
+}
