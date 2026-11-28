@@ -141,3 +141,26 @@ test('piston discovery distinguishes engine versions and exposes dimensions with
  assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki ZRP BMW 2.8L M50 / M52 / M54 84.00mm 8.7:1'},'m52b28').piston.application,'review');
  assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki Toyota 2JZ 86.50mm 9:1'},'2jz-ge').piston.application,'review');
 });
+
+
+test('engine catalogue keeps rods, bearing types and valvetrain applications separate',()=>{
+ const rod=exports.enginePartData('Korbowody H-Beam Billet K1, BMW M50B25Tu / M52B25Tu Dł. 140 Pin 22mm','m52b25tu','rods');
+ assert.equal(rod.application,'exact');assert.equal(rod.lengthMm,140);assert.equal(rod.pinMm,22);assert.equal(rod.beam,'H');assert.equal(rod.packSize,null);
+ assert.equal(exports.enginePartData('Korbowody ZRP BMW M52B25 Single Vanos','m52b25tu','rods'),null);
+ const main='Panewki główne ACL Race STD BMW M20 / M50 / M52 / S52 / S54';
+ assert.equal(exports.enginePartData(main,'m52b25tu','bearings-main').sizeLabel,'STD');
+ assert.equal(exports.enginePartData(main,'m52b25tu','bearings-rod'),null);
+ const v='Zawór wydechowy Inconel SuperTech Toyota Supra 2JZGE / GTE 3.0l DOHC 1994-1998 (+1mm)';
+ assert.equal(exports.enginePartData(v,'2jz-ge','exhaust-valves').kind,'exhaust-valve');
+ assert.equal(exports.enginePartData(v,'2jz-ge','intake-valves'),null);
+ assert.equal(exports.enginePartData('Śruby korbowodów ARP 203-6005 Toyota 2JZGTE','2jz-gte','fasteners'),null);
+ assert.equal(exports.enginePartData('Wałki rozrządu BC Toyota 2JZ-GTE non-VVTi','2jz-gte','camshafts').camTiming,'non-VVT-i');
+});
+test('head gasket bore and pin conflicts are detected; unknown dimensions are not guessed',()=>{
+ const gasket=exports.enginePartData('Uszczelka głowicy Cometic BMW M54B25/M54B30 .120" MLS 85mm','m54b30','gasket');
+ assert.equal(gasket.boreMm,85);assert.equal(gasket.thicknessMm,3.05);
+ const x=exports.engineGeometryConflicts({pinMm:22,boreMm:86},{pinMm:21},gasket);
+ assert.equal(x.pin,true);assert.equal(x.gasket,true);
+ const y=exports.engineGeometryConflicts({pinMm:null,boreMm:null},{pinMm:21},gasket);
+ assert.equal(y.pin,false);assert.equal(y.gasket,false);
+});
