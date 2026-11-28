@@ -5,7 +5,7 @@ import type {Diagram} from './catalog';
 export default function M54Breakdown({diagrams,selected,onSelect,en,busy}:{diagrams:Diagram[];selected:string|null;onSelect:(c:Connection)=>void;en:boolean;busy:boolean}){
  const tr=(pl:string,english:string)=>en?english:pl;
  const [expanded,setExpanded]=useState<string[]>(['oil']),[onlyKnown,setOnlyKnown]=useState(true);
- useEffect(()=>{const group=m54Breakdown.find(g=>g.connections.some(c=>c.id===selected));if(group){setExpanded(prev=>prev.includes(group.id)?prev:[...prev,group.id]);const c=group.connections.find(c=>c.id===selected);if(c&&!connectionRows(c,diagrams).length)setOnlyKnown(false)}},[selected,diagrams]);
+ useEffect(()=>{const group=m54Breakdown.find(g=>g.connections.some(c=>c.id===selected));if(group){setExpanded(prev=>prev.includes(group.id)?prev:[...prev,group.id]);const c=group.connections.find(c=>c.id===selected);if(c&&!c.diagramId)setOnlyKnown(false)}},[selected]);
  const all=m54Breakdown.flatMap(g=>g.connections),count=all.filter(c=>connectionRows(c,diagrams).length>0).length;
  return <div className="eh-breakdown"><div className="eh-nav-heading"><h2>{tr('Zespoły i połączenia','Assemblies and joints')}</h2><small>{count}/{all.length} {tr('z danymi częściowymi','with partial data')}</small></div>
  <div className="eh-tree-filter" role="group" aria-label={tr('Filtr drzewa','Tree filter')}><button type="button" aria-pressed={onlyKnown} onClick={()=>setOnlyKnown(true)}>{tr('Z danymi','With data')}</button><button type="button" aria-pressed={!onlyKnown} onClick={()=>setOnlyKnown(false)}>{tr('Wszystkie','All')}</button></div>
