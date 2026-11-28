@@ -339,6 +339,8 @@ function engineApplication(name:string,version:string,slot:string):'exact'|'revi
  if(!(pistonEngineVersions as readonly string[]).includes(version))return null;
  const n=name.normalize('NFKC').toLowerCase().replaceAll('tü','tu').replace(/\b(m(?:50|52|54))\s+b/g,'$1b');
  if(version.startsWith('2jz')){
+  // A stock-stroke profile must not silently adopt a stroker-specific rotating assembly.
+  if(['rods','rings','bearings','bearings-rod','bearings-main','thrust-bearings'].includes(slot)&&/\bstroker\b|\bstroke\s*[:=]?\s*\d+(?:[.,]\d+)?\s*mm\b/.test(n))return null;
   const ge=/\b2jz[\s-]*ge\b|\b2jz[\s-]*gte\s*\/\s*ge\b/.test(n),gte=/\b2jz[\s-]*gte\b|\b2jz[\s-]*ge\s*\/\s*gte\b/.test(n);
   if(version==='2jz-ge'&&ge||version==='2jz-gte'&&gte)return 'exact';
   return !ge&&!gte&&/\b2jz(?:g\b|[-\s]*g\(t\)e\b|\b)/.test(n)?'review':null;
@@ -393,7 +395,10 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
  const bigEndMm=kind==='rod'?metric('big end|stopa|średnica stopy'):null;
  const beamMatch=n.match(/\b([hix])\s*-?\s*beam\b/);
  const beam=beamMatch?beamMatch[1].toUpperCase() as EnginePartData['beam']:null;
- const pack=kind==='rod'?(/\b(?:single|kuty korbowód|1\s*szt)\b/.test(n)?1:/\b(?:6\s*szt|6\s*pcs|set of 6|komplet 6)\b/.test(n)?6:null):null;
+ // 'Single VANOS' and a singular product name describe the application, not the sales unit.
+ const oneRod=/\b(?:1\s*(?:szt(?:uk[ai]?)?|pcs?)|single (?:connecting )?rod|sold individually|per rod)\b/.test(n);
+ const sixRods=/\b(?:6\s*(?:szt(?:uk[ai]?)?|pcs?)|set of 6|komplet 6)\b/.test(n);
+ const pack=kind==='rod'&&oneRod!==sixRods?(oneRod?1:6):null;
  const bearing=kind.endsWith('-bearing');
  const sizeLabel=bearing?(/\bstd\b/.test(n)?(/\bhx\b/.test(n)?'STD / HX':'STD'):n.match(/(?:^|\s)([+-]?(?:0?\.\d{2,3}))(?=\s|$)/)?.[1]??null):null;
  const gasket=kind==='head-gasket';
