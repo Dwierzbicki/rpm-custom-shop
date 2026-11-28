@@ -1,6 +1,6 @@
 /** Immutable print snapshot. Prices are calculated in grosz, never inferred. */
 export type OfferKind='purchase'|'optional'|'pending'|'advice'|'excluded'|'conflict';
-export type OfferRow={label:string;product:string;sku?:string;qty:number|null;unitPrice:number|null;status:string;note?:string;priced:boolean;kind?:OfferKind};
+export type OfferRow={label:string;product:string;sku?:string;qty:number|null;unitPrice:number|null;status:string;note?:string;priced:boolean;quoteRequested?:boolean;kind?:OfferKind};
 export type OfferSnapshot={language:'pl'|'en';engine:string;power:number|null;usage:string;tier:string;date:string;customer?:string;parameters:{label:string;value:string}[];groups:{label:string;rows:OfferRow[]}[];issues:string[]};
 const escape=(value:unknown)=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const cents=(value:number|null)=>typeof value==='number'&&Number.isFinite(value)&&value>0?Math.round(value*100):0;
@@ -18,13 +18,16 @@ export function renderBuildOffer(snapshot:OfferSnapshot,origin='https://rpmcusto
  const rows=snapshot.groups.flatMap(g=>g.rows);
  const by=(kind:OfferKind)=>rows.filter(r=>offerKind(r)===kind);
  const priced=by('purchase');
+ const requestedGroups=snapshot.groups.map(g=>({...g,rows:g.rows.filter(r=>r.quoteRequested===true&&!r.priced&&offerKind(r)==='pending')})).filter(g=>g.rows.length);
+ const requestedCount=requestedGroups.reduce((n,g)=>n+g.rows.length,0);
  const total=offerTotal(snapshot);
  let logo='https://rpmcustom.pl/optimized/logo.webp';
  try{const u=new URL(origin);if(u.protocol==='https:'||u.protocol==='http:')logo=new URL('/optimized/logo.webp',u.origin).href}catch{}
  const groupTotal=(r:OfferRow[])=>r.reduce((n,v)=>n+offerLineTotal(v),0);
  const selectedGroups=snapshot.groups.map(g=>({...g,rows:g.rows.filter(r=>offerKind(r)==='purchase')})).filter(g=>g.rows.length);
  const intro=tr('Wstępna oferta części do indywidualnego projektu.','Preliminary parts offer for your individual build.');
- const disclaimer=tr('Oferta obejmuje wyłącznie aktualnie wybrane części z ceną i ilością, bez konfliktów. Nie obejmuje robocizny, obróbki, strojenia ani dostawy. Ceny, dostępność, dopasowanie i zakres prac wymagają potwierdzenia. Dobór nie gwarantuje mocy ani trwałości.','Offer includes only currently selected, priced and quantified items without conflicts. Excludes labour, machining, tuning and delivery. Confirm prices, availability, fitment and scope. No guarantee of power or durability.');
+ const disclaimer=(requestedCount?tr('Oferta obejmuje wycenione części oraz pozycje wyraźnie wskazane przez klienta do indywidualnej wyceny. Pozycje bez ceny nie są wliczone do sumy.','The offer includes priced parts and items explicitly requested for an individual quote. Unpriced items are excluded from the total.')+' ':'')+tr('Oferta obejmuje wyłącznie aktualnie wybrane części z ceną i ilością, bez konfliktów. Nie obejmuje robocizny, obróbki, strojenia ani dostawy. Ceny, dostępność, dopasowanie i zakres prac wymagają potwierdzenia. Dobór nie gwarantuje mocy ani trwałości.','Offer includes only currently selected, priced and quantified items without conflicts. Excludes labour, machining, tuning and delivery. Confirm prices, availability, fitment and scope. No guarantee of power or durability.');
+ const displayDisclaimer=requestedCount?disclaimer.replace('Oferta obejmuje wyłącznie aktualnie wybrane części','Suma oferty obejmuje wyłącznie aktualnie wybrane części').replace('Offer includes only currently selected','The offer total includes only currently selected'):disclaimer;
  const heading=(n:string,title:string,subtitle:string)=>'<div class="section-title"><span>'+n+'</span><div><h2>'+e(title)+'</h2><p>'+e(subtitle)+'</p></div></div>';
  const detail=(r:OfferRow)=>'<tr><td><span class="component">'+e(r.label)+'</span><strong>'+e(r.product)+'</strong>'+(r.sku?'<small class="sku">SKU: '+e(r.sku)+'</small>':'')+ (r.note?'<p class="row-note">'+e(r.note)+'</p>':'')+'</td><td class="num">'+e(r.qty)+'</td><td class="num">'+money(cents(r.unitPrice))+'</td><td class="num value">'+money(offerLineTotal(r))+'</td></tr>';
  return '<!doctype html><html lang="'+snapshot.language+'"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RPM Custom – '+e(snapshot.engine)+'</title><style>'+
@@ -35,7 +38,8 @@ export function renderBuildOffer(snapshot:OfferSnapshot,origin='https://rpmcusto
  '<p class="lead">'+priced.length+' '+tr('wycenionych pozycji w aktualnym wyborze','priced items in the current selection')+'</p>'+
  '<h2 class="subheading">'+tr('Założenia projektu','Project specification')+'</h2><div class="params">'+[{label:tr('Zastosowanie','Use'),value:snapshot.usage},...snapshot.parameters].map(p=>'<div><span>'+e(p.label)+'</span><strong>'+e(p.value)+'</strong></div>').join('')+'</div>'+
  (selectedGroups.length?'<h2 class="subheading">'+tr('Koszt według układów','Cost by system')+'</h2>'+selectedGroups.map(g=>'<div class="overview-line"><span>'+e(g.label)+'</span><strong>'+money(groupTotal(g.rows))+'</strong></div>').join(''):'')+
- '<div class="notice">'+disclaimer+'</div></div>'+
+ '<div class="notice">'+displayDisclaimer+'</div></div>'+
  (priced.length?'<section class="section">'+heading('01',tr('Wybrane części','Selected components'),tr('Aktualny wybór klienta · ceny brutto w PLN','Current selection · gross prices in PLN'))+selectedGroups.map(g=>'<div class="purchase-group"><div class="group-heading"><h3>'+e(g.label)+'</h3><strong>'+money(groupTotal(g.rows))+'</strong></div><table><colgroup><col style="width:54%"><col style="width:8%"><col style="width:19%"><col style="width:19%"></colgroup><thead><tr><th>'+tr('Produkt / specyfikacja','Product / specification')+'</th><th class="num">'+tr('Ilość','Qty')+'</th><th class="num">'+tr('Cena jedn.','Unit price')+'</th><th class="num">'+tr('Wartość','Subtotal')+'</th></tr></thead><tbody>'+g.rows.map(detail).join('')+'</tbody></table></div>').join('')+'<div class="end-total"><span>'+tr('Razem wycenione części brutto','Total priced parts gross')+'</span><strong>'+money(total)+'</strong></div></section>':'')+
+ (requestedCount?'<section class="section pending">'+heading(priced.length?'02':'01',tr('Części do indywidualnej wyceny','Parts requested for individual quotation'),tr('Dodane przez klienta · poza sumą wycenionych części','Requested by customer · excluded from the priced subtotal'))+requestedGroups.map(g=>'<div class="notes-group"><h3>'+e(g.label)+'</h3>'+g.rows.map(r=>'<div class="note-item"><strong>'+e(r.label)+'</strong><span class="row-status">'+tr('Do wyceny','Quote required')+'</span>'+(r.note?'<p>'+e(r.note)+'</p>':'')+'</div>').join('')+'</div>').join('')+'</section>':'')+
  '<footer>RPM Custom · rpmcustom.pl · '+tr('Dokument informacyjny. Ostateczny zakres i wycena po weryfikacji projektu.','Informational document. Final scope and quote after project verification.')+'</footer></body></html>';
 }
