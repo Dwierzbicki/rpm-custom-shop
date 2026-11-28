@@ -256,3 +256,31 @@ test('exhaust fabrication variants use explicit catalogue dimensions and quantit
  assert.ok(plan.partOptions(get(selection,'exhaust-flex')).every(k=>plan.allCandidates[k].variant.diameterMm===76));
  assert.equal(plan.partOptions(get({'exhaust-pipes':'pipe89half'},'exhaust-flex')).length,0);
 });
+
+
+test('discovered turbo variants update manifold and WG without relying on fixed SKU keys',()=>{
+ const key='discover:turbo:fixture';
+ const base=[
+  {id:'turbo',label:['Turbo','Turbo'],qty:1,conditional:false,dependency:'m52tu',manifoldEngine:'m52',candidate:key},
+  {id:'manifold',label:['Kolektor','Manifold'],qty:1,conditional:false},
+  {id:'wastegate',label:['WG','WG'],qty:1,conditional:false},
+  {id:'downpipe',label:['Downpipe','Downpipe'],qty:1,conditional:false},
+  {id:'heat-shield-wg',label:['Osłona','Shield'],qty:1,conditional:true}
+ ];
+ const candidate=(flange,wg,outlet)=>({...plan.allCandidates, [key]:{sku:'fixture',expectedName:'Catalogue turbo',note:['',''],turbo:{model:'Fixture',ratingPs:480,ratingLabel:'475 HP',ar:.64,flange,wg,outlet}}});
+ const ext=candidate('vband-single','external','3" V-Band');
+ const e=plan.resolveTuDependencies(base,{},ext);
+ assert.equal(e.find(s=>s.id==='wastegate')?.candidate,'tuWastegate');
+ assert.equal(plan.tuManifoldSpec(e,{},'recommended',ext).options['rpm-flange'],'vband-single');
+ assert.equal(plan.tuManifoldSpec(e,{},'recommended',ext).options['rpm-wg-diameter'],'wg-45');
+ const int=candidate('t25-single','internal','5-bolt');
+ const i=plan.resolveTuDependencies(base,{},int);
+ assert.equal(i.some(s=>s.id==='wastegate'),false);
+ assert.equal(i.some(s=>s.id==='heat-shield-wg'),false);
+ assert.equal(plan.tuManifoldSpec(i,{},'recommended',int).options['rpm-flange'],'t25-single');
+ assert.equal(plan.tuManifoldSpec(i,{},'recommended',int).options['rpm-wg-diameter'],'internal');
+ for(const c of [candidate('t4-twin','external','3" V-Band'),candidate('vband-single',null,'3" V-Band')]){
+  assert.equal(plan.tuManifoldSpec(base,{},'recommended',c),null);
+  assert.equal(plan.resolveTuDependencies(base,{},c).find(s=>s.id==='wastegate')?.candidate,undefined);
+ }
+});

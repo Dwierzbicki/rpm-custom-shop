@@ -84,3 +84,60 @@ test('compressor inlet uses cold side dimensions, not turbine or wheel',()=>{
  assert.equal(exports.suggestedFilterDiameter(101.6,[89,100,102]),102);
  assert.equal(exports.suggestedFilterDiameter(76.2,[70,80]),null);
 });
+
+
+test('full catalogue turbo screen finds PTX28 variants for 360 PS without guessing actuator or flange',()=>{
+ const rows=[
+  ['102128182','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 2.5" V-Band Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','vband-single','external',.64],
+  ['102128196','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 T3 Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','t3-single','external',.64],
+  ['102128149','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 T25 Wlot 5-Bolt Wylot IWG Stamping Aktuator 7.4PSI Łożyska kulkowe','t25-single','internal',.64],
+  ['102128202','Turbosprężarka Pulsar PSR 2860 GEN 2 łożysko kulkowe podwójny V-Band 0.72 A/R IWG PSR Billet Actuator 7.4psi','vband-single','internal',.72],
+  ['102128181','Turbosprężarka Pulsar PSR 2867 Gen2 550HP .64 2.5" V-Band Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','vband-single','external',.64]
+ ];
+ for(const [sku,name,flange,wg,ar] of rows){
+  const part=exports.discoverTurbo({sku,name},360);
+  assert.ok(part,sku);
+  assert.equal(part.turbo.flange,flange,sku);
+  assert.equal(part.turbo.wg,wg,sku);
+  assert.equal(part.turbo.ar,ar,sku);
+ }
+ const a=exports.discoverTurbo({sku:rows[0][0],name:rows[0][1]},360).turbo;
+ const b=exports.discoverTurbo({sku:rows[3][0],name:rows[3][1]},360).turbo;
+ assert.ok(exports.compareTurboCatalogue(a,b,360,'response','drift')<0);
+ assert.ok(exports.compareTurboCatalogue(a,b,360,'power','track')>0);
+});
+test('screen excludes incomplete and out-of-class turbos; unknown data remains unknown',()=>{
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Pulsar PSR 6870E Ball Bearing Turbo up to 1100 HP Standard Compressor Cover without Turbine Housing'},850),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbosprężarka Pulsar PSR 3582 Compact 900HP .63 T3 Wlot 3" V-Band Wylot Łożyska kulkowe'},360),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbosprężarka 250HP .64 T3 Wlot 3" V-Band Wylot'},360),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbocharger TurboSystems HTX2754B1V air outlet 90 degrees'},360),null);
+ const unknown=exports.turboCatalogueData('Turbosprężarka Pulsar PSR 3067 GEN2 565HP .63 T3 Wlot 3" V-Band Wylot Łożyska kulkowe');
+ assert.equal(unknown.wg,null);
+ const ambiguous=exports.turboCatalogueData('Turbosprężarka Pulsar PSR 5455G 660KM 0.70A/R Dual V-Band 1.01A/R');
+ assert.equal(ambiguous.ar,null);
+});
+
+
+test('piston discovery distinguishes engine versions and exposes dimensions without guessing',()=>{
+ const wiseco={sku:'USA-WIS-KE325M84',name:'Kute tłoki silnika Wiseco KE325M84 BMW E46 M54B30 Double Vanos 3.0L (84.00mm) STD, 9.0:1 CR'};
+ const p=exports.discoverPiston(wiseco,'m54b30').piston;
+ assert.equal(p.application,'exact');
+ assert.equal(p.boreMm,84);
+ assert.equal(p.compressionRatio,9);
+ assert.equal(p.pinMm,null);
+ assert.equal(p.packSize,null);
+ assert.equal(exports.discoverPiston(wiseco,'m54b25'),null);
+ const m52={sku:'USA-WIS-KE118M845',name:'Kute tłoki silnika Wiseco BMW M52B25 84.50mm Bore - 32.70mm CH -5.00 CC'};
+ const q=exports.discoverPiston(m52,'m52b25').piston;
+ assert.equal(q.boreMm,84.5);
+ assert.equal(q.compressionHeightMm,32.7);
+ assert.equal(q.crownVolumeCc,-5);
+ assert.equal(exports.discoverPiston(m52,'m52b25tu'),null);
+ const ge={sku:'X',name:'Piston Set Toyota 2JZ-GE 86.5mm Bore 1.180 In. CH -16.00 CC'};
+ assert.equal(exports.discoverPiston(ge,'2jz-ge').piston.compressionHeightMm,29.97);
+ assert.equal(exports.discoverPiston(ge,'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki Wiseco + korbowody Manley Toyota 2JZGTE 86mm'},'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki JE Toyota 2JZGTE Stroker 94mm 86.00mm'},'2jz-gte'),null);
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki ZRP BMW 2.8L M50 / M52 / M54 84.00mm 8.7:1'},'m52b28').piston.application,'review');
+ assert.equal(exports.discoverPiston({sku:'X',name:'Kute tłoki Toyota 2JZ 86.50mm 9:1'},'2jz-ge').piston.application,'review');
+});

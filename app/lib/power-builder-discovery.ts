@@ -1,8 +1,8 @@
 /** First catalogue discovery rule. It produces candidates, not fitment approvals.
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
-export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number};
+export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null;proposed_gross?:number|string|null};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;piston?:PistonCatalogueData;source?:string;cataloguePrice?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -149,4 +149,119 @@ export function compressorInletMm(technical:unknown,description:string):number|n
 export function suggestedFilterDiameter(inlet:number|null,sizes:number[]):number|null{
  if(inlet===null)return null;
  return [...sizes].filter(n=>Number.isFinite(n)&&Math.abs(n-inlet)<=0.5).sort((a,b)=>Math.abs(a-inlet)-Math.abs(b-inlet)||a-b)[0]??null;
+}
+
+
+/** Nominal catalogue screening; a declared maximum is NOT a compressor map or
+ * proof that a turbo will make the target power on a particular engine. */
+export type TurboCatalogueData={model:string;ratingPs:number;ratingLabel:string;ar:number|null;flange:'t25-single'|'t3-single'|'vband-single'|'t3-twin'|'t4-single'|'t4-twin'|null;wg:'internal'|'external'|null;outlet:string|null};
+export const turboDiscoveryCategory=['Silnik i turbo','Turbosprężarki','Turbosprężarki tuningowe'];
+const ptx28=/\bpulsar\s+psr\s*(2860|2867|2871)\s*gen\s*2\b/i;
+export function turboCatalogueData(name:string):TurboCatalogueData|null{
+ const n=name.normalize('NFKC').replaceAll(',','.').toLowerCase();
+ if(!/turbosprężarka|turbsprężarka|turbocharger|\bturbo\b/.test(n)||/without (?:turbine|compressor|housing|hot side|cold side)|bez (?:obudowy|muszli|strony gorącej|strony zimnej)|housing only|turbo core|\b(?:supercore|super core|chra|cartridge|drop.in|reverse|odwrócona)\b|^obudowa|^muszla|^adapter|^zestaw napraw/.test(n))return null;
+ const hp=[...n.matchAll(/\b(\d{3,4})\s*(hp|km|ps)\b/g)];
+ const ratings=[...new Set(hp.map(m=>Number(m[1])*(m[2]==='hp'?1.01387:1)))];
+ const ptx=n.match(ptx28)?.[1];
+ // Manufacturer's PTX28 model-level FWHP rating, including titles without HP.
+ const known:Record<string,number>={'2860':475,'2867':550,'2871':575};
+ const rating=ratings.length===1?ratings[0]:ratings.length===0&&ptx?known[ptx]*1.01387:null;
+ if(!rating||rating<100||rating>3000)return null;
+ const explicit=[...n.matchAll(/(?:\b(?:a\s*\/?\s*r)\s*[:=]?\s*([01]?\.\d{2,3})|([01]?\.\d{2,3})\s*a\s*\/?\s*r\b)/g)].map(m=>Number(m[1]??m[2]));
+ const flangeAr=[...n.matchAll(/(?:^|\s)([01]?\.\d{2,3})\s+(?:stal nierdzewna\s+)?(?:(?:\d(?:\.\d+)?["″]\s+)?v[ -]?band|t(?:25|3|4)\b)/g)].map(m=>Number(m[1]));
+ const ars=[...new Set([...explicit,...flangeAr].filter(v=>v>=.3&&v<=2))];
+ const ar=ars.length===1?ars[0]:null;
+ const inlet=n.match(/\b(t25|t3|t4)(?:\s+(twin scroll|divided|open|single scroll))?\s+(?:wlot|inlet)\b/);
+ const vb=/\bv[ -]?band\s+(?:wlot|inlet)\b|\bdual v[ -]?band\b|podwójny v[ -]?band/.test(n);
+ let flange:TurboCatalogueData['flange']=inlet?(inlet[1]==='t25'?'t25-single':inlet[1]==='t3'?(inlet[2]==='twin scroll'||inlet[2]==='divided'?'t3-twin':'t3-single'):inlet[2]==='twin scroll'||inlet[2]==='divided'?'t4-twin':inlet[2]==='open'||inlet[2]==='single scroll'?'t4-single':null):vb?'vband-single':null;
+ const out=n.match(/(\d(?:\.\d+)?["″]\s+(?:marmon\s+)?v[ -]?band|5[ -]?bolt|4[ -]?bolt)\s+(?:wylot|outlet)/);
+ const outlet=out?out[1]:vb&&/dual v[ -]?band|podwójny v[ -]?band/.test(n)?'V-Band':null;
+ const internal=/\biwg\b|internally wastegated|wewnętrzny wastegate/.test(n);
+ const external=/\bewg\b|externally wastegated|zewnętrzny wastegate/.test(n);
+ let wg:TurboCatalogueData['wg']=internal===external?null:internal?'internal':'external';
+ // PTX28 manufacturer housing table: .64/.86 T25 5-bolt IWG;
+ // stainless .64/.82 dual V-band (also T3/T25 adapters) external;
+ // .72 dual V-band IWG. No inference for other product families.
+ if(ptx&&!internal&&!external&&ar!==null){
+  if(flange==='t25-single'&&[.64,.86].includes(ar)&&/5[ -]?bolt/.test(outlet??'')&&/actuat|aktuat|stamping|billet\s+\d/.test(n))wg='internal';
+  if(['vband-single','t3-single','t25-single'].includes(flange??'')&&[.64,.82].includes(ar)&&/stal nierdzewna|stainless steel/.test(n)&&/v[ -]?band/.test(outlet??'')&&!/actuat|aktuat|stamping/.test(n))wg='external';
+  if(flange==='vband-single'&&ar===.72&&/actuat|aktuat|stamping|billet\s+\d/.test(n))wg='internal';
+ }
+ return {model:ptx?'PSR '+ptx+' Gen2':n.match(/\bpsr\s+(?:pte\s+)?[a-z0-9]+(?:\s+gen\s*\d)?/i)?.[0]??n.match(/\b(?:gtx?|htx)\d+[a-z0-9]*/i)?.[0]??name,ratingPs:rating,ratingLabel:hp.length&&ratings.length===1?hp[0][1]+' '+hp[0][2].toUpperCase():known[ptx!]+' FWHP',ar,flange,wg,outlet};
+}
+export function discoverTurbo(row:DiscoveryRow,targetPs:number):DiscoveredPart|null{
+ const t=turboCatalogueData(row.name);
+ // Deliberately broad nominal class window; unknown ratings are not guessed.
+ if(!t||!Number.isFinite(targetPs)||targetPs<=0||t.ratingPs<targetPs||t.ratingPs>targetPs*1.85)return null;
+ const brand=row.brand?.trim()||(/pulsar/i.test(row.name)?'Pulsar':/turbosmart/i.test(row.name)?'Turbosmart':/jrspec/i.test(row.name)?'JRspec':/garrett/i.test(row.name)?'Garrett':/turbosystems/i.test(row.name)?'TurboSystems':'—');
+ const price=Number(row.proposed_gross);
+ const source=ptx28.test(row.name)?'https://pulsarturbo.com/product/psr-ptx28-gen1-gen2-turbine-housings-for-psr2860-psr2867-psr2871-turbos/':undefined;
+ return {sku:row.sku,name:row.name,brand,slot:'turbo',turbo:t,source,cataloguePrice:Number.isFinite(price)&&price>0?price:undefined,reason:['Wstępna klasa mocy '+t.ratingLabel+'; A/R '+(t.ar??'do potwierdzenia')+'. Zweryfikuj mapę sprężarki, obudowę, przepływ i przeciwciśnienie.','Preliminary '+t.ratingLabel+' power class; A/R '+(t.ar??'to confirm')+'. Verify compressor map, housing, flow and backpressure.']};
+}
+/** Provisional ranking, not a predicted spool RPM. A/R is compared only within
+ * the same model; different turbine geometries cannot be ranked by A/R alone. */
+export function compareTurboCatalogue(a:TurboCatalogueData|null,b:TurboCatalogueData|null,targetPs:number,priority:string,usage:string):number{
+ if(!a||!b)return a?-1:b?1:0;
+ const known=(t:TurboCatalogueData)=>Number(t.ar===null)+Number(t.wg===null)+Number(t.flange===null)+Number(t.outlet===null);
+ const flange=(t:TurboCatalogueData)=>t.flange==='vband-single'||t.flange==='t3-single'?0:t.flange==='t25-single'?2:1;
+ const response=priority==='response'||(priority==='balanced'&&usage==='drift');
+ const ideal=targetPs*(priority==='power'?1.45:1.25);
+ const classScore=(t:TurboCatalogueData)=>Math.abs(t.ratingPs-ideal)/Math.max(1,targetPs);
+ const main=known(a)-known(b)||flange(a)-flange(b);
+ if(main)return main;
+ const cls=classScore(a)-classScore(b);
+ if(Math.abs(cls)>1e-8)return cls;
+ if(a.model!==b.model)return a.model.localeCompare(b.model);
+ if(a.ar!==null&&b.ar!==null&&a.ar!==b.ar){
+  if(response)return a.ar-b.ar;
+  if(priority==='power')return b.ar-a.ar;
+ }
+ return Number(b.wg==='internal')-Number(a.wg==='internal');
+}
+
+
+export const pistonDiscoveryCategory=['Silnik i turbo','Kute tłoki'];
+export const pistonEngineVersions=['m50b20','m50b25','m50b30-stroker','m52b20','m52b25','m52b25tu','m52b28','m54b22','m54b25','m54b30','2jz-ge','2jz-gte'] as const;
+export type PistonCatalogueData={application:'exact'|'review';boreMm:number|null;compressionRatio:number|null;compressionHeightMm:number|null;pinMm:number|null;crownVolumeCc:number|null;packSize:6|null;applicationNote:[string,string]};
+const singleNumber=(values:number[])=>{const distinct=[...new Set(values.filter(Number.isFinite))];return distinct.length===1?distinct[0]:null};
+export function pistonCatalogueData(name:string,version:string):PistonCatalogueData|null{
+ if(!(pistonEngineVersions as readonly string[]).includes(version))return null;
+ const n=name.normalize('NFKC').replaceAll(',','.').toLowerCase();
+ if(!/tłok|piston/.test(n)||/\+\s*korbowod|(?:pistons?|tłoki).*(?:\+\s*rods|connecting rods)|pierścienie tłokowe|piston rings|^sworzeń|^pin\b/.test(n))return null;
+ // The exact engine token is stronger than family/displacement marketing.
+ const bmw=[...n.matchAll(/\bm(?:50|52|54)\s*b\s*(?:20|22|25|28|30)(?:\s*tu)?\b/g)].map(m=>m[0].replace(/\s/g,''));
+ const toyota=[...n.matchAll(/\b2jz[\s-]*(gte|ge)\b/g)].map(m=>'2jz-'+m[1]);
+ const stroker=/\bstroker\b|wał\s*\d+\s*mm|stroke\s*[:=]?\s*\d+/.test(n);
+ let application:PistonCatalogueData['application']|null=null;
+ let applicationNote:[string,string]=['Kod silnika w nazwie katalogowej. Nie jest potwierdzeniem geometrii.','Engine code in catalogue title. Geometry is not confirmed.'];
+ if(version==='m50b30-stroker'){
+  if(bmw.includes('m50b30')||/\bm50\s*\/\s*s50b30\b/.test(n)){application='review';applicationNote=['Wariant M50/S50 3.0; projekt z wałem B30 wymaga indywidualnego doboru skoku, długości korby i CH.','M50/S50 3.0 application; B30 crank build requires individual stroke, rod length and CH review.']}
+ }else if(version.startsWith('2jz')){
+  if(stroker)return null;
+  if(toyota.includes(version))application='exact';
+  else if(!toyota.length&&/\b2jz\b/.test(n)){application='review';applicationNote=['Katalog podaje rodzinę 2JZ bez rozróżnienia GE/GTE. Potwierdź wersję i geometrię.','Catalogue gives 2JZ family without GE/GTE distinction. Confirm version and geometry.']}
+ }else if(!stroker){
+  if(bmw.includes(version))application='exact';
+  // M50B25 profile does not distinguish NV from TU. Keep these separate
+  // as conditional alternatives, never infer cross-fit from the bore.
+  if(version==='m50b25'&&(bmw.includes('m50b25tu')||bmw.includes('m50b25')||/\bm50\b.*single vanos/.test(n))){application='review';applicationNote=['M50B25: ustal NV/TU, długość korbowodu i wysokość kompresyjną.','M50B25: confirm NV/TU, rod length and compression height.']}
+  if(version==='m52b28'&&!bmw.length&&/\b2\.8\s*l\b/.test(n)&&/\bm52\b/.test(n)){application='review';applicationNote=['Rodzina M52 2.8 w nazwie; wersja i geometria wymagają potwierdzenia.','M52 2.8 family in title; confirm version and geometry.']}
+ }
+ if(!application)return null;
+ const num=(m:RegExpMatchArray)=>Number(m[1]);
+ const explicitBore=[...n.matchAll(/\b(?:bore|średnica cylindra)\s*[-:=]?\s*(\d{2,3}(?:\.\d+)?)\s*mm\b/g),...n.matchAll(/\b(\d{2,3}(?:\.\d+)?)\s*mm\s*(?:bore|średnica cylindra)\b/g)].map(num);
+ const diameter=explicitBore.length?explicitBore:[...n.matchAll(/\b(\d{2,3}(?:\.\d+)?)\s*mm\b/g)].filter(m=>Number(m[1])>=75&&Number(m[1])<=95&&!/^\s*(?:ch|pin|stroke|sworzeń)\b/.test(n.slice(m.index!+m[0].length))).map(num);
+ const cr=[...n.matchAll(/\b(\d{1,2}(?:\.\d+)?)\s*:\s*1\b/g),...n.matchAll(/\b(?:cr|compression ratio|stopień sprężania)\s*[:=]?\s*(\d{1,2}(?:\.\d+)?)\b/g)].map(num).filter(v=>v>=5&&v<=16);
+ const metric=(label:string)=>singleNumber([...n.matchAll(new RegExp('(?:\\b('+label+')\\s*[:=-]?\\s*(\\d{1,2}(?:\\.\\d+)?)\\s*mm\\b|\\b(\\d{1,2}(?:\\.\\d+)?)\\s*mm\\s*(?:'+label+')\\b)','g'))].map(m=>Number(m[2]??m[3])));
+ const height=metric('ch|compression height|wysokość kompresyjna');
+ const inch=[...n.matchAll(/\b(\d(?:\.\d+)?)\s*(?:in\.?|["″])\s*ch\b/g)].map(m=>Math.round(Number(m[1])*25.4*100)/100);
+ const crown=[...n.matchAll(/(?:\bdish\s*|\bdome\s*|(?:^|\s))([-+]\s*\d+(?:\.\d+)?)\s*cc\b/g)].map(m=>Number(m[1].replace(/\s/g,'')));
+ const packSize=/\b(?:6\s*szt\.?|6\s*pcs|set of 6|komplet 6)\b/.test(n)?6:null;
+ return {application,boreMm:singleNumber(diameter.filter(v=>v>=75&&v<=95)),compressionRatio:singleNumber(cr),compressionHeightMm:singleNumber([...(height===null?[]:[height]),...inch]),pinMm:metric('pin|sworzeń|wrist pin'),crownVolumeCc:singleNumber(crown),packSize,applicationNote};
+}
+export function discoverPiston(row:DiscoveryRow,version:string):DiscoveredPart|null{
+ const p=pistonCatalogueData(row.name,version);
+ if(!p||!row.sku||row.sku.length>120)return null;
+ const brand=row.brand?.trim()||(/wiseco/i.test(row.name)?'Wiseco':/je pistons/i.test(row.name)?'JE Pistons':/manley/i.test(row.name)?'Manley':/wossner|wössner/i.test(row.name)?'Wössner':/\bzrp\b/i.test(row.name)?'ZRP':'—');
+ return {sku:row.sku,name:row.name,brand,slot:'pistons',piston:p,reason:[p.applicationNote[0]+' Potwierdź pomiar cylindra, skok wału, długość korbowodu, CH, sworzeń, objętość denka, rzeczywiste CR, luz i liczbę tłoków w opakowaniu.',p.applicationNote[1]+' Verify bore measurement, stroke, rod length, CH, pin, crown volume, actual CR, clearance and pistons per pack.']};
 }

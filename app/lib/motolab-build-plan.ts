@@ -1,7 +1,8 @@
 import {POWER_ENGINES,powerRangesFor} from './storefront-config';
+import type {TurboCatalogueData,PistonCatalogueData} from './power-builder-discovery';
 export type Fuel='unknown'|'petrol'|'ethanol';
 export type BuildTask={id:string;title:[string,string];detail:[string,string];level:'required'|'inspect'|'conditional';candidates?:string[]};
-export type BuildCandidate={injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;anSize?:number;variant?:{family:string;diameterMm:number;lengthMm?:number;angleDeg?:number;color?:'black'|'red'|'blue'};materialUnitMm?:number;quantityRequired?:boolean;sku:string;assembly?:{kind:'complete'|'supercore'|'chra';hotIncluded:boolean;coldIncluded:boolean};expectedName:string;note:[string,string];source?:string;verification?:{checkedOn:string;scope:[string,string];url:string}};
+export type BuildCandidate={turbo?:TurboCatalogueData;piston?:PistonCatalogueData;injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;anSize?:number;variant?:{family:string;diameterMm:number;lengthMm?:number;angleDeg?:number;color?:'black'|'red'|'blue'};materialUnitMm?:number;quantityRequired?:boolean;sku:string;assembly?:{kind:'complete'|'supercore'|'chra';hotIncluded:boolean;coldIncluded:boolean};expectedName:string;note:[string,string];source?:string;verification?:{checkedOn:string;scope:[string,string];url:string}};
 export const candidates:Record<string,BuildCandidate>={
  injectors:{sku:'DW-16MX-30-1200-6',expectedName:'Zestaw wtryskiwaczy DeatschWerks 1200cc BMW E46 3.2L M54/S54 2001-06 Porsche 911 996 H6 3.6L turbo 2001-05 BMW 328ci 2000 330i/330xi 2001-05 330ci 200',note:['Producent: komplet 6 Bosch EV14, 1200 cm³/min; potwierdź montaż i dane strojenia.','Manufacturer: matched set of six Bosch EV14, 1200 cc/min; confirm fitment and calibration data.'],source:'https://deatschwerks.com/products/16mx-30-1200-6',verification:{"checkedOn":"2026-11-25","scope":["Komplet 6, 1200 cm³/min, Bosch EV14","Set of six, 1200 cc/min, Bosch EV14"],"url":"https://deatschwerks.com/products/16mx-30-1200-6"}},
  pistons:{sku:'USA-WIS-KE325M84',expectedName:'Kute tłoki silnika Wiseco KE325M84 BMW E46 M54B30 Double Vanos 3.0L (84.00mm) STD, 9.0:1 CR',note:['Katalog FMIC: 84 mm, nominalne CR 9:1. Dane producenta niepotwierdzone. Wybierz dopiero po pomiarze cylindrów i obliczeniu rzeczywistego CR.','FMIC lists 84 mm and nominal 9:1 CR. Manufacturer data not verified. Select only after measuring cylinders and calculating actual CR.']},
@@ -171,7 +172,7 @@ export function filterInjectorSlot(slot:PartsSlot,selection:Record<string,string
  const alternatives=partOptions({...slot,rpmOptions:[]}).filter(k=>k!==candidate&&allowed(k));
  return {...slot,candidate,alternatives,rpmOptions:(slot.rpmOptions??[]).filter(allowed),defaultNone:slot.defaultNone||!candidate||(!!selection[slot.id]&&selection[slot.id]!=='default'&&selection[slot.id]!=='own'&&!allowed(selection[slot.id]))};
 }
-export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel,ethanolPercent?:number,targetPower?:number|null):BuildIssue[]{
+export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,version:string,range:number,fuel:Fuel,ethanolPercent?:number,targetPower?:number|null,candidateMap:Record<string,BuildCandidate>=allCandidates):BuildIssue[]{
  const get=(id:string)=>{const s=slots.find(x=>x.id===id);return s?selectedPart(s,selection):undefined};
  const issues:BuildIssue[]=[];
  const turbo=get('turbo'),manifold=get('manifold');
@@ -180,11 +181,11 @@ export function assessBuild(slots:PartsSlot[],selection:Record<string,string>,ve
  const missing=turboAssemblySlots(slots,selection);
  if(missing.length)issues.push({id:'turbo-incomplete',slots:['turbo',...missing.map(s=>s.id)],level:'conflict',message:['Wybrana turbosprężarka jest niekompletna. Brakuje potwierdzonego zestawu obudów. Zakup z MotoLab zablokowany do czasu doboru.','Selected turbo is incomplete. A confirmed housing kit is missing. MotoLab purchase blocked until the assembly is matched.']});
  const demand=estimateFuel(version,range,fuel,targetPower,ethanolPercent),injector=get('injectors');
- const flow=injector?injectorNominalFlow(injector):null;
+ const flow=injector?injectorNominalFlow(injector,candidateMap[injector]):null;
  if(flow&&demand&&flow<demand.injectorCc)issues.push({id:'injector-flow',slots:['injectors'],level:'conflict',message:['Nominalny przepływ wtryskiwacza jest niższy od szacowanego zapotrzebowania przy założeniach MotoLab. Dobierz wydajniejszy wariant.','Nominal injector flow is below estimated demand under MotoLab assumptions. Choose a higher-flow option.']});
  else if(flow)issues.push({id:'injector-review',slots:['injectors'],level:'review',message:['Przepływ katalogowy to nie potwierdzenie wydajności przy wybranym paliwie i ciśnieniu; sprawdź również geometrię i kalibrację.','Catalogue flow is not proof of performance with the selected fuel and pressure; geometry and calibration also require confirmation.']});
  const tu=slots.some(s=>s.dependency==='m52tu');
- if(tu){const spec=tuTurboSpec(turbo);issues.push({id:'tu-turbo-review',slots:['turbo','manifold','wastegate'],level:'review',message:spec?[`Plan flanszy ${spec.flangeLabel}, ${spec.wg==='internal'?'IWG — bez zewnętrznego WG':'EWG — jeden WG45'}. Potwierdź rzeczywiste mocowania, przepływ i stabilność boostu.`,`Planned ${spec.flangeLabel}, ${spec.wg==='internal'?'IWG — no external WG':'EWG — one WG45'}. Confirm actual fittings, flow and boost stability.`]:['Nieznana konfiguracja turbo — ustal flanszę i wastegate indywidualnie.','Unknown turbo configuration — confirm flange and wastegate independently.']});}
+ if(tu){const spec=tuTurboSpec(turbo,candidateMap);issues.push({id:'tu-turbo-review',slots:['turbo','manifold','wastegate'],level:'review',message:spec?[`Plan flanszy ${spec.flangeLabel}, ${spec.wg==='internal'?'IWG — bez zewnętrznego WG':'EWG — jeden WG45'}. Potwierdź rzeczywiste mocowania, przepływ i stabilność boostu.`,`Planned ${spec.flangeLabel}, ${spec.wg==='internal'?'IWG — no external WG':'EWG — one WG45'}. Confirm actual fittings, flow and boost stability.`]:['Nieznana konfiguracja turbo — ustal flanszę i wastegate indywidualnie.','Unknown turbo configuration — confirm flange and wastegate independently.']});}
  const pump=get('pump');
  if(pump)issues.push({id:'pump-review',slots:['pump'],level:'review',message:['Wydajność wybranej pompy przy rzeczywistym ciśnieniu i napięciu nie została obliczona.','Selected pump flow at actual operating pressure and voltage has not been calculated.']});
  return issues;
@@ -216,7 +217,14 @@ export function turboAssemblySlots(slots:PartsSlot[],selection:Record<string,str
 export const TU_TIERS=['budget','recommended','premium'] as const;
 const tuTurboKeys=['tuTurboSmart','tuTurboT3','tuTurboPremium'];
 const tuPumpKeys=['tuPumpBudget','tuPumpSmart'];
-export function tuTurboSpec(key:string|undefined){
+export function tuTurboSpec(key:string|undefined,candidateMap:Record<string,BuildCandidate>=allCandidates){
+ const t=key?candidateMap[key]?.turbo:undefined;
+ if(t){
+  // T4/twin-scroll requires an independently sized two-gate layout; do not
+  // silently reuse the legacy single-WG manifold configuration.
+  if(t.wg&&t.outlet&&(t.flange==='vband-single'||t.flange==='t3-single'||t.flange==='t25-single'))return {flange:t.flange,flangeLabel:t.flange==='vband-single'?'V-Band':t.flange==='t3-single'?'T3':'T25',wg:t.wg,outlet:t.outlet};
+  return null;
+ }
  if(key==='tuTurboT3')return {flange:'t3-single',flangeLabel:'T3',wg:'external',outlet:'3" V-Band'} as const;
  if(key==='tuTurboSmart')return {flange:'vband-single',flangeLabel:'V-Band',wg:'internal',outlet:'V-Band'} as const;
  if(key==='turbo2867T3')return {flange:'t3-single',flangeLabel:'T3',wg:'external',outlet:"3\" V-Band"} as const;
@@ -258,7 +266,7 @@ function tuPilotSlots(slots:PartsSlot[],tier:string,profile:PilotProfile):PartsS
 }
 /** Recalculate dependencies from current turbo; never preserve an external WG
  * when switching to an internal actuator. Unknown/owned turbo remains unresolved. */
-export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,string>):PartsSlot[]{
+export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,string>,candidateMap:Record<string,BuildCandidate>=allCandidates):PartsSlot[]{
  const turboSlot=slots.find(s=>s.id==='turbo');
  const turboKey=turboSlot?selectedPart(turboSlot,selection):undefined;
  const ecuSlot=slots.find(s=>s.id==='ecu');
@@ -282,18 +290,18 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
   }
   if(intakeFabricationOptions[s.id])return {...s,alternatives:intakeFabricationOptions[s.id],defaultNone:true,candidate:undefined,planNote:['Wybierz element po potwierdzeniu wymiarów i trasy instalacji.','Select after confirming dimensions and installation routing.'] as [string,string]};
   if(pipeDiameter&&['exhaust-bends','exhaust-flex','exhaust-vband'].includes(s.id))return {...s,alternatives:partOptions(s).filter(k=>allCandidates[k]?.variant?.diameterMm===pipeDiameter),defaultNone:true,planNote:['Dopasowanie nominalne do rury '+pipeDiameter+' mm. Potwierdź połączenie i geometrię.','Nominal match to '+pipeDiameter+' mm pipe. Confirm joint and geometry.'] as [string,string]};
-  if(s.id==='turbo-insulation')return resolveBlanketFitment(s,turboKey);
-  if(s.id==='boost-control'&&ecuKey==='ecu'&&tuTurboSpec(turboKey))return {...s,candidate:'boostMac',defaultNone:false,qty:1};
+  if(s.id==='turbo-insulation')return resolveBlanketFitment(s,turboKey,candidateMap);
+  if(s.id==='boost-control'&&ecuKey==='ecu'&&tuTurboSpec(turboKey,candidateMap))return {...s,candidate:'boostMac',defaultNone:false,qty:1};
   if(s.id==='vacuum-lines')return {...s,alternatives:['vacuum4','vacuum4Red','vacuum4Blue','vacuum6','vacuum6Red'],defaultNone:true};
   if(['heat-sleeve-oil','heat-sleeve-water','heat-sleeve-fuel','heat-sleeve-wiring','heat-sleeve-vacuum'].includes(s.id))return {...s,alternatives:['sleeve10','sleeve15','sleeve30'],defaultNone:true};
   return s;
- }).filter(s=>!(s.id==='heat-shield-wg'&&tuTurboSpec(turboKey)?.wg==='internal'));
+ }).filter(s=>!(s.id==='heat-shield-wg'&&tuTurboSpec(turboKey,candidateMap)?.wg==='internal'));
  const turbo=protectedSlots.find(s=>s.dependency==='m52tu');if(!turbo)return protectedSlots;
- const spec=tuTurboSpec(selectedPart(turbo,selection));
+ const spec=tuTurboSpec(selectedPart(turbo,selection),candidateMap);
  return protectedSlots.flatMap(s=>s.id==='wastegate'?(spec?.wg==='internal'?[]:[{...s,candidate:spec?.wg==='external'?'tuWastegate':undefined,alternatives:[],qty:spec?.wg==='external'?1:null}]):s.id==='downpipe'&&spec?[{...s,planNote:['Wylot turbo: '+spec.outlet+'; dopasuj do nadwozia.','Turbo outlet: '+spec.outlet+'; confirm chassis fitment.'] as [string,string]}]:[s]);
 }
-export function tuManifoldSpec(slots:PartsSlot[],selection:Record<string,string>,tier:string){
- const slot=slots.find(s=>s.dependency==='m52tu');const spec=slot?tuTurboSpec(selectedPart(slot,selection)):null;
+export function tuManifoldSpec(slots:PartsSlot[],selection:Record<string,string>,tier:string,candidateMap:Record<string,BuildCandidate>=allCandidates){
+ const slot=slots.find(s=>s.dependency==='m52tu');const spec=slot?tuTurboSpec(selectedPart(slot,selection),candidateMap):null;
  const engine=slot?.manifoldEngine??'m52';
  if(!spec||selection.manifold==='own'||engine==='2jz-gte')return null;
  return {...spec,sku:engine==='2jz-ge'?'RPM-00033':'RPM-00032',egtPoints:tier==='premium'?7:1,options:{...(engine==='2jz-ge'?{}:{'rpm-engine':engine}),'rpm-flange':spec.flange,'rpm-wg-diameter':spec.wg==='internal'?'internal':'wg-45','rpm-egt':tier==='premium'?'seven':'yes','rpm-thermal-insulation':tier==='premium'?'termshield':'none'} as Record<string,string>};
@@ -379,8 +387,8 @@ const blanketReferences:Readonly<Record<string,FitmentReference>>={
   url:'https://pulsarturbo.com/product/pulsar-gen2-turbo-blanket-for-ptg-ptx-iwg-turbos/',checkedOn:'2026-11-27'
  }
 };
-export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined):PartsSlot{
- const sku=turboKey?allCandidates[turboKey]?.sku:undefined;
+export function resolveBlanketFitment(slot:PartsSlot,turboKey:string|undefined,candidateMap:Record<string,BuildCandidate>=allCandidates):PartsSlot{
+ const sku=turboKey?candidateMap[turboKey]?.sku:undefined;
  const ref=sku?blanketReferences[sku]:undefined;
  const planNote:[string,string]=ref?[
   'Producent wymienia wybraną obudowę turbo jako zgodną z dedykowanym kocem. '+ref.label+'. Uwzględniono w projekcie — brak powiązanego SKU koca, do wyceny; potwierdź miejsce i swobodę pracy aktuatora.',
