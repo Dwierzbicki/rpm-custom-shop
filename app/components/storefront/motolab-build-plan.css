@@ -715,3 +715,18 @@
 .rpm-build-workspace .rpm-build-sourcing{padding:10px 0;border-top:1px solid #363b45;min-width:0}
 .rpm-build-workspace .rpm-build-sourcing>p{font-size:11px;line-height:1.5;margin:9px 0}
 .rpm-build-workspace .rpm-build-sourcing>.rpm-build-cart-link{display:flex;width:100%;min-height:36px;align-items:center;justify-content:center;gap:5px;text-align:center;padding:8px 6px;font-size:11px;line-height:1.35;margin-top:7px;box-sizing:border-box;white-space:normal}
+
+/* Initial project preparation: show a single stable screen until pricing settles. */
+.rpm-guide-page.rpm-builder .rpm-build-initial-loader{display:grid;place-items:center;min-height:clamp(340px,60svh,600px);padding:24px;box-sizing:border-box;border:1px solid #363b45;border-radius:10px;background:#1b1e24;text-align:center;overflow-anchor:none}
+.rpm-builder-loading-inner{display:grid;justify-items:center;gap:14px;max-width:440px;width:100%}
+.rpm-builder-loading-inner>.rpm-lab-kicker{font-size:10px;letter-spacing:.13em;color:#aab1bc;font-weight:750}
+.rpm-guide-page.rpm-builder .rpm-builder-loading-inner h2{margin:0;color:#f1f3f5;font-size:clamp(21px,3vw,30px);letter-spacing:-.03em}
+.rpm-guide-page.rpm-builder .rpm-builder-loading-inner p{margin:0;color:#c5cbd4;font-size:14px;line-height:1.55}
+.rpm-builder-loading-inner>small{font-size:12px;line-height:1.5;color:#aab1bc}
+.rpm-builder-loading-spinner{width:48px;height:48px;box-sizing:border-box;border:3px solid #414650;border-top-color:var(--rpm-color-accent,#eb3157);border-radius:50%;animation:rpm-builder-initial-spin .85s linear infinite;margin:6px 0}
+@keyframes rpm-builder-initial-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.rpm-builder-loading-spinner{animation:none;border-color:var(--rpm-color-accent,#eb3157) #414650 #414650 #414650}}
+.rpm-guide-result:has(>.rpm-build-initial-loader)>.rpm-build-legacy{display:none}
+.rpm-build-workspace .rpm-builder-load-warning{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid #8a6743;background:#25231f;border-radius:7px;padding:12px;color:#edce9f;font-size:12px}
+.rpm-builder-load-warning>span{flex:1;min-width:160px}
+.rpm-builder-load-warning>button{font-size:12px;min-height:32px}
