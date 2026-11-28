@@ -277,7 +277,7 @@ export function resolveTuDependencies(slots:PartsSlot[],selection:Record<string,
  const fuelLineSize=(id:string)=>{const slot=slots.find(s=>s.id===id);const key=slot?selectedPart(slot,selection):undefined;return key?allCandidates[key]?.anSize:undefined;};
  const couplerSlot=slots.find(s=>s.id==='charge-couplers');
  const couplerKey=couplerSlot?selectedPart(couplerSlot,selection):undefined;
- const clampHint=chargeClampSuggestion(couplerKey,candidateMap);
+ const clampHint=couplerKey&&intakeFabricationCandidates[couplerKey]?chargeClampSuggestion(couplerKey,candidateMap):null;
  const protectedSlots=slots.map(s=>{
   if(s.id==='charge-clamps'&&clampHint){
    const all=intakeFabricationOptions[s.id]??[];
