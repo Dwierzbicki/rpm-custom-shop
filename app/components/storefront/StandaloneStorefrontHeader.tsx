@@ -32,5 +32,5 @@ export default function StandaloneStorefrontHeader(){
  onLanguageChange={changeLang}
  onGarage={()=>go('/garage')} onCart={()=>go('/koszyk')} mobileMenu={mobileMenu} setMobileMenu={setMobileMenu}
  activeFmicRoot={activeFmicRoot} setActiveFmicRoot={setActiveFmicRoot} activeFmicSub={activeFmicSub} setActiveFmicSub={setActiveFmicSub}
- onOpenCatalogPath={names=>go(categoryPath(names))} onMotoLab={()=>go('/motolab')}/></div>;
+ onOpenCatalogPath={names=>go(categoryPath(names))} onMotoLab={()=>go('/#rpm-motolab')}/></div>;
 }

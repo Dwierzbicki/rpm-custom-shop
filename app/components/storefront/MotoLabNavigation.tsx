@@ -1,7 +1,8 @@
 'use client';
 import {ChevronLeft} from 'lucide-react';
 import {useStorefrontLanguage} from './hooks/useStorefrontLanguage';
-export default function MotoLabNavigation({active}:{active:'power'|'cr'}){
+import {MOTOLAB_HOME,MOTOLAB_TOOLS,type MotoLabToolId} from '../../lib/motolab-tools';
+export default function MotoLabNavigation({active}:{active:MotoLabToolId}){
  const {lang}=useStorefrontLanguage();
- return <nav className="rpm-lab-subnav" aria-label={lang==='en'?'MotoLab tools':'Narzędzia MotoLab'}><a href="/motolab"><ChevronLeft size={16}/> MotoLab</a><a href="/power-guides" aria-current={active==='power'?'page':undefined}>Power Builder</a><a href="/cr-calculator" aria-current={active==='cr'?'page':undefined}>CR Calculator 3D</a></nav>
+ return <nav className="rpm-lab-subnav" aria-label={lang==='en'?'MotoLab tools':'Narzędzia MotoLab'}><a href={MOTOLAB_HOME}><ChevronLeft size={16}/> MotoLab</a>{MOTOLAB_TOOLS.map(tool=><a key={tool.id} href={tool.href} aria-current={active===tool.id?'page':undefined}>{tool.name}</a>)}</nav>
 }
