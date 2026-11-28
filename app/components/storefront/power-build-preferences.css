@@ -215,3 +215,26 @@
  .rpm-guide-page.rpm-builder .rpm-pref-studio label.rpm-pref-choice{padding:8px;grid-template-columns:minmax(0,1fr) 13px}
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-radio-mark{width:13px;height:13px}
 }
+
+/* Vertical option lists inside a compact technical setup, at every breakpoint. */
+.rpm-guide-page.rpm-builder .rpm-pref-studio.rpm-build-preferences{max-width:920px}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choice-grid:is(.rpm-pref-choices-fuel,.rpm-pref-choices-priority,.rpm-pref-choices-pistons,.rpm-pref-choices-rods){
+ grid-template-columns:minmax(0,1fr);gap:7px;align-content:start
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choice-grid:is(.rpm-pref-choices-fuel,.rpm-pref-choices-priority,.rpm-pref-choices-pistons,.rpm-pref-choices-rods)>.rpm-pref-choice{
+ grid-column:1/-1;min-height:44px;padding:8px 12px
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{align-items:start}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-choice-content{gap:2px}
+@media(min-width:761px){
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section:is(.rpm-pref-section-01,.rpm-pref-section-03,.rpm-pref-section-04){
+  grid-template-columns:minmax(0,220px) minmax(0,1fr);column-gap:20px
+ }
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section:is(.rpm-pref-section-01,.rpm-pref-section-03,.rpm-pref-section-04)>.rpm-pref-section-head{
+  grid-column:1;grid-row:1/span 2;align-self:start;align-items:flex-start
+ }
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section:is(.rpm-pref-section-01,.rpm-pref-section-03,.rpm-pref-section-04)>:not(.rpm-pref-section-head){grid-column:2}
+}
+@media(max-width:760px){
+ .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{grid-template-columns:minmax(0,1fr);gap:10px}
+}
