@@ -758,3 +758,17 @@
 .rpm-build-workspace .rpm-oem-table-row>a{white-space:nowrap;margin:0}
 .rpm-build-workspace #rpm-build-sourcing{scroll-margin-top:var(--rpm-builder-header-offset,135px)}
 @media(max-width:450px){.rpm-build-workspace .rpm-oem-table-head,.rpm-build-workspace .rpm-oem-table-row{grid-template-columns:minmax(90px,1fr) minmax(0,1fr) auto;gap:5px;font-size:10px}.rpm-build-workspace .rpm-oem-table-row>code{font-size:10px}.rpm-build-workspace .rpm-oem-table-row>a{font-size:10px}}
+
+/* Parts alternatives: a visible, draggable scroll control outside product cards. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-track{scrollbar-width:none;scroll-snap-type:none;scroll-behavior:auto;padding-bottom:3px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-carousel-track::-webkit-scrollbar{display:none}
+.rpm-build-workspace .rpm-carousel-scroll-control{display:flex;align-items:center;width:100%;min-width:0;padding:4px 0;box-sizing:border-box}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider{appearance:none;-webkit-appearance:none;display:block;width:100%;height:28px;min-height:28px;margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:grab;touch-action:pan-y;accent-color:#e72d56}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:active{cursor:grabbing}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider::-webkit-slider-runnable-track{height:10px;border-radius:999px;background:#414956}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:56px;height:20px;margin-top:-5px;border:1px solid #ff7593;border-radius:6px;background:#e72d56;box-shadow:0 2px 6px #0005}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider::-moz-range-track{height:10px;border-radius:999px;background:#414956}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider::-moz-range-thumb{width:54px;height:18px;border:1px solid #ff7593;border-radius:6px;background:#e72d56}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:focus-visible{outline:2px solid #ff7593;outline-offset:3px}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:hover::-webkit-slider-thumb{background:#ff456d}
+.rpm-guide-page.rpm-builder .rpm-build-workspace input.rpm-carousel-slider:hover::-moz-range-thumb{background:#ff456d}
