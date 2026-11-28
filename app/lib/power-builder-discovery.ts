@@ -423,6 +423,17 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
  const camTiming=kind==='camshaft'?(/non[- ]?vvti|non[- ]?vvt-i/.test(n)?'non-VVT-i':/\bvvt[- ]?i\b/.test(n)?'VVT-i':null):null;
  return {application,kind,lengthMm,pinMm,bigEndMm,beam,packSize:pack,sizeLabel,boreMm,thicknessMm,thread,camTiming,applicationNote:application==='exact'?['Kod silnika w nazwie katalogowej; potwierdź wersję i geometrię.','Engine code in catalogue title; verify variant and geometry.']:['Zgodność na poziomie rodziny silnika, wymaga indywidualnej weryfikacji.','Engine-family application only; individual verification required.']};
 }
+/** One sales unit covers the intended assembly, not merely a pack of unknown size. */
+export function isCompleteEngineSalesUnit(sku:string,name:string,part:EnginePartData|null):boolean{
+ if(!part)return false;
+ const n=name.normalize('NFKC').toLowerCase();
+ if(/\b(?:single|per piece|per cylinder|1\s*(?:szt|pc|piece))\b/.test(n)&&!/single vanos/.test(n))return false;
+ if(part.kind==='rod')return part.packSize===6;
+ if(part.kind==='head-fastener'&&['FTWL_HSM54','FTWL_HSM54M10'].includes(sku.toUpperCase()))return true;
+ if(['head-fastener','main-fastener','clutch-kit'].includes(part.kind))return /\b(?:komplet|zestaw|kit|set)\b/.test(n)&&!/repair|naprawcz|partial|częściowy/.test(n);
+ if(['rod-bearing','main-bearing','thrust-bearing','piston-rings','intake-valve','exhaust-valve','valve-spring','camshaft'].includes(part.kind))return /(?:na cały silnik|dla całego silnika|full engine (?:set|kit)|set for (?:all|6) cylinders)/.test(n);
+ return false;
+}
 export function discoverEnginePart(row:DiscoveryRow,version:string,slot:string,category:string[]):DiscoveredPart|null{
  if(!Object.hasOwn(engineDiscoveryPaths,slot)||!engineDiscoveryPaths[slot].some(p=>p.join('/')===category.join('/')))return null;
  const p=enginePartData(row.name,version,slot);if(!p||!row.sku||row.sku.length>120)return null;
