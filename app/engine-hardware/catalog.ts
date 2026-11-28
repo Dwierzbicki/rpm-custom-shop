@@ -12,9 +12,9 @@ export const families = [
 ] as const;
 export type Localized={pl:string;en:string};
 const l=(pl:string,en:string):Localized=>({pl,en});
-export type Part={oem:string;dimension:string;name:Localized;sku?:string;technicalEvidence?:string};
-export type Usage={position:string;oem:string;quantity:number;location:Localized;mountingEvidence?:string;torque?:string;torqueSource?:string;replacement?:'always'|'inspect';hotspots?:{x:number;y:number}[]};
-export type Diagram={id:string;engine:string;vehicle:string;title:Localized;source:string;image?:{path:string;rightsEvidence:string};usages:Usage[]};
+export type Part={key?:string;unavailableReason?:Localized;unit?:'piece'|'set';oem:string;dimension:string;name:Localized;sku?:string;technicalEvidence?:string};
+export type Usage={partKey?:string;quantityUnit?:'piece'|'set';position:string;oem:string;quantity:number;location:Localized;mountingEvidence?:string;torque?:string;torqueSource?:string;replacement?:'always'|'inspect'|'not-applicable';hotspots?:{x:number;y:number}[]};
+export type Diagram={profileId?:string;sourceId?:string;id:string;engine:string;vehicle:string;title:Localized;source:string;image?:{path:string;rightsEvidence:string};usages:Usage[]};
 const bolt=l('Śruba z podkładką','Bolt with washer');
 export const parts:Part[]=[
  {oem:'07119905391',dimension:'M8 × 55-U1',name:bolt},
