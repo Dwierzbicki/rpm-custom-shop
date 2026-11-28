@@ -697,3 +697,11 @@
 /* Required, unresolved purchases: a single red rail, not a full red outline. */
 .rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-pending{position:relative;box-shadow:none;border-color:#333842}
 .rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-parts-group.is-status-pending::before{content:'';position:absolute;inset:10px auto 10px 0;width:4px;border-radius:0 3px 3px 0;background:#ef4355;pointer-events:none}
+
+/* Follow the measured header, including the category navigation and responsive variants. */
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-systems,
+.rpm-guide-page.rpm-builder .rpm-build-workspace .rpm-build-side{top:var(--rpm-builder-header-offset,135px);overflow-anchor:none}
+.rpm-guide-page.rpm-builder #rpm-builder-editor,
+.rpm-guide-page.rpm-builder .rpm-guide-result,
+.rpm-guide-page.rpm-builder .rpm-build-system-head,
+.rpm-guide-page.rpm-builder [data-build-slot]{scroll-margin-top:var(--rpm-builder-header-offset,135px)}
