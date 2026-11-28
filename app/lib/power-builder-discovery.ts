@@ -65,6 +65,7 @@ export function intercoolerDimensionOptions(names:string[]):string[]{
  * be searched, and a candidate is never proof of application or suitability. */
 const sensorCategories=[['Elektronika','Ecumaster','Czujniki i akcesoria'],['Elektronika','Wskaźniki','Czujniki']];
 export const extraDiscoveryPaths:Record<string,string[][]>={
+ 'boost-control':[['Układ dolotowy','MBC i akcesoria'],['Elektronika','Zawory EBC i N75'],['Elektronika','Zawory EBC i N75','Zawory'],['Elektronika','Ecumaster','Czujniki i akcesoria'],['Elektronika','Wskaźniki','Czujniki'],['Elektronika','Zestawy AFR']],
  filter:[['Układ dolotowy','Filtry powietrza','Filtry stożkowe']],
  injectors:[['Układ paliwowy','Wtryskiwacze','Wtryskiwacze uniwersalne']],
  pump:[['Układ paliwowy','Pompy paliwa','Uniwersalne pompy paliwa']],
@@ -119,6 +120,20 @@ export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string
    if(angle===Number(slot.slice(-2)))return material(slot,diameter,angle);
   }
   if(slot==='vacuum-lines'&&/przewód podciśnienia|vacuum hose|przewód silikonowy/.test(title))return {...make('Dobierz rzeczywistą średnicę, temperaturę i ciśnienie pracy; potwierdź jednostkę sprzedaży.','Match diameter, operating temperature and pressure; confirm sales unit.'),quantityRequired:true};
+  return null;
+ }
+ if(slot==='boost-control'){
+  if(/replacement|mounting|bracket|switch|tee piece|fitting|head unit|re.loom|zawór kierunkowy|zawór zwrotny|\bn75\b|\bstyle\b|\breplica\b/.test(n))return null;
+  const manualCategory=category.join('/')==='Układ dolotowy/MBC i akcesoria';
+  const manual=manualCategory&&(/\bmbc\b|manual boost control|in.cabin boost control/.test(n));
+  const dualStage=manualCategory&&/dual stage boost controller/.test(n);
+  const solenoid=/^(?:elektrozawór ebc mac)\b/.test(n);
+  const controller=!manualCategory&&!/solenoid|elektrozawór/.test(n)&&(/\bturbosmart\b.*(?:e.boost(?:2|hp)|eb2\s+\d+psi)|\bscg-1\b.*\binnovate\b/.test(n));
+  const maker=row.brand?.trim()||(/turbosmart|^ts-010[156]-/i.test(row.name+' '+sku)?'Turbosmart':/mishimoto/.test(n)?'Mishimoto':/properfekt/.test(n)?'Properfekt':solenoid?'MAC':brand||'—');
+  if(manual)return {...make('MBC: ręczna regulacja doładowania bez sterowania PWM z ECU. Potwierdź zgodność z IWG/EWG, zakres regulacji, sprężynę i zabezpieczenie overboost.','MBC: manual boost adjustment without ECU PWM. Confirm IWG/EWG, adjustment range, spring and overboost protection.'),brand:maker};
+  if(dualStage)return {...make('Dwustopniowy regulator doładowania. Potwierdź sposób przełączania, zasilanie i schemat producenta.','Dual-stage boost controller. Confirm switching, power supply and manufacturer routing.'),brand:maker};
+  if(solenoid)return {...make('Elektrozawór do sterowania przez ECU lub kompatybilny kontroler. Potwierdź napięcie, prąd, częstotliwość PWM, porty i IWG/EWG.','Solenoid for ECU or compatible controller. Confirm voltage, current, PWM frequency, ports and IWG/EWG.'),brand:maker};
+  if(controller)return {...make('EBC: elektroniczny kontroler doładowania. Potwierdź zawartość zestawu, zakres ciśnienia, sterowanie WG i zabezpieczenia.','EBC: electronic boost controller. Confirm kit contents, pressure range, WG control and safety limits.'),brand:maker};
   return null;
  }
  if(slot==='oil-cooler'&&/chłodnica oleju|oil cooler/.test(n)&&!/nypl|korek|uchwyt|transmission|skrzyni/.test(n))return make('Chłodnica uniwersalna. Dobierz wydajność cieplną, przepływ, porty, termostat i miejsce montażu.','Universal oil cooler. Confirm thermal capacity, flow, ports, thermostat and clearance.');
