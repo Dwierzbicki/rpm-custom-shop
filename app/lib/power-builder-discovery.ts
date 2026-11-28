@@ -282,6 +282,11 @@ export const engineDiscoveryPaths:Record<string,string[][]>={
  'intake-valves':[['Silnik i turbo','Elementy głowicy','Zawory']],
  'exhaust-valves':[['Silnik i turbo','Elementy głowicy','Zawory']],
  'timing-kit':[['Silnik i turbo','Rozrząd','Paski rozrządu']],
+ rings:[['Silnik i turbo','Tuleje i pierścienie tłokowe','Pierścienie tłokowe']],
+ rail:[['Układ paliwowy','Listwy paliwowe']],
+ 'intake-manifold':[['Układ dolotowy','Kolektory ssące']],
+ clutch:[['Napęd i zawieszenie','Sprzęgło','Zestawy sprzęgła']],
+ flywheel:[['Napęd i zawieszenie','Sprzęgło','Koła zamachowe']],
 };
 export type EnginePartData={
  application:'exact'|'review';kind:string;lengthMm:number|null;pinMm:number|null;bigEndMm:number|null;
@@ -332,6 +337,11 @@ export function enginePartData(name:string,version:string,slot:string):EnginePar
  if(slot==='intake-valves'&&/zawór (?:dolot|ssąc)|zawor(?:y|ów) (?:dolot|ssąc)|intake valves?/.test(n))kind='intake-valve';
  if(slot==='exhaust-valves'&&/zawór wydech|zawor(?:y|ów) wydech|exhaust valves?/.test(n))kind='exhaust-valve';
  if(slot==='timing-kit'&&/pasek rozrządu|timing belt/.test(n))kind='timing-belt';
+ if(slot==='rings'&&/pierścienie tłokowe|piston rings?/.test(n))kind='piston-rings';
+ if(slot==='rail'&&/listwa paliwowa|fuel rail/.test(n)&&!/adapter|mocowanie|wspornik/.test(n))kind='fuel-rail';
+ if(slot==='intake-manifold'&&/kolektor ssący|kolektor dolotowy|intake manifold|plenum/.test(n)&&!/adapter|uszczelka|flansza/.test(n))kind='intake-manifold';
+ if(slot==='clutch'&&/zestaw sprzęgła|komplet sprzęgła|clutch kit|clutch set/.test(n))kind='clutch-kit';
+ if(slot==='flywheel'&&/koło zamachowe|flywheel/.test(n)&&!/śrub|bolt|adapter/.test(n))kind='flywheel';
  if(!kind)return null;
  const metric=(label:string)=>singleNumber([...n.matchAll(new RegExp('(?:\\b(?:'+label+')\\s*[:.=-]?\\s*(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\b|\\b(\\d{1,3}(?:\\.\\d+)?)\\s*mm\\s*(?:'+label+')\\b)','g'))].map(m=>Number(m[1]??m[2])));
  const explicitLength=metric('length|dł(?:ugość)?|center.to.center|c.t.c')??(kind==='rod'?singleNumber([...n.matchAll(/\b(?:dł\.|length)\s*(1[2345]\d(?:\.\d+)?)\b/g)].map(m=>Number(m[1]))):null);
@@ -358,7 +368,12 @@ export function discoverEnginePart(row:DiscoveryRow,version:string,slot:string,c
  const notes:Record<string,[string,string]>={
  rod:['Potwierdź długość C-C, średnicę sworznia i stopy, szerokość, śruby, materiał, obciążenie i liczbę sztuk.','Verify C-C length, pin and big-end bore, width, bolts, material, load and pack count.'],
  'head-gasket':['Potwierdź średnicę otworu, grubość po ściśnięciu, powierzchnie i rzeczywiste CR.','Confirm gasket bore, compressed thickness, deck finish and actual CR.'],
- 'camshaft':['Potwierdź VANOS/VVT-i, wznios, fazy, sprężyny i luz tłok–zawór.','Confirm VANOS/VVT-i, lift, duration, springs and piston-to-valve clearance.']
+ 'camshaft':['Potwierdź VANOS/VVT-i, wznios, fazy, sprężyny i luz tłok–zawór.','Confirm VANOS/VVT-i, lift, duration, springs and piston-to-valve clearance.'],
+ 'clutch-kit':['Dobór po ustaleniu skrzyni, koła zamachowego, wieloklinu, średnicy i przewidywanego momentu; nie na podstawie mocy.','Select after confirming gearbox, flywheel, spline, diameter and expected torque; not power alone.'],
+ flywheel:['Sprawdź połączenie z wałem, rozrusznik, skrzynię, sprzęgło, offset i dopuszczalne obroty.','Confirm crank mounting, starter, gearbox, clutch, offset and RPM limit.'],
+ 'fuel-rail':['Potwierdź głowicę/kolektor, długość wtryskiwaczy, porty, paliwo, przepływ i ciśnienie.','Confirm head/intake, injector length, ports, fuel, flow and pressure.'],
+ 'intake-manifold':['Potwierdź głowicę, przepustnicę, listwę, osprzęt i miejsce w nadwoziu.','Confirm head, throttle, fuel rail, accessories and chassis clearance.'],
+ 'piston-rings':['Potwierdź średnicę i rowki konkretnego tłoka, materiał, wymagany luz zamka i czy pierścienie są w zestawie tłoków.','Confirm exact piston bore and grooves, material, required end gap and whether rings are included in the piston set.']
  };
  const note=notes[p.kind]??(p.kind.endsWith('-bearing')?['Rozmiar i luz olejowy dobierz po pomiarze czopów, gniazd i danych producenta. Nie interpretuj samego sufiksu jako szlifu.','Select size and oil clearance after measuring journals and housings and consulting manufacturer data. Do not interpret suffix alone as undersize.']:p.kind.endsWith('-fastener')?['Potwierdź gwint, materiał bloku, wymagania obróbki, procedurę i moment/naciąg producenta.','Confirm thread, block material, machining, installation and manufacturer torque/stretch.']:['Potwierdź wariant silnika, wymiary, zawartość zestawu i procedurę montażu.','Confirm engine variant, dimensions, kit contents and installation procedure.']);
  return {sku:row.sku,name:row.name,brand,slot,enginePart:p,reason:[p.applicationNote[0]+' '+note[0],p.applicationNote[1]+' '+note[1]]};
