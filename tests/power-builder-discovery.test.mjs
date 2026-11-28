@@ -84,3 +84,35 @@ test('compressor inlet uses cold side dimensions, not turbine or wheel',()=>{
  assert.equal(exports.suggestedFilterDiameter(101.6,[89,100,102]),102);
  assert.equal(exports.suggestedFilterDiameter(76.2,[70,80]),null);
 });
+
+
+test('full catalogue turbo screen finds PTX28 variants for 360 PS without guessing actuator or flange',()=>{
+ const rows=[
+  ['102128182','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 2.5" V-Band Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','vband-single','external',.64],
+  ['102128196','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 T3 Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','t3-single','external',.64],
+  ['102128149','Turbosprężarka Pulsar PSR 2860 Gen2 475HP .64 T25 Wlot 5-Bolt Wylot IWG Stamping Aktuator 7.4PSI Łożyska kulkowe','t25-single','internal',.64],
+  ['102128202','Turbosprężarka Pulsar PSR 2860 GEN 2 łożysko kulkowe podwójny V-Band 0.72 A/R IWG PSR Billet Actuator 7.4psi','vband-single','internal',.72],
+  ['102128181','Turbosprężarka Pulsar PSR 2867 Gen2 550HP .64 2.5" V-Band Wlot 3" V-Band Wylot Stal Nierdzewna Łożyska kulkowe','vband-single','external',.64]
+ ];
+ for(const [sku,name,flange,wg,ar] of rows){
+  const part=exports.discoverTurbo({sku,name},360);
+  assert.ok(part,sku);
+  assert.equal(part.turbo.flange,flange,sku);
+  assert.equal(part.turbo.wg,wg,sku);
+  assert.equal(part.turbo.ar,ar,sku);
+ }
+ const a=exports.discoverTurbo({sku:rows[0][0],name:rows[0][1]},360).turbo;
+ const b=exports.discoverTurbo({sku:rows[3][0],name:rows[3][1]},360).turbo;
+ assert.ok(exports.compareTurboCatalogue(a,b,360,'response','drift')<0);
+ assert.ok(exports.compareTurboCatalogue(a,b,360,'power','track')>0);
+});
+test('screen excludes incomplete and out-of-class turbos; unknown data remains unknown',()=>{
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Pulsar PSR 6870E Ball Bearing Turbo up to 1100 HP Standard Compressor Cover without Turbine Housing'},850),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbosprężarka Pulsar PSR 3582 Compact 900HP .63 T3 Wlot 3" V-Band Wylot Łożyska kulkowe'},360),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbosprężarka 250HP .64 T3 Wlot 3" V-Band Wylot'},360),null);
+ assert.equal(exports.discoverTurbo({sku:'x',name:'Turbocharger TurboSystems HTX2754B1V air outlet 90 degrees'},360),null);
+ const unknown=exports.turboCatalogueData('Turbosprężarka Pulsar PSR 3067 GEN2 565HP .63 T3 Wlot 3" V-Band Wylot Łożyska kulkowe');
+ assert.equal(unknown.wg,null);
+ const ambiguous=exports.turboCatalogueData('Turbosprężarka Pulsar PSR 5455G 660KM 0.70A/R Dual V-Band 1.01A/R');
+ assert.equal(ambiguous.ar,null);
+});
