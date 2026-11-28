@@ -2,7 +2,7 @@ import {NextResponse} from 'next/server';
 import {imageOrderSql} from '../../../../lib/fmic-image-ranking';
 import {getDbPool} from '../../../../lib/db';
 import {visibleCatalog} from '../../../../lib/fmic-category-membership';
-import {discoverPart,discoverExtraPart,extraDiscoveryPaths,compressorInletMm,discoverTurbo,turboDiscoveryCategory,type DiscoveryRow} from '../../../../lib/power-builder-discovery';
+import {discoverPart,discoverExtraPart,extraDiscoveryPaths,compressorInletMm,discoverTurbo,turboDiscoveryCategory,discoverPiston,pistonDiscoveryCategory,pistonEngineVersions,type DiscoveryRow} from '../../../../lib/power-builder-discovery';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const headers={'Cache-Control':'private, no-store'};
@@ -31,6 +31,13 @@ export async function GET(request:Request){
    const quotes=matched.rows.map(p=>({sku:p.sku,name:p.name,unitPrice:Number(p.proposed_gross),available:p.available===true,image:p.image,updatedAt:p.updated_at}));
    const current=new Set(quotes.filter(q=>q.available&&Number.isFinite(q.unitPrice)&&q.unitPrice>0).map(q=>q.sku+'|'+q.name));
    return NextResponse.json({items:items.filter(p=>current.has(p.sku+'|'+p.name)),quotes,scanned:rows.rows.length,targetPs:target},{headers});
+  }
+  if(slot==='pistons'){
+   const version=params.get('version')??'';
+   if(!(pistonEngineVersions as readonly string[]).includes(version))return NextResponse.json({error:'Nieprawidłowy silnik'},{status:400,headers});
+   const rows=await getDbPool().query<DiscoveryRow>("SELECT sku,name,data->>'brand' AS brand,proposed_gross FROM rpm_fmic_catalog WHERE "+visibleCatalog+" AND available AND proposed_gross>0 AND target_category=$1::text[] ORDER BY sku",[pistonDiscoveryCategory]);
+   const items=rows.rows.flatMap(row=>{const part=discoverPiston(row,version);return part?[part]:[]});
+   return NextResponse.json({items,scanned:rows.rows.length,version},{headers});
   }
   if(slot&&!Object.hasOwn(extraDiscoveryPaths,slot))return NextResponse.json({error:'Nieobsługiwana grupa'},{status:400,headers});
   const categories=slot?extraDiscoveryPaths[slot]:[['Układ dolotowy','Blow off','Blow offy uniwersalne'],['Układ paliwowy','Regulatory ciśnienia paliwa','Regulatory ciśnienia paliwa'],['Układ paliwowy','Filtry paliwa'],['Układ dolotowy','Intercooler','Uniwersalne']];
