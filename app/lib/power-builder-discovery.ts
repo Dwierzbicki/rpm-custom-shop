@@ -2,7 +2,7 @@
  * Brand is inferred only from explicit product naming or known supplier SKU families.
  * Keep accessory and vehicle-specific parts out, even when supplier categories are broad. */
 export type DiscoveryRow={sku:string;name:string;brand?:string|null;source?:string|null;proposed_gross?:number|string|null};
-export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;piston?:PistonCatalogueData;enginePart?:EnginePartData;source?:string;cataloguePrice?:number};
+export type DiscoveredPart={sku:string;name:string;brand:string;slot:string;reason:[string,string];injectorPackSize?:1|6;injectorFlowCc?:number;pumpFlowLph?:number;turbo?:TurboCatalogueData;piston?:PistonCatalogueData;enginePart?:EnginePartData;material?:{family:string;diameterMm:number;lengthMm?:number;angleDeg?:number;color?:'black'|'red'|'blue'};quantityRequired?:boolean;source?:string;cataloguePrice?:number};
 export function discoverBov(row:DiscoveryRow):DiscoveredPart|null{
  const name=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!name||name.length>500)return null;
@@ -73,7 +73,18 @@ export const extraDiscoveryPaths:Record<string,string[][]>={
  wideband:[['Elektronika','Zestawy AFR']],
  'map-sensor':sensorCategories,'iat-sensor':sensorCategories,'oil-pressure-sensor':sensorCategories,'oil-temp-sensor':sensorCategories,'fuel-pressure-sensor':sensorCategories,'egt-probe':sensorCategories,
  'heat-shield-mat':[['Układ wydechowy','Termoizolacja','Maty i taśmy termoizolacyjne']],
- 'heat-reflective-tape':[['Układ wydechowy','Termoizolacja','Maty i taśmy termoizolacyjne']]
+ 'heat-reflective-tape':[['Układ wydechowy','Termoizolacja','Maty i taśmy termoizolacyjne']],
+ 'oil-cooler':[['Układ chłodzenia','Chłodnice oleju','Uniwersalne']],
+ 'cooling-fan':[['Układ chłodzenia','Wentylatory','Ssące'],['Układ chłodzenia','Wentylatory','Tłoczące']],
+ breather:[['Układ dolotowy','Oil catch tank']],
+ 'exhaust-wrap':[['Układ wydechowy','Termoizolacja','Bandaże termoizolacyjne']],
+ wastegate:[['Układ wydechowy','Wastegate','Zawory Wastegate']],
+ 'charge-clamps':[['Układ dolotowy','Obejmy','Obejmy SGB']],
+ 'vacuum-lines':[['Układ dolotowy','Łączniki silikonowe','Przewody podciśnienia']],
+ 'chargepipes':[['Układ dolotowy','Kolanka i rury aluminiowe','Rury aluminiowe']],
+ 'charge-bend-45':[['Układ dolotowy','Kolanka i rury aluminiowe','Kolanka aluminiowe']],
+ 'charge-bend-90':[['Układ dolotowy','Kolanka i rury aluminiowe','Kolanka aluminiowe']],
+ 'charge-couplers':[['Układ dolotowy','Łączniki silikonowe','Proste łączniki silikonowe']]
 };
 export function airFilterDiameter(name:string):number|null{
  const m=name.match(/(?:średnica montażowa|średnica przyłącza|inlet diameter|flange (?:id|diameter))\s*[:Øø]?\s*(\d{2,3}(?:[.,]\d+)?)\s*mm/i);
@@ -83,9 +94,40 @@ export function discoverExtraPart(row:DiscoveryRow,category:string[],slot:string
  if(!Object.hasOwn(extraDiscoveryPaths,slot)||!extraDiscoveryPaths[slot].some(p=>p.join('/')===category.join('/')))return null;
  const n=row.name.normalize('NFKC').toLowerCase(),sku=row.sku;
  if(!sku||sku.length>120||!n||n.length>500)return null;
- if(/\b(style|replica|replacement|adapter|bracket|plug|connector|wiring|cable)\b|uszczel|wtyczk|przewód|mocowanie|dystans|zestaw napraw|dedykowan/i.test(n))return null;
+ const materialSlot=['chargepipes','charge-bend-45','charge-bend-90','charge-couplers','charge-clamps','vacuum-lines'].includes(slot);
+ if(!materialSlot&&/\b(style|replica|replacement|adapter|bracket|plug|connector|wiring|cable)\b|uszczel|wtyczk|przewód|mocowanie|dystans|zestaw napraw|dedykowan/i.test(n))return null;
  const brand=row.brand?.trim()||([[/fmic\.pro/i,'FMIC.Pro'],[/fmic\.eu/i,'FMIC.EU'],[/jrspec/i,'JRspec'],[/k&n|\bk\s*&\s*n\b/i,'K&N'],[/pipercross/i,'Pipercross'],[/ramair/i,'Ramair'],[/simota/i,'Simota'],[/aem/i,'AEM'],[/mishimoto/i,'Mishimoto'],[/nuke performance/i,'Nuke Performance'],[/deatschwerks/i,'DeatschWerks'],[/radium engineering/i,'Radium Engineering'],[/innovate/i,'Innovate'],[/ecumaster/i,'ECUMASTER'],[/bosch/i,'Bosch'],[/\bdei\b/i,'DEI'],[/thermo.?tec/i,'Thermo-Tec']] as [RegExp,string][]).find(([re])=>re.test(n))?.[1]||'';
  const make=(pl:string,en:string):DiscoveredPart=>({sku,name:row.name,brand:brand||'—',slot,reason:[pl,en]});
+ if(materialSlot){
+  const title=n.replaceAll(',','.');
+  if(/dedykowan|zestaw|adapter|redukcja|redukcje|t-piece|trójnik|hump|zatyczk/.test(title))return null;
+  const diameter=Number(title.match(/\b(\d{1,3}(?:\.\d+)?)\s*mm\b/)?.[1]);
+  const lengthMatch=title.match(/\b(\d+(?:\.\d+)?)\s*(cm|m)\b/);
+  const length=lengthMatch?Number(lengthMatch[1])*(lengthMatch[2]==='m'?1000:10):undefined;
+  const color=/czarn|black/.test(title)?'black':/czerwon|red/.test(title)?'red':/niebiesk|blue/.test(title)?'blue':undefined;
+  const material=(family:string,diameterMm:number,angleDeg?:number):DiscoveredPart=>({...make('Wariant katalogowy. Dobierz średnicę po pomiarze przyłączy oraz długość i liczbę odcinków do trasy montażu.','Catalogue variant. Match measured connections, length and quantities to actual routing.'),material:{family,diameterMm,lengthMm:length,angleDeg,color},quantityRequired:true});
+  if(slot==='charge-clamps'){
+   const range=title.match(/\b(\d{1,3})\s*[-–]\s*(\d{1,3})\s*mm\b/);
+   if(!range||!/obejma sgb/.test(title))return null;
+   return {...make('Zakres obejmy '+range[1]+'–'+range[2]+' mm. Dobierz po pomiarze zewnętrznej średnicy zmontowanego silikonu.','Clamp range '+range[1]+'–'+range[2]+' mm. Match the installed coupler outer diameter.'),quantityRequired:true};
+  }
+  if(!Number.isFinite(diameter)||diameter<=0||diameter>200)return null;
+  if(slot==='chargepipes'&&/rura aluminiowa/.test(title)&&length)return material(slot,diameter);
+  if(slot==='charge-couplers'&&/łącznik silikonowy prosty/.test(title)&&length&&color)return material(slot,diameter);
+  if((slot==='charge-bend-45'||slot==='charge-bend-90')&&/kolanko aluminiowe/.test(title)&&length){
+   const angle=Number(title.match(/\b(45|90)\s*(?:°|'|deg|stopni)/)?.[1]);
+   if(angle===Number(slot.slice(-2)))return material(slot,diameter,angle);
+  }
+  if(slot==='vacuum-lines'&&/przewód podciśnienia|vacuum hose|przewód silikonowy/.test(title))return {...make('Dobierz rzeczywistą średnicę, temperaturę i ciśnienie pracy; potwierdź jednostkę sprzedaży.','Match diameter, operating temperature and pressure; confirm sales unit.'),quantityRequired:true};
+  return null;
+ }
+ if(slot==='oil-cooler'&&/chłodnica oleju|oil cooler/.test(n)&&!/nypl|korek|uchwyt|transmission|skrzyni/.test(n))return make('Chłodnica uniwersalna. Dobierz wydajność cieplną, przepływ, porty, termostat i miejsce montażu.','Universal oil cooler. Confirm thermal capacity, flow, ports, thermostat and clearance.');
+ if(slot==='cooling-fan'&&/wentylator|cooling fan/.test(n)&&!/zestaw montażowy|mounting kit|24v|24 v/.test(n))return make('Potwierdź kierunek przepływu, średnicę, wydajność powietrza, prąd, napięcie i miejsce montażu.','Verify flow direction, diameter, airflow, current, voltage and clearance.');
+ if(slot==='breather'&&/oil catch tank|catch can|odma/.test(n)&&!/zbiornik wyrównawczy|\b(bmw|audi|vw|ford|nissan|toyota|mazda|honda|subaru|porsche|volvo|mercedes|mitsubishi|dodge|chevrolet|mini|lexus)\b/.test(n))return make('Uniwersalny separator odmy. Dobierz pojemność, króćce, przegrody, sposób odpowietrzenia i montaż.','Universal oil separator. Confirm capacity, ports, baffling, ventilation and mounting.');
+ if(slot==='exhaust-wrap'&&/bandaż termoizolacyjny|exhaust wrap/.test(n))return {...make('Dobierz długość, szerokość i temperaturę pracy; potwierdź, czy producent wydechu dopuszcza izolację.','Confirm length, width, operating temperature and exhaust manufacturer approval.'),quantityRequired:true};
+ // Current RPM manifold configurator supports a provisional single 45 mm gate.
+ // Keep other diameters out until manifold and bypass geometry can be selected.
+ if(slot==='wastegate'&&/wastegate|\bwg\b/.test(n)&&/\b45\s*mm\b|\bhyper.gate\s*45\b/.test(n)&&!/sprężyn|spring|flansz|flange|actuat|aktuat|membran|pokryw/.test(n))return make('Kandydat 45 mm do pojedynczego zewnętrznego WG. Potwierdź mocowanie, przepływ, sprężynę i sterowanie.','45 mm single external gate candidate. Verify flange, bypass flow, spring and boost control.');
  if(slot==='pump'){
   if(!/pompa paliwa|fuel pump/.test(n)||/niskie ciśnienie|low pressure|lift pump|transfer pump|gaźnik|carburetor|diesel|wtrysk bezpośredni|direct injection|\b(bmw|audi|vw|volkswagen|ford|nissan|toyota|volvo|opel|fiat|saab|kia|hyundai|renault|peugeot|porsche|mercedes|mitsubishi|subaru|skoda|seat|harley|gm)\b/.test(n))return null;
   const flow=n.match(/\b(\d{2,4})\s*(?:lph|l\s*\/\s*h)\b/)?.[1];
