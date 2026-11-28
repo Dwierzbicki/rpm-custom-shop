@@ -288,11 +288,11 @@ export type EnginePartData={
  beam:'H'|'I'|'X'|null;packSize:number|null;sizeLabel:string|null;boreMm:number|null;
  thicknessMm:number|null;thread:string|null;camTiming:string|null;applicationNote:[string,string]
 };
-function engineApplication(name:string,version:string):'exact'|'review'|null{
+function engineApplication(name:string,version:string,slot:string):'exact'|'review'|null{
  if(!(pistonEngineVersions as readonly string[]).includes(version))return null;
  const n=name.normalize('NFKC').toLowerCase().replaceAll('tü','tu').replace(/\b(m(?:50|52|54))\s+b/g,'$1b');
  if(version.startsWith('2jz')){
-  const ge=/\b2jz[\s-]*ge\b/.test(n),gte=/\b2jz[\s-]*gte\b/.test(n);
+  const ge=/\b2jz[\s-]*ge\b|\b2jz[\s-]*gte\s*\/\s*ge\b/.test(n),gte=/\b2jz[\s-]*gte\b|\b2jz[\s-]*ge\s*\/\s*gte\b/.test(n);
   if(version==='2jz-ge'&&ge||version==='2jz-gte'&&gte)return 'exact';
   return !ge&&!gte&&/\b2jz(?:g\b|[-\s]*g\(t\)e\b|\b)/.test(n)?'review':null;
  }
@@ -305,14 +305,18 @@ function engineApplication(name:string,version:string):'exact'|'review'|null{
   return 'exact';
  }
  if(version==='m50b25'&&codes.includes('m50b25tu'))return 'review';
- if(version==='m52b25tu'&&codes.includes('m52b25'))return null;
+ // Shorthand listing and family-only matches remain review-only. For rods
+ // a single-VANOS code must never be treated as a TU part.
+ if(version==='m52b25tu'&&codes.includes('m52b25'))return slot.startsWith('bearings')?'review':null;
+ const shorthand=[...n.matchAll(/\b(m(?:50|52|54)b)(?:20|22|25|28|30|32)(\s*\/\s*(?:20|22|25|28|30|32)(?:\s*\/\s*(?:20|22|25|28|30|32))*)/g)];
+ if(shorthand.some(m=>m[2].split('/').map(x=>m[1]+x.trim()).includes(target)))return 'review';
  if(codes.length)return null;
  if(new RegExp('\\b'+family+'(?:tu)?\\b').test(n))return 'review';
  return null;
 }
 export function enginePartData(name:string,version:string,slot:string):EnginePartData|null{
  if(!Object.hasOwn(engineDiscoveryPaths,slot))return null;
- const application=engineApplication(name,version);if(!application)return null;
+ const application=engineApplication(name,version,slot);if(!application)return null;
  const n=name.normalize('NFKC').toLowerCase().replaceAll(',','.');
  let kind='';
  if(slot==='rods'&&/korbowod|korbowód|connecting rods?/.test(n)&&!/^(?:śrub|panew|tulej)|\+\s*tłok/.test(n))kind='rod';
