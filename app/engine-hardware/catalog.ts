@@ -17,7 +17,7 @@ export type Usage={partKey?:string;quantityUnit?:'piece'|'set';position:string;o
 export type Diagram={profileId?:string;sourceId?:string;id:string;engine:string;vehicle:string;title:Localized;source:string;image?:{path:string;rightsEvidence:string};usages:Usage[]};
 export const M54_REFERENCE_INDEX='https://www.realoem.com/bmw/en/partgrp?id=ET56-EUR-11-2001-E46-BMW-330i&mg=11';
 const bolt=l('Śruba z podkładką','Bolt with washer');
-export const parts:Part[]=[
+const referenceParts:Part[]=[
  {oem:'07119905391',dimension:'M8 × 55-U1',name:bolt},
  {oem:'07119906675',dimension:'M8 × 70-Z1-ZNS3',name:bolt},
  {oem:'07119905696',dimension:'M8 × 100 – 8.8',name:l('Śruba sześciokątna','Hex bolt')},
@@ -56,7 +56,7 @@ export const parts:Part[]=[
  {oem:'11111703836',dimension:'M24 × 1,5',name:l('Korek gwintowany','Threaded plug')},
 ];
 const u=(position:string,oem:string,quantity:number,pl:string,en:string):Usage=>({position,oem,quantity,location:l(pl,en)});
-export const diagrams:Diagram[]=[
+const referenceDiagrams:Diagram[]=[
  {id:'11_9921',engine:'M54B30',vehicle:'BMW E46 330i · AW51 EUR',title:l('Podstawa filtra oleju','Oil filter housing'),source:'https://www.realoem.com/bmw/enUS/showparts?diagId=11_9921&id=AW51-EUR---E46-BMW-330i',usages:[
   u('07','07119905391',3,'Mocowanie podstawy filtra oleju; grupa śrub 55 mm.','Oil filter housing mounting; 55 mm bolt group.'),
   u('08','07119906675',2,'Mocowanie podstawy filtra oleju; grupa śrub 70 mm.','Oil filter housing mounting; 70 mm bolt group.'),
@@ -114,6 +114,13 @@ export const diagrams:Diagram[]=[
   u('08','11121738608',4,'Druga grupa nakrętek M6 pokrywy; pozycja 08.','Second group of M6 valve cover nuts; position 08.'),
  ]},
 ];
+// Scope: assembled engine only. External mounts and unconfirmed peripheral joints
+// remain in historical reference data but never enter the customer set.
+// Head position 12 is withheld until its exact installation is established.
+const excludedPreviewPositions=new Set(['11_9908:12','11_9918:13','11_9918:16']);
+export const diagrams:Diagram[]=referenceDiagrams.map(d=>({...d,usages:d.usages.filter(u=>!excludedPreviewPositions.has(d.id+':'+u.position))})).filter(d=>d.usages.length);
+const includedOem=new Set(diagrams.flatMap(d=>d.usages.map(u=>u.oem)));
+export const parts:Part[]=referenceParts.filter(p=>includedOem.has(p.oem));
 export const partByOem=(oem:string)=>parts.find(p=>p.oem===oem);
 export const diagramsFor=(engine:string)=>diagrams.filter(d=>d.engine===engine);
 const searchText=(s:string)=>s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/ł/g,'l').replace(/[×x]/g,'x').replace(/\s+/g,'');

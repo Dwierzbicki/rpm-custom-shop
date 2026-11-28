@@ -50,8 +50,8 @@ export const m54Breakdown:ConnectionGroup[]=[
    {
     "id": "block-dowels",
     "title": {
-     "pl": "Kołki ustalające głowicę / skrzynię",
-     "en": "Head / transmission locating dowels"
+     "pl": "Kołki ustalające głowicę względem bloku",
+     "en": "Head-to-block locating dowels"
     }
    },
    {
@@ -87,13 +87,6 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Korek spustowy płynu w bloku",
      "en": "Block coolant drain"
-    }
-   },
-   {
-    "id": "knock",
-    "title": {
-     "pl": "Czujniki spalania stukowego → blok",
-     "en": "Knock sensors → block"
     }
    },
    {
@@ -151,34 +144,6 @@ export const m54Breakdown:ConnectionGroup[]=[
     "title": {
      "pl": "Piasta / centralna śruba wału",
      "en": "Crankshaft hub / central bolt"
-    }
-   },
-   {
-    "id": "damper",
-    "title": {
-     "pl": "Tłumik drgań → piasta",
-     "en": "Vibration damper → hub"
-    }
-   },
-   {
-    "id": "flywheel",
-    "title": {
-     "pl": "Koło zamachowe / flexplate → wał",
-     "en": "Flywheel / flexplate → crankshaft"
-    }
-   },
-   {
-    "id": "clutch",
-    "title": {
-     "pl": "Docisk sprzęgła → koło zamachowe",
-     "en": "Clutch cover → flywheel"
-    }
-   },
-   {
-    "id": "crank-sensor",
-    "title": {
-     "pl": "Czujnik wału i jego mocowanie",
-     "en": "Crankshaft sensor and fastening"
     }
    }
   ]
@@ -251,20 +216,6 @@ export const m54Breakdown:ConnectionGroup[]=[
     }
    },
    {
-    "id": "head-lift",
-    "title": {
-     "pl": "Ucha transportowe → głowica",
-     "en": "Lifting eyes → head"
-    }
-   },
-   {
-    "id": "spark",
-    "title": {
-     "pl": "Świece / elementy mocujące cewki",
-     "en": "Spark plugs / coil retention"
-    }
-   },
-   {
     "id": "cover-nuts",
     "title": {
      "pl": "Pokrywa zaworów: grupy nakrętek i podkładki",
@@ -283,24 +234,6 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Szpilki pokrywy → głowica",
      "en": "Valve cover studs → head"
     }
-   },
-   {
-    "id": "cover-ground",
-    "title": {
-     "pl": "Punkty masowe i uchwyty pokrywy",
-     "en": "Cover earth points and brackets"
-    }
-   },
-   {
-    "id": "head-nut-12",
-    "title": {
-     "pl": "Głowica: nakrętki poz. 12",
-     "en": "Head: nuts at position 12"
-    },
-    "diagramId": "11_9908",
-    "positions": [
-     "12"
-    ]
    }
   ]
  },
@@ -435,13 +368,6 @@ export const m54Breakdown:ConnectionGroup[]=[
      "pl": "Przewód olejowy przy VANOS",
      "en": "Oil line at VANOS"
     }
-   },
-   {
-    "id": "cam-sensors",
-    "title": {
-     "pl": "Czujniki położenia wałków",
-     "en": "Camshaft position sensors"
-    }
    }
   ]
  },
@@ -496,13 +422,6 @@ export const m54Breakdown:ConnectionGroup[]=[
      "10",
      "11"
     ]
-   },
-   {
-    "id": "filter-sensor",
-    "title": {
-     "pl": "Czujnik ciśnienia oleju",
-     "en": "Oil pressure sensor"
-    }
    },
    {
     "id": "pump-08",
@@ -611,40 +530,11 @@ export const m54Breakdown:ConnectionGroup[]=[
     }
    },
    {
-    "id": "pan-gearbox",
-    "title": {
-     "pl": "Miska → obudowa skrzyni",
-     "en": "Oil pan → transmission housing"
-    }
-   },
-   {
     "id": "pan-baffle",
     "title": {
      "pl": "Przegrody / osłony oleju",
      "en": "Oil baffles / shields"
     }
-   },
-   {
-    "id": "oil-level",
-    "title": {
-     "pl": "Czujnik poziomu oleju → miska",
-     "en": "Oil level sensor → pan"
-    },
-    "diagramId": "11_9918",
-    "positions": [
-     "16"
-    ]
-   },
-   {
-    "id": "dipstick",
-    "title": {
-     "pl": "Rurka bagnetu i jej wspornik",
-     "en": "Dipstick tube and bracket"
-    },
-    "diagramId": "11_9918",
-    "positions": [
-     "13"
-    ]
    },
    {
     "id": "pan-long-64",
@@ -667,294 +557,6 @@ export const m54Breakdown:ConnectionGroup[]=[
     "positions": [
      "07"
     ]
-   }
-  ]
- },
- {
-  "id": "intake",
-  "title": {
-   "pl": "Dolot, paliwo i odma",
-   "en": "Intake, fuel and crankcase ventilation"
-  },
-  "connections": [
-   {
-    "id": "intake-head",
-    "title": {
-     "pl": "Kolektor ssący → głowica",
-     "en": "Intake manifold → head"
-    }
-   },
-   {
-    "id": "intake-bracket",
-    "title": {
-     "pl": "Wspornik kolektora → blok",
-     "en": "Intake bracket → block"
-    }
-   },
-   {
-    "id": "throttle",
-    "title": {
-     "pl": "Przepustnica → kolektor",
-     "en": "Throttle body → manifold"
-    }
-   },
-   {
-    "id": "disa",
-    "title": {
-     "pl": "DISA → kolektor",
-     "en": "DISA → manifold"
-    }
-   },
-   {
-    "id": "idle",
-    "title": {
-     "pl": "Zawór biegu jałowego / uchwyt",
-     "en": "Idle control valve / bracket"
-    }
-   },
-   {
-    "id": "fuel-rail",
-    "title": {
-     "pl": "Listwa paliwowa → kolektor",
-     "en": "Fuel rail → manifold"
-    }
-   },
-   {
-    "id": "injector-clips",
-    "title": {
-     "pl": "Zabezpieczenia wtryskiwaczy",
-     "en": "Injector retaining clips"
-    }
-   },
-   {
-    "id": "fuel-lines",
-    "title": {
-     "pl": "Przewody paliwa / uchwyty",
-     "en": "Fuel lines / retainers"
-    }
-   },
-   {
-    "id": "ccv",
-    "title": {
-     "pl": "Separator odmy → wspornik / kolektor",
-     "en": "Crankcase separator → bracket / manifold"
-    }
-   },
-   {
-    "id": "vacuum",
-    "title": {
-     "pl": "Zawory i przewody podciśnienia",
-     "en": "Vacuum valves and lines"
-    }
-   },
-   {
-    "id": "intake-sensors",
-    "title": {
-     "pl": "Czujniki dolotu / wiązka",
-     "en": "Intake sensors / harness"
-    }
-   }
-  ]
- },
- {
-  "id": "exhaust",
-  "title": {
-   "pl": "Wydech i emisje",
-   "en": "Exhaust and emissions"
-  },
-  "connections": [
-   {
-    "id": "exhaust-studs",
-    "title": {
-     "pl": "Szpilki wydechu → głowica",
-     "en": "Exhaust studs → head"
-    }
-   },
-   {
-    "id": "exhaust-nuts",
-    "title": {
-     "pl": "Kolektory wydechowe → głowica",
-     "en": "Exhaust manifolds → head"
-    }
-   },
-   {
-    "id": "heat-shields",
-    "title": {
-     "pl": "Osłony termiczne → kolektory",
-     "en": "Heat shields → manifolds"
-    }
-   },
-   {
-    "id": "exhaust-joint",
-    "title": {
-     "pl": "Połączenia kolektorów z dalszym wydechem",
-     "en": "Manifold-to-exhaust joints"
-    }
-   },
-   {
-    "id": "lambda",
-    "title": {
-     "pl": "Sondy lambda i mocowania przewodów",
-     "en": "Oxygen sensors and cable brackets"
-    }
-   },
-   {
-    "id": "secondary-air",
-    "title": {
-     "pl": "Zawór powietrza wtórnego / przewody",
-     "en": "Secondary air valve / pipes"
-    }
-   }
-  ]
- },
- {
-  "id": "cooling",
-  "title": {
-   "pl": "Chłodzenie",
-   "en": "Cooling"
-  },
-  "connections": [
-   {
-    "id": "water-pump",
-    "title": {
-     "pl": "Pompa wody → blok",
-     "en": "Water pump → block"
-    }
-   },
-   {
-    "id": "water-pulley",
-    "title": {
-     "pl": "Koło pasowe pompy wody",
-     "en": "Water pump pulley"
-    }
-   },
-   {
-    "id": "thermostat",
-    "title": {
-     "pl": "Obudowa termostatu → silnik",
-     "en": "Thermostat housing → engine"
-    }
-   },
-   {
-    "id": "coolant-pipes",
-    "title": {
-     "pl": "Rury płynu / wsporniki i zabezpieczenia",
-     "en": "Coolant pipes / brackets and retainers"
-    }
-   },
-   {
-    "id": "coolant-sensors",
-    "title": {
-     "pl": "Czujniki temperatury / elementy ustalające",
-     "en": "Coolant sensors / retainers"
-    }
-   },
-   {
-    "id": "fan",
-    "title": {
-     "pl": "Wentylator / sprzęgło wiskotyczne zależnie od wersji",
-     "en": "Fan / viscous coupling depending on version"
-    }
-   }
-  ]
- },
- {
-  "id": "accessory",
-  "title": {
-   "pl": "Napęd osprzętu i instalacja",
-   "en": "Accessory drive and electrical"
-  },
-  "connections": [
-   {
-    "id": "alternator",
-    "title": {
-     "pl": "Alternator → wspornik",
-     "en": "Alternator → bracket"
-    }
-   },
-   {
-    "id": "alternator-bracket",
-    "title": {
-     "pl": "Wspornik alternatora → silnik",
-     "en": "Alternator bracket → engine"
-    }
-   },
-   {
-    "id": "power-steering",
-    "title": {
-     "pl": "Pompa wspomagania / wspornik",
-     "en": "Power steering pump / bracket"
-    }
-   },
-   {
-    "id": "ac-compressor",
-    "title": {
-     "pl": "Sprężarka klimatyzacji / wspornik",
-     "en": "A/C compressor / bracket"
-    }
-   },
-   {
-    "id": "belt-tensioner",
-    "title": {
-     "pl": "Napinacz paska osprzętu",
-     "en": "Accessory belt tensioner"
-    }
-   },
-   {
-    "id": "idler",
-    "title": {
-     "pl": "Rolki prowadzące / śruby osiowe",
-     "en": "Idler pulleys / axle bolts"
-    }
-   },
-   {
-    "id": "starter",
-    "title": {
-     "pl": "Rozrusznik → obudowa skrzyni",
-     "en": "Starter → transmission housing"
-    }
-   },
-   {
-    "id": "harness",
-    "title": {
-     "pl": "Uchwyty wiązki i przewodów",
-     "en": "Harness and cable brackets"
-    }
-   },
-   {
-    "id": "grounds",
-    "title": {
-     "pl": "Przewody masowe → silnik",
-     "en": "Ground straps → engine"
-    }
-   },
-   {
-    "id": "mount-arms",
-    "title": {
-     "pl": "Łapy silnika → blok",
-     "en": "Engine mount arms → block"
-    }
-   },
-   {
-    "id": "mounts",
-    "title": {
-     "pl": "Poduszki / nakrętki mocujące",
-     "en": "Engine mounts / fastening nuts"
-    }
-   },
-   {
-    "id": "bellhousing",
-    "title": {
-     "pl": "Skrzynia biegów → silnik",
-     "en": "Transmission → engine"
-    }
-   },
-   {
-    "id": "brackets",
-    "title": {
-     "pl": "Pozostałe wsporniki i klipsy",
-     "en": "Other brackets and clips"
-    }
    }
   ]
  }

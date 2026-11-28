@@ -34,3 +34,5 @@ test('reject ambiguous OEM, missing trade state, unmapped assemblies and cross-m
  const h=fixture();h.diagrams[0].usages[0].partKey='Toyota:TEST-01';assert.equal(r.validateRelease(h).ok,false);
  const i=fixture();i.diagrams[0].usages.push(i.diagrams[0].usages[0]);assert.equal(r.validateRelease(i).ok,false);
 });
+
+test('release rejects accessory assembly in core engine scope',()=>{const f=fixture();f.profiles[0].coverage.push({assemblyId:'intake',status:'complete',evidence:'TEST'});assert.equal(r.validateRelease(f).ok,false);const g=fixture();g.diagrams[0].assemblyIds.push('alternator');assert.equal(r.validateRelease(g).ok,false);});
