@@ -16,12 +16,16 @@ jobs:
         with:
           node-version: '22'
       - name: Install dependencies
+        id: deps
         run: npm install --no-audit --no-fund
       - name: Unit tests
         run: npm test
       - name: TypeScript check
+        id: typecheck
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
         run: npm run typecheck
       - name: Production build
+        if: ${{ !cancelled() && steps.deps.outcome == 'success' && steps.typecheck.outcome == 'success' }}
         run: npm run build
 
   postgres_integration:
