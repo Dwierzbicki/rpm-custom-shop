@@ -203,7 +203,6 @@
 @media(min-width:1050px){
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-fuel,
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-priority{grid-template-columns:repeat(5,minmax(0,1fr))}
- .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section .rpm-pref-choices-pistons{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
 @media(max-width:680px){
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{grid-template-columns:minmax(0,1fr);gap:10px}
@@ -237,4 +236,12 @@
 }
 @media(max-width:760px){
  .rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-internals{grid-template-columns:minmax(0,1fr);gap:10px}
+}
+
+/* Identical layout for both internal-component groups, independent of screen width. */
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section.rpm-pref-section-02 .rpm-pref-internals .rpm-pref-choice-grid{
+ display:grid;grid-template-columns:minmax(0,1fr);gap:7px;align-content:start
+}
+.rpm-guide-page.rpm-builder .rpm-pref-studio .rpm-pref-section.rpm-pref-section-02 .rpm-pref-internals .rpm-pref-choice-grid>.rpm-pref-choice{
+ grid-column:1/-1;min-height:54px;padding:8px 12px
 }
