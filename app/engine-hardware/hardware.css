@@ -33,3 +33,5 @@
 @media(max-width:1100px){.eh-layout{grid-template-columns:minmax(190px,1fr) minmax(0,2fr)}.eh-detail{grid-column:2}}
 @media(max-width:760px){.eh-layout{grid-template-columns:minmax(0,1fr);gap:12px}.eh-detail{grid-column:auto}.eh-panel{padding:16px}.eh-hero{padding:24px 18px;margin-bottom:20px}.eh-hero h1{font-size:clamp(32px,8vw,52px)}.eh .rpm-lab-breadcrumb{flex-wrap:wrap}}
 /* No fixed viewport height, nested scroll containers or touch-action overrides. */
+
+.eh-engine-search{margin-bottom:16px}.eh-search-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.eh-search-heading h2{margin-bottom:4px}.eh-search-heading p{margin:0}.eh-engine-search label{margin-bottom:0}.eh-engine-search .eh-rows{margin-top:12px}.eh-oem{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.eh-detail .eh-oem .outline{width:auto;margin:0;min-height:36px;padding:7px 12px}.eh-oem span{font-variant-numeric:tabular-nums}
